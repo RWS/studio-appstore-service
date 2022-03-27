@@ -119,21 +119,11 @@ namespace AppStoreIntegrationService.Repository
 			{
 				searchedPluginList = FilterByCategory(searchedPluginList, filter.CategoryId);
 			}
-			if (filter.DownloadCount)
-			{
-				searchedPluginList = FilterByDownloadCount(searchedPluginList);
-			}
-			if (filter.ReviewCount)
-			{
-				searchedPluginList = FilterByReviewCount(searchedPluginList);
-			}
-			if (filter.TopRated)
-			{
-				searchedPluginList = FilterByRatings(searchedPluginList);
-			}
 
+			searchedPluginList = ApplySort(searchedPluginList, filter.SortBy);
 			return searchedPluginList;
 		}
+
 		public async Task<PluginDetails> GetPluginById(int id)
 		{
 			var pluginList = await GetAll("asc");
@@ -186,22 +176,20 @@ namespace AppStoreIntegrationService.Repository
 			return searchedPluginsResult;
 		}
 
-		private List<PluginDetails> FilterByRatings(List<PluginDetails> pluginsList)
-		{
-			return pluginsList.OrderByDescending(p => p.RatingSummary?.AverageOverallRating).ThenBy(p => p.Name).ToList();
-		}
+		private List<PluginDetails> ApplySort(List<PluginDetails> pluginsList, PluginFilter.SortType sortType)
+        {
+            return sortType switch
+            {
+                PluginFilter.SortType.TopRated => pluginsList.OrderByDescending(p => p.RatingSummary?.AverageOverallRating).ThenBy(p => p.Name).ToList(),
+                PluginFilter.SortType.DownloadCount => pluginsList.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Name).ToList(),
+                PluginFilter.SortType.ReviewCount => pluginsList.OrderByDescending(p => p.RatingSummary?.RatingsCount).ThenBy(p => p.Name).ToList(),
+                PluginFilter.SortType.LastUpdated => pluginsList.OrderByDescending(p => p.ReleaseDate).ThenBy(p => p.Name).ToList(),
+                PluginFilter.SortType.NewlyAdded => pluginsList.OrderByDescending(p => p.CreatedDate).ThenBy(p => p.Name).ToList(),
+                _ => pluginsList,
+            };
+        }
 
-		private List<PluginDetails> FilterByDownloadCount(List<PluginDetails> pluginsList)
-		{
-			return pluginsList.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Name).ToList();
-		}
-
-		private List<PluginDetails> FilterByReviewCount(List<PluginDetails> pluginsList)
-		{
-			return pluginsList.OrderByDescending(p => p.RatingSummary?.RatingsCount).ThenBy(p => p.Name).ToList();
-		}
-
-		private List<PluginDetails> FilterByQuery(List<PluginDetails> pluginsList, string query)
+        private List<PluginDetails> FilterByQuery(List<PluginDetails> pluginsList, string query)
 		{
 			var searchedPluginsResult = new List<PluginDetails>();
 			foreach (var plugin in pluginsList)
@@ -407,5 +395,5 @@ namespace AppStoreIntegrationService.Repository
 				await SaveToFile(pluginsList);
 			}
 		}
-	}
+    }
 }

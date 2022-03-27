@@ -45,9 +45,9 @@ namespace AppStoreIntegrationService.Controllers
 			if (!string.IsNullOrEmpty(filter.Price) || !string.IsNullOrEmpty(filter.Query) || 
 				!string.IsNullOrEmpty(filter.StudioVersion) || !string.IsNullOrEmpty(filter.SortOrder))
 			{
-				var plguins = PluginRepository.SearchPlugins(pluginsList,filter);
+				var plugins = PluginRepository.SearchPlugins(pluginsList,filter);
 
-				return Ok(plguins);
+				return Ok(plugins);
 			}
 			return Ok(pluginsList);
 		}
