@@ -18,6 +18,10 @@ namespace AppStoreIntegrationService.Repository
 		private const int CategoryId_TranslationMemory = 3;
 		private const int CategoryId_Terminology = 4;
 		private const int CategoryId_FileFiltersConverters = 2;
+		private const int CategoryId_Reference = 7;
+		private const int CategoryId_ProcessReferenceAndAutomation = 5;
+		private const int CategoryId_Miscellaneous = 8;
+		private const int CategoryId_ContentManagementConnectors = 20;
 
 		private readonly Timer _pluginsCacheRenewer;
 		private readonly IConfigurationSettings _configurationSettings;
@@ -144,9 +148,30 @@ namespace AppStoreIntegrationService.Repository
 			return new PluginDetails();
 		}
 
-		public Task<List<CategoryDetails>> GetCategories()
+		public async Task<List<CategoryDetails>> GetCategories()
 		{
-			return Task.Run(() => _availableCategories);
+			var httpRequestMessage = new HttpRequestMessage
+			{
+				Method = HttpMethod.Get,
+				RequestUri = new Uri($"{_configurationSettings.OosUri}/Categories")
+			};
+			var categoriesResponse = await _httpClient.SendAsync(httpRequestMessage);
+			if (!categoriesResponse.IsSuccessStatusCode || categoriesResponse.Content == null)
+            {
+				return _availableCategories;
+			}
+
+			var content = await categoriesResponse.Content?.ReadAsStringAsync();
+			var categories = JsonConvert.DeserializeObject<CategoriesResponse>(content)?.Value;
+
+			const int ParentCategoryId = 1;
+			List<int> hiddenCategories = new List<int> { 
+				CategoryId_Miscellaneous,
+				CategoryId_ContentManagementConnectors
+			};
+
+			return categories.Where(c => c.ParentCategoryID == ParentCategoryId &&
+				!hiddenCategories.Any(hc => hc == c.Id)).ToList();
 		}
 
 		private async void OnCacheExpiredCallback(object stateInfo)
@@ -281,6 +306,16 @@ namespace AppStoreIntegrationService.Repository
 				{
 					Name = ServiceResource.CategoryTranslationMemory,
 					Id = CategoryId_TranslationMemory
+				},
+				new CategoryDetails
+				{
+					Name = ServiceResource.CategoryProcessAutomationAndManagement,
+					Id = CategoryId_ProcessReferenceAndAutomation
+				},
+				new CategoryDetails
+				{
+					Name = ServiceResource.CategoryReference,
+					Id = CategoryId_Reference
 				},
 				new CategoryDetails
 				{
