@@ -45,7 +45,7 @@ stages:
 - stage: Deploy_Beta
   displayName: 'Deploy to Beta'
   dependsOn: BuildAndTest
-  condition: and(succeeded('BuildAndTest'), ne(variables['Build.Reason'], 'PullRequest'))
+  condition: succeeded('BuildAndTest')
   jobs:
   - job: Do_Deploy
     steps:
