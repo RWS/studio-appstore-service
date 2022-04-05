@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace AppStoreIntegrationService.Model
 {
 	public class PluginDetails
 	{
+		private DateTime? _createdDate;
+
 		public int Id { get; set; }
 		public string Name { get; set; }
 		public string Description { get; set; }
@@ -23,5 +26,21 @@ namespace AppStoreIntegrationService.Model
 
 		public List<CategoryDetails> Categories { get; set; }
 		public string DownloadUrl { get; set; }
+
+		public DateTime? CreatedDate
+		{
+			get
+			{
+				if (_createdDate != null)
+				{
+					return _createdDate;
+				}
+
+				_createdDate = Versions
+					.Aggregate((curMin, x) => x.CreatedDate < curMin.CreatedDate ? x : curMin)
+					.CreatedDate;
+				return _createdDate;
+			}
+		}
 	}
 }

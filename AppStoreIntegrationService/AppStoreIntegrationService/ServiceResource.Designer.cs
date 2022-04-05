@@ -88,6 +88,24 @@ namespace AppStoreIntegrationService {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Process automation &amp; management.
+        /// </summary>
+        public static string CategoryProcessAutomationAndManagement {
+            get {
+                return ResourceManager.GetString("CategoryProcessAutomationAndManagement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reference.
+        /// </summary>
+        public static string CategoryReference {
+            get {
+                return ResourceManager.GetString("CategoryReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Terminology.
         /// </summary>
         public static string CategoryTerminology {
