@@ -140,6 +140,11 @@ namespace AppStoreIntegrationService.Repository
 
 		public async Task<List<CategoryDetails>> GetCategories()
 		{
+			if (string.IsNullOrEmpty(_configurationSettings.OosUri))
+            {
+				return _availableCategories;
+            }
+
 			var httpRequestMessage = new HttpRequestMessage
 			{
 				Method = HttpMethod.Get,
