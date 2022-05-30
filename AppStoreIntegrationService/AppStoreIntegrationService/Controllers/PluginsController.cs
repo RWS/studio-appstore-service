@@ -31,22 +31,16 @@ namespace AppStoreIntegrationService.Controllers
 		public async Task<IActionResult> Get([FromQuery]PluginFilter filter)
 		{
 			List<PluginDetails> pluginsList;
-			if (string.IsNullOrEmpty(filter?.SortOrder))
-			{
-				pluginsList = await PluginRepository.GetAll("asc");
-			}
-			else
-			{
-				pluginsList = await PluginRepository.GetAll(filter.SortOrder);
-			}
-
+			string sortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;
+			pluginsList = await PluginRepository.GetAll(sortOrder);
+	
 			if (!string.IsNullOrEmpty(filter.Price) || !string.IsNullOrEmpty(filter.Query) || 
 				!string.IsNullOrEmpty(filter.StudioVersion) || !string.IsNullOrEmpty(filter.SortOrder))
 			{
-				var plguins = PluginRepository.SearchPlugins(pluginsList,filter);
-
-				return Ok(plguins);
+				var plugins = PluginRepository.SearchPlugins(pluginsList,filter);
+				return Ok(plugins);
 			}
+
 			return Ok(pluginsList);
 		}
 

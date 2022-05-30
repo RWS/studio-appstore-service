@@ -242,6 +242,8 @@ namespace AppStoreIntegrationService.Repository
 
 			foreach (var plugin in pluginsList)
 			{
+				var matchingVersions = new List<PluginVersion>();
+
 				foreach (var pluginVersion in plugin.Versions)
 				{
 					//there are some apps in the oos which are working for all studio version. So the field is "SDL Trados Studio" without any studio specific version
@@ -251,10 +253,16 @@ namespace AppStoreIntegrationService.Repository
 						                                    s.ProductName.Equals("Trados Studio"));
 					if (version != null)
 					{
-						plugins.Add(plugin);
-						break;
+						matchingVersions.Add(pluginVersion);
 					}
 				}
+
+				if (matchingVersions.Any())
+                {
+					plugin.Versions = matchingVersions;
+					plugins.Add(plugin);
+				}
+
 			}
 
 			return plugins;
