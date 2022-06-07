@@ -9,7 +9,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  azureSubscription: 'AppStoreIntegrationAPI'
+  azureSubscription: 'AppStoreServiceConnection'
   vmImageName: 'windows-latest'
 
 pool:
@@ -58,7 +58,7 @@ stages:
       - task: AzureRmWebAppDeployment@4
         inputs:
           ConnectionType: 'AzureRM'
-          azureSubscription: 'AppStoreIntegrationAPI'
+          azureSubscription: 'AppStoreServiceConnection'
           appType: 'webApp'
           WebAppName: 'studio-appstore-api-beta'
           packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
