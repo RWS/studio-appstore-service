@@ -22,14 +22,14 @@ namespace AppStoreIntegrationService.Model
 					ProductName ="SDL Trados Studio 2021",
 					ParentProductID =14,
 					MinimumStudioVersion = "16.0"
+				},
+				new SupportedProductDetails
+				{
+					Id ="38",
+					ProductName ="SDL Trados Studio 2022",
+					ParentProductID =14,
+					MinimumStudioVersion ="17.0"
 				}
-				//new SupportedProductDetails
-				//{
-				//	Id ="38",
-				//	ProductName ="SDL Trados Studio 2022",
-				//	ParentProductID =14,
-				//	MinimumStudioVersion ="17.0"
-				//}
 			};
 
 			SupportedProductsListItems = new SelectList(_supportedProductDetails, nameof(SupportedProductDetails.Id), nameof(SupportedProductDetails.ProductName));			

@@ -28,7 +28,10 @@
             }
 
             <input hidden asp-for="@Model[i].VersionName" />
-            <a onclick="ShowVersionDetails('@Model[i].Id')" style="cursor:pointer">@Model[i].VersionName</a>
+            <div>
+                <a onclick="ShowVersionDetails('@Model[i].Id')" style="cursor:pointer">@Model[i].VersionName</a>
+            </div>
+            
         }
     }
 

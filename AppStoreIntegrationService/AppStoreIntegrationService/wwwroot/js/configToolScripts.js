@@ -46,7 +46,7 @@ function AddPlugin() {
     $.ajax({
         data: pageValues,
         type: "POST",
-        url: "Add?handler=SavePlugin",
+        url: "Add?handler=SaveVersionForPlugin",
         success: function (modalPartialView) {
             console.log(modalPartialView);
             placeholderElement.html(modalPartialView);
@@ -118,6 +118,16 @@ function ShowVersionDetails(versionId) {
             console.log(partialView)
             $('#pluginVersionContainer').html(partialView);
         }
+    })
+}
+
+function SaveVersionForPlugin() {
+    var pageValues = $('#form').find('select, textarea, input').serialize();
+
+    $.ajax({
+        data: pageValues,
+        type: "POST",
+        url: "Add?handler=SaveVersionForPluginAsync"
     })
 }
 

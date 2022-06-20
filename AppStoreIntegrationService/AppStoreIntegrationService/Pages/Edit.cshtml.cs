@@ -6,6 +6,7 @@ using AppStoreIntegrationService.Controllers;
 using AppStoreIntegrationService.Model;
 using AppStoreIntegrationService.Repository;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -65,6 +66,7 @@ namespace AppStoreIntegrationService
 
         public async Task<IActionResult> OnPostSavePluginAsync()
         {
+            var selected = SelectedVersionDetails.SupportedProductsListItems.DataValueField;
             var modalDetails = new ModalMessage();
            
             if (IsValid())
@@ -172,6 +174,13 @@ namespace AppStoreIntegrationService
             if (editedVersion != null)
             {
                 var indexOfEditedVersion = Versions.IndexOf(editedVersion);
+
+                var selectedProduct = SelectedVersionDetails.SupportedProductsListItems.Items
+                    .Cast<SupportedProductDetails>()
+                    .FirstOrDefault(item => item.Id.Equals(Request.Form["SelectedProduct"]));
+
+                SelectedVersionDetails.SupportedProducts.Clear();
+                SelectedVersionDetails.SupportedProducts.Add(selectedProduct);
 
                 Versions[indexOfEditedVersion] = SelectedVersionDetails;
             }

@@ -140,7 +140,7 @@ namespace AppStoreIntegrationService.Repository
 
 		public async Task<List<CategoryDetails>> GetCategories()
 		{
-			var httpRequestMessage = new HttpRequestMessage
+			/*var httpRequestMessage = new HttpRequestMessage
 			{
 				Method = HttpMethod.Get,
 				RequestUri = new Uri($"{_configurationSettings.OosUri}/Categories")
@@ -161,7 +161,8 @@ namespace AppStoreIntegrationService.Repository
 			};
 
 			return categories.Where(c => c.ParentCategoryID == ParentCategoryId &&
-				!hiddenCategories.Any(hc => hc == c.Id)).ToList();
+				!hiddenCategories.Any(hc => hc == c.Id)).ToList();*/
+			return _availableCategories;
 		}
 
 		private async void OnCacheExpiredCallback(object stateInfo)

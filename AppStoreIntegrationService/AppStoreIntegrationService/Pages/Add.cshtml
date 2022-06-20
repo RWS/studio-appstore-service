@@ -23,7 +23,7 @@
 
             <div class="d-flex flex-row version-list-container">
                 <h6 class="col-sm-11" style="padding:0px">Versions</h6>
-                @*<a onclick="javascript: AddNewVersion('add')" class="new-version-button col-sm-1"> <i class="fas fa-plus"></i></a>*@ @*we'll add later this functioanlity*@
+                <a onclick="javascript: AddNewVersion('add')" class="new-version-button col-sm-1"> <i class="fas fa-plus"></i></a>
             </div>
             <div>
                 <partial name="_PluginVersionPartial" model="@Model.PrivatePlugin.Versions" />
@@ -68,12 +68,14 @@
 
                 <div id="pluginVersionContainer">@* used to render the selected version html *@</div>
                 <div id="modalContainer"></div>
+                <div class="row">
+                    <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary add-pluginBtn" style="margin-left: 30px; margin-bottom: 30px;">Add app</button>
+                </div>
             </form>
-            <div class="row">
-                <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary add-pluginBtn" style="margin-left: 30px">Add app</button>
-            </div>
+
         </div>
     </div>
+
 
     <script src="~/js/jquery.js"></script>
     <script src="~/js/bootstrap.js"></script>
