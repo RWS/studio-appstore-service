@@ -69,6 +69,20 @@ namespace AppStoreIntegrationService
             return Page();
         }
 
+        public async Task<IActionResult> OnPostBackToList()
+        {
+            var modalDetails = new ModalMessage
+            {
+                RequestPage = "config",
+            };
+
+            modalDetails.ModalType = ModalType.WarningMessage;
+            modalDetails.Title = "Unsaved changes!";
+            modalDetails.Message = $"Discard changes for {PrivatePlugin.Name}?";
+
+            return Partial("_ModalPartial", modalDetails);
+        }
+
         public async Task<IActionResult> OnPostSavePlugin()
         {
             var modalDetails = new ModalMessage
@@ -112,7 +126,7 @@ namespace AppStoreIntegrationService
 
             ModelState.Clear();
 
-            return Partial("_PluginVersionDetailsPartial", new VersionStructureModel(SelectedVersionDetails, 0));
+            return Partial("_PluginVersionDetailsPartial", SelectedVersionDetails);
         }
 
         public async Task<IActionResult> OnPostSaveVersionForPluginAsync()
@@ -131,6 +145,7 @@ namespace AppStoreIntegrationService
                 {
                     modalDetails.ModalType = ModalType.SuccessMessage;
                     modalDetails.Message = $"{PrivatePlugin.Name} was added.";
+                    modalDetails.Id = PrivatePlugin.Id;
                 }
             }
             else

@@ -69,7 +69,7 @@ function ShowNewPluginModal() {
     })
 }
 
-function ShowConfirmationModal(id,name) {
+function ShowConfirmationModal(id, name) {
     var placeholderElement = $('#modalContainer');
     document.getElementById("selectedPluginId").value = id;
     document.getElementById("selectedPluginName").value = name;
@@ -88,9 +88,38 @@ function ShowConfirmationModal(id,name) {
     })
 }
 
-function RedirectToList() {
-    var url = `${window.location.origin}/configtool`;
-    window.location.href = url;
+function RedirectToPlugin(id) {
+    window.location.href = `Edit?Id=${id}`;
+}
+
+function ReloadPage() {
+    location.reload();
+}
+
+function RedirectToList(page) {
+    var pageValues = "";
+    var url = "";
+    if (page == "add") {
+        url = "Add?handler=BackToList";
+        pageValues = $('#addPlugin').find('select, textarea, input').serialize();
+    }
+
+    var placeholderElement = $('#modalContainer');
+
+    $.ajax({
+        data: pageValues,
+        type: "POST",
+        url: url,
+        success: function (modalPartialView) {
+            console.log(modalPartialView);
+            placeholderElement.html(modalPartialView);
+            placeholderElement.find('.modal').modal('show');
+        }
+    })
+}
+
+function DiscardChanges() {
+    window.location.href = "ConfigTool";
 }
 
 function ShowVersionDetails(versionId) {

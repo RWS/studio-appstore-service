@@ -80,8 +80,8 @@ namespace AppStoreIntegrationService
                 if (statusCode.Equals(200))
                 {
                     modalDetails.ModalType = ModalType.SuccessMessage;
-                    modalDetails.Title = $"{PrivatePlugin.Name} was updated";
-                    modalDetails.Message = $"Do you want to continue editing {PrivatePlugin.Name}? Otherwise you'll be redirected to plugins list.";
+                    modalDetails.Title = "Success!";
+                    modalDetails.Message = $"{PrivatePlugin.Name} was updated";
                 }
             }
             else

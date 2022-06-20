@@ -354,7 +354,7 @@ namespace AppStoreIntegrationService.Repository
 					Categories = privatePlugin.Categories,
 					Versions = privatePlugin.Versions,
 					DownloadUrl = privatePlugin.DownloadUrl,
-					Id = 1,
+					Id = privatePlugin.Id,
 					Icon = new IconDetails { MediaUrl = privatePlugin.IconUrl }
 				};
 
