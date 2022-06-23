@@ -148,7 +148,7 @@
     <value>APPSTOREINTEGRATION_MAPPINGFILENAME</value>
   </data>
   <data name="OosUri" xml:space="preserve">
-    <value>https://appstore.rws.com/language/app/tutotm/998</value>
+    <value>APPSTOREINTEGRATION_OOS_URI</value>
   </data>
   <data name="PaidFor" xml:space="preserve">
     <value>Paid For</value>

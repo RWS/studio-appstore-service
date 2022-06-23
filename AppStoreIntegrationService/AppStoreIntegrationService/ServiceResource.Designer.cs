@@ -151,7 +151,7 @@ namespace AppStoreIntegrationService {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to https://appstore.rws.com/language/app/tutotm/998.
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_OOS_URI.
         /// </summary>
         public static string OosUri {
             get {

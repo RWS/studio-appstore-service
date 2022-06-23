@@ -101,3 +101,8 @@
 header {
     background-color: #2aa65b;
 }
+
+.fa-trash-alt{
+    color: red;
+    cursor:pointer;
+}

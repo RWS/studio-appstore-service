@@ -36,7 +36,6 @@ namespace AppStoreIntegrationService
 
         private PluginsController _pluginsController;
         private CategoriesController _categoriesController;
-        private int _pluginVersionContainerCounter = 0;
 
         public AddModel(PluginsController pluginsController, CategoriesController categoriesController)
         {
@@ -60,8 +59,10 @@ namespace AppStoreIntegrationService
             SelectedVersionId = SelectedVersionDetails.Id;
             SelectedVersionDetails.SetSupportedProducts();
 
-            PrivatePlugin.Versions = new List<PluginVersion>();
-            PrivatePlugin.Versions.Add(SelectedVersionDetails);
+            PrivatePlugin.Versions = new List<PluginVersion>
+            {
+                SelectedVersionDetails
+            };
             Versions.Add(SelectedVersionDetails);
 
             SetSelectedProducts(Versions, string.Empty);
@@ -74,11 +75,10 @@ namespace AppStoreIntegrationService
             var modalDetails = new ModalMessage
             {
                 RequestPage = "config",
+                ModalType = ModalType.WarningMessage,
+                Title = "Unsaved changes!",
+                Message = $"Discard changes for {PrivatePlugin.Name}?"
             };
-
-            modalDetails.ModalType = ModalType.WarningMessage;
-            modalDetails.Title = "Unsaved changes!";
-            modalDetails.Message = $"Discard changes for {PrivatePlugin.Name}?";
 
             return Partial("_ModalPartial", modalDetails);
         }
@@ -118,6 +118,7 @@ namespace AppStoreIntegrationService
                 IsPrivatePlugin = true,
                 IsNewVersion = true,
                 Id = Guid.NewGuid().ToString(),
+                Action = "Add"
             };
             SelectedVersionDetails.SetSupportedProducts();
 
@@ -160,7 +161,7 @@ namespace AppStoreIntegrationService
         public async Task<IActionResult> OnPostShowVersionDetails()
         {
             var version = Versions.FirstOrDefault(v => v.Id.Equals(SelectedVersionId));
-
+            version.Action = "Add";
             ModelState.Clear();
             return Partial("_PluginVersionDetailsPartial", version);
         }
@@ -218,26 +219,17 @@ namespace AppStoreIntegrationService
         private void SetVersionList()
         {
             var editedVersion = Versions.FirstOrDefault(v => v.Id.Equals(SelectedVersionDetails.Id));
-
+            var selectedProduct = SelectedVersionDetails.SupportedProducts.FirstOrDefault(item => item.Id.Equals(Request.Form["SelectedProduct"]));
             if (editedVersion != null)
             {
-                var indexOfEditedVersion = Versions.IndexOf(editedVersion);
-
-                var selectedProduct = SelectedVersionDetails.SupportedProductsListItems.Items
-                    .Cast<SupportedProductDetails>()
-                    .FirstOrDefault(item => item.Id.Equals(Request.Form["SelectedProduct"]));
-
-                SelectedVersionDetails.SupportedProducts.Clear();
-                SelectedVersionDetails.SupportedProducts.Add(selectedProduct);
-                Versions[indexOfEditedVersion] = SelectedVersionDetails;
+                SelectedVersionDetails.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
+                Versions[Versions.IndexOf(editedVersion)] = SelectedVersionDetails;
             }
-            //else if (SelectedVersionDetails?.SelectedProduct != null)
-            //{
-            //    //This is a new version and we need to add it to the list
-            //    SelectedVersionDetails.SupportedProducts.Clear();
-            //    SelectedVersionDetails.SupportedProducts.Add(SelectedVersionDetails.SelectedProduct);
-            //    Versions.Add(SelectedVersionDetails);
-            //}
+            else if (SelectedVersionDetails?.SelectedProduct != null)
+            {
+                SelectedVersionDetails.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
+                Versions.Add(SelectedVersionDetails);
+            }
 
             PrivatePlugin.Versions = Versions;
         }

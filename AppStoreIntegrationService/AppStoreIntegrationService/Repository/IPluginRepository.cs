@@ -13,5 +13,6 @@ namespace AppStoreIntegrationService.Repository
 		Task<List<CategoryDetails>> GetCategories();
 		Task AddPrivatePlugin(PrivatePlugin plugin);
 		Task RemovePlugin(int id);
+		Task RemoveVersionForPluging(int pluginId, string versionId);
 	}
 }

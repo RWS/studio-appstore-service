@@ -140,7 +140,12 @@ namespace AppStoreIntegrationService.Repository
 
 		public async Task<List<CategoryDetails>> GetCategories()
 		{
-			/*var httpRequestMessage = new HttpRequestMessage
+			if (string.IsNullOrEmpty(_configurationSettings.OosUri))
+            {
+				return _availableCategories;
+            }
+
+			var httpRequestMessage = new HttpRequestMessage
 			{
 				Method = HttpMethod.Get,
 				RequestUri = new Uri($"{_configurationSettings.OosUri}/Categories")
@@ -155,14 +160,13 @@ namespace AppStoreIntegrationService.Repository
 			var categories = JsonConvert.DeserializeObject<CategoriesResponse>(content)?.Value;
 
 			const int ParentCategoryId = 1;
-			List<int> hiddenCategories = new List<int> { 
+			var hiddenCategories = new List<int> { 
 				CategoryId_Miscellaneous,
 				CategoryId_ContentManagementConnectors
 			};
 
-			return categories.Where(c => c.ParentCategoryID == ParentCategoryId &&
-				!hiddenCategories.Any(hc => hc == c.Id)).ToList();*/
-			return _availableCategories;
+			return categories.Where(c => c.ParentCategoryID == ParentCategoryId && !hiddenCategories
+					         .Any(hc => hc == c.Id)).ToList();
 		}
 
 		private async void OnCacheExpiredCallback(object stateInfo)
@@ -439,5 +443,15 @@ namespace AppStoreIntegrationService.Repository
 				await SaveToFile(pluginsList);
 			}
 		}
+
+        public async Task RemoveVersionForPluging(int pluginId, string versionId)
+        {
+			var pluginList = await GetPlugins();
+			var pluginToBeUpdated = pluginList.FirstOrDefault(plugin => plugin.Id.Equals(pluginId));
+			var versionToBeRemoved = pluginToBeUpdated.Versions.FirstOrDefault(version => version.Id.Equals(versionId));
+			await BackupFile(pluginList);
+			pluginToBeUpdated.Versions.Remove(versionToBeRemoved);
+			await SaveToFile(pluginList);
+        }
     }
 }

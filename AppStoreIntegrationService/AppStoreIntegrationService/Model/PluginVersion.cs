@@ -43,6 +43,7 @@ namespace AppStoreIntegrationService.Model
 		public string VersionNumber { get; set; }
 		public List<SupportedProductDetails> SupportedProducts { get; set; }
 		public bool AppHasStudioPluginInstaller { get; set; }
+		public string Action { get; set; }
 
 
 		//TODO: Create a new object for private plugin version
@@ -62,6 +63,7 @@ namespace AppStoreIntegrationService.Model
 
 		// Properties used in Config Tool app	
 		[JsonIgnore]
+        [BindProperty]
 		public string SelectedProductId { get; set; }
 
 		[JsonIgnore]
@@ -76,8 +78,8 @@ namespace AppStoreIntegrationService.Model
 			}
 		}
 
-		[JsonIgnore]
-		[BindProperty]
+        [JsonIgnore]
+        [BindProperty]
 		public SelectList SupportedProductsListItems { get; set; }
 
 

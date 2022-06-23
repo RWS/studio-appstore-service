@@ -18,6 +18,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AppStoreIntegrationService.Controllers;
 using AppStoreIntegrationService.Data;
+using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Identity;
 
 namespace AppStoreIntegrationService

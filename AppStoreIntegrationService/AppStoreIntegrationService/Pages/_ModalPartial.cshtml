@@ -20,6 +20,11 @@
                     {
                         <button type="button" onclick="javascript: RedirectToPlugin('@Model.Id')" class="btn btn-secondary add-pluginBtn" data-dismiss="modal">Ok</button>
                     }
+                    else if (!string.IsNullOrEmpty(Model.RequestPage) && Model.RequestPage.ToLower().Equals("config"))
+                    {
+                        <button type="button" onclick="javascript: DiscardChanges()" class="btn btn-success" data-dismiss="modal">Redirect</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    }
                     else
                     {
                         <button type="button" onclick="javascript: ReloadPage()" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Ok</button>
@@ -27,18 +32,16 @@
                 }
                 @if (Model.ModalType == AppStoreIntegrationService.Model.ModalType.WarningMessage)
                 {
-                    if (!string.IsNullOrEmpty(Model.RequestPage) && Model.RequestPage.ToLower().Equals("config"))
+                    if (!string.IsNullOrEmpty(Model.RequestPage) && (Model.RequestPage.ToLower().Equals("config") || Model.RequestPage.ToLower().Equals("edit")))
                     {
                         <button type="button" onclick="javascript: DiscardChanges()" class="btn btn-danger" data-dismiss="modal">Yes</button>
                         <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Ok</button>
+                        <button type="button" onclick="javascript: ReloadPage()" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Ok</button>
                     }
-
                 }
-
             </div>
         </div>
     </div>

@@ -10,14 +10,13 @@ function AddNewVersion(page) {
         pageValues = $('#addPlugin').find('select, textarea, input').serialize();
         url = "Add?handler=AddVersion";
     }
-    console.log(pageValues);
+
     $.ajax({
         async: true,
         data: pageValues,
         type: "POST",
         url: url,
         success: function (partialView) {
-            console.log(partialView)
             $('#pluginVersionContainer').html(partialView);
         }
     })
@@ -32,7 +31,6 @@ function SavePlugin() {
         type: "POST",
         url: "Edit?handler=SavePlugin",
         success: function (modalPartialView) {
-            console.log(modalPartialView);
             placeholderElement.html(modalPartialView);
             placeholderElement.find('.modal').modal('show');
         }
@@ -48,7 +46,6 @@ function AddPlugin() {
         type: "POST",
         url: "Add?handler=SaveVersionForPlugin",
         success: function (modalPartialView) {
-            console.log(modalPartialView);
             placeholderElement.html(modalPartialView);
             placeholderElement.find('.modal').modal('show');
         }
@@ -62,7 +59,6 @@ function ShowNewPluginModal() {
         type: "GET",
         url: "ConfigTool?handler=AddPlugin",
         success: function (modalPartialView) {
-            console.log(modalPartialView);
             placeholderElement.html(modalPartialView);
             placeholderElement.find('.modal').modal('show');
         }
@@ -81,7 +77,6 @@ function ShowConfirmationModal(id, name) {
         type: "GET",
         url: "ConfigTool?handler=ShowDeleteModal",
         success: function (modalPartialView) {
-            console.log(modalPartialView);
             placeholderElement.html(modalPartialView);
             placeholderElement.find('.modal').modal('show');
         }
@@ -104,6 +99,11 @@ function RedirectToList(page) {
         pageValues = $('#addPlugin').find('select, textarea, input').serialize();
     }
 
+    if (page == "edit") {
+        url = "Edit?handler=BackToList"
+        pageValues = $('#editFile').find('select, textarea, input').serialize();
+    }
+
     var placeholderElement = $('#modalContainer');
 
     $.ajax({
@@ -111,7 +111,6 @@ function RedirectToList(page) {
         type: "POST",
         url: url,
         success: function (modalPartialView) {
-            console.log(modalPartialView);
             placeholderElement.html(modalPartialView);
             placeholderElement.find('.modal').modal('show');
         }
@@ -144,8 +143,23 @@ function ShowVersionDetails(versionId) {
         type: "POST",
         url: url,
         success: function (partialView) {
-            console.log(partialView)
             $('#pluginVersionContainer').html(partialView);
+        }
+    })
+}
+
+function DeleteVersion(id) {
+    var pageValues = $('#editFile').find('select, textarea, input').serialize();
+    var placeholderElement = $('#modalContainer');
+
+    $.ajax({
+        async: true,
+        data: pageValues,
+        type: "POST",
+        url: `Edit?handler=DeleteVersion&Id=${id}`,
+        success: function (modalPartialView) {
+            placeholderElement.html(modalPartialView);
+            placeholderElement.find('.modal').modal('show');
         }
     })
 }
