@@ -43,7 +43,6 @@ namespace AppStoreIntegrationService.Model
 		public string VersionNumber { get; set; }
 		public List<SupportedProductDetails> SupportedProducts { get; set; }
 		public bool AppHasStudioPluginInstaller { get; set; }
-		public string Action { get; set; }
 
 
 		//TODO: Create a new object for private plugin version

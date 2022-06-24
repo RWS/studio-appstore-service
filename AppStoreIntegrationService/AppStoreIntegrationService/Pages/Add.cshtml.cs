@@ -117,8 +117,7 @@ namespace AppStoreIntegrationService
                 VersionNumber = string.Empty,
                 IsPrivatePlugin = true,
                 IsNewVersion = true,
-                Id = Guid.NewGuid().ToString(),
-                Action = "Add"
+                Id = Guid.NewGuid().ToString()
             };
             SelectedVersionDetails.SetSupportedProducts();
 
@@ -161,7 +160,7 @@ namespace AppStoreIntegrationService
         public async Task<IActionResult> OnPostShowVersionDetails()
         {
             var version = Versions.FirstOrDefault(v => v.Id.Equals(SelectedVersionId));
-            version.Action = "Add";
+            version.IsNewVersion = true;
             ModelState.Clear();
             return Partial("_PluginVersionDetailsPartial", version);
         }
@@ -219,7 +218,7 @@ namespace AppStoreIntegrationService
         private void SetVersionList()
         {
             var editedVersion = Versions.FirstOrDefault(v => v.Id.Equals(SelectedVersionDetails.Id));
-            var selectedProduct = SelectedVersionDetails.SupportedProducts.FirstOrDefault(item => item.Id.Equals(Request.Form["SelectedProduct"]));
+            var selectedProduct = SelectedVersionDetails.SupportedProducts.FirstOrDefault(item => item.Id == SelectedVersionDetails.SelectedProductId);
             if (editedVersion != null)
             {
                 SelectedVersionDetails.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };

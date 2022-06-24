@@ -150,8 +150,7 @@ namespace AppStoreIntegrationService
                 VersionNumber = string.Empty,
                 IsPrivatePlugin = true,
                 IsNewVersion = true,
-                Id = Guid.NewGuid().ToString(),
-                Action = "Add"
+                Id = Guid.NewGuid().ToString()
             };
             SelectedVersionDetails.SetSupportedProducts();
 
@@ -177,7 +176,7 @@ namespace AppStoreIntegrationService
         public async Task<IActionResult> OnPostShowVersionDetails()
         {
             var version = Versions.FirstOrDefault(v => v.Id.Equals(SelectedVersionId));
-            version.Action = "Edit";
+            version.IsNewVersion = false;
             ModelState.Clear();
             return Partial("_PluginVersionDetailsPartial", version);
         }

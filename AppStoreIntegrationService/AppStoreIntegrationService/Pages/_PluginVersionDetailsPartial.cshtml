@@ -33,7 +33,7 @@
             <input asp-for="@Model.MinimumRequiredVersionOfStudio" class="form-control col-sm-7 details-input" />
             <input asp-for="@Model.DownloadUrl" class="form-control col-sm-7 details-input" />
             <input asp-for="@Model.AppHasStudioPluginInstaller" class="details-input" style="margin-top:20px;margin-left:10px" />
-            @if (Model.Action == "Add")
+            @if (Model.IsNewVersion)
             {
                 <select asp-for="@Model.SelectedProductId" asp-items="@Model.SupportedProductsListItems" class="form-control col-sm-7 details-input" style="padding:0;margin-top:20px"></select>
             }
