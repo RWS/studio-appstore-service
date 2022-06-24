@@ -92,8 +92,8 @@ function ReloadPage() {
 }
 
 function RedirectToList(page) {
-    if (page == "/configtool") {
-        location.reload();
+    if (page !== "/edit"  && page !== "/add") {
+        window.location.href = "/ConfigTool";
         return;
     }
 
