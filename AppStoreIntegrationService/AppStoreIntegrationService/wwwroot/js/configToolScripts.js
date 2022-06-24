@@ -164,13 +164,3 @@ function DeleteVersion(id) {
     })
 }
 
-function SaveVersionForPlugin() {
-    var pageValues = $('#form').find('select, textarea, input').serialize();
-
-    $.ajax({
-        data: pageValues,
-        type: "POST",
-        url: "Add?handler=SaveVersionForPluginAsync"
-    })
-}
-

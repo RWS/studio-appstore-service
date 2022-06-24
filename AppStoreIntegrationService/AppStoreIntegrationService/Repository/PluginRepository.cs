@@ -444,7 +444,7 @@ namespace AppStoreIntegrationService.Repository
 			}
 		}
 
-        public async Task RemoveVersionForPluging(int pluginId, string versionId)
+        public async Task RemovePluginVersion(int pluginId, string versionId)
         {
 			var pluginList = await GetPlugins();
 			var pluginToBeUpdated = pluginList.FirstOrDefault(plugin => plugin.Id.Equals(pluginId));

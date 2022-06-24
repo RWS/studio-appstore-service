@@ -97,7 +97,7 @@ namespace AppStoreIntegrationService
 
             if (IsValid())
             {
-                await SetEditedValues();
+                SetEditedValues();
 
                 // make a call to Plugins controller
                 var response = await _pluginsController.PutPrivatePlugin(PrivatePlugin);
@@ -139,7 +139,7 @@ namespace AppStoreIntegrationService
 
         public async Task<IActionResult> OnPostDeleteVersionAsync(string id)
         {
-            await _pluginRepository.RemoveVersionForPluging(PrivatePlugin.Id, id);
+            await _pluginRepository.RemovePluginVersion(PrivatePlugin.Id, id);
             var modalDetails = new ModalMessage
             {
                 ModalType = ModalType.WarningMessage,
@@ -177,7 +177,7 @@ namespace AppStoreIntegrationService
             return !generalDetailsContainsNull;
         }
 
-        private async Task SetEditedValues()
+        private void SetEditedValues()
         {
             SetVersionList();
             SetCategoryList();

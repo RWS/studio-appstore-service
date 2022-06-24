@@ -6,10 +6,6 @@
 		<UserSecretsId>92b052e9-ed4d-4fd9-8433-b37dc9bc939c</UserSecretsId>
 	</PropertyGroup>
 
-	<PropertyGroup>
-		<LangVersion>preview</LangVersion>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
 		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
