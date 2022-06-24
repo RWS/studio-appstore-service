@@ -87,32 +87,8 @@ namespace AppStoreIntegrationService
         private bool IsSaved(PluginDetails foundPluginDetails)
         {
             SetCategoryList();
-            var newPluginDetails = new PluginDetails
-            {
-                Name = PrivatePlugin.Name,
-                Icon = new IconDetails { MediaUrl = PrivatePlugin.IconUrl },
-                Description = PrivatePlugin.Description,
-                PaidFor = PrivatePlugin.PaidFor,
-                Categories = PrivatePlugin.Categories,
-                DownloadUrl = foundPluginDetails.DownloadUrl,
-                Versions = PrepareVersions(foundPluginDetails.Versions)
-            };
-
+            var newPluginDetails = PrivatePlugin.ConvertToPluginDetails(foundPluginDetails, SelectedVersionDetails);
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
-        }
-
-        private List<PluginVersion> PrepareVersions(List<PluginVersion> versions)
-        {
-            var newVersionList = new List<PluginVersion>(versions);
-            var existingVersion = newVersionList.FirstOrDefault(v => v.Id.Equals(SelectedVersionDetails.Id));
-            if (existingVersion != null)
-            {
-                newVersionList[newVersionList.IndexOf(existingVersion)] = SelectedVersionDetails;
-                return newVersionList;
-            }
-
-            newVersionList.Add(SelectedVersionDetails);
-            return newVersionList;
         }
 
         public async Task<IActionResult> OnPostSavePluginAsync()
