@@ -12,8 +12,11 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
+            <a onclick="javascript: RedirectToList('@ViewContext.ActionDescriptor.DisplayName.ToLower()')" style="cursor: pointer" class="text-white nav-link">Plugins List</a>
+        </li>
+        <li class="nav-item">
             <a id="manage" class="nav-link text-white" asp-area="Identity"
-               asp-page="/Account/Manage/Index" title="Manage">
+           asp-page="/Account/Manage/Index" title="Manage">
                 Hello @UserManager.GetUserName(User)!
             </a>
         </li>
@@ -22,6 +25,7 @@
                 <button id="logout" type="submit" class="nav-link btn btn-link text-white">Sign out</button>
             </form>
         </li>
+
     }
     else
     {

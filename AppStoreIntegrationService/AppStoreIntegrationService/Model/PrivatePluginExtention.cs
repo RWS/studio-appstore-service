@@ -21,6 +21,11 @@ namespace AppStoreIntegrationService.Model
 
         private static List<PluginVersion> PrepareVersions(List<PluginVersion> versions, PluginVersion selectedVersionDetails)
         {
+            if (selectedVersionDetails.VersionName == null)
+            {
+                return versions;
+            }
+
             var newVersionList = new List<PluginVersion>(versions);
             var existingVersion = newVersionList.FirstOrDefault(v => v.Id.Equals(selectedVersionDetails.Id));
             if (existingVersion != null)

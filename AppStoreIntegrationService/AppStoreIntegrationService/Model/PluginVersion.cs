@@ -83,6 +83,7 @@ namespace AppStoreIntegrationService.Model
 
 
 		[JsonIgnore]
+        [BindProperty]
 		public string VersionName { get; set; }
 		[JsonIgnore]
 		public bool IsNewVersion { get; set; }

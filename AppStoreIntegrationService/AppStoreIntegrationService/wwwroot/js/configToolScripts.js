@@ -92,14 +92,19 @@ function ReloadPage() {
 }
 
 function RedirectToList(page) {
+    if (page == "/configtool") {
+        location.reload();
+        return;
+    }
+
     var pageValues = "";
     var url = "";
-    if (page == "add") {
+    if (page == "/add") {
         url = "Add?handler=BackToList";
         pageValues = $('#addPlugin').find('select, textarea, input').serialize();
     }
 
-    if (page == "edit") {
+    if (page == "/edit") {
         url = "Edit?handler=BackToList"
         pageValues = $('#editFile').find('select, textarea, input').serialize();
     }
