@@ -15,7 +15,7 @@
             <label class="details-version-lbl" asp-for="@Model.SelectedProductId">Product <span class="field-validation-error">*</span></label>
         </div>
         <div class="details-input-container">
-            <input hidden asp-for="@Model.SelectedProductId" />
+            @*<input hidden asp-for="@Model.SelectedProductId" />*@
             <input hidden asp-for="@Model.TechnicalRequirements" />
             <input hidden asp-for="@Model.SelectedProduct.Id" />
             <input hidden asp-for="@Model.SelectedProduct.ProductName" />
@@ -35,7 +35,7 @@
             <input asp-for="@Model.AppHasStudioPluginInstaller" class="details-input" style="margin-top:20px;margin-left:10px" />
             @if (Model.Action == "Add")
             {
-                <select asp-for="@Model.SelectedProduct" asp-items="@Model.SupportedProductsListItems" class="form-control col-sm-7 details-input" style="padding:0;margin-top:20px"></select>
+                <select asp-for="@Model.SelectedProductId" asp-items="@Model.SupportedProductsListItems" class="form-control col-sm-7 details-input" style="padding:0;margin-top:20px"></select>
             }
             else
             {

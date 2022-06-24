@@ -238,7 +238,7 @@ namespace AppStoreIntegrationService
             }
             else if (SelectedVersionDetails?.SelectedProduct != null)
             {
-                var selectedProduct = SelectedVersionDetails.SupportedProducts.FirstOrDefault(item => item.Id.Equals(Request.Form["SelectedProduct"]));
+                var selectedProduct = SelectedVersionDetails.SupportedProducts.FirstOrDefault(item => item.Id == SelectedVersionDetails.SelectedProductId);
                 SelectedVersionDetails.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
                 Versions.Add(SelectedVersionDetails);
             }
