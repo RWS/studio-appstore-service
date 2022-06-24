@@ -26,7 +26,7 @@ namespace AppStoreIntegrationService.Model
 				new SupportedProductDetails
 				{
 					Id ="38",
-					ProductName ="SDL Trados Studio 2022",
+					ProductName ="Trados Studio 2022",
 					ParentProductID =14,
 					MinimumStudioVersion ="17.0"
 				}
