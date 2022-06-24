@@ -272,6 +272,7 @@ namespace AppStoreIntegrationService.Repository
 					if (version != null)
 					{
 						matchingVersions.Add(pluginVersion);
+						plugin.DownloadUrl = pluginVersion.DownloadUrl;
 					}
 				}
 
