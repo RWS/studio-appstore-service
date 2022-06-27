@@ -37,6 +37,10 @@
                         <button type="button" onclick="javascript: DiscardChanges()" class="btn btn-danger" data-dismiss="modal">Yes</button>
                         <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
                     }
+                    else if (!string.IsNullOrEmpty(Model.RequestPage) && (Model.RequestPage.ToLower().Equals("add")))
+                    {
+                        <button type="button" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Ok</button>
+                    }
                     else
                     {
                         <button type="button" onclick="javascript: ReloadPage()" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Ok</button>

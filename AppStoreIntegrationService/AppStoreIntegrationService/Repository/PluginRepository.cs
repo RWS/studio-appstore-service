@@ -382,6 +382,7 @@ namespace AppStoreIntegrationService.Repository
 						if (lastPlugin != null)
 						{
 							newPlugin.Id = lastPlugin.Id++;
+							privatePlugin.Id = newPlugin.Id;
 						}
 						pluginsList.Add(newPlugin);
 					}

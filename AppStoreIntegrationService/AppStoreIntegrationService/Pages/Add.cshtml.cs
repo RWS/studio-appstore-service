@@ -139,12 +139,19 @@ namespace AppStoreIntegrationService
             {
                 await SetValues();
                 var response = await _pluginsController.PostAddPlugin(PrivatePlugin);
-                var statusCode = (response as StatusCodeResult).StatusCode;
-
-                if (statusCode.Equals(200))
+                if (response is StatusCodeResult statusCode)
                 {
-                    modalDetails.ModalType = ModalType.SuccessMessage;
-                    modalDetails.Message = $"{PrivatePlugin.Name} was added.";
+                    if (statusCode.StatusCode.Equals(200))
+                    {
+                        modalDetails.ModalType = ModalType.SuccessMessage;
+                        modalDetails.Message = $"{PrivatePlugin.Name} was added.";
+                        modalDetails.Id = PrivatePlugin.Id;
+                    }
+                }
+                else
+                {
+                    modalDetails.ModalType = ModalType.WarningMessage;
+                    modalDetails.Message = $"{PrivatePlugin.Name} already exists! Try other name.";
                     modalDetails.Id = PrivatePlugin.Id;
                 }
             }

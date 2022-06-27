@@ -9,6 +9,7 @@ namespace AppStoreIntegrationService.Model
         {
             return new PluginDetails
             {
+                Id = privateDetails.Id,
                 Name = privateDetails.Name,
                 Icon = new IconDetails { MediaUrl = privateDetails.IconUrl },
                 Description = privateDetails.Description,
