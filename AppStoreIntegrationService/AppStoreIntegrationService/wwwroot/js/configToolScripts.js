@@ -1,15 +1,7 @@
 ﻿
-function AddNewVersion(page) {
-    var pageValues = "";
-    var url = "";
-    if (page == "edit") {
-        pageValues = $('#editFile').find('select, textarea, input').serialize();
-        url = "Edit?handler=AddVersion";
-    }
-    if (page == "add") {
-        pageValues = $('#addPlugin').find('select, textarea, input').serialize();
-        url = "Add?handler=AddVersion";
-    }
+function AddNewVersion() {
+    var pageValues = $('#editFile').find('select, textarea, input').serialize();
+    var url = "Edit?handler=AddVersion";
 
     $.ajax({
         async: true,

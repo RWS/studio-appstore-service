@@ -142,7 +142,7 @@ namespace AppStoreIntegrationService
             await _pluginRepository.RemovePluginVersion(PrivatePlugin.Id, id);
             var modalDetails = new ModalMessage
             {
-                ModalType = ModalType.WarningMessage,
+                ModalType = ModalType.SuccessMessage,
                 Title = "Version removed!",
                 Message = $"Clik \"Ok\" to continue!"
             };
@@ -166,7 +166,7 @@ namespace AppStoreIntegrationService
         {
             var generalDetailsContainsNull = AnyNull(PrivatePlugin.Name, PrivatePlugin.Description, PrivatePlugin.IconUrl);
 
-            if (!string.IsNullOrEmpty(SelectedVersionId) && SelectedVersionDetails != null)
+            if (SelectedVersionDetails != null)
             {
                 var detailsContainsNull = AnyNull(SelectedVersionDetails.VersionNumber, SelectedVersionDetails.MinimumRequiredVersionOfStudio, SelectedVersionDetails.DownloadUrl);
                 if (generalDetailsContainsNull || detailsContainsNull)
