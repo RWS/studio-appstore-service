@@ -166,7 +166,7 @@ namespace AppStoreIntegrationService
         {
             var generalDetailsContainsNull = AnyNull(PrivatePlugin.Name, PrivatePlugin.Description, PrivatePlugin.IconUrl);
 
-            if (SelectedVersionDetails != null)
+            if (SelectedVersionDetails.Id != null)
             {
                 var detailsContainsNull = AnyNull(SelectedVersionDetails.VersionNumber, SelectedVersionDetails.MinimumRequiredVersionOfStudio, SelectedVersionDetails.DownloadUrl);
                 if (generalDetailsContainsNull || detailsContainsNull)
@@ -254,6 +254,7 @@ namespace AppStoreIntegrationService
             PrivatePlugin = new PrivatePlugin
             {
                 Id = pluginDetails.Id,
+                DeveloperName = pluginDetails.Developer.DeveloperName,
                 Description = pluginDetails.Description,
                 Name = pluginDetails.Name,
                 Categories = pluginDetails.Categories,
