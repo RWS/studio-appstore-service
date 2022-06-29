@@ -1,5 +1,4 @@
-﻿
-function AddNewVersion() {
+﻿function AddNewVersion() {
     var pageValues = $('#editFile').find('select, textarea, input').serialize();
     var url = "Edit?handler=AddVersion";
 
@@ -84,7 +83,7 @@ function ReloadPage() {
 }
 
 function RedirectToList(page) {
-    if (page !== "/edit"  && page !== "/add") {
+    if (page !== "/edit" && page !== "/add") {
         window.location.href = "/ConfigTool";
         return;
     }
@@ -160,4 +159,32 @@ function DeleteVersion(id) {
         }
     })
 }
+//settings page fields toggle
+var fields = document.querySelectorAll(".settings-field");
+
+for (field of fields) {
+    field.addEventListener('click', function () {
+        var details = this.parentElement.lastElementChild;
+        details.classList.toggle('d-none');
+        event.stopImmediatePropagation();
+    })
+}
+
+function ImportFile() {
+    var fileData = new FormData(document.getElementById("form"));
+    var placeholderElement = $('#modalContainer');
+
+    $.ajax({
+        data: fileData,
+        type: "POST",
+        contentType: false,
+        processData: false,
+        url: "Settings?handler=ImportFile",
+        success: function (modalPartialView) {
+            placeholderElement.html(modalPartialView);
+            placeholderElement.find('.modal').modal('show');
+        }
+    });
+}
+
 

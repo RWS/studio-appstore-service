@@ -79,6 +79,7 @@ namespace AppStoreIntegrationService
 	        services.AddSingleton<IAzureRepository,AzureRepository>();
 	        services.AddSingleton<INamesRepository,NamesRepository>();
 	        services.AddSingleton<IConfigurationSettings>(configurationSettings);
+	        services.AddSingleton(Configuration);
 
 	        services.AddAuthorization(options =>
 	        {
