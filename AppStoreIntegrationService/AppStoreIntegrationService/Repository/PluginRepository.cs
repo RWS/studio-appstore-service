@@ -335,7 +335,7 @@ namespace AppStoreIntegrationService.Repository
 				if (pluginToBeUpdated != null)
 				{
 					pluginToBeUpdated.Name = privatePlugin.Name;
-					pluginToBeUpdated.Developer = new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName };
+					pluginToBeUpdated.Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName };
 					pluginToBeUpdated.Description = privatePlugin.Description;
 					pluginToBeUpdated.Icon.MediaUrl = privatePlugin.IconUrl;
 					pluginToBeUpdated.PaidFor = privatePlugin.PaidFor;
@@ -354,7 +354,7 @@ namespace AppStoreIntegrationService.Repository
 				var newPlugin = new PluginDetails
 				{
 					Name = privatePlugin.Name,
-					Developer = new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName },
+					Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName },
 					Description = privatePlugin.Description,
 					PaidFor = privatePlugin.PaidFor,
 					Categories = privatePlugin.Categories,
