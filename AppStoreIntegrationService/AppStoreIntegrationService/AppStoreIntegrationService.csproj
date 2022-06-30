@@ -46,10 +46,4 @@
 		<WCFMetadata Include="Connected Services" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Content Update="wwwroot\Files\ExportPluginsConfig.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	</ItemGroup>
-
 </Project>

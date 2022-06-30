@@ -1,7 +1,6 @@
 using AppStoreIntegrationService.Model;
 using AppStoreIntegrationService.Repository;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -18,13 +17,11 @@ namespace AppStoreIntegrationService.Pages
     {
         private readonly IConfiguration _configuration;
         private readonly IPluginRepository _repository;
-        private readonly IWebHostEnvironment _env;
 
-        public Settings(IConfiguration configuration, IPluginRepository repository, IWebHostEnvironment env)
+        public Settings(IConfiguration configuration, IPluginRepository repository)
         {
             _configuration = configuration;
             _repository = repository;
-            _env = env;
         }
 
         [BindProperty]
@@ -69,10 +66,10 @@ namespace AppStoreIntegrationService.Pages
         public async Task<IActionResult> OnPostSaveSiteName()
         {
             var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-            var oldName = _configuration["SiteName"];
-            var newContent = System.IO.File.ReadAllText(appSettingsPath).Replace($"\"SiteName\": \"{oldName}\"", $"\"SiteName\": \"{SiteName}\"");
-            await System.IO.File.WriteAllTextAsync(appSettingsPath, newContent);
-            _configuration["SiteName"] = SiteName;
+            var appSettingsContent = JsonConvert.DeserializeObject<dynamic>(await System.IO.File.ReadAllTextAsync(appSettingsPath));
+            appSettingsContent.SiteName = SiteName;
+            await System.IO.File.WriteAllTextAsync(appSettingsPath, JsonConvert.SerializeObject(appSettingsContent));
+            
             return Redirect("Settings");
         }
     }
