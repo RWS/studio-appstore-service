@@ -171,11 +171,11 @@ for (field of fields) {
 }
 
 function ImportFile() {
-    var fileData = new FormData(document.getElementById("form"));
+    var formData = new FormData(document.getElementById("import-file-form"));
     var placeholderElement = $('#modalContainer');
 
     $.ajax({
-        data: fileData,
+        data: formData,
         type: "POST",
         contentType: false,
         processData: false,

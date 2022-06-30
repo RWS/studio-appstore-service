@@ -74,7 +74,7 @@ namespace AppStoreIntegrationService
 	        services.AddTransient<CategoriesController, CategoriesController>();
 	        services.AddTransient<NamesController, NamesController>();
 
-	        services.AddHttpContextAccessor();
+			services.AddHttpContextAccessor();
 
 	        services.AddSingleton<IAzureRepository,AzureRepository>();
 	        services.AddSingleton<INamesRepository,NamesRepository>();
