@@ -17,7 +17,7 @@
         @if (User.IsInRole("Administrator"))
         {
             <li class="nav-item">
-                <a onclick="javascript: RedirectToList('@ViewContext.ActionDescriptor.DisplayName.ToLower()')" style="cursor: pointer" class="text-white nav-link">Settings</a>
+                <a asp-page="/Settings" style="cursor: pointer" class="text-white nav-link">Settings</a>
             </li>
         }
 

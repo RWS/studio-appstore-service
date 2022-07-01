@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "Settings",
+      "launchUrl": "plugins",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -20,7 +20,7 @@
     "AppStoreIntegrationService": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "Settings",
+      "launchUrl": "plugins",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
