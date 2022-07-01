@@ -12,7 +12,7 @@ namespace AppStoreIntegrationService.Model
                 Id = privateDetails.Id,
                 Name = privateDetails.Name,
                 Icon = new IconDetails { MediaUrl = privateDetails.IconUrl },
-                Developer = new DeveloperDetails { DeveloperName = privateDetails.DeveloperName },
+                Developer = string.IsNullOrEmpty(privateDetails.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privateDetails.DeveloperName },
                 Description = privateDetails.Description,
                 PaidFor = privateDetails.PaidFor,
                 Categories = privateDetails.Categories,

@@ -336,37 +336,37 @@ namespace AppStoreIntegrationService.Repository
 
                 var pluginToBeUpdated = pluginsList.FirstOrDefault(p => p.Id.Equals(privatePlugin.Id));
 
-                if (pluginToBeUpdated != null)
-                {
-                    pluginToBeUpdated.Name = privatePlugin.Name;
-                    pluginToBeUpdated.Developer = new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName };
-                    pluginToBeUpdated.Description = privatePlugin.Description;
-                    pluginToBeUpdated.Icon.MediaUrl = privatePlugin.IconUrl;
-                    pluginToBeUpdated.PaidFor = privatePlugin.PaidFor;
-                    pluginToBeUpdated.Categories = privatePlugin.Categories;
-                    pluginToBeUpdated.Versions = privatePlugin.Versions;
-                    pluginToBeUpdated.DownloadUrl = privatePlugin.DownloadUrl;
-                }
-                await SaveToFile(pluginsList);
-            }
-        }
+				if (pluginToBeUpdated != null)
+				{
+					pluginToBeUpdated.Name = privatePlugin.Name;
+					pluginToBeUpdated.Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName };
+					pluginToBeUpdated.Description = privatePlugin.Description;
+					pluginToBeUpdated.Icon.MediaUrl = privatePlugin.IconUrl;
+					pluginToBeUpdated.PaidFor = privatePlugin.PaidFor;
+					pluginToBeUpdated.Categories = privatePlugin.Categories;
+					pluginToBeUpdated.Versions = privatePlugin.Versions;
+					pluginToBeUpdated.DownloadUrl = privatePlugin.DownloadUrl;
+				}
+				await SaveToFile(pluginsList);
+			}
+		}
 
-        public async Task AddPrivatePlugin(PrivatePlugin privatePlugin)
-        {
-            if (privatePlugin != null)
-            {
-                var newPlugin = new PluginDetails
-                {
-                    Name = privatePlugin.Name,
-                    Developer = new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName },
-                    Description = privatePlugin.Description,
-                    PaidFor = privatePlugin.PaidFor,
-                    Categories = privatePlugin.Categories,
-                    Versions = privatePlugin.Versions,
-                    DownloadUrl = privatePlugin.DownloadUrl,
-                    Id = privatePlugin.Id,
-                    Icon = new IconDetails { MediaUrl = privatePlugin.IconUrl }
-                };
+		public async Task AddPrivatePlugin(PrivatePlugin privatePlugin)
+		{
+			if (privatePlugin != null)
+			{
+				var newPlugin = new PluginDetails
+				{
+					Name = privatePlugin.Name,
+					Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName },
+					Description = privatePlugin.Description,
+					PaidFor = privatePlugin.PaidFor,
+					Categories = privatePlugin.Categories,
+					Versions = privatePlugin.Versions,
+					DownloadUrl = privatePlugin.DownloadUrl,
+					Id = privatePlugin.Id,
+					Icon = new IconDetails { MediaUrl = privatePlugin.IconUrl }
+				};
 
                 var pluginsList = await GetPlugins();
 
