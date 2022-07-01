@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace AppStoreIntegrationService.Pages
 {
-    [Authorize]
+    [Authorize(Roles = "Administrator")]
     public class Settings : PageModel
     {
         private readonly IConfiguration _configuration;
@@ -28,7 +28,7 @@ namespace AppStoreIntegrationService.Pages
         public string SiteName { get; set; }
 
         [BindProperty]
-        public IFormFile SelectedFile { get; set; }
+        public IFormFile ImportedFile { get; set; }
 
         public async Task<IActionResult> OnGet()
         {
@@ -38,9 +38,8 @@ namespace AppStoreIntegrationService.Pages
         public async Task<IActionResult> OnPostImportFile()
         {
             var modalDetails = new ModalMessage();
-            var response = await _repository.ImportFromFile(SelectedFile);
-            var statusCode = (response as StatusCodeResult).StatusCode;
-            if (statusCode.Equals(200))
+            var success = await _repository.TryImportPluginsFromFile(ImportedFile);
+            if (success)
             {
                 modalDetails.RequestPage = "config";
                 modalDetails.ModalType = ModalType.SuccessMessage;
@@ -59,17 +58,21 @@ namespace AppStoreIntegrationService.Pages
         
         public async Task<FileResult> OnGetExportPlugins()
         {
-            var pluginsAsText = JsonConvert.SerializeObject(new PluginsResponse { Value = await _repository.GetAll("asc") });
-            return File(Encoding.UTF8.GetBytes(pluginsAsText), "application/octet-stream", "ExportPluginsConfig.json");
+            var response = new PluginsResponse { Value = await _repository.GetAll("asc") };
+            var jsonString = JsonConvert.SerializeObject(response);
+            var stream = Encoding.UTF8.GetBytes(jsonString);
+            return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
         }
 
         public async Task<IActionResult> OnPostSaveSiteName()
         {
-            var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-            var appSettingsContent = JsonConvert.DeserializeObject<dynamic>(await System.IO.File.ReadAllTextAsync(appSettingsPath));
-            appSettingsContent.SiteName = SiteName;
-            await System.IO.File.WriteAllTextAsync(appSettingsPath, JsonConvert.SerializeObject(appSettingsContent));
-            
+            var settingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+            var settingsAsText = await System.IO.File.ReadAllTextAsync(settingsPath);
+            var settingsAsObject = JsonConvert.DeserializeObject<dynamic>(settingsAsText);
+            settingsAsObject.SiteName = SiteName;
+            await System.IO.File.WriteAllTextAsync(settingsPath, JsonConvert.SerializeObject(settingsAsObject));
+            _configuration["SiteName"] = SiteName;
+
             return Redirect("Settings");
         }
     }

@@ -460,7 +460,7 @@ namespace AppStoreIntegrationService.Repository
             await SaveToFile(pluginList);
         }
 
-        public async Task<IActionResult> ImportFromFile(IFormFile file)
+        public async Task<bool> TryImportPluginsFromFile(IFormFile file)
         {
             var result = new StringBuilder();
             using (var reader = new StreamReader(file.OpenReadStream()))
@@ -477,15 +477,15 @@ namespace AppStoreIntegrationService.Repository
                 {
                     var response = JsonConvert.DeserializeObject<PluginsResponse>(result.ToString());
                     await SaveToFile(response.Value);
-                    return new StatusCodeResult(200);
+                    return true;
                 }
                 catch (JsonException)
                 {
-                    return new StatusCodeResult(0);
+                    return false;
                 }
             }
 
-            return new StatusCodeResult(0);
+            return false;
         }
     }
 }

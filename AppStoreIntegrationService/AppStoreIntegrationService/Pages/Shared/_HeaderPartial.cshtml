@@ -1,3 +1,13 @@
 ﻿@using Microsoft.Extensions.Configuration;
 @inject IConfiguration configuration;
-<h2 style="color:white">PA Admin - @configuration["SiteName"]</h2>
+@{
+    var siteName = configuration["SiteName"];
+}
+@if (string.IsNullOrEmpty(siteName))
+{
+    <h2 style="color:white">PA Admin</h2>
+}
+else
+{
+    <h2 style="color:white">PA Admin - @configuration["SiteName"]</h2>
+}

@@ -163,9 +163,11 @@ function DeleteVersion(id) {
 var fields = document.querySelectorAll(".settings-field");
 
 for (field of fields) {
-    field.addEventListener('click', function () {
+    field.addEventListener('click', function (event) {
         var details = this.parentElement.lastElementChild;
+        var caret = this.lastElementChild;
         details.classList.toggle('d-none');
+        caret.classList.toggle('fa-rotate-180');
         event.stopImmediatePropagation();
     })
 }
