@@ -6,50 +6,63 @@
 }
 <head>
     <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
+    <style>
+        .nav-pills .nav-link.active {
+            color: black;
+            background-color: #28b059;
+        }
+
+        .option:focus {
+            background-color: white;
+        }
+
+        .nav-item {
+            cursor: pointer;
+        }
+
+        .nav-link:hover{
+            background-color: #28b059;
+        }
+
+    </style>
 </head>
 
-<div class="row d-flex flex-column">
-    @*<h2>Settings</h2>
-    <h4>Change site settings</h4>
-    <hr class="w-100">
+<h2>Settings</h2>
+<h4>Change site settings</h4>
+<hr class="w-100">
+<div class="row d-flex">
     <div class="col-3">
-    <ul class="nav nav-pills flex-column">
-    <li class="nav-item"><a class="nav-link option" id="profile" asp-page="./Index">Profile</a></li>
-    <li class="nav-item"><a class="nav-link option" id="change-password" asp-page="./ChangePassword">Password</a></li>
-    <li class="nav-item"><a class="nav-link option" asp-page="../Register">Add another user</a></li>
-    </ul>
-    </div>*@
-    <div class="border rounded p-3 mb-3">
-        <h5 class="settings-field" style="cursor: pointer"><i class="fa fa-caret-down mr-2"></i>Set site name</h5>
-        <div class="d-none settings-field-details">
-            <form method="post" class="mt-3">
-                <input asp-for="@Model.SiteName" value="@Model.SiteName" class="form-control mb-2" />
-                <button type="submit" asp-page-handler="SaveSiteName" class="btn btn-success">Set</button>
-            </form>
-        </div>
+        <ul class="nav nav-pills flex-column" id="settings-navbar">
+            <li class="nav-item"><a class="nav-link option">Set site name</a></li>
+            <li class="nav-item"><a class="nav-link option">Import plugins</a></li>
+            <li class="nav-item"><a class="nav-link option">Export plugins</a></li>
+        </ul>
     </div>
-
-    <div class="border rounded p-3 mb-3">
-        <h5 class="settings-field" style="cursor: pointer"><i class="fa fa-caret-down mr-2"></i>Import Plugins configuration</h5>
-        <div class="d-none settings-field-details">
-            <form method="post" enctype="multipart/form-data" id="import-file-form" onsubmit="return false;">
+    <div class="col-md-6" id="settings-details-container">
+        <div class="d-none settings-details">
+            <h5>Set site name</h5>
+            <div>
+                <form method="post" class="mt-3">
+                    <input asp-for="@Model.SiteName" value="@Model.SiteName" class="form-control mb-2" />
+                    <button type="submit" asp-page-handler="SaveSiteName" class="btn btn-success">Set</button>
+                </form>
+            </div>
+        </div>
+        <div class="d-none settings-details">
+            <h5>Import plugins</h5>
+            <form method="post" class="mt-3" enctype="multipart/form-data" id="import-file-form" onsubmit="return false;">
                 <input asp-for="@Model.ImportedFile" type="file" class="form-control mb-2" />
                 <button type="button" onclick="javascript: ImportFile()" class="btn btn-outline-secondary">Import</button>
                 <div id="modalContainer"></div>
             </form>
         </div>
-    </div>
-
-    <div class="border rounded p-3">
-        <h5 class="settings-field" style="cursor: pointer"><i class="fa fa-caret-down mr-2"></i>Export Plugins configuration</h5>
-        <div class="d-none settings-field-details">
-            <form method="post">
+        <div class="d-none settings-details">
+            <h5>Export plugins</h5>
+            <form method="post" class="mt-3">
                 <input type="submit" class="btn btn-outline-secondary" asp-page-handler="ExportPlugins" value="Export" />
             </form>
         </div>
     </div>
-
-
 </div>
 
 <script src="~/js/configToolScripts.js"></script>

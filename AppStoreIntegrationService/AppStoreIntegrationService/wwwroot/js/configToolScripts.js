@@ -160,17 +160,22 @@ function DeleteVersion(id) {
     })
 }
 //settings page fields toggle
-var fields = document.querySelectorAll(".settings-field");
+var navLinks = document.querySelectorAll('#settings-navbar .nav-link');
+var settings = document.querySelectorAll('#settings-details-container .settings-details');
 
-for (field of fields) {
-    field.addEventListener('click', function (event) {
-        var details = this.parentElement.lastElementChild;
-        var caret = this.lastElementChild;
-        details.classList.toggle('d-none');
-        caret.classList.toggle('fa-rotate-180');
+for (let i = 0; i < navLinks.length; i++) {
+    navLinks[i].addEventListener('click', function (event) {
+        for (let j = 0; j < navLinks.length; j++) {
+            settings[j].classList.add('d-none')
+            navLinks[j].classList.remove('active')
+        }
+
+        this.classList.toggle('active');
+        settings[i].classList.toggle('d-none');
         event.stopImmediatePropagation();
     })
-}
+};
+
 
 function ImportFile() {
     var formData = new FormData(document.getElementById("import-file-form"));
