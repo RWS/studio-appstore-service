@@ -1,7 +1,8 @@
-﻿@using Microsoft.Extensions.Configuration;
-@inject IConfiguration configuration;
+﻿@using Microsoft.Extensions.Options;
+@using AppStoreIntegrationService.Model;
+@inject IOptions<SiteSettings> options;
 @{
-    var siteName = configuration["SiteName"];
+    var siteName = options.Value.Name;
 }
 @if (string.IsNullOrEmpty(siteName))
 {
@@ -9,5 +10,5 @@
 }
 else
 {
-    <h2 style="color:white">PA Admin - @configuration["SiteName"]</h2>
+    <h2 style="color:white">PA Admin - @siteName</h2>
 }

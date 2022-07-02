@@ -4,24 +4,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AppStoreIntegrationService.Pages
 {
-    [Authorize(Roles = "Administrator")]
+    //[Authorize(Roles = "Administrator")]
     public class Settings : PageModel
     {
-        private readonly IConfiguration _configuration;
         private readonly IPluginRepository _repository;
+        private readonly SiteSettings _options;
 
-        public Settings(IConfiguration configuration, IPluginRepository repository)
+        public Settings(IPluginRepository repository, IOptions<SiteSettings> options)
         {
-            _configuration = configuration;
             _repository = repository;
+            _options = options.Value;
         }
 
         [BindProperty]
@@ -30,9 +29,18 @@ namespace AppStoreIntegrationService.Pages
         [BindProperty]
         public IFormFile ImportedFile { get; set; }
 
-        public async Task<IActionResult> OnGet()
+        public IActionResult OnGet()
         {
+            SiteName = _options.Name;
             return Page();
+        }
+
+        public async Task<IActionResult> OnPostExportPlugins()
+        {
+            var response = new PluginsResponse { Value = await _repository.GetAll("asc") };
+            var jsonString = JsonConvert.SerializeObject(response);
+            var stream = Encoding.UTF8.GetBytes(jsonString);
+            return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
         }
 
         public async Task<IActionResult> OnPostImportFile()
@@ -55,24 +63,10 @@ namespace AppStoreIntegrationService.Pages
 
             return Partial("_ModalPartial", modalDetails);
         }
-        
-        public async Task<FileResult> OnGetExportPlugins()
-        {
-            var response = new PluginsResponse { Value = await _repository.GetAll("asc") };
-            var jsonString = JsonConvert.SerializeObject(response);
-            var stream = Encoding.UTF8.GetBytes(jsonString);
-            return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
-        }
 
         public async Task<IActionResult> OnPostSaveSiteName()
         {
-            var settingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-            var settingsAsText = await System.IO.File.ReadAllTextAsync(settingsPath);
-            var settingsAsObject = JsonConvert.DeserializeObject<dynamic>(settingsAsText);
-            settingsAsObject.SiteName = SiteName;
-            await System.IO.File.WriteAllTextAsync(settingsPath, JsonConvert.SerializeObject(settingsAsObject));
-            _configuration["SiteName"] = SiteName;
-
+            _options.Name = SiteName;
             return Redirect("Settings");
         }
     }
