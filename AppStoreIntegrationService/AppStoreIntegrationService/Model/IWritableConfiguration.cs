@@ -2,7 +2,7 @@
 
 namespace AppStoreIntegrationService.Model
 {
-    public interface ICustomConfiguration : IConfiguration
+    public interface IWritableConfiguration : IConfiguration
     {
         void SetSection(string key, string value);
     }

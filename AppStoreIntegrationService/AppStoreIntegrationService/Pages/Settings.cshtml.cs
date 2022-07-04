@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace AppStoreIntegrationService.Pages
 {
-    //[Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator")]
     public class Settings : PageModel
     {
         private readonly IPluginRepository _repository;
-        private readonly ICustomConfiguration _configuration;
+        private readonly IWritableConfiguration _configuration;
 
-        public Settings(IPluginRepository repository, ICustomConfiguration configuration)
+        public Settings(IPluginRepository repository, IWritableConfiguration configuration)
         {
             _repository = repository;
             _configuration = configuration;
@@ -66,6 +66,7 @@ namespace AppStoreIntegrationService.Pages
         public async Task<IActionResult> OnPostSaveSiteName()
         {
             _configuration.SetSection("SiteSettings:Name", SiteName);
+            _configuration["SiteSettings:Name"] = SiteName;
             return Redirect("Settings");
         }
     }

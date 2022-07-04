@@ -5,11 +5,11 @@ using System.IO;
 
 namespace AppStoreIntegrationService.Model
 {
-    public class CustomConfiguration : ICustomConfiguration
+    public class WritableConfiguration : IWritableConfiguration
     {
         private readonly IConfiguration _configuration;
 
-        public CustomConfiguration(IConfiguration configuration)
+        public WritableConfiguration(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -36,7 +36,6 @@ namespace AppStoreIntegrationService.Model
             var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
             var foundSection = _configuration.GetSection(key);
             var newContent = File.ReadAllText(appSettingsPath).Replace($"\"{foundSection.Key}\": \"{foundSection.Value}\"", $"\"{foundSection.Key}\": \"{value}\"");
-            _configuration[key] = value;
             File.WriteAllText(appSettingsPath, newContent);
         }
     }
