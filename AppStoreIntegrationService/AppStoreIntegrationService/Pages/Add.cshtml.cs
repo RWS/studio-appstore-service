@@ -70,11 +70,11 @@ namespace AppStoreIntegrationService
             return Page();
         }
 
-        public async Task<IActionResult> OnPostBackToList()
+        public async Task<IActionResult> OnPostGoToPage(string pageUrl)
         {
             var modalDetails = new ModalMessage
             {
-                RequestPage = "config",
+                RequestPage = $"{pageUrl}",
                 ModalType = ModalType.WarningMessage,
                 Title = "Unsaved changes!",
                 Message = $"Discard changes for {PrivatePlugin.Name}?"

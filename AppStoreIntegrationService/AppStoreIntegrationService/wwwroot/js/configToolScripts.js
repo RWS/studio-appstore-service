@@ -82,21 +82,21 @@ function ReloadPage() {
     location.reload();
 }
 
-function RedirectToList(page) {
-    if (page !== "/edit" && page !== "/add") {
-        window.location.href = "/ConfigTool";
+function RedirectTo(goToPage, currentPage) {
+    if (currentPage !== "/edit" && currentPage !== "/add") {
+        window.location.href = `${goToPage}`;
         return;
     }
 
     var pageValues = "";
     var url = "";
-    if (page == "/add") {
-        url = "Add?handler=BackToList";
+    if (currentPage == "/add") {
+        url = `Add?handler=GoToPage&pageUrl=${goToPage}`
         pageValues = $('#addPlugin').find('select, textarea, input').serialize();
     }
 
-    if (page == "/edit") {
-        url = "Edit?handler=BackToList"
+    if (currentPage == "/edit") {
+        url = `Edit?handler=GoToPage&pageUrl=${goToPage}`
         pageValues = $('#editFile').find('select, textarea, input').serialize();
     }
 
@@ -113,8 +113,8 @@ function RedirectToList(page) {
     })
 }
 
-function DiscardChanges() {
-    window.location.href = "ConfigTool";
+function DiscardChanges(goToPage) {
+    window.location.href = `${goToPage}`;
 }
 
 function ShowVersionDetails(versionId) {

@@ -63,22 +63,22 @@ namespace AppStoreIntegrationService
             return Page();
         }
 
-        public async Task<IActionResult> OnPostBackToList()
+        public async Task<IActionResult> OnPostGoToPage(string pageUrl)
         {
             var modalDetails = new ModalMessage();
             var foundPluginDetails = await _pluginRepository.GetPluginById(PrivatePlugin.Id);
             if (IsSaved(foundPluginDetails))
             {
                 modalDetails.ModalType = ModalType.SuccessMessage;
-                modalDetails.Message = $"Do you want to redirect to plugins list?";
-                modalDetails.RequestPage = "config";
+                modalDetails.Message = $"Do you want to leve this page?";
+                modalDetails.RequestPage = $"{pageUrl}";
             }
             else
             {
                 modalDetails.ModalType = ModalType.WarningMessage;
                 modalDetails.Title = "Warning!";
                 modalDetails.Message = $"There is unsaved data for {PrivatePlugin.Name}. Discard changes?";
-                modalDetails.RequestPage = "edit";
+                modalDetails.RequestPage = $"{pageUrl}";
             }
 
             return Partial("_ModalPartial", modalDetails);

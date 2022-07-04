@@ -8,7 +8,7 @@
     <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
     <style>
         .nav-pills .nav-link.active {
-            color: black;
+            color: white;
             background-color: #28b059;
         }
 
@@ -16,7 +16,7 @@
             background-color: white;
         }
 
-        .nav-item {
+        .nav-item:hover {
             cursor: pointer;
         }
 
@@ -29,13 +29,13 @@
 <div class="row d-flex">
     <div class="col-3">
         <ul class="nav nav-pills flex-column" id="settings-navbar">
-            <li class="nav-item"><a class="nav-link option">Set site name</a></li>
-            <li class="nav-item"><a class="nav-link option">Import plugins</a></li>
-            <li class="nav-item"><a class="nav-link option">Export plugins</a></li>
+            <li class="nav-item"><a class="nav-link active" href="#">Set site name</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Import plugins</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Export plugins</a></li>
         </ul>
     </div>
     <div class="col-md-6" id="settings-details-container">
-        <div class="d-none settings-details">
+        <div class="settings-details">
             <h5>Set site name</h5>
             <div>
                 <form method="post" class="mt-3">
