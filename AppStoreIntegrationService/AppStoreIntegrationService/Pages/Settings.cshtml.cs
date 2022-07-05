@@ -49,7 +49,7 @@ namespace AppStoreIntegrationService.Pages
             var success = await _repository.TryImportPluginsFromFile(ImportedFile);
             if (success)
             {
-                modalDetails.RequestPage = "config";
+                modalDetails.RequestPage = "/ConfigTool";
                 modalDetails.ModalType = ModalType.SuccessMessage;
                 modalDetails.Title = "Success!";
                 modalDetails.Message = $"The file content was imported! Return to plugins list?";
