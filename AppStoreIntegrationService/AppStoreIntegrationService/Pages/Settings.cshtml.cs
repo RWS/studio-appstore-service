@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,12 +15,12 @@ namespace AppStoreIntegrationService.Pages
     public class Settings : PageModel
     {
         private readonly IPluginRepository _repository;
-        private readonly IWritableConfiguration _configuration;
+        private readonly IWritableOptions<SiteSettings> _options;
 
-        public Settings(IPluginRepository repository, IWritableConfiguration configuration)
+        public Settings(IPluginRepository repository, IWritableOptions<SiteSettings> options)
         {
             _repository = repository;
-            _configuration = configuration;
+            _options = options;
         }
 
         [BindProperty]
@@ -30,7 +31,7 @@ namespace AppStoreIntegrationService.Pages
 
         public IActionResult OnGet()
         {
-            SiteName = _configuration["SiteSettings:Name"];
+            SiteName = _options.Value.Name;
             return Page();
         }
 
@@ -65,8 +66,8 @@ namespace AppStoreIntegrationService.Pages
 
         public async Task<IActionResult> OnPostSaveSiteName()
         {
-            _configuration.SetSection("SiteSettings:Name", SiteName);
-            _configuration["SiteSettings:Name"] = SiteName;
+            _options.SaveOption(new SiteSettings { Name = SiteName });
+            _options.Value.Name = SiteName;
             return Redirect("Settings");
         }
     }

@@ -1,7 +1,7 @@
-﻿@using Microsoft.Extensions.Configuration;
-@inject IConfiguration configuration;
+﻿@using AppStoreIntegrationService.Model;
+@inject IWritableOptions<SiteSettings> options;
 @{
-    var siteName = configuration["SiteSettings:Name"];
+    var siteName = options.Value.Name;
 }
 @if (string.IsNullOrEmpty(siteName))
 {
