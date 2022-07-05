@@ -8,7 +8,13 @@ namespace AppStoreIntegrationService.Model
     public class WritableOptions<TOptions> : IWritableOptions<TOptions>
         where TOptions : class, new()
     {
-        public TOptions Value { get => GetOption(); }
+        private readonly IOptions<TOptions> _options;
+
+        public WritableOptions(IOptions<TOptions> options)
+        {
+            _options = options;
+        }
+        public TOptions Value { get => _options.Value; }
 
         public void SaveOption(TOptions options)
         {
@@ -17,13 +23,6 @@ namespace AppStoreIntegrationService.Model
             var stringToJToken = JToken.Parse(JsonConvert.SerializeObject(options));
             json[typeof(TOptions).Name] = stringToJToken;
             File.WriteAllText(appSettingsPath, json.ToString());
-        }
-
-        private TOptions GetOption()
-        {
-            var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-            var json = JObject.Parse(File.ReadAllText(appSettingsPath));
-            return JsonConvert.DeserializeObject<TOptions>(json[typeof(TOptions).Name].ToString());
         }
     }
 }

@@ -107,8 +107,15 @@ function RedirectTo(goToPage, currentPage) {
         type: "POST",
         url: url,
         success: function (modalPartialView) {
-            placeholderElement.html(modalPartialView);
-            placeholderElement.find('.modal').modal('show');
+            if (modalPartialView.includes("DOCTYPE"))
+            {
+                window.location.href = goToPage;
+            }
+            else
+            {
+                placeholderElement.html(modalPartialView);
+                placeholderElement.find('.modal').modal('show');
+            }
         }
     })
 }

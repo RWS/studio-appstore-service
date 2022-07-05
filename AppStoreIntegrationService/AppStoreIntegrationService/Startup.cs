@@ -80,6 +80,7 @@ namespace AppStoreIntegrationService
             services.AddSingleton<INamesRepository, NamesRepository>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
+            services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
 
             services.AddAuthorization(options =>
             {

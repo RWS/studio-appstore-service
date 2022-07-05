@@ -65,21 +65,19 @@ namespace AppStoreIntegrationService
 
         public async Task<IActionResult> OnPostGoToPage(string pageUrl)
         {
-            var modalDetails = new ModalMessage();
             var foundPluginDetails = await _pluginRepository.GetPluginById(PrivatePlugin.Id);
             if (IsSaved(foundPluginDetails))
             {
-                modalDetails.ModalType = ModalType.SuccessMessage;
-                modalDetails.Message = $"Do you want to leve this page?";
-                modalDetails.RequestPage = $"{pageUrl}";
+                return Redirect(pageUrl);
             }
-            else
+
+            var modalDetails = new ModalMessage
             {
-                modalDetails.ModalType = ModalType.WarningMessage;
-                modalDetails.Title = "Warning!";
-                modalDetails.Message = $"There is unsaved data for {PrivatePlugin.Name}. Discard changes?";
-                modalDetails.RequestPage = $"{pageUrl}";
-            }
+                ModalType = ModalType.WarningMessage,
+                Title = "Warning!",
+                Message = $"There is unsaved data for {PrivatePlugin.Name}. Discard changes?",
+                RequestPage = $"{pageUrl}"
+            };
 
             return Partial("_ModalPartial", modalDetails);
         }
