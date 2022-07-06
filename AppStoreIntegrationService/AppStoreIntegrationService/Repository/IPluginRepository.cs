@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationService.Model;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,5 +14,7 @@ namespace AppStoreIntegrationService.Repository
 		Task<List<CategoryDetails>> GetCategories();
 		Task AddPrivatePlugin(PrivatePlugin plugin);
 		Task RemovePlugin(int id);
+		Task RemovePluginVersion(int pluginId, string versionId);
+		Task<bool> TryImportPluginsFromFile(IFormFile file);
 	}
 }

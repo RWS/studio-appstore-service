@@ -44,13 +44,10 @@ namespace AppStoreIntegrationService
             };
 
             var privatePluginsResult = await _pluginsController.Get(pluginFiler);
-            var resultObject = privatePluginsResult as OkObjectResult;
 
-            if (resultObject != null && resultObject.StatusCode == 200)
+            if (privatePluginsResult is OkObjectResult resultObject && resultObject.StatusCode == 200)
             {
-                var privatePlugins = resultObject.Value as List<PluginDetails>;
-
-                if (privatePlugins != null)
+                if (resultObject.Value is List<PluginDetails> privatePlugins)
                 {
                     InitializePrivatePlugins(privatePlugins);
                 }
@@ -96,11 +93,10 @@ namespace AppStoreIntegrationService
                 if (string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl))
                 {
                     var defaultIconResult = _pluginsController.GetDefaultIcon();
-                    var resultObject = defaultIconResult as OkObjectResult;
 
-                    if (resultObject != null && resultObject.StatusCode == 200)
+                    if (defaultIconResult is OkObjectResult resultObject && resultObject.StatusCode == 200)
                     {
-                        iconPath = resultObject.Value as string; 
+                        iconPath = resultObject.Value as string;
                     }
                 }
                 else

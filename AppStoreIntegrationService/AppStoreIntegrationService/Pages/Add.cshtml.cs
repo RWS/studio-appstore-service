@@ -51,21 +51,36 @@ namespace AppStoreIntegrationService
             SelectedVersionDetails = new PluginVersion
             {
                 VersionName = PrivatePlugin.NewVersionNumber,
-                VersionNumber= PrivatePlugin.NewVersionNumber,
+                VersionNumber = PrivatePlugin.NewVersionNumber,
                 IsPrivatePlugin = true,
-                AppHasStudioPluginInstaller=true,
+                AppHasStudioPluginInstaller = true,
                 Id = Guid.NewGuid().ToString(),
             };
             SelectedVersionId = SelectedVersionDetails.Id;
             SelectedVersionDetails.SetSupportedProducts();
 
-            PrivatePlugin.Versions = new List<PluginVersion>();
-            PrivatePlugin.Versions.Add(SelectedVersionDetails);
+            PrivatePlugin.Versions = new List<PluginVersion>
+            {
+                SelectedVersionDetails
+            };
             Versions.Add(SelectedVersionDetails);
 
             SetSelectedProducts(Versions, string.Empty);
 
             return Page();
+        }
+
+        public async Task<IActionResult> OnPostGoToPage(string pageUrl)
+        {
+            var modalDetails = new ModalMessage
+            {
+                RequestPage = $"{pageUrl}",
+                ModalType = ModalType.WarningMessage,
+                Title = "Unsaved changes!",
+                Message = $"Discard changes for {PrivatePlugin.Name}?"
+            };
+
+            return Partial("_ModalPartial", modalDetails);
         }
 
         public async Task<IActionResult> OnPostSavePlugin()
@@ -90,10 +105,10 @@ namespace AppStoreIntegrationService
             {
                 modalDetails.Title = string.Empty;
                 modalDetails.Message = "Please fill all required values.";
-                modalDetails.ModalType =ModalType.WarningMessage;
+                modalDetails.ModalType = ModalType.WarningMessage;
             }
             return Partial("_ModalPartial", modalDetails);
-        }      
+        }
 
         public async Task<IActionResult> OnPostAddVersion()
         {
@@ -102,7 +117,7 @@ namespace AppStoreIntegrationService
                 VersionNumber = string.Empty,
                 IsPrivatePlugin = true,
                 IsNewVersion = true,
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.NewGuid().ToString()
             };
             SelectedVersionDetails.SetSupportedProducts();
 
@@ -114,10 +129,45 @@ namespace AppStoreIntegrationService
             return Partial("_PluginVersionDetailsPartial", SelectedVersionDetails);
         }
 
+        public async Task<IActionResult> OnPostSaveVersionForPluginAsync()
+        {
+            var modalDetails = new ModalMessage
+            {
+                RequestPage = "add",
+            };
+            if (IsValid())
+            {
+                await SetValues();
+                var response = await _pluginsController.PostAddPlugin(PrivatePlugin);
+                if (response is StatusCodeResult statusCode)
+                {
+                    if (statusCode.StatusCode.Equals(200))
+                    {
+                        modalDetails.ModalType = ModalType.SuccessMessage;
+                        modalDetails.Message = $"{PrivatePlugin.Name} was added.";
+                        modalDetails.Id = PrivatePlugin.Id;
+                    }
+                }
+                else
+                {
+                    modalDetails.ModalType = ModalType.WarningMessage;
+                    modalDetails.Message = $"{PrivatePlugin.Name} already exists! Try other name.";
+                    modalDetails.Id = PrivatePlugin.Id;
+                }
+            }
+            else
+            {
+                modalDetails.Title = string.Empty;
+                modalDetails.Message = "Please fill all required values.";
+                modalDetails.ModalType = ModalType.WarningMessage;
+            }
+            return Partial("_ModalPartial", modalDetails);
+        }
+
         public async Task<IActionResult> OnPostShowVersionDetails()
         {
             var version = Versions.FirstOrDefault(v => v.Id.Equals(SelectedVersionId));
-
+            version.IsNewVersion = true;
             ModelState.Clear();
             return Partial("_PluginVersionDetailsPartial", version);
         }
@@ -130,7 +180,7 @@ namespace AppStoreIntegrationService
             if (resultObject != null && resultObject.StatusCode == 200)
             {
                 PrivatePlugin.IconUrl = resultObject.Value as string;
-            }            
+            }
         }
 
         private async Task SetAvailableCategories()
@@ -175,26 +225,17 @@ namespace AppStoreIntegrationService
         private void SetVersionList()
         {
             var editedVersion = Versions.FirstOrDefault(v => v.Id.Equals(SelectedVersionDetails.Id));
-
+            var selectedProduct = SelectedVersionDetails.SupportedProducts.FirstOrDefault(item => item.Id == SelectedVersionDetails.SelectedProductId);
             if (editedVersion != null)
             {
-                var indexOfEditedVersion = Versions.IndexOf(editedVersion);
-
-                if (SelectedVersionDetails?.SelectedProduct != null)
-                {
-                    SelectedVersionDetails.SupportedProducts.Clear();
-                    SelectedVersionDetails.SupportedProducts.Add(SelectedVersionDetails.SelectedProduct);
-                   // Versions.Add(SelectedVersionDetails);
-                }
-                Versions[indexOfEditedVersion] = SelectedVersionDetails;
+                SelectedVersionDetails.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
+                Versions[Versions.IndexOf(editedVersion)] = SelectedVersionDetails;
             }
-            //else if (SelectedVersionDetails?.SelectedProduct != null)
-            //{
-            //    //This is a new version and we need to add it to the list
-            //    SelectedVersionDetails.SupportedProducts.Clear();
-            //    SelectedVersionDetails.SupportedProducts.Add(SelectedVersionDetails.SelectedProduct);
-            //    Versions.Add(SelectedVersionDetails);
-            //}
+            else if (SelectedVersionDetails?.SelectedProduct != null)
+            {
+                SelectedVersionDetails.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
+                Versions.Add(SelectedVersionDetails);
+            }
 
             PrivatePlugin.Versions = Versions;
         }

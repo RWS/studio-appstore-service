@@ -22,14 +22,14 @@ namespace AppStoreIntegrationService.Model
 					ProductName ="SDL Trados Studio 2021",
 					ParentProductID =14,
 					MinimumStudioVersion = "16.0"
+				},
+				new SupportedProductDetails
+				{
+					Id ="38",
+					ProductName ="Trados Studio 2022",
+					ParentProductID =14,
+					MinimumStudioVersion ="17.0"
 				}
-				//new SupportedProductDetails
-				//{
-				//	Id ="38",
-				//	ProductName ="SDL Trados Studio 2022",
-				//	ParentProductID =14,
-				//	MinimumStudioVersion ="17.0"
-				//}
 			};
 
 			SupportedProductsListItems = new SelectList(_supportedProductDetails, nameof(SupportedProductDetails.Id), nameof(SupportedProductDetails.ProductName));			
@@ -62,6 +62,7 @@ namespace AppStoreIntegrationService.Model
 
 		// Properties used in Config Tool app	
 		[JsonIgnore]
+        [BindProperty]
 		public string SelectedProductId { get; set; }
 
 		[JsonIgnore]
@@ -76,12 +77,13 @@ namespace AppStoreIntegrationService.Model
 			}
 		}
 
-		[JsonIgnore]
-		[BindProperty]
+        [JsonIgnore]
+        [BindProperty]
 		public SelectList SupportedProductsListItems { get; set; }
 
 
 		[JsonIgnore]
+        [BindProperty]
 		public string VersionName { get; set; }
 		[JsonIgnore]
 		public bool IsNewVersion { get; set; }

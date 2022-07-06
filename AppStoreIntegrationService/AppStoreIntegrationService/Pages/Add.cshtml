@@ -23,7 +23,7 @@
 
             <div class="d-flex flex-row version-list-container">
                 <h6 class="col-sm-11" style="padding:0px">Versions</h6>
-                @*<a onclick="javascript: AddNewVersion('add')" class="new-version-button col-sm-1"> <i class="fas fa-plus"></i></a>*@ @*we'll add later this functioanlity*@
+                @*<a onclick="javascript: AddNewVersion('add')" class="new-version-button col-sm-1"> <i class="fas fa-plus"></i></a>*@
             </div>
             <div>
                 <partial name="_PluginVersionPartial" model="@Model.PrivatePlugin.Versions" />
@@ -45,6 +45,7 @@
                     <div class="details-lbl-container">
                         <label class="details-lbl" asp-for="PrivatePlugin.Name">Plugin Name <span class="field-validation-error">*</span></label>
                         <label class="details-lbl" asp-for="PrivatePlugin.IconUrl">Icon Url <span class="field-validation-error">*</span></label>
+                        <label class="details-lbl" asp-for="PrivatePlugin.DeveloperName">Developer</label>
                         <label class="details-lbl" asp-for="PrivatePlugin.Description" style="flex:1">Description <span class="field-validation-error">*</span></label>
                         <label class="details-lbl" asp-for="PrivatePlugin.Categories" style="flex:1">Plugin Categories</label>
                         <label class="details-lbl" asp-for="PrivatePlugin.PaidFor" style="margin-bottom:5px">Paid For</label>
@@ -57,6 +58,9 @@
                         <input asp-for="PrivatePlugin.IconUrl" class="form-control col-sm-7 details-input" />
                         <span asp-validation-for="PrivatePlugin.IconUrl"></span>
 
+                        <input asp-for="PrivatePlugin.DeveloperName" class="form-control col-sm-7 details-input" />
+                        <span asp-validation-for="PrivatePlugin.DeveloperName"></span>
+
                         <textarea class="form-control col-sm-7 details-input" asp-for="PrivatePlugin.Description" rows="4"></textarea>
                         <span asp-validation-for="PrivatePlugin.Description"></span>
 
@@ -68,10 +72,10 @@
 
                 <div id="pluginVersionContainer">@* used to render the selected version html *@</div>
                 <div id="modalContainer"></div>
+                <div class="row">
+                    <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary add-pluginBtn" style="margin-left: 30px; margin-bottom: 30px;">Add app</button>
+                </div>
             </form>
-            <div class="row">
-                <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary add-pluginBtn" style="margin-left: 30px">Add app</button>
-            </div>
         </div>
     </div>
 

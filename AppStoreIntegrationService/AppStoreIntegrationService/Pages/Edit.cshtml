@@ -21,7 +21,7 @@
 
             <div class="d-flex flex-row version-list-container">
                 <h6 class="col-sm-11" style="padding:0px">Versions</h6>
-                @*<a onclick="javascript: AddNewVersion('edit')" class="new-version-button col-sm-1"> <i class="fas fa-plus"></i></a>*@ @*we'll add later this functioanlity*@
+                <a onclick="javascript: AddNewVersion()" class="new-version-button col-sm-1"> <i class="fas fa-plus"></i></a>
             </div>
             <div>
                 <partial name="_PluginVersionPartial" model="@Model.PrivatePlugin.Versions" />
@@ -44,6 +44,7 @@
                     <div class="details-lbl-container">
                         <label class="details-lbl" asp-for="PrivatePlugin.Name">Plugin Name <span class="field-validation-error">*</span></label>
                         <label class="details-lbl" asp-for="PrivatePlugin.IconUrl">Icon Url <span class="field-validation-error">*</span></label>
+                        <label class="details-lbl" asp-for="PrivatePlugin.DeveloperName">Developer</label>
                         <label class="details-lbl" asp-for="PrivatePlugin.Description" style="flex:1">Description <span class="field-validation-error">*</span></label>
                         <label class="details-lbl" asp-for="PrivatePlugin.Categories" style="flex:1">Plugin Categories</label>
                         <label class="details-lbl" asp-for="PrivatePlugin.PaidFor" style="margin-bottom:5px">Paid For</label>
@@ -55,6 +56,9 @@
 
                         <input asp-for="PrivatePlugin.IconUrl" class="form-control col-sm-7 details-input" />
                         <span asp-validation-for="PrivatePlugin.IconUrl"></span>
+
+                        <input asp-for="PrivatePlugin.DeveloperName" class="form-control col-sm-7 details-input" />
+                        <span asp-validation-for="PrivatePlugin.DeveloperName"></span>
 
                         <textarea class="form-control col-sm-7 details-input" asp-for="PrivatePlugin.Description" rows="4"></textarea>
                         <span asp-validation-for="PrivatePlugin.Description"></span>
@@ -73,6 +77,7 @@
             </div>
         </div>
     </div>
+
     <script src="~/js/jquery.js"></script>
     <script src="~/js/bootstrap.js"></script>
     <script src="~/js/configToolScripts.js"></script>

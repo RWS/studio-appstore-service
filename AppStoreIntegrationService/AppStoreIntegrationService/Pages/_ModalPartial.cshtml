@@ -1,5 +1,9 @@
 ﻿@model AppStoreIntegrationService.Model.ModalMessage;
+@using AppStoreIntegrationService.Model;
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    var pages = new[] { "/ConfigTool", "/Settings", "/Identity/Account/Manage" };
+}
 
 <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -14,23 +18,34 @@
                 @Model.Message
             </div>
             <div class="modal-footer">
-                @if (Model.ModalType == AppStoreIntegrationService.Model.ModalType.SuccessMessage)
+                @if (Model.ModalType == ModalType.SuccessMessage)
                 {
-                    if (!string.IsNullOrEmpty(Model.RequestPage) && Model.RequestPage.ToLower().Equals("add"))
+                    if (!string.IsNullOrEmpty(Model.RequestPage) && Model.RequestPage.Equals("add"))
                     {
-                        <button type="button" onclick="javascript: RedirectToList()" class="btn btn-secondary add-pluginBtn" data-dismiss="modal">Ok</button>
+                        <button type="button" onclick="javascript: RedirectToPlugin('@Model.Id')" class="btn btn-secondary add-pluginBtn" data-dismiss="modal">Ok</button>
+                    }
+                    else if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => page.Equals(Model.RequestPage)))
+                    {
+                        <button type="button" onclick="javascript: DiscardChanges('@Model.RequestPage')" class="btn btn-secondary" data-dismiss="modal">Redirect</button>
+                        <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Continue</button>
-                        <button type="button" onclick="javascript: RedirectToList()" class="btn btn-secondary" data-dismiss="modal">Redirect</button>
+                        <button type="button" onclick="javascript: ReloadPage()" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Ok</button>
                     }
                 }
-                @if (Model.ModalType == AppStoreIntegrationService.Model.ModalType.WarningMessage)
+                @if (Model.ModalType == ModalType.WarningMessage)
                 {
-                    <button type="button" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Ok</button>
+                    if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => page.Equals(Model.RequestPage)))
+                    {
+                        <button type="button" onclick="javascript: DiscardChanges('@Model.RequestPage')" class="btn btn-danger" data-dismiss="modal">Yes</button>
+                        <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-success" style="margin-bottom:0px" data-dismiss="modal">Ok</button>
+                    }
                 }
-
             </div>
         </div>
     </div>

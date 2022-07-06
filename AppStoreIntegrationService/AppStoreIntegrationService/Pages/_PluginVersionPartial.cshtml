@@ -1,7 +1,6 @@
 ﻿@model List<AppStoreIntegrationService.Model.PluginVersion>
 
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
 <div id="selectedVersion">
     @if (Model != null)
     {
@@ -17,7 +16,7 @@
             <input hidden asp-for="@Model[i].SelectedProduct.ParentProductID" />
             <input hidden asp-for="@Model[i].SelectedProduct.MinimumStudioVersion" />
             <input hidden asp-for="@Model[i].DownloadUrl" />
-            <input hidden asp-for="@Model[i].IsPrivatePlugin"/>
+            <input hidden asp-for="@Model[i].IsPrivatePlugin" />
 
             for (int j = 0; j < Model[i].SupportedProducts.Count; j++)
             {
@@ -28,7 +27,16 @@
             }
 
             <input hidden asp-for="@Model[i].VersionName" />
-            <a onclick="ShowVersionDetails('@Model[i].Id')" style="cursor:pointer">@Model[i].VersionName</a>
+            <div>
+                <span>
+                    <a onclick="ShowVersionDetails('@Model[i].Id')" style="cursor:pointer">@Model[i].VersionName</a>
+                    @if (Model.Count > 1)
+                    {
+                        <i onclick="DeleteVersion('@Model[i].Id')" class="far fa-trash-alt pl-2"></i>
+                    }
+                </span>
+            </div>
+
         }
     }
 
