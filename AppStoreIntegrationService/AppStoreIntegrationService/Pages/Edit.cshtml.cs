@@ -177,6 +177,7 @@ namespace AppStoreIntegrationService
 
         private void SetEditedValues()
         {
+            PrivatePlugin.Name = PrivatePlugin.Name.Trim();
             SetVersionList();
             SetCategoryList();
             // This method will be removed later after studio release. We had to move the download url  from plugin to version details. Studio still uses the url from the plugin details
