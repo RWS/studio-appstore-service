@@ -11,6 +11,7 @@
             <label class="details-version-lbl" asp-for="@Model.VersionNumber">Version Number <span class="field-validation-error">*</span></label>
             <label class="details-version-lbl" asp-for="@Model.MinimumRequiredVersionOfStudio">Minimum Studio Version <span class="field-validation-error">*</span></label>
             <label class="details-version-lbl" asp-for="@Model.DownloadUrl">Download URL <span class="field-validation-error">*</span></label>
+            <label class="details-version-lbl" asp-for="@Model.IsNavigationLink">Is navigation link</label>
             <label class="details-version-lbl" asp-for="@Model.AppHasStudioPluginInstaller">Has plugin extension <span class="field-validation-error">*</span></label>
             <label class="details-version-lbl" asp-for="@Model.SelectedProductId">Product <span class="field-validation-error">*</span></label>
         </div>
@@ -33,6 +34,7 @@
             <input asp-for="@Model.VersionNumber" class="form-control col-sm-7 details-input" />
             <input asp-for="@Model.MinimumRequiredVersionOfStudio" class="form-control col-sm-7 details-input" />
             <input asp-for="@Model.DownloadUrl" class="form-control col-sm-7 details-input" />
+            <input asp-for="@Model.IsNavigationLink" class="details-input" style="margin-top:20px;margin-left:10px;display:block;" />
             <input asp-for="@Model.AppHasStudioPluginInstaller" class="details-input" style="margin-top:20px;margin-left:10px" />
             @if (Model.IsNewVersion)
             {
