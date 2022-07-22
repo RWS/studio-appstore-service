@@ -73,6 +73,14 @@ body{
     }
 }
 
+@media (max-width:768px) {
+    .profile-navbar,
+    #settings-navbar {
+        border-bottom: 1px solid #E1E7EB;
+        margin-bottom: 10px;
+    }
+}
+
 .details-lbl {
     margin: 16px;
 }
