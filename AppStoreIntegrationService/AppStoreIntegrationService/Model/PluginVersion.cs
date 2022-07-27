@@ -54,6 +54,8 @@ namespace AppStoreIntegrationService.Model
 		[JsonProperty("SDLHosted")]
 		public bool SdlHosted { get; set; }
 
+		public bool IsNavigationLink { get; set; }
+
 		public string DownloadUrl { get; set; }
 		/// <summary>
 		/// For the plugins from private repo (config file) by default will be set to true
