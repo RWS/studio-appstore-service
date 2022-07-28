@@ -346,6 +346,7 @@ namespace AppStoreIntegrationService.Repository
 					pluginToBeUpdated.Categories = privatePlugin.Categories;
 					pluginToBeUpdated.Versions = privatePlugin.Versions;
 					pluginToBeUpdated.DownloadUrl = privatePlugin.DownloadUrl;
+                    pluginToBeUpdated.Inactive = privatePlugin.Inactive;
 				}
 				await SaveToFile(pluginsList);
 			}
