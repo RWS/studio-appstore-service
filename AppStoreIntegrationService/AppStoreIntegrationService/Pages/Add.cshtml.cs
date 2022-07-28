@@ -32,6 +32,9 @@ namespace AppStoreIntegrationService
         [BindProperty]
         public string SelectedVersionId { get; set; }
 
+        [BindProperty]
+        public bool Inactive { get; set; }
+
         public SelectList CategoryListItems { get; set; }
 
         private PluginsController _pluginsController;

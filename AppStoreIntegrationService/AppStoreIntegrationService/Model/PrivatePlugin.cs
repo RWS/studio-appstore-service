@@ -17,6 +17,8 @@ namespace AppStoreIntegrationService.Model
 
         public bool PaidFor { get; set; }
 
+        public bool Inactive { get; set; }
+
         [Required(ErrorMessage = "The url from where the plugin should be downloaded is required")]
         [MinLength(5)]
         public string DownloadUrl { get; set; }

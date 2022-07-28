@@ -365,7 +365,8 @@ namespace AppStoreIntegrationService.Repository
 					Versions = privatePlugin.Versions,
 					DownloadUrl = privatePlugin.DownloadUrl,
 					Id = privatePlugin.Id,
-					Icon = new IconDetails { MediaUrl = privatePlugin.IconUrl }
+					Icon = new IconDetails { MediaUrl = privatePlugin.IconUrl },
+                    Inactive = privatePlugin.Inactive
 				};
 
                 var pluginsList = await GetPlugins();

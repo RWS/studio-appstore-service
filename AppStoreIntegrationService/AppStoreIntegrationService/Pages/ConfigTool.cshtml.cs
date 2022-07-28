@@ -87,7 +87,8 @@ namespace AppStoreIntegrationService
                     Description = pluginDetails.Description,
                     Name = pluginDetails.Name,
                     Categories = pluginDetails.Categories,
-                    Versions = pluginDetails.Versions
+                    Versions = pluginDetails.Versions,
+                    Inactive = pluginDetails.Inactive
                 };
                 var iconPath = string.Empty;
                 if (string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl))

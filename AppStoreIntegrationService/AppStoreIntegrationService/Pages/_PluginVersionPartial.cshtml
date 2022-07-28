@@ -29,10 +29,10 @@
             <input hidden asp-for="@Model[i].VersionName" />
             <div>
                 <span>
-                    <a onclick="ShowVersionDetails('@Model[i].Id')" style="cursor:pointer">@Model[i].VersionName</a>
+                    <a onclick="ShowVersionDetails('@Model[i].Id')" style="cursor:pointer;padding-right:10%">@Model[i].VersionName</a>
                     @if (Model.Count > 1)
                     {
-                        <i onclick="DeleteVersion('@Model[i].Id')" class="far fa-trash-alt pl-2"></i>
+                        <i onclick="DeleteVersion('@Model[i].Id')" class="trash-edit-align far fa-trash-alt pl-2"></i>
                     }
                 </span>
             </div>
