@@ -146,3 +146,62 @@ header {
 .pencil-color {
     color: #848484;
 }
+
+.filter-box {
+    color: white;
+    background: #28b059;
+    height: 36px;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.filter-selectmenu {
+    border: transparent;
+    width: 5.4rem;
+    border-radius: 0.25rem 0px 0px 0.25rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+    .filter-selectmenu:hover {
+        background-color: #2aa65b;
+    }
+
+.filter-searchbar {
+    width: 200px;
+    height: 36px;
+    border-color: #28b059;
+    outline: none;
+    padding: 10px;
+    border-width: 1px 0px 1px 0px;
+    margin-left: -5px;
+}
+
+    .filter-searchbar:focus {
+        border-color: #2aa65b;
+    }
+
+.filter-searchicon {
+    width: 30px;
+    height: 36px;
+    margin-left: -5px;
+    background: transparent;
+    color: #28b059;
+    border-color: #28b059;
+    border-radius: 0px 0.25rem 0.25rem 0px;
+    border-width: 1px 1px 1px 0px;
+    box-shadow: 0 0 white;
+    cursor: pointer;
+}
+
+.filter-image {
+    font-size: 12px;
+}
+
+.align-left-filter-newapp {
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    padding: 0px 15px;
+}
+
