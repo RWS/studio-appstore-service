@@ -142,7 +142,7 @@ namespace AppStoreIntegrationService
             {
                 ModalType = ModalType.SuccessMessage,
                 Title = "Version removed!",
-                Message = $"Clik \"Ok\" to continue!"
+                Message = $"Click \"Ok\" to continue!"
             };
             return Partial("_ModalPartial", modalDetails);
         }

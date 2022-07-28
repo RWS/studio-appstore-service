@@ -107,12 +107,10 @@ function RedirectTo(goToPage, currentPage) {
         type: "POST",
         url: url,
         success: function (modalPartialView) {
-            if (modalPartialView.includes("DOCTYPE"))
-            {
+            if (modalPartialView.includes("DOCTYPE")) {
                 window.location.href = goToPage;
             }
-            else
-            {
+            else {
                 placeholderElement.html(modalPartialView);
                 placeholderElement.find('.modal').modal('show');
             }
@@ -166,22 +164,147 @@ function DeleteVersion(id) {
         }
     })
 }
-//settings page fields toggle
-var navLinks = document.querySelectorAll('#settings-navbar .nav-link');
-var settings = document.querySelectorAll('#settings-details-container .settings-details');
 
-for (let i = 0; i < navLinks.length; i++) {
-    navLinks[i].addEventListener('click', function (event) {
-        for (let j = 0; j < navLinks.length; j++) {
-            settings[j].classList.add('d-none')
-            navLinks[j].classList.remove('active')
-        }
+function LoadSettingsPage() {
 
-        this.classList.toggle('active');
-        settings[i].classList.toggle('d-none');
-        event.stopImmediatePropagation();
+    var navLinks = document.querySelectorAll('#settings-navbar .nav-link');
+    var settings = document.querySelectorAll('#settings-details-container .settings-details');
+    var erasers = document.querySelectorAll('.table-row .name-mapping-eraser');
+    var adders = document.querySelectorAll('.fa-plus-circle');
+    var paragraphs = document.querySelectorAll('.name-mapping');
+    var inputs = document.querySelectorAll('.name-mapping-input');
+    var currentParagraphValue;
+
+    for (let i = 0; i < navLinks.length; i++) {
+        navLinks[i].addEventListener('click', function (event) {
+            for (let j = 0; j < navLinks.length; j++) {
+                settings[j].classList.add('d-none')
+                navLinks[j].classList.remove('active')
+            }
+
+            navLinks[i].classList.toggle('active');
+            settings[i].classList.toggle('d-none');
+            event.stopImmediatePropagation();
+        })
+    };
+
+    paragraphs.forEach(p => {
+        p.addEventListener('dblclick', (e) => {
+            e.target.classList.add('d-none');
+            var input = e.target.parentElement.children[0];
+            input.hidden = false;
+            input.focus();
+            currentParagraphValue = p.innerHTML;
+            e.stopImmediatePropagation();
+        })
     })
-};
+
+    inputs.forEach(input => {
+        input.addEventListener('focusout', (e) => {
+            if (currentParagraphValue != e.target.value) {
+                var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
+                var placeholderElement = $('#modalContainer');
+
+                $.ajax({
+                    data: pageValues,
+                    type: "POST",
+                    url: `Settings?handler=UpdateNamesMapping`,
+                    success: function (modalPartialView) {
+                        if (modalPartialView.includes("DOCTYPE")) {
+                            location.reload();
+                        }
+                        else {
+                            placeholderElement.html(modalPartialView);
+                            placeholderElement.find('.modal').modal('show');
+                        }
+                    }
+                })
+            }
+
+            e.target.hidden = true;
+            e.target.parentElement.children[1].classList.remove('d-none');
+            e.stopImmediatePropagation();
+        })
+    })
+
+    adders.forEach(adder => {
+        adder.addEventListener('click', () => {
+            var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
+
+            $.ajax({
+                data: pageValues,
+                type: "POST",
+                url: `Settings?handler=AddNewNameMapping`,
+                success: function (partialView) {
+                    $("#newNameMappingPartial").html(partialView);
+                }
+            })
+        })
+    })
+
+    erasers.forEach(eraser => {
+        eraser.addEventListener('click', (e) => {
+            var deleteNameMappingButton = document.getElementById('deleteNameMappingButton');
+            if (document.getElementById("newNameMappingRow") != null) {
+                document.getElementById("newNameMappingRow").remove();
+            }
+
+            deleteNameMappingButton.onclick = function ()
+            {
+                var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
+                $.ajax({
+                    data: pageValues,
+                    type: "POST",
+                    url: `Settings?handler=DeleteNameMapping&Id=${eraser.id}`,
+                    success: function () {
+                        location.reload();
+                    }
+                })
+            }
+
+            $('#deleteNameMappingModal').modal('show');
+            e.stopImmediatePropagation();
+        })
+    })
+}
+
+function CloseNewNameMappingForm() {
+    document.getElementById("newNameMappingRow").remove();
+}
+
+function AddNewNameMapping() {
+    var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
+    var placeholderElement = $('#modalContainer');
+
+    $.ajax({
+        data: pageValues,
+        type: "POST",
+        url: `Settings?handler=AddNameMapping`,
+        success: function (modalPartialView) {
+            if (modalPartialView.includes("DOCTYPE")) {
+                location.reload();
+            }
+            else {
+                placeholderElement.html(modalPartialView);
+                placeholderElement.find('.modal').modal('show');
+            }
+        }
+    })
+}
+
+
+function DeleteNameMapping(id) {
+    var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
+
+    $.ajax({
+        data: pageValues,
+        type: "POST",
+        url: `Settings?handler=DeleteNameMapping&Id=${id}`,
+        success: function () {
+            location.reload();
+        }
+    })
+}
 
 
 function ImportFile() {

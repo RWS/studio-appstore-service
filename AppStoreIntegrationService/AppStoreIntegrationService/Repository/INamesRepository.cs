@@ -16,5 +16,9 @@ namespace AppStoreIntegrationService.Repository
 		/// Reads all the name mappings from local file path
 		/// </summary>
 		Task<List<NameMapping>> ReadLocalNameMappings(string nameMappingsFilePath);
+
+		Task UpdateLocalNamesMapping(string nameMappingsFilePath, List<NameMapping> namesMapping);
+
+		Task DeleteNameMappingById(string nameMappingsFilePath, string id);
 	}
 }

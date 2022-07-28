@@ -1,0 +1,42 @@
+﻿@model List<AppStoreIntegrationService.Model.NameMapping>
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@for (int i = 0; i < Model.Count; i++)
+{
+    <tr class="table-row">
+        <td>
+            <input class="form-control" hidden="hidden" asp-for="@Model[i].Id">
+            <p class="m-0">@Model[i].Id</p>
+        </td>
+        <td class="editable-field">
+            <input class="form-control form-control-sm name-mapping-input" hidden="hidden" asp-for="@Model[i].OldName">
+            <p class="m-0 name-mapping w-100">@Model[i].OldName</p>
+        </td>
+        <td class="editable-field">
+            <input class="form-control form-control-sm name-mapping-input" hidden="hidden" asp-for="@Model[i].NewName">
+            <p class="m-0 name-mapping w-100">@Model[i].NewName</p>
+        </td>
+        <td class="icon-cell"><i class="fa fa-plus-circle"></i></td>
+        <td class="icon-cell"><i id="@Model[i].Id" class="fa fa-trash-alt name-mapping-eraser"></i></td>
+    </tr>
+}
+
+<div class="modal fade" id="deleteNameMappingModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="exampleModalLabel">Warning!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Action cannot be reverted!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="deleteNameMappingButton" class="btn btn-danger">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
