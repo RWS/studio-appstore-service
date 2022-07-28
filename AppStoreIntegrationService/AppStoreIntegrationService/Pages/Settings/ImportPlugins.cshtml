@@ -1,0 +1,22 @@
+﻿@page
+@model ImportPluginsModel
+@{
+    ViewData["Title"] = "Settings";
+    ViewData["ActivePage"] = ManageSettingsNav.ImportPlugins;
+}
+
+<h2>Settings</h2>
+<h4>Change site settings</h4>
+<hr class="w-100">
+<div class="row d-flex" id="settings-page">
+    <partial name="_SettingsNavPartial"></partial>
+    <div class="col-12 col-md-9" id="settings-details-container">
+        <div class="settings-details">
+            <h5>Import plugins</h5>
+            <form method="post" class="mt-3" enctype="multipart/form-data" id="import-file-form" onsubmit="return false;">
+                <input asp-for="@Model.ImportedFile" type="file" class="form-control mb-2" />
+                <button type="button" onclick="javascript: ImportFile()" class="btn btn-outline-secondary">Import</button>
+            </form>
+        </div>
+    </div>
+</div>

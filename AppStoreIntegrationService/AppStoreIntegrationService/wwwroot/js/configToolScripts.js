@@ -166,27 +166,11 @@ function DeleteVersion(id) {
 }
 
 function LoadSettingsPage() {
-
-    var navLinks = document.querySelectorAll('#settings-navbar .nav-link');
-    var settings = document.querySelectorAll('#settings-details-container .settings-details');
     var erasers = document.querySelectorAll('.table-row .name-mapping-eraser');
     var adders = document.querySelectorAll('.fa-plus-circle');
     var paragraphs = document.querySelectorAll('.name-mapping');
     var inputs = document.querySelectorAll('.name-mapping-input');
     var currentParagraphValue;
-
-    for (let i = 0; i < navLinks.length; i++) {
-        navLinks[i].addEventListener('click', function (event) {
-            for (let j = 0; j < navLinks.length; j++) {
-                settings[j].classList.add('d-none')
-                navLinks[j].classList.remove('active')
-            }
-
-            navLinks[i].classList.toggle('active');
-            settings[i].classList.toggle('d-none');
-            event.stopImmediatePropagation();
-        })
-    };
 
     paragraphs.forEach(p => {
         p.addEventListener('dblclick', (e) => {
@@ -208,7 +192,7 @@ function LoadSettingsPage() {
                 $.ajax({
                     data: pageValues,
                     type: "POST",
-                    url: `Settings?handler=UpdateNamesMapping`,
+                    url: `PluginsRename?handler=UpdateNamesMapping`,
                     success: function (modalPartialView) {
                         if (modalPartialView.includes("DOCTYPE")) {
                             location.reload();
@@ -234,7 +218,7 @@ function LoadSettingsPage() {
             $.ajax({
                 data: pageValues,
                 type: "POST",
-                url: `Settings?handler=AddNewNameMapping`,
+                url: `PluginsRename?handler=AddNewNameMapping`,
                 success: function (partialView) {
                     $("#newNameMappingPartial").html(partialView);
                 }
@@ -255,7 +239,7 @@ function LoadSettingsPage() {
                 $.ajax({
                     data: pageValues,
                     type: "POST",
-                    url: `Settings?handler=DeleteNameMapping&Id=${eraser.id}`,
+                    url: `PluginsRename?handler=DeleteNameMapping&Id=${eraser.id}`,
                     success: function () {
                         location.reload();
                     }
@@ -279,7 +263,7 @@ function AddNewNameMapping() {
     $.ajax({
         data: pageValues,
         type: "POST",
-        url: `Settings?handler=AddNameMapping`,
+        url: `PluginsRename?handler=AddNameMapping`,
         success: function (modalPartialView) {
             if (modalPartialView.includes("DOCTYPE")) {
                 location.reload();
@@ -299,7 +283,7 @@ function DeleteNameMapping(id) {
     $.ajax({
         data: pageValues,
         type: "POST",
-        url: `Settings?handler=DeleteNameMapping&Id=${id}`,
+        url: `PluginsRename?handler=DeleteNameMapping&Id=${id}`,
         success: function () {
             location.reload();
         }
@@ -316,7 +300,7 @@ function ImportFile() {
         type: "POST",
         contentType: false,
         processData: false,
-        url: "Settings?handler=ImportFile",
+        url: "ImportPlugins?handler=ImportFile",
         success: function (modalPartialView) {
             placeholderElement.html(modalPartialView);
             placeholderElement.find('.modal').modal('show');

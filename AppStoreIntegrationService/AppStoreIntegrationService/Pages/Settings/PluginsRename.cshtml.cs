@@ -1,33 +1,22 @@
 using AppStoreIntegrationService.Model;
 using AppStoreIntegrationService.Repository;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace AppStoreIntegrationService.Pages
+namespace AppStoreIntegrationService.Pages.Settings
 {
-    //[Authorize(Roles = "Administrator")]
-    public class Settings : PageModel
+    public class PluginsRenameModel : PageModel
     {
-        private readonly IPluginRepository _repository;
-        private readonly IWritableOptions<SiteSettings> _options;
         private readonly IConfigurationSettings _configurationSettings;
         private readonly INamesRepository _namesRepository;
 
-        public Settings(IPluginRepository repository, IWritableOptions<SiteSettings> options, IConfigurationSettings configurationSettings, INamesRepository namesRepository)
+        public PluginsRenameModel(IConfigurationSettings configurationSettings, INamesRepository namesRepository)
         {
             _configurationSettings = configurationSettings;
             _namesRepository = namesRepository;
-            _repository = repository;
-            _options = options;
         }
 
         [BindProperty]
@@ -36,15 +25,8 @@ namespace AppStoreIntegrationService.Pages
         [BindProperty]
         public NameMapping NewNameMapping { get; set; }
 
-        [BindProperty]
-        public string SiteName { get; set; }
-
-        [BindProperty]
-        public IFormFile ImportedFile { get; set; }
-
         public async Task<IActionResult> OnGet()
         {
-            SiteName = _options.Value.Name;
             NamesMapping = await _namesRepository.ReadLocalNameMappings(_configurationSettings.NameMappingsFilePath);
             return Page();
         }
@@ -113,42 +95,6 @@ namespace AppStoreIntegrationService.Pages
             };
 
             return Partial("_ModalPartial", modalDetails);
-        }
-
-        public async Task<IActionResult> OnPostExportPlugins()
-        {
-            var response = new PluginsResponse { Value = await _repository.GetAll("asc") };
-            var jsonString = JsonConvert.SerializeObject(response);
-            var stream = Encoding.UTF8.GetBytes(jsonString);
-            return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
-        }
-
-        public async Task<IActionResult> OnPostImportFile()
-        {
-            var modalDetails = new ModalMessage();
-            var success = await _repository.TryImportPluginsFromFile(ImportedFile);
-            if (success)
-            {
-                modalDetails.RequestPage = "/ConfigTool";
-                modalDetails.ModalType = ModalType.SuccessMessage;
-                modalDetails.Title = "Success!";
-                modalDetails.Message = $"The file content was imported! Return to plugins list?";
-            }
-            else
-            {
-                modalDetails.Title = string.Empty;
-                modalDetails.Message = "The file is empty or in wrong format!";
-                modalDetails.ModalType = ModalType.WarningMessage;
-            }
-
-            return Partial("_ModalPartial", modalDetails);
-        }
-
-        public async Task<IActionResult> OnPostSaveSiteName()
-        {
-            _options.SaveOption(new SiteSettings { Name = SiteName });
-            _options.Value.Name = SiteName;
-            return Redirect("Settings");
         }
 
         private bool IsValidNameMapping()

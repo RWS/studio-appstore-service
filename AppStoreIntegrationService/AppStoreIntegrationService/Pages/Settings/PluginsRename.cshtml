@@ -1,0 +1,46 @@
+﻿@page
+@model PluginsRenameModel
+@{
+    ViewData["Title"] = "Settings";
+    ViewData["ActivePage"] = ManageSettingsNav.PluginsRename;
+}
+
+<head>
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
+</head>
+
+<h2>Settings</h2>
+<h4>Change site settings</h4>
+<hr class="w-100">
+<div class="row d-flex" id="settings-page">
+    <partial name="_SettingsNavPartial"></partial>
+    <div class="col-12 col-md-9" id="namesMapping">
+        <div class="settings-details">
+            <h5>Plugin names mapping</h5>
+            <form method="post" onsubmit="return false">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr class="table-head-row">
+                            <th>Id</th>
+                            <th>Old Name</th>
+                            <th>New Name</th>
+                            <td class="icon-cell"><i class="fa fa-plus-circle"></i></td>
+                            <td class="icon-cell"><i class="fa fa-trash-alt"></i></td>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body">
+                        <partial name="_NamesMappingPartial" model="@Model.NamesMapping"></partial>
+                    </tbody>
+                    <tbody id="newNameMappingPartial">
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = () => {
+        LoadSettingsPage();
+    }
+</script>
