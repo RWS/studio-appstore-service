@@ -131,3 +131,18 @@ header {
     margin-right: 18px;
     margin-top: 3px;
 }
+
+.card-status {
+    padding: 0px 20px 0px 20px;
+    color: #4d4d4d !important;
+    font-weight: normal;
+    margin-bottom: 1px;
+}
+
+.card-item-inactive {
+    background-color: #F2F2F2
+}
+
+.pencil-color {
+    color: #848484;
+}
