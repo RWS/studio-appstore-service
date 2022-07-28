@@ -118,7 +118,7 @@ header {
 .status-selector {
     float: inline-end;
     width: 190px;
-    margin-right: 1rem;
+    margin-right: 17px;
     background: white;
     border-style: ridge;
     border-radius: 0.25rem;
@@ -128,5 +128,6 @@ header {
 
 .trash-edit-align {
     float: inline-end;
-    margin-right: 4px;
+    margin-right: 18px;
+    margin-top: 3px;
 }
