@@ -19,5 +19,12 @@ namespace AppStoreIntegrationService.Model
 		public SortType SortBy { get; set; }
 		public string Price { get; set; }
 		public List<int> CategoryId { get; set; }
+		public StatusValue Status { get; set; }
+		public enum StatusValue
+        {
+			Active,
+			Inactive,
+			All
+        }
 	}
 }

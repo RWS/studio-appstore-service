@@ -107,21 +107,24 @@ namespace AppStoreIntegrationService.Repository
             {
                 pluginsList = new List<PluginDetails>();
             }
-            var searchedPluginList = new List<PluginDetails>(pluginsList);
 
+            List<PluginDetails> searchedPluginList = FilterByStatus(pluginsList, filter.Status);
             if (!string.IsNullOrEmpty(filter?.Query))
             {
                 searchedPluginList = FilterByQuery(searchedPluginList, filter.Query);
             }
+
             if (!string.IsNullOrEmpty(filter?.Price))
             {
                 searchedPluginList = FilterByPrice(searchedPluginList, filter.Price);
 
             }
+
             if (!string.IsNullOrEmpty(filter?.StudioVersion))
             {
                 searchedPluginList = FilterByVersion(searchedPluginList, filter.StudioVersion);
             }
+
             if (filter?.CategoryId?.Count > 0)
             {
                 searchedPluginList = FilterByCategory(searchedPluginList, filter.CategoryId);
@@ -184,41 +187,13 @@ namespace AppStoreIntegrationService.Repository
             }
         }
 
-        private List<PluginDetails> FilterByCategory(List<PluginDetails> pluginsList, List<int> categoryIds)
+        private List<PluginDetails> FilterByStatus(List<PluginDetails> searchedPluginList, PluginFilter.StatusValue status)
         {
-            var searchedPluginsResult = new List<PluginDetails>();
-
-            foreach (var categoryId in categoryIds)
+            return status switch
             {
-                foreach (var plugin in pluginsList)
-                {
-                    if (plugin.Categories != null)
-                    {
-                        var containsCategory = plugin.Categories.Any(c => c.Id.Equals(categoryId));
-                        if (containsCategory)
-                        {
-                            var pluginExist = searchedPluginsResult.Any(p => p.Id.Equals(plugin.Id));
-                            if (!pluginExist)
-                            {
-                                searchedPluginsResult.Add(plugin);
-                            }
-                        }
-                    }
-                }
-            }
-            return searchedPluginsResult;
-        }
-
-        private List<PluginDetails> ApplySort(List<PluginDetails> pluginsList, PluginFilter.SortType sortType)
-        {
-            return sortType switch
-            {
-                PluginFilter.SortType.TopRated => pluginsList.OrderByDescending(p => p.RatingSummary?.AverageOverallRating).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.DownloadCount => pluginsList.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.ReviewCount => pluginsList.OrderByDescending(p => p.RatingSummary?.RatingsCount).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.LastUpdated => pluginsList.OrderByDescending(p => p.ReleaseDate).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.NewlyAdded => pluginsList.OrderByDescending(p => p.CreatedDate).ThenBy(p => p.Name).ToList(),
-                _ => pluginsList,
+                PluginFilter.StatusValue.Active => searchedPluginList.Where(x => !x.Inactive).ToList(),
+                PluginFilter.StatusValue.Inactive => searchedPluginList.Where(x => x.Inactive).ToList(),
+                _ => searchedPluginList
             };
         }
 
@@ -288,6 +263,44 @@ namespace AppStoreIntegrationService.Repository
             }
 
             return plugins;
+        }
+
+        private List<PluginDetails> FilterByCategory(List<PluginDetails> pluginsList, List<int> categoryIds)
+        {
+            var searchedPluginsResult = new List<PluginDetails>();
+
+            foreach (var categoryId in categoryIds)
+            {
+                foreach (var plugin in pluginsList)
+                {
+                    if (plugin.Categories != null)
+                    {
+                        var containsCategory = plugin.Categories.Any(c => c.Id.Equals(categoryId));
+                        if (containsCategory)
+                        {
+                            var pluginExist = searchedPluginsResult.Any(p => p.Id.Equals(plugin.Id));
+                            if (!pluginExist)
+                            {
+                                searchedPluginsResult.Add(plugin);
+                            }
+                        }
+                    }
+                }
+            }
+            return searchedPluginsResult;
+        }
+
+        private List<PluginDetails> ApplySort(List<PluginDetails> pluginsList, PluginFilter.SortType sortType)
+        {
+            return sortType switch
+            {
+                PluginFilter.SortType.TopRated => pluginsList.OrderByDescending(p => p.RatingSummary?.AverageOverallRating).ThenBy(p => p.Name).ToList(),
+                PluginFilter.SortType.DownloadCount => pluginsList.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Name).ToList(),
+                PluginFilter.SortType.ReviewCount => pluginsList.OrderByDescending(p => p.RatingSummary?.RatingsCount).ThenBy(p => p.Name).ToList(),
+                PluginFilter.SortType.LastUpdated => pluginsList.OrderByDescending(p => p.ReleaseDate).ThenBy(p => p.Name).ToList(),
+                PluginFilter.SortType.NewlyAdded => pluginsList.OrderByDescending(p => p.CreatedDate).ThenBy(p => p.Name).ToList(),
+                _ => pluginsList,
+            };
         }
 
         private void InitializeCategoryList()

@@ -49,6 +49,7 @@
     background-color: #28b059;
     border: #28b059;
     margin-bottom:5px;
+    width: 153px;
 }
 .add-pluginBtn:hover {
     background-color: #2aa65b !important;
@@ -156,41 +157,79 @@ header {
 }
 
 .filter-selectmenu {
-    border: transparent;
-    width: 5.4rem;
+    width: 6.5rem;
+    border: 0px solid #28b059;
+    border-right-width: 0px;
+    border-right-width: 10px;
     border-radius: 0.25rem 0px 0px 0.25rem;
-    text-align: center;
+    text-align: right;
     cursor: pointer;
+    padding-right: 2px;
+    padding-top: 0px;
+    margin-top: 1px;
 }
 
     .filter-selectmenu:hover {
         background-color: #2aa65b;
+        border-color: #2aa65b;
     }
 
 .filter-searchbar {
-    width: 200px;
+    width: 208px;
     height: 36px;
-    border-color: #28b059;
     outline: none;
     padding: 10px;
-    border-width: 1px 0px 1px 0px;
     margin-left: -5px;
+    border: 2px solid #28b059;
+    border-right-width: 0px
 }
 
     .filter-searchbar:focus {
         border-color: #2aa65b;
     }
 
+    .filter-searchbar:focus::placeholder {
+        color: transparent;
+    }
+
 .filter-searchicon {
     width: 30px;
     height: 36px;
     margin-left: -5px;
+    color: #929292;
     background: transparent;
-    color: #28b059;
-    border-color: #28b059;
     border-radius: 0px 0.25rem 0.25rem 0px;
-    border-width: 1px 1px 1px 0px;
-    box-shadow: 0 0 white;
+    border: 2px solid #28b059;
+    border-left-width: 2px;
+    border-left-width: 0px;
+    cursor: pointer;
+}
+
+    .filter-searchicon:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+.delete-filter {
+    background: #28b059;
+    color: white;
+    border-radius: 10px;
+    font-size: 14px;
+    padding: 4.4px 25px 0px 15px;
+    margin: 0.75rem 0.25rem 0.5rem 0px;
+    height: 30px;
+    display: none;
+}
+
+    .delete-filter:hover {
+        background: #2aa65b;
+        font-weight: 600;
+    }
+
+.delete-filter-img {
+    padding-left: 5px;
+    padding-right: 10px;
+    padding-bottom: 5px;
     cursor: pointer;
 }
 
@@ -203,5 +242,6 @@ header {
     justify-content: space-between;
     flex-wrap: nowrap;
     padding: 0px 15px;
+    margin-bottom: 2px;
 }
 

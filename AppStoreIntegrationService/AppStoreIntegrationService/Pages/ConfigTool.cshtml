@@ -16,23 +16,35 @@
             background-color: white;
         }
     </style>
-
 </head>
 
-<body>
-    <div class="container" id="configToolPage">
+<body onload="javascript: CheckForActiveFilters()">
+    <div id="configToolPage" class="container">
         <div class="align-left-filter-newapp row card-actions">
             <div>
-                <select id="PluginsFilter" name="PluginsFilter" class="filter-box filter-selectmenu">
-                    <option data="showAll">All</option>
-                    <option data="showActive">Active</option>
-                    <option data="showInactive">Inactive</option>
+                <select id="status" class="filter-box filter-selectmenu filter-searcharrow" onchange="javascript: ApplyFilters('status', 'search')">
+                    <option value="2" hidden selected>Status</option>
+                    <option value="0">Active</option>
+                    <option value="1">Inactive</option>
                 </select>
-                <input class="filter-searchbar" placeholder="Search plugin by name...">
-                <button class="filter-searchicon"><i class="fas fa-search"></i></button>
-            </>
+                <input id="search" class="filter-searchbar" placeholder="Search plugin by name..." onkeydown="javascript: ApplyFiltersOnEnterKey()">
+                <button id="applyFilters" class="filter-searchicon" onclick="javascript: ApplyFilters('search', 'status')"><i class="fas fa-search"></i></button>
             </div>
-            <button type="button" onclick="javascript: ShowNewPluginModal()" class="btn btn-secondary add-pluginBtn" style="float: right;"><i class="fas fa-puzzle-piece" style="margin-right:10px;color:white;"></i>New App</button>
+            <button type="button" onclick="javascript: ShowNewPluginModal()" class="btn btn-secondary add-pluginBtn"><i class="fas fa-puzzle-piece" style="margin-right:10px"></i>New App</button>
+        </div>
+        <div class="filter-activefilters">
+            <label id="clearAllFilter" class="delete-filter">
+                <i class="fas fa-times-circle delete-filter-img" onclick="javascript: RedirectTo('/ConfigTool','/configtool')"></i>
+                <label class="filter-current-label">Clear all</label>
+            </label>
+            <label id="clearStatusFilter" class="delete-filter">
+                <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('status')"></i>
+                <label id="labelStatusFilter" class="filter-current-label"></label>
+            </label>
+            <label id="clearSearchFilter" class="delete-filter">
+                <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('search')"></i>
+                <label id="labelSearchFilter" class="filter-current-label"></label>
+            </label>
         </div>
         <div class="row">
             <input hidden asp-for="@Model.Id" id="selectedPluginId" />
