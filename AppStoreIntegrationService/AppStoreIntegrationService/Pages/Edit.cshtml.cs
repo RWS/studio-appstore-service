@@ -253,6 +253,7 @@ namespace AppStoreIntegrationService
             PrivatePlugin = new PrivatePlugin
             {
                 Id = pluginDetails.Id,
+                PaidFor = pluginDetails.PaidFor,
                 DeveloperName = pluginDetails.Developer?.DeveloperName,
                 Description = pluginDetails.Description,
                 Name = pluginDetails.Name,

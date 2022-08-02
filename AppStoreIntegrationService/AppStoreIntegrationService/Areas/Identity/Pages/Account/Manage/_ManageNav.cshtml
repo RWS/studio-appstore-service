@@ -13,7 +13,7 @@
 
     </style>
 </head>
-<ul class="nav nav-pills flex-column">
+<ul class="nav nav-pills flex-column profile-navbar">
     <li class="nav-item"><a class="nav-link option @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a></li>
     <li class="nav-item"><a class="nav-link option @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Password</a></li>
     @if (User.IsInRole("Administrator"))
