@@ -277,3 +277,6 @@ header {
     margin-bottom: 2px;
 }
 
+.bold-text {
+    font-weight: bold;
+}
