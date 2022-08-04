@@ -1,22 +1,8 @@
-﻿<head>
-    <style>
-        .nav-pills .nav-link.active
-         {
-            color: #fff;
-            background-color: #28b059;
-        }
-        .option:focus {
-            background-color: white;
-        }
-
-    </style>
-</head>
-
-<div class="col-12 col-md-3">
+﻿<div class="col-12 col-md-3">
     <ul class="nav nav-pills flex-column" id="settings-navbar">
         <li class="nav-item"><a class="nav-link option @ManageSettingsNav.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Site name</a></li>
         <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ImportPluginsNavClass(ViewContext)" id="profile" asp-page="./ImportPlugins">Import plugins</a></li>
         <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ExportPluginsNavClass(ViewContext)" id="profile" asp-page="./ExportPlugins">Export plugins</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.PluginsRenameNavClass(ViewContext)" id="profile" asp-page="./PluginsRename">Plugin rename</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.PluginsRenameNavClass(ViewContext)" id="profile" asp-page="./PluginsRename">Renamed plugins</a></li>
     </ul>
 </div>

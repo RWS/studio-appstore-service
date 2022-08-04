@@ -7,14 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Pages\Settings1.cshtml.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Remove="Pages\Settings1.cshtml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
 		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />

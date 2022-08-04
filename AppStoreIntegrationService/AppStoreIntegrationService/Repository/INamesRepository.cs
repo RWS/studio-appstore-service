@@ -12,13 +12,15 @@ namespace AppStoreIntegrationService.Repository
 		/// <param name="pluginsNames">List of the name of the plugins for which we want to get the new name if exists</param>
 		/// <returns>List of name mappings if exist</returns>
 		Task<IEnumerable<NameMapping>> GetAllNameMappings(List<string> pluginsNames);
+
+		Task<IEnumerable<NameMapping>> GetAllNameMappings();
 		/// <summary>
 		/// Reads all the name mappings from local file path
 		/// </summary>
 		Task<List<NameMapping>> ReadLocalNameMappings(string nameMappingsFilePath);
 
-		Task UpdateLocalNamesMapping(string nameMappingsFilePath, List<NameMapping> namesMapping);
+		Task UpdateNamesMapping(List<NameMapping> namesMapping);
 
-		Task DeleteNameMappingById(string nameMappingsFilePath, string id);
+		Task DeleteNameMapping(string id);
 	}
 }

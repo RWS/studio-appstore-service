@@ -1,7 +1,7 @@
 .table-row .icon-cell,
-.table-head-row .icon-cell{
+.table-head-row .icon-cell {
     vertical-align: middle;
-    text-align:center;
+    text-align: center;
 }
 
 .field-validation-error {
@@ -80,12 +80,24 @@ body {
 }
 
 @media (max-width:768px) {
-    .profile-navbar,
+    #profile-navbar,
     #settings-navbar {
         border-bottom: 1px solid #E1E7EB;
         margin-bottom: 10px;
     }
 }
+
+#profile-navbar .nav-link.active,
+#settings-navbar .nav-link.active {
+    color: #fff;
+    background-color: #28b059;
+}
+
+#profile-navbar .nav-link .option:focus,
+#settings-navbar .nav-link .option:focus {
+    background-color: white;
+}
+
 
 .details-lbl {
     margin: 16px;
@@ -135,7 +147,7 @@ header {
     cursor: pointer;
 }
 
-.fa-pen {
+.fa-pen-alt {
     color: gray;
     cursor: pointer;
 }

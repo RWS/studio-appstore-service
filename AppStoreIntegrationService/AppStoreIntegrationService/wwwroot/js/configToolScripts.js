@@ -122,12 +122,11 @@ function DiscardChanges(goToPage) {
     window.location.href = `${goToPage}`;
 }
 
-function ShowVersionDetails(versionId) {
+function ShowVersionDetails(versionId, pageId) {
     var pageValues = "";
     var pageName = location.pathname.split("/").slice(-1).toString().toLowerCase();
     var url = `${pageName}?handler=ShowVersionDetails`;
 
-    console.log(pageName);
     document.getElementById("selectedVersionId").value = versionId;
 
     if (pageName == "edit") {
@@ -165,12 +164,44 @@ function DeleteVersion(id) {
     })
 }
 
+let currentParagraphValue;
+let oldData = '';
+let newData = '';
+
 function LoadSettingsPage() {
-    var erasers = document.querySelectorAll('.table-row .name-mapping-eraser');
-    var adders = document.querySelectorAll('.fa-plus-circle');
-    var paragraphs = document.querySelectorAll('.name-mapping');
-    var inputs = document.querySelectorAll('.name-mapping-input');
-    var currentParagraphValue;
+    let erasers = document.querySelectorAll('.table-row .name-mapping-eraser');
+    let paragraphs = document.querySelectorAll('.name-mapping');
+    let inputs = document.querySelectorAll('.name-mapping-input');
+    let editers = document.querySelectorAll('.icon-cell .fa-pen-alt');
+    let checkMarks = document.querySelectorAll('.icon-cell .fa-check-circle');
+    let discardBtns = document.querySelectorAll('.icon-cell .custom-cross');
+    let confirmDiscardBtn = document.getElementById('confirmDiscardChangesButton');
+    let discardChangesBtn = document.getElementById('discardNameMappingChangesButton');
+
+    discardBtns.forEach(btn => {
+        RegisterEvent(btn, '#confirmDiscardNameMapping', confirmDiscardBtn);
+    })
+
+    checkMarks.forEach(mark => {
+        RegisterEvent(mark, '#confirmEditNameMapping', discardChangesBtn);
+    });
+
+    editers.forEach(editer => {
+        editer.addEventListener('click', (e) => {
+            var inputs = editer.parentElement.parentElement.querySelectorAll('.editable-field .name-mapping-input');
+            var paragraphs = editer.parentElement.parentElement.querySelectorAll('.editable-field .name-mapping');
+            var editIcons = editer.parentElement.parentElement.querySelectorAll('.icon-cell i');
+
+            CloseNewNameMappingForm(function () {
+                CloseExistingEditForms(function () {
+                    ToggleNameMappingEditForm(inputs, paragraphs, false, true);
+                    UpdateEditPanelIcons(editIcons);
+                });
+            });
+
+            e.stopImmediatePropagation();
+        })
+    })
 
     paragraphs.forEach(p => {
         p.addEventListener('dblclick', (e) => {
@@ -184,57 +215,15 @@ function LoadSettingsPage() {
     })
 
     inputs.forEach(input => {
-        input.addEventListener('focusout', (e) => {
-            if (currentParagraphValue != e.target.value) {
-                var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
-                var placeholderElement = $('#modalContainer');
-
-                $.ajax({
-                    data: pageValues,
-                    type: "POST",
-                    url: `PluginsRename?handler=UpdateNamesMapping`,
-                    success: function (modalPartialView) {
-                        if (modalPartialView.includes("DOCTYPE")) {
-                            location.reload();
-                        }
-                        else {
-                            placeholderElement.html(modalPartialView);
-                            placeholderElement.find('.modal').modal('show');
-                        }
-                    }
-                })
-            }
-
-            e.target.hidden = true;
-            e.target.parentElement.children[1].classList.remove('d-none');
-            e.stopImmediatePropagation();
-        })
-    })
-
-    adders.forEach(adder => {
-        adder.addEventListener('click', () => {
-            var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
-
-            $.ajax({
-                data: pageValues,
-                type: "POST",
-                url: `PluginsRename?handler=AddNewNameMapping`,
-                success: function (partialView) {
-                    $("#newNameMappingPartial").html(partialView);
-                }
-            })
-        })
+        input.addEventListener('focusout', InputFocusEventListener)
     })
 
     erasers.forEach(eraser => {
         eraser.addEventListener('click', (e) => {
             var deleteNameMappingButton = document.getElementById('deleteNameMappingButton');
-            if (document.getElementById("newNameMappingRow") != null) {
-                document.getElementById("newNameMappingRow").remove();
-            }
+            CloseNewNameMappingForm();
 
-            deleteNameMappingButton.onclick = function ()
-            {
+            deleteNameMappingButton.onclick = function () {
                 var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
                 $.ajax({
                     data: pageValues,
@@ -252,11 +241,165 @@ function LoadSettingsPage() {
     })
 }
 
-function CloseNewNameMappingForm() {
-    document.getElementById("newNameMappingRow").remove();
+function CloseExistingEditForms(toggleCallback) {
+    var openInputs = document.querySelectorAll('.name-mapping-input-open');
+    var hiddenParagraphs = document.querySelectorAll('.name-mapping-closed');
+    var editCells = [];
+    newData = GetCurrentMappingData(openInputs);
+
+    if (openInputs.length > 0) {
+        editCells = openInputs[0].parentElement.parentElement.querySelectorAll('.icon-cell i');
+    }
+
+    if (oldData == newData) {
+        UpdateEditPanelIcons(editCells);
+        ToggleNameMappingEditForm(openInputs, hiddenParagraphs, false, false);
+        toggleCallback();
+    } else {
+        document.getElementById('confirmDiscardChangesButton').onclick = function () {
+            UpdateEditPanelIcons(editCells);
+            ToggleNameMappingEditForm(openInputs, hiddenParagraphs, true, false);
+            toggleCallback();
+        }
+
+        $('#confirmDiscardNameMapping').modal('show');
+    }
+}
+
+function GetCurrentMappingData(inputs) {
+    var data = '';
+    for (let input of inputs) {
+        data += input.value;
+    }
+
+    return data;
+}
+
+function ToggleNameMappingEditForm(inputs, paragraphs, restoreChanges, isOpen) {
+    oldData = '';
+    for (let j = 0; j < inputs.length; j++) {
+        if (restoreChanges) {
+            inputs[j].value = paragraphs[j].innerHTML;
+        }
+
+        inputs[j].classList.remove('name-mapping-input-open');
+        paragraphs[j].classList.remove('name-mapping-closed');
+
+        if (isOpen) {
+            inputs[j].hidden = false;
+            inputs[j].classList.add('name-mapping-input-open');
+            inputs[j].removeEventListener('focusout', InputFocusEventListener);
+            paragraphs[j].classList.add('name-mapping-closed');
+            oldData += paragraphs[j].innerHTML;
+        } else {
+            inputs[j].hidden = true;
+            inputs[j].addEventListener('focusout', InputFocusEventListener);
+        }
+
+        paragraphs[j].classList.toggle('d-none');
+    }
+}
+
+function UpdateEditPanelIcons(editIcons) {
+    for (let cell of editIcons) {
+        cell.classList.toggle('d-none');
+    }
+}
+
+function RegisterEvent(element, modalId, discardBtn) {
+    element.addEventListener('click', (e) => {
+        var inputs = element.parentElement.parentElement.querySelectorAll('.editable-field .name-mapping-input');
+        var paragraphs = element.parentElement.parentElement.querySelectorAll('.editable-field .name-mapping');
+        var editIcons = element.parentElement.parentElement.querySelectorAll('.icon-cell i');
+        newData = GetCurrentMappingData(inputs);
+
+        if (oldData == newData) {
+            ToggleNameMappingEditForm(inputs, paragraphs, false, false);
+            UpdateEditPanelIcons(editIcons);
+        }
+        else {
+            discardBtn.onclick = function () {
+                ToggleNameMappingEditForm(inputs, paragraphs, true, false);
+                UpdateEditPanelIcons(editIcons);
+            }
+
+            $(modalId).modal('show');
+        }
+
+        oldData = '';
+        e.stopImmediatePropagation();
+    })
+}
+
+function InputFocusEventListener(e) {
+    {
+        if (currentParagraphValue != e.target.value) {
+            UpdateNamesMapping();
+        }
+
+        e.target.hidden = true;
+        e.target.parentElement.children[1].classList.remove('d-none');
+        e.stopImmediatePropagation();
+    }
+}
+
+function UpdateNamesMapping() {
+    var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
+    var placeholderElement = $('#modalContainer');
+
+    $.ajax({
+        data: pageValues,
+        type: "POST",
+        url: `PluginsRename?handler=UpdateNamesMapping`,
+        success: function (modalPartialView) {
+            if (modalPartialView.includes("DOCTYPE")) {
+                location.reload();
+            }
+            else {
+                placeholderElement.html(modalPartialView);
+                placeholderElement.find('.modal').modal('show');
+            }
+        }
+    })
 }
 
 function AddNewNameMapping() {
+    var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
+
+    $.ajax({
+        data: pageValues,
+        type: "POST",
+        url: `PluginsRename?handler=AddNewNameMapping`,
+        success: function (partialView) {
+            $("#newNameMappingPartial").html(partialView);
+            CloseExistingEditForms(function () { return; })
+            window.scrollTo(0, document.getElementById("newNameMappingPartial").getBoundingClientRect().y);
+        }
+    })
+}
+
+function CloseNewNameMappingForm(confirmationCallback) {
+    var newNameMappingForm = document.getElementById("newNameMappingRow");
+    if (newNameMappingForm != null) {
+        var inputs = newNameMappingForm.querySelectorAll('.editable-field input');
+        var data = GetCurrentMappingData(inputs);
+        if (data == '') {
+            newNameMappingForm.remove();
+            confirmationCallback();
+
+        } else {
+            document.getElementById('confirmDiscardChangesButton').onclick = function () {
+                newNameMappingForm.remove();
+                confirmationCallback();
+            }
+
+            $('#confirmDiscardNameMapping').modal('show');
+        }
+    }
+
+    confirmationCallback();
+}
+function AddNameMapping() {
     var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
     var placeholderElement = $('#modalContainer');
 

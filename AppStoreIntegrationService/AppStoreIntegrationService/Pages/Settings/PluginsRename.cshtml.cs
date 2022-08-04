@@ -27,13 +27,13 @@ namespace AppStoreIntegrationService.Pages.Settings
 
         public async Task<IActionResult> OnGet()
         {
-            NamesMapping = await _namesRepository.ReadLocalNameMappings(_configurationSettings.NameMappingsFilePath);
+            NamesMapping = (await _namesRepository.GetAllNameMappings()).ToList();
             return Page();
         }
 
         public async Task<IActionResult> OnPostDeleteNameMapping(string id)
         {
-            await _namesRepository.DeleteNameMappingById(_configurationSettings.NameMappingsFilePath, id);
+            await _namesRepository.DeleteNameMapping(id);
             return Page();
         }
 
@@ -41,7 +41,7 @@ namespace AppStoreIntegrationService.Pages.Settings
         {
             if (!NamesMapping.Any(item => string.IsNullOrEmpty(item.OldName) || string.IsNullOrEmpty(item.NewName)))
             {
-                await _namesRepository.UpdateLocalNamesMapping(_configurationSettings.NameMappingsFilePath, NamesMapping);
+                await _namesRepository.UpdateNamesMapping(NamesMapping);
                 return Page();
             }
 
@@ -83,7 +83,7 @@ namespace AppStoreIntegrationService.Pages.Settings
             if (IsValidNameMapping())
             {
                 NamesMapping.Add(NewNameMapping);
-                await _namesRepository.UpdateLocalNamesMapping(_configurationSettings.NameMappingsFilePath, NamesMapping);
+                await _namesRepository.UpdateNamesMapping(NamesMapping);
                 return Page();
             }
 
