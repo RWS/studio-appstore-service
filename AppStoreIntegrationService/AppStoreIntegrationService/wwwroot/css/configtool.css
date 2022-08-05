@@ -157,3 +157,7 @@ header {
     transform-origin: center;
     color: red;
 }
+
+.focusWhite:focus {
+    background-color: white;
+}

@@ -1,8 +1,10 @@
 ﻿<div class="col-12 col-md-3">
     <ul class="nav nav-pills flex-column" id="settings-navbar">
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Site name</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ImportPluginsNavClass(ViewContext)" id="profile" asp-page="./ImportPlugins">Import plugins</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ExportPluginsNavClass(ViewContext)" id="profile" asp-page="./ExportPlugins">Export plugins</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.PluginsRenameNavClass(ViewContext)" id="profile" asp-page="./PluginsRename">Renamed plugins</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.IndexNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('/Settings')">Site name</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ImportPluginsNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('/Settings/ImportPlugins')">Import plugins</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ExportPluginsNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('/Settings/ExportPlugins')">Export plugins</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.PluginsRenameNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('/Settings/PluginsRename')">Renamed plugins</a></li>
     </ul>
 </div>
+
+<script src="~/js/PluginsRenameScript.js"></script>

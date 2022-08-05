@@ -1,10 +1,12 @@
 using AppStoreIntegrationService.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Threading.Tasks;
 
 namespace AppStoreIntegrationService.Pages.Settings
 {
+    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly IWritableOptions<SiteSettings> _options;

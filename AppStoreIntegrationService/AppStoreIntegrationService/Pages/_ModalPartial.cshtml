@@ -22,7 +22,7 @@
                 {
                     if (!string.IsNullOrEmpty(Model.RequestPage) && Model.RequestPage.Equals("add"))
                     {
-                        <button type="button" onclick="javascript: RedirectToPlugin('@Model.Id')" class="btn btn-secondary add-pluginBtn" data-dismiss="modal">Ok</button>
+                        <button type="button" onclick="javascript:  window.location.href = 'Edit?Id=${@Model.Id}'" class="btn btn-secondary add-pluginBtn" data-dismiss="modal">Ok</button>
                     }
                     else if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => page.Equals(Model.RequestPage)))
                     {
@@ -31,14 +31,14 @@
                     }
                     else
                     {
-                        <button type="button" onclick="javascript: ReloadPage()" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Ok</button>
+                        <button type="button" onclick="javascript: location.reload()" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-dismiss="modal">Ok</button>
                     }
                 }
                 @if (Model.ModalType == ModalType.WarningMessage)
                 {
                     if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => page.Equals(Model.RequestPage)))
                     {
-                        <button type="button" onclick="javascript: DiscardChanges('@Model.RequestPage')" class="btn btn-danger" data-dismiss="modal">Yes</button>
+                        <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-danger" data-dismiss="modal">Yes</button>
                         <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
                     }
                     else
