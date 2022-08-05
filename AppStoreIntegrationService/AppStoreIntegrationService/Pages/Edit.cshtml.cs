@@ -138,13 +138,7 @@ namespace AppStoreIntegrationService
         public async Task<IActionResult> OnPostDeleteVersionAsync(string id)
         {
             await _pluginRepository.RemovePluginVersion(PrivatePlugin.Id, id);
-            var modalDetails = new ModalMessage
-            {
-                ModalType = ModalType.SuccessMessage,
-                Title = "Version removed!",
-                Message = $"Click \"Ok\" to continue!"
-            };
-            return Partial("_ModalPartial", modalDetails);
+            return Page();
         }
 
         public async Task<IActionResult> OnPostShowVersionDetails()

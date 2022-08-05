@@ -1,4 +1,25 @@
-﻿function AddNewVersion() {
+﻿window.onload = () => {
+    var deleteBtns = document.querySelectorAll('#selectedVersion .fa-trash-alt');
+    deleteBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.getElementById('confirmDeletePluginVersionButton').onclick = function () {
+                var pageValues = $('#editFile').find('select, textarea, input').serialize();
+
+                $.ajax({
+                    async: true,
+                    data: pageValues,
+                    type: "POST",
+                    url: `Edit?handler=DeleteVersion&Id=${btn.id}`,
+                    success: AjaxSuccessCallback
+                })
+            }
+
+            $('#confirmDeletePluginVersion').modal('show');
+        })
+    })
+}
+
+function AddNewVersion() {
     var pageValues = $('#editFile').find('select, textarea, input').serialize();
     var url = "Edit?handler=AddVersion";
 
@@ -37,18 +58,6 @@ function ShowVersionDetails(versionId) {
         success: function (partialView) {
             $('#pluginVersionContainer').html(partialView);
         }
-    })
-}
-
-function DeleteVersion(id) {
-    var pageValues = $('#editFile').find('select, textarea, input').serialize();
-
-    $.ajax({
-        async: true,
-        data: pageValues,
-        type: "POST",
-        url: `Edit?handler=DeleteVersion&Id=${id}`,
-        success: AjaxSuccessCallback
     })
 }
 
