@@ -10,49 +10,49 @@
     <link rel="stylesheet" href="~/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/configtool.css" />
     <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
-    
-    <style>
-        .focusWhite:focus {
-            background-color: white;
-        }
-    </style>
+    <script src="~/js/configToolScripts.js"></script>
 </head>
-
-<body onload="javascript: CheckForActiveFilters()">
+<body>
+    <div id="toolsMenu" class="tools-menu">
+        <div id="filterSearch" class="filter-search">
+            <select id="status" class="filter-search-select" onchange="javscript: ApplyFilters('status', 'search')">
+                <option value="2" hidden selected>Status</option>
+                <option value="0">Active</option>
+                <option value="1">Inactive</option>
+            </select>
+            <input id="search" class="filter-search-text" autocomplete="off" placeholder="Search plugin" onkeydown="javascript: ApplyFiltersOnEnterKey()">
+            <i id="applyFilters" class="fas fa-search filter-search-submit" onclick="javascript: ApplyFilters('search', 'status')"></i>
+        </div>
+        <div id="newAppButton">
+            <a id="createNewPlugin" class="new-app-button" onclick="javascript: ShowNewPluginModal()">
+                <i class="fas fa-puzzle-piece" style="padding-right: 15px"></i>
+                New app
+            </a>
+        </div>
+    </div>
+    <div id="activeFilters" class="filter-activefilters">
+        <label id="clearAllFilter" class="delete-filter">
+            <i class="fas fa-times-circle delete-filter-img" onclick="javascript: RedirectTo('/ConfigTool','/configtool')"></i>
+            <label class="filter-current-label">Clear all</label>
+        </label>
+        <label id="clearStatusFilter" class="delete-filter">
+            <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('status')"></i>
+            <label id="labelStatusFilter" class="filter-current-label"></label>
+        </label>
+        <label id="clearSearchFilter" class="delete-filter">
+            <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('search')"></i>
+            <label id="labelSearchFilter" class="filter-current-label"></label>
+        </label>
+        <script>CheckForActiveFilters();</script>
+    </div>
     <div id="configToolPage" class="container">
-        <div class="align-left-filter-newapp row card-actions">
-            <div>
-                <select id="status" class="filter-box filter-selectmenu filter-searcharrow" onchange="javascript: ApplyFilters('status', 'search')">
-                    <option value="2" hidden selected>Status</option>
-                    <option value="0">Active</option>
-                    <option value="1">Inactive</option>
-                </select>
-                <input id="search" class="filter-searchbar" placeholder="Search plugin by name..." onkeydown="javascript: ApplyFiltersOnEnterKey()">
-                <button id="applyFilters" class="filter-searchicon" onclick="javascript: ApplyFilters('search', 'status')"><i class="fas fa-search"></i></button>
-            </div>
-            <button type="button" onclick="javascript: ShowNewPluginModal()" class="btn btn-secondary add-pluginBtn"><i class="fas fa-puzzle-piece" style="margin-right:10px"></i>New App</button>
-        </div>
-        <div class="filter-activefilters">
-            <label id="clearAllFilter" class="delete-filter">
-                <i class="fas fa-times-circle delete-filter-img" onclick="javascript: RedirectTo('/ConfigTool','/configtool')"></i>
-                <label class="filter-current-label">Clear all</label>
-            </label>
-            <label id="clearStatusFilter" class="delete-filter">
-                <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('status')"></i>
-                <label id="labelStatusFilter" class="filter-current-label"></label>
-            </label>
-            <label id="clearSearchFilter" class="delete-filter">
-                <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('search')"></i>
-                <label id="labelSearchFilter" class="filter-current-label"></label>
-            </label>
-        </div>
         <div class="row align-items-center">
             <input hidden asp-for="@Model.Id" id="selectedPluginId" />
             <input hidden asp-for="@Model.Name" id="selectedPluginName" />
 
             @foreach (var plugin in Model.PrivatePlugins)
             {
-                <div class="col-12 col-md-4 col-lg-3 p-0 card-container mb-4 d-flex justify-content-center">
+                <div class="card-spacing col-12 col-md-4 col-lg-3 p-0 card-container mb-4 d-flex justify-content-center">
                     <div class="card card-item @Html.Raw(@plugin.Inactive ? "card-item-inactive" : "")">
                         <div class="img-container">
                             <img class="img-item" src="@plugin.IconUrl" asp-append-version="true">
@@ -76,7 +76,6 @@
     </div>
     <script src="~/js/jquery.js"></script>
     <script src="~/js/bootstrap.js"></script>
-    <script src="~/js/configToolScripts.js"></script>
 </body>
 </html>
 

@@ -28,14 +28,12 @@
             }
 
             <input hidden asp-for="@Model[i].VersionName" />
-            <div>
-                <span>
-                    <a onclick="ShowVersionDetails('@Model[i].Id')" style="cursor:pointer;padding-right:5%%">@Model[i].VersionName</a>
-                    @if (Model.Count > 1)
-                    {
-                        <i onclick="DeleteVersion('@Model[i].Id')" class="trash-edit-align far fa-trash-alt pl-2"></i>
-                    }
-                </span>
+            <div class="version-row">
+                <label class="version-label" onclick="ShowVersionDetails('@Model[i].Id')">@Model[i].VersionName</label>
+                @if (Model.Count > 1)
+                {
+                    <i class="far fa-trash-alt pl-2 version-icon" onclick="DeleteVersion('@Model[i].Id')"></i>
+                }
             </div>
 
         }

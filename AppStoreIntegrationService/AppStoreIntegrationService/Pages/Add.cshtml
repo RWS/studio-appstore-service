@@ -22,9 +22,9 @@
                 <img class="details-img-item" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
             </div>
             <h5 class="plugin-title">@Model.PrivatePlugin.Name</h5>
-            <div class="status-align">
+            <div class="status-row">
                 <a class=status-label>Status</a>
-                <select class="status-selector" asp-for="@Model.PrivatePlugin.Inactive">
+                <select class="status-select" asp-for="@Model.PrivatePlugin.Inactive">
                     <option value="false">Active</option>
                     <option value="true">Inactive</option>
                 </select>
