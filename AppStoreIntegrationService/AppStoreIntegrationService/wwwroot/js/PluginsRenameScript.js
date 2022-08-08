@@ -77,15 +77,6 @@ window.onload = () => {
     })
 }
 
-function RedirectTo(goToPage) {
-    CloseNewNameMappingForm(function () {
-        CloseExistingEditForms(function () {
-            window.location.href = goToPage;
-        });
-    });
-}
-
-
 function CloseExistingEditForms(toggleCallback) {
     var openInputs = document.querySelectorAll('.name-mapping-input-open');
     var hiddenParagraphs = document.querySelectorAll('.name-mapping-closed');

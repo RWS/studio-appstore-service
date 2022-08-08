@@ -19,26 +19,6 @@ function AddPlugin() {
     })
 }
 
-function RedirectTo(goToPage) {
-    var pageValues = $('#addPlugin').find('select, textarea, input').serialize();;
-    var placeholderElement = $('#modalContainer');
-
-    $.ajax({
-        data: pageValues,
-        type: "POST",
-        url: `Add?handler=GoToPage&pageUrl=${goToPage}`,
-        success: function (modalPartialView) {
-            if (modalPartialView.includes("DOCTYPE")) {
-                window.location.href = goToPage;
-            }
-            else {
-                placeholderElement.html(modalPartialView);
-                placeholderElement.find('.modal').modal('show');
-            }
-        }
-    })
-}
-
 function ShowVersionDetails(versionId) {
     document.getElementById("selectedVersionId").value = versionId;
     var pageValues = $('#addPlugin').find('select, textarea, input').serialize();;

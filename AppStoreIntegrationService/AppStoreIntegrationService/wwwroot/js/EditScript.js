@@ -61,26 +61,6 @@ function ShowVersionDetails(versionId) {
     })
 }
 
-function RedirectTo(goToPage) {
-    var pageValues = $('#editFile').find('select, textarea, input').serialize();
-    var placeholderElement = $('#modalContainer');
-
-    $.ajax({
-        data: pageValues,
-        type: "POST",
-        url: `Edit?handler=GoToPage&pageUrl=${goToPage}`,
-        success: function (modalPartialView) {
-            if (modalPartialView.includes("DOCTYPE")) {
-                window.location.href = goToPage;
-            }
-            else {
-                placeholderElement.html(modalPartialView);
-                placeholderElement.find('.modal').modal('show');
-            }
-        }
-    })
-}
-
 function AjaxSuccessCallback(modalPartialView) {
     if (modalPartialView.includes("DOCTYPE")) {
         location.reload();

@@ -33,7 +33,3 @@ function AjaxSuccessCallback(modalPartialView) {
         $('#modalContainer').find('.modal').modal('show');
     }
 }
-
-function RedirectTo(goToPage) {
-    window.location.href = goToPage;
-}

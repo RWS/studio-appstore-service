@@ -1,28 +1,22 @@
 ﻿@inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-<style>
-    btn:focus, a:focus {
-        background-color: #2aa65b;
-        border: #2aa65b;
-    }
-</style>
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('/ConfigTool')" style="cursor: pointer" class="text-white nav-link">Plugins List</a>
+            <a onclick="javascript: RedirectTo('/ConfigTool', '@ViewContext.ActionDescriptor.DisplayName')" style="cursor: pointer" class="text-white nav-link">Plugins List</a>
         </li>
         @if (User.IsInRole("Administrator"))
         {
             <li class="nav-item">
-                <a onclick="javascript: RedirectTo('/Settings')" style="cursor: pointer" class="text-white nav-link">Settings</a>
+                <a onclick="javascript: RedirectTo('/Settings', '@ViewContext.ActionDescriptor.DisplayName')" style="cursor: pointer" class="text-white nav-link">Settings</a>
             </li>
         }
 
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('/Identity/Account/Manage')"
+            <a onclick="javascript: RedirectTo('/Identity/Account/Manage', '@ViewContext.ActionDescriptor.DisplayName')"
                id="manage" class="nav-link text-white" title="Manage">Hello @UserManager.GetUserName(User)!
             </a>
         </li>
