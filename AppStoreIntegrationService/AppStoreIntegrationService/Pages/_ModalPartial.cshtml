@@ -2,7 +2,14 @@
 @using AppStoreIntegrationService.Model;
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
-    var pages = new[] { "/ConfigTool", "/Settings", "/Identity/Account/Manage" };
+    var pages = new[] { 
+        "/ConfigTool", 
+        "/Settings",
+        "/Settings/PluginsRename",
+        "/Settings/ImportPlugins",
+        "/Settings/ExportPlugins",
+        "/Identity/Account/Manage" 
+    };
 }
 
 <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

@@ -3,6 +3,8 @@ using AppStoreIntegrationService.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,6 +69,32 @@ namespace AppStoreIntegrationService.Pages.Settings
             };
 
             return Partial("_NewNameMappingPartial", NewNameMapping);
+        }
+
+        public async Task<IActionResult> OnPostGoToPage(string pageUrl)
+        {
+            if (string.IsNullOrEmpty(NewNameMapping.NewName) &&
+                string.IsNullOrEmpty(NewNameMapping.OldName) &&
+                await HaveUnsavedChanges())
+            {
+                return Redirect(pageUrl);
+            }
+
+            var modalDetails = new ModalMessage
+            {
+                ModalType = ModalType.WarningMessage,
+                Title = "Warning!",
+                Message = $"There are unsaved changes for plugins rename. Discard changes?",
+                RequestPage = $"{pageUrl}"
+            };
+
+            return Partial("_ModalPartial", modalDetails);
+        }
+
+        private async Task<bool> HaveUnsavedChanges()
+        {
+            var savedNamesMapping = (await _namesRepository.GetAllNameMappings()).ToList();
+            return JsonConvert.SerializeObject(savedNamesMapping) == JsonConvert.SerializeObject(NamesMapping);
         }
 
         private string SetIndex()

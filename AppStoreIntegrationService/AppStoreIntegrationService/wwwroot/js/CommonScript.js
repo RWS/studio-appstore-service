@@ -9,12 +9,8 @@
         return;
     }
 
-    if (currentPage.includes("Settings")) {
-        CloseNewNameMappingForm(function () {
-            CloseExistingEditForms(function () {
-                window.location.href = goToPage;
-            });
-        });
+    if (currentPage == "/Settings/PluginsRename") {
+        CreateRequest(goToPage, $('#namesMapping').find('select, textarea, input').serialize(), `PluginsRename?handler=GoToPage&pageUrl=${goToPage}`);
         return;
     }
 
