@@ -211,6 +211,7 @@ namespace AppStoreIntegrationService
         }
         private async Task SetValues()
         {
+            PrivatePlugin.Name = PrivatePlugin.Name.Trim();
             SetVersionList();
             await SetCategoryList();
             // This method will be removed later after studio release. We had to move the download url  from plugin to version details. Studio still uses the url from the plugin details
