@@ -31,8 +31,12 @@ body {
 }
 
 .card-item {
-    height: 100%;
+    height: 90%;
     width: 75%;
+}
+
+.card-container{
+    min-height: 200px;
 }
 
 .card-body-flex {
