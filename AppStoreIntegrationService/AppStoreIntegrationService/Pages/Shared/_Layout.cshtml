@@ -7,7 +7,6 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="~/css/configtool.css" />
     <title>@ViewData["Title"] - PA Admin</title>
 
     <environment include="Development">
@@ -19,6 +18,8 @@
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
     </environment>
     <link rel="stylesheet" href="~/Identity/css/site.css" />
+    <link rel="stylesheet" href="~/css/configtool.css" />
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
 </head>
 <body>
     <header>
@@ -42,7 +43,7 @@
         </div>
     </header>
 
-    <div class="container">
+    <div class="container configtool-page-size">
         <partial name="_CookieConsentPartial" optional />
         <main role="main" class="pb-5">
             @RenderBody()
@@ -73,7 +74,7 @@
         </script>
     </environment>
     <script src="~/Identity/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/configToolScripts.js" asp-append-version="true"></script>
+    <script src="~/js/CommonScript.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 </body>

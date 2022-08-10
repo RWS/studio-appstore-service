@@ -18,6 +18,8 @@ namespace AppStoreIntegrationService.Repository
 		/// </summary>
 		public Task UpdatePluginsFileBlob(string fileContent);
 
+		public Task UpdateNameMappingsFileBlob(string fileContent);
+
 		/// <summary>
 		/// Backup plugins list
 		/// </summary>

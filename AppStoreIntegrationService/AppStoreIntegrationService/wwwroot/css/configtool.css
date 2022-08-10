@@ -1,9 +1,19 @@
+.table-row .icon-cell,
+.table-head-row .icon-cell {
+    vertical-align: middle;
+    text-align: center;
+}
+
 .field-validation-error {
     color: red;
 }
 
 body {
     overflow-x: hidden;
+}
+
+.configtool-page-size {
+    max-width: 1280px;
 }
 
 .image-container-details {
@@ -28,6 +38,10 @@ body {
 .card-item {
     height: 200px;
     width: 75%;
+}
+
+.card-container{
+    min-height: 200px;
 }
 
 .card-body-flex {
@@ -126,7 +140,7 @@ header {
     background-color: #2aa65b;
 }
 
-.fa-trash-alt {
+.fa-trash-alt, .fa-stop-circle {
     color: red;
     cursor: pointer;
 }
@@ -145,7 +159,7 @@ header {
 }
 
 .filter-activefilters {
-    margin: 0px 6rem 1rem 6rem;
+    margin: 0px 5.5rem 1rem 5.5rem;
 }
 
 .delete-filter {
@@ -186,7 +200,7 @@ header {
     display: flex;
     justify-content: space-between;
     flex-direction: row;
-    margin: 0rem 6rem 1rem 6rem;
+    margin: 0rem 5.5rem 1rem 5.5rem;
 }
 
 .new-app-button {
@@ -318,7 +332,11 @@ header {
     }
 
     .tools-menu {
-        margin: 0rem 4.5rem 1rem 4.5rem;
+        margin: 0rem 5rem 1rem 5rem;
+    }
+
+    .filter-activefilters {
+        margin: 0rem 5rem 1rem 5rem;
     }
 }
 
@@ -346,10 +364,33 @@ header {
     }
 }
 
+.focusTransparent:focus {
+    background-color: transparent;
+}
+
+
+.fa-plus-circle, .fa-check-circle {
+    color: green;
+    cursor: pointer;
+}
+
+.fa-pen-alt {
+    color: gray;
+    cursor: pointer;
+}
+
+.custom-cross {
+    transform: rotate(45deg);
+    transform-origin: center;
+    color: red;
+}
+
 .focusWhite:focus {
     background-color: white;
 }
 
-.focusTransparent:focus {
-    background-color: transparent;
+.navbar-nav btn:focus,
+.navbar-nav a:focus {
+    background-color: #2aa65b;
+    border: #2aa65b;
 }

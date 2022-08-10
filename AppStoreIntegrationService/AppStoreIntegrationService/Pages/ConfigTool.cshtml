@@ -4,83 +4,74 @@
 @{
     ViewData["Title"] = "ConfigTool";
 }
-
-<html>
-<head>
-    <link rel="stylesheet" href="~/css/bootstrap.css" />
-    <link rel="stylesheet" href="~/css/configtool.css" />
-    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
-</head>
-<body>
-    <div id="toolsMenu" class="tools-menu">
-        <div id="filterSearch" class="filter-search">
-            <select id="status" class="filter-search-select" onchange="javscript: ApplyFilter('status')">
-                <option value="2" hidden selected>Status</option>
-                <option value="0">Active</option>
-                <option value="1">Inactive</option>
-            </select>
-            <input id="search" class="filter-search-text" autocomplete="off" placeholder="Search plugin" onkeydown="javascript: ApplyFilterOnEnterKey()">
-            <i id="applyFilters" class="fas fa-search filter-search-submit" onclick="javascript: ApplyFilter('search')"></i>
-        </div>
-        <div id="newAppButton">
-            <a id="createNewPlugin" class="new-app-button" onclick="javascript: ShowNewPluginModal()">
-                <i class="fas fa-puzzle-piece" style="padding-right: 15px"></i>
-                New app
-            </a>
-        </div>
+<div id="toolsMenu" class="tools-menu">
+    <div id="filterSearch" class="filter-search">
+        <select id="status" class="filter-search-select" onchange="javscript: AddFilter('status')">
+            <option value="2" hidden selected>Status</option>
+            <option value="0">Active</option>
+            <option value="1">Inactive</option>
+        </select>
+        <input id="search" class="filter-search-text" autocomplete="off" placeholder="Search plugin" onkeydown="javascript: AddFilterOnEnterKey()">
+        <i id="applyFilters" class="fas fa-search filter-search-submit" onclick="javascript: AddFilter('search')"></i>
     </div>
-    <div id="activeFilters" class="filter-activefilters">
-        @{
-            var reqQuery = Request.Query;
-            var statusExists = reqQuery.TryGetValue("status", out var statusValue);
-            var searchExists = reqQuery.TryGetValue("search", out var searchValue);
-        }
-        <label id="clearAllFilter" class="delete-filter @Html.Raw(statusExists && searchExists ? "delete-filter-active" : "")">
-            <i class="fas fa-times-circle delete-filter-img" onclick="javascript: RedirectTo('/ConfigTool','/configtool')"></i>
-            <label class="filter-current-label">Clear all</label>
-        </label>
-        <label id="clearStatusFilter" class="delete-filter @Html.Raw(statusExists ? "delete-filter-active" : "")">
-            <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('status')"></i>
-            <label id="labelStatusFilter" class="filter-current-label">@Html.Raw(statusValue == "0" ? "Active" : statusValue == "1" ? "Inactive" : "All")</label>
-        </label>
-        <label id="clearSearchFilter" class="delete-filter @Html.Raw(searchExists ? "delete-filter-active" : "")">
-            <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('search')"></i>
-            <label id="labelSearchFilter" class="filter-current-label">@searchValue</label>
-        </label>
+    <div id="newAppButton">
+        <a id="createNewPlugin" class="new-app-button" onclick="javascript: ShowNewPluginModal()">
+            <i class="fas fa-puzzle-piece" style="padding-right: 15px"></i>
+            New app
+        </a>
     </div>
-    <div id="configToolPage" class="container">
-        <div id="pluginsList" class="plugins-list">
-            <input hidden asp-for="@Model.Id" id="selectedPluginId" />
-            <input hidden asp-for="@Model.Name" id="selectedPluginName" />
+</div>
 
-            @foreach (var plugin in Model.PrivatePlugins)
-            {
-                <div class="card-spacing col-12 col-md-4 col-lg-3 p-0 card-container mb-4 d-flex justify-content-center">
-                    <div class="card card-item @Html.Raw(@plugin.Inactive ? "card-item-inactive" : "")">
-                        <div class="img-container">
-                            <img class="img-item" src="@plugin.IconUrl" asp-append-version="true">
+<div id="activeFilters" class="filter-activefilters">
+    @{
+        var reqQuery = Request.Query;
+        var statusExists = reqQuery.TryGetValue("status", out var statusValue);
+        var searchExists = reqQuery.TryGetValue("search", out var searchValue);
+    }
+    <label id="clearAllFilter" class="delete-filter @Html.Raw(statusExists && searchExists ? "delete-filter-active" : "")">
+        <i class="fas fa-times-circle delete-filter-img" onclick="javascript: RedirectTo('/ConfigTool','/configtool')"></i>
+        <label class="filter-current-label">Clear all</label>
+    </label>
+    <label id="clearStatusFilter" class="delete-filter @Html.Raw(statusExists ? "delete-filter-active" : "")">
+        <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('status')"></i>
+        <label id="labelStatusFilter" class="filter-current-label">@Html.Raw(statusValue == "0" ? "Active" : statusValue == "1" ? "Inactive" : "All")</label>
+    </label>
+    <label id="clearSearchFilter" class="delete-filter @Html.Raw(searchExists ? "delete-filter-active" : "")">
+        <i class="fas fa-times-circle delete-filter-img" onclick="javascript: DeleteFilter('search')"></i>
+        <label id="labelSearchFilter" class="filter-current-label">@searchValue</label>
+    </label>
+</div>
+
+<div id="configToolPage" class="configtool-page-size">
+    <div id="pluginsList" class="plugins-list">
+        <input hidden asp-for="@Model.Id" id="selectedPluginId" />
+        <input hidden asp-for="@Model.Name" id="selectedPluginName" />
+
+        @foreach (var plugin in Model.PrivatePlugins)
+        {
+            <div class="card-spacing col-12 col-md-4 col-lg-3 p-0 card-container mb-4 d-flex justify-content-center">
+                <div class="card card-item @Html.Raw(@plugin.Inactive ? "card-item-inactive" : "")">
+                    <div class="img-container">
+                        <img class="img-item" src="@plugin.IconUrl" asp-append-version="true">
+                    </div>
+                    <div class="card-body card-body-flex">
+                        <label>@plugin.Name</label>
+                    </div>
+                    <div class="card-actions-alignment card-actions">
+                        <label class="card-status">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
+                        <div>
+                            <a class="focusTransparent" asp-page="Edit" asp-route-Id="@plugin.Id" id="edit-button"><i class="fas fa-pencil-alt pencil-color"></i></a>
+                            <a onclick="javascript: ShowConfirmationModal('@plugin.Id','@plugin.Name')" id="delete-button" style="cursor:pointer"><i class="far fa-trash-alt"></i></a>
                         </div>
-                        <div class="card-body card-body-flex">
-                            <label>@plugin.Name</label>
-                        </div>
-                            <div class="card-actions-alignment card-actions">
-                                <label class="card-status">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
-                                <div>
-                                    <a class="focusTransparent" asp-page="Edit" asp-route-Id="@plugin.Id" id="edit-button"><i class="fas fa-pencil-alt pencil-color"></i></a>
-                                    <a onclick="javascript: ShowConfirmationModal('@plugin.Id','@plugin.Name')" id="delete-button" style="cursor:pointer"><i class="far fa-trash-alt"></i></a>
-                                </div>
-                            </div>
                     </div>
                 </div>
-            }
-        </div>
-        <div id="addModalContainer"></div>
-        <div id="modalContainer"></div>
+            </div>
+        }
     </div>
-    <script src="~/js/jquery.js"></script>
-    <script src="~/js/bootstrap.js"></script>
-    <script src="~/js/configToolScripts.js"></script>
-</body>
-</html>
+    <div id="addModalContainer"></div>
+    <div id="modalContainer"></div>
+</div>
 
 
+<script src="~/js/ConfigToolScript.js"></script>
+<script src="~/js/JavaScript.js"></script>
