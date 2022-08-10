@@ -1,19 +1,27 @@
-﻿function ApplyFiltersOnEnterKey() {
+﻿function ApplyFilterOnEnterKey() {
     var expectedKey = 'Enter';
     if (event.key == expectedKey) {
-        ApplyFilters('search', 'status');
+        ApplyFilter('search');
     }
 }
 
-function ApplyFilters(firstParameter, secondParameter) {
+function ApplyFilter(filterToAdd) {
     var urlSearchParams = new URLSearchParams(window.location.search);
-    var urlParameters = "?";
-    if (urlSearchParams.has(secondParameter)) {
-        urlParameters += (secondParameter + "=" + urlSearchParams.get(secondParameter) + "&");
+    if (urlSearchParams.has(filterToAdd)) {
+        urlSearchParams.delete(filterToAdd);
     }
 
-    urlParameters += (firstParameter + "=" + encodeURIComponent(document.getElementById(firstParameter).value));
-    window.location.href = urlParameters;
+    var newFilterValue = unescape(encodeURIComponent(document.getElementById(filterToAdd).value)).trim();
+    if (newFilterValue != "") {
+        urlSearchParams.append(filterToAdd, (newFilterValue.charAt(0).toUpperCase() + newFilterValue.slice(1).toLowerCase()));
+    }
+
+    var urlParameters = "?";
+    urlSearchParams.forEach((value, filter) => {
+        urlParameters += (filter + "=" + value + "&");
+    });
+
+    window.location.href = urlParameters.slice(0, -1);
 }
 
 function DeleteFilter(filterToDelete) {
@@ -24,36 +32,12 @@ function DeleteFilter(filterToDelete) {
     }
 
     urlSearchParams.delete(filterToDelete);
-    var newUrlParameters = "?";
+    var urlParameters = "?";
     urlSearchParams.forEach((value, filter) => {
-        newUrlParameters += (filter + "=" + value + "&");
+        urlParameters += (filter + "=" + value + "&");
     });
 
-    window.location.href = newUrlParameters.slice(0, -1);
-}
-
-function CheckForActiveFilters() {
-    var urlSearchParams = new URLSearchParams(window.location.search);
-    if (Array.from(urlSearchParams).length > 1) {
-        document.getElementById('clearAllFilter').style.display = 'inline-block';
-    }
-
-    if (urlSearchParams.has('status')) {
-        var statusFilter = urlSearchParams.get('status');
-        var statusText = statusFilter == 0 ? "Active" : statusFilter == 1 ? "Inactive" : "All";
-        SetFilterValue('clearStatusFilter', 'labelStatusFilter', statusText);
-    }
-
-    if (urlSearchParams.has('search')) {
-        var searchFilter = urlSearchParams.get('search');
-        var searchText = searchFilter.charAt(0).toUpperCase() + searchFilter.slice(1).toLowerCase();
-        SetFilterValue('clearSearchFilter', 'labelSearchFilter', searchText);
-    }
-}
-
-function SetFilterValue(filterTarget, labelTarget, targetValue) {
-    document.getElementById(filterTarget).style.display = 'inline-block';
-    document.getElementById(labelTarget).innerHTML = targetValue;
+    window.location.href = urlParameters.slice(0, -1);
 }
 
 function AddNewVersion() {

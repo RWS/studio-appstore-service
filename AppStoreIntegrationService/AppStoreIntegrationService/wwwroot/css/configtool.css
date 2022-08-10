@@ -14,11 +14,12 @@ body {
 }
 
 .img-container {
-    height: 50px;
+    height: 30%;
+    padding-top: 5%;
 }
 
 .img-item {
-    height: 100%;
+    height: 50px;
     display: block;
     margin: auto;
     margin-top: 5px;
@@ -33,6 +34,8 @@ body {
     display: flex;
     flex-direction: column;
     text-align: center;
+    height: 50%;
+    justify-content: center;
 }
 
 .card-actions {
@@ -40,6 +43,7 @@ body {
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
+    height: 20%;
 }
 
     .card-actions a {
@@ -50,6 +54,7 @@ body {
     align-items: flex-start;
     justify-content: space-between;
     flex-wrap: nowrap;
+    padding: 0px 1rem 1rem 1rem;
 }
 
 #edit-button {
@@ -140,7 +145,7 @@ header {
 }
 
 .filter-activefilters {
-    margin: 0px 35px 1rem 35px;
+    margin: 0px 6rem 1rem 6rem;
 }
 
 .delete-filter {
@@ -158,6 +163,10 @@ header {
         font-weight: 600;
     }
 
+.delete-filter-active {
+    display: inline-block;
+}
+
 .delete-filter-img {
     padding-right: 10px;
     cursor: pointer;
@@ -168,14 +177,16 @@ header {
 }
 
 .card-spacing {
-    margin-bottom: 3.5rem !important;
+    margin-left: -1rem !important;
+    margin-bottom: 2rem !important;
+    margin-right: -1rem !important;
 }
 
 .tools-menu {
     display: flex;
     justify-content: space-between;
     flex-direction: row;
-    margin: 0rem 35px 1rem 35px;
+    margin: 0rem 6rem 1rem 6rem;
 }
 
 .new-app-button {
@@ -209,7 +220,7 @@ header {
     background: #28b059;
     height: 100%;
     width: 30%;
-    text-align: center;
+    text-align: left;
     border: 0px solid #28b059;
     border-right-width: 10px;
     border-left-width: 10px;
@@ -294,9 +305,20 @@ header {
     cursor: pointer;
 }
 
+.plugins-list {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 @media (max-width:992px) {
     .border-container {
         border-left: 0px solid #E1E7EB;
+    }
+
+    .tools-menu {
+        margin: 0rem 4.5rem 1rem 4.5rem;
     }
 }
 
@@ -311,10 +333,23 @@ header {
 @media (max-width:767px) {
     .tools-menu {
         flex-direction: column-reverse;
+        margin: 0rem 2.5rem 1rem 2.5rem;
+    }
+
+    .filter-activefilters {
+        margin: 0px 2.5rem 1rem 2.5rem;
     }
 
     .new-app-button {
         width: 100%;
         margin-bottom: 1rem;
     }
+}
+
+.focusWhite:focus {
+    background-color: white;
+}
+
+.focusTransparent:focus {
+    background-color: transparent;
 }
