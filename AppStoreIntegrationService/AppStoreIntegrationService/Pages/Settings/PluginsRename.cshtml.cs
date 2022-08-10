@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace AppStoreIntegrationService.Pages.Settings
 {
-    [Authorize]
+    [Authorize(Policy = "IsAdmin")]
     public class PluginsRenameModel : PageModel
     {
         private readonly IConfigurationSettings _configurationSettings;

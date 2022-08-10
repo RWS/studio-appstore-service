@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AppStoreIntegrationService.Pages.Settings
 {
-    [Authorize]
+    [Authorize(Policy = "IsAdmin")]
     public class IndexModel : PageModel
     {
         private readonly IWritableOptions<SiteSettings> _options;

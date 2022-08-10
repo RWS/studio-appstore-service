@@ -35,3 +35,7 @@ function CreateRequest(goToPage, pageValues, url) {
         }
     })
 }
+
+function DiscardChanges(goToPage) {
+    window.location.href = `${goToPage}`;
+}
