@@ -1,9 +1,15 @@
+.table-row .icon-cell,
+.table-head-row .icon-cell {
+    vertical-align: middle;
+    text-align: center;
+}
+
 .field-validation-error {
     color: red;
 }
 
-body{
-    overflow-x:hidden;
+body {
+    overflow-x: hidden;
 }
 
 .image-container-details{
@@ -25,8 +31,12 @@ body{
 }
 
 .card-item {
-    height: 100%;
+    height: 90%;
     width: 75%;
+}
+
+.card-container{
+    min-height: 200px;
 }
 
 .card-body-flex {
@@ -42,17 +52,17 @@ body{
     align-items: flex-end;
 }
 
-.card-actions a {
-    color: #CAD0D5 !important;
-}
+    .card-actions a {
+        color: #CAD0D5 !important;
+    }
 
 #edit-button {
     margin-right: 15px;
 }
 
-#edit-button:hover {
-    color: #87CEFA !important;
-}
+    #edit-button:hover {
+        color: #87CEFA !important;
+    }
 
 #delete-button:hover {
     color: #F08080 !important;
@@ -65,29 +75,41 @@ body{
     margin-bottom: 5px;
 }
 
-.add-pluginBtn:hover {
-    background-color: #2aa65b !important;
-    border: #2aa65b !important;
-}
+    .add-pluginBtn:hover {
+        background-color: #2aa65b !important;
+        border: #2aa65b !important;
+    }
 
 /*Edit page*/
 .border-container {
     border-left: 1px solid #E1E7EB;
 }
 
-@media (max-width:992px){
+@media (max-width:992px) {
     .border-container {
         border-left: 0px solid #E1E7EB;
     }
 }
 
 @media (max-width:768px) {
-    .profile-navbar,
+    #profile-navbar,
     #settings-navbar {
         border-bottom: 1px solid #E1E7EB;
         margin-bottom: 10px;
     }
 }
+
+#profile-navbar .nav-link.active,
+#settings-navbar .nav-link.active {
+    color: #fff;
+    background-color: #28b059;
+}
+
+#profile-navbar .nav-link .option:focus,
+#settings-navbar .nav-link .option:focus {
+    background-color: white;
+}
+
 
 .details-lbl {
     margin: 16px;
@@ -127,7 +149,33 @@ header {
     background-color: #2aa65b;
 }
 
-.fa-trash-alt {
+.fa-trash-alt, .fa-stop-circle {
     color: red;
     cursor: pointer;
+}
+
+.fa-plus-circle, .fa-check-circle {
+    color: green;
+    cursor: pointer;
+}
+
+.fa-pen-alt {
+    color: gray;
+    cursor: pointer;
+}
+
+.custom-cross {
+    transform: rotate(45deg);
+    transform-origin: center;
+    color: red;
+}
+
+.focusWhite:focus {
+    background-color: white;
+}
+
+.navbar-nav btn:focus,
+.navbar-nav a:focus {
+    background-color: #2aa65b;
+    border: #2aa65b;
 }

@@ -4,43 +4,26 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace AppStoreIntegrationService.Pages
+namespace AppStoreIntegrationService.Pages.Settings
 {
-    [Authorize(Roles = "Administrator")]
-    public class Settings : PageModel
+    [Authorize]
+    public class ImportPluginsModel : PageModel
     {
         private readonly IPluginRepository _repository;
-        private readonly IWritableOptions<SiteSettings> _options;
 
-        public Settings(IPluginRepository repository, IWritableOptions<SiteSettings> options)
+        public ImportPluginsModel(IPluginRepository repository)
         {
             _repository = repository;
-            _options = options;
         }
-
-        [BindProperty]
-        public string SiteName { get; set; }
 
         [BindProperty]
         public IFormFile ImportedFile { get; set; }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGet()
         {
-            SiteName = _options.Value.Name;
             return Page();
-        }
-
-        public async Task<IActionResult> OnPostExportPlugins()
-        {
-            var response = new PluginsResponse { Value = await _repository.GetAll("asc") };
-            var jsonString = JsonConvert.SerializeObject(response);
-            var stream = Encoding.UTF8.GetBytes(jsonString);
-            return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
         }
 
         public async Task<IActionResult> OnPostImportFile()
@@ -62,13 +45,6 @@ namespace AppStoreIntegrationService.Pages
             }
 
             return Partial("_ModalPartial", modalDetails);
-        }
-
-        public async Task<IActionResult> OnPostSaveSiteName()
-        {
-            _options.SaveOption(new SiteSettings { Name = SiteName });
-            _options.Value.Name = SiteName;
-            return Redirect("Settings");
         }
     }
 }

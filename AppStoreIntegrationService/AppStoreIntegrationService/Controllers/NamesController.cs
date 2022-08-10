@@ -22,7 +22,11 @@ namespace AppStoreIntegrationService.Controllers
 		[HttpGet("/mapNames")]
 	    public async Task<IActionResult> Get([FromQuery]PluginNamesRequest pluginNamesRequest)
 	    {
-		    if (!(pluginNamesRequest?.Name?.Count > 0)) return Ok(new List<NameMapping>());
+			if (!(pluginNamesRequest?.Name?.Count > 0))
+			{
+				return Ok(new List<NameMapping>());
+			} 
+
 		    var nameMappings = await _namesRepository.GetAllNameMappings(pluginNamesRequest.Name);
 		    return Ok(nameMappings);
 	    }

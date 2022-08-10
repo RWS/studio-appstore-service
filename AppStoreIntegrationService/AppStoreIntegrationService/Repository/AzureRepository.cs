@@ -60,7 +60,11 @@ namespace AppStoreIntegrationService.Repository
 
 		public async Task<List<NameMapping>> GetNameMappingsFromContainer()
 		{
-		    if (_nameMappingsBlockBlob is null) return new List<NameMapping>();
+		    if (_nameMappingsBlockBlob is null)
+            {
+				return new List<NameMapping>();
+			}
+
 			var containterContent = await _nameMappingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
 			var stream = new MemoryStream();
 
@@ -182,5 +186,10 @@ namespace AppStoreIntegrationService.Repository
 			cloudBlob.Properties.ContentType = Path.GetExtension(fileName);
 			return cloudBlob;
 		}
-	}
+
+        public async Task UpdateNameMappingsFileBlob(string fileContent)
+        {
+			await _nameMappingsBlockBlob.UploadTextAsync(fileContent);
+		}
+    }
 }
