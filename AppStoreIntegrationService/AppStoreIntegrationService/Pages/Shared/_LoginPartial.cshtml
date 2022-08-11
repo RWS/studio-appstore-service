@@ -6,23 +6,21 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('/ConfigTool', '@ViewContext.ActionDescriptor.DisplayName')" style="cursor: pointer" class="text-white nav-link">Plugins List</a>
+            <a onclick="javascript: RedirectTo('/ConfigTool', '@ViewContext.ActionDescriptor.DisplayName')" class="text-white nav-link cursor-pointer">Plugins List</a>
         </li>
         @if (User.IsInRole("Administrator"))
         {
             <li class="nav-item">
-                <a onclick="javascript: RedirectTo('/Settings', '@ViewContext.ActionDescriptor.DisplayName')" style="cursor: pointer" class="text-white nav-link">Settings</a>
+                <a onclick="javascript: RedirectTo('/Settings', '@ViewContext.ActionDescriptor.DisplayName')" class="text-white nav-link cursor-pointer">Settings</a>
             </li>
         }
 
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('/Identity/Account/Manage', '@ViewContext.ActionDescriptor.DisplayName')"
-               id="manage" class="nav-link text-white" title="Manage">Hello @UserManager.GetUserName(User)!
-            </a>
+            <a onclick="javascript: RedirectTo('/Identity/Account/Manage', '@ViewContext.ActionDescriptor.DisplayName')" class="nav-link text-white cursor-pointer" id="manage" title="Manage">Hello @UserManager.GetUserName(User)!</a>
         </li>
         <li class="nav-item">
             <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/configtool", new { area = "" })">
-                <button id="logout" type="submit" class="nav-link btn btn-link text-white">Sign out</button>
+                <button id="logout" type="submit" class="nav-link btn btn-link text-white cursor-pointer">Sign out</button>
             </form>
         </li>
 

@@ -394,3 +394,7 @@ header {
     background-color: #2aa65b;
     border: #2aa65b;
 }
+
+.cursor-pointer {
+    cursor: pointer;
+}

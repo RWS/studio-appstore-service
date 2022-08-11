@@ -15,7 +15,7 @@ namespace AppStoreIntegrationService.Model
                 Developer = string.IsNullOrEmpty(privateDetails.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privateDetails.DeveloperName },
                 Description = privateDetails.Description,
                 PaidFor = privateDetails.PaidFor,
-                Inactive = foundDetails.Inactive,
+                Inactive = privateDetails.Inactive,
                 Categories = privateDetails.Categories,
                 DownloadUrl = foundDetails.DownloadUrl,
                 Versions = PrepareVersions(foundDetails.Versions, selectedVersionDetails)
