@@ -7,20 +7,27 @@
 
 <partial name="_HeaderPartial" />
 
-<div class="row m-3" id="editFile">
-    <div class="col-12 p-0 pl-3 p-lg-2 col-lg-4">
-        <div class="image-container-details">
-            <img class="details-img-item" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
+    <div class="row m-3" id="editFile">
+        <div class="col-12 p-0 pl-3 p-lg-2 col-lg-4">
+            <div class="image-container-details">
+                <img class="details-img-item" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
+            </div>
+            <h5 class="plugin-title">@Model.PrivatePlugin.Name</h5>
+            <div class="status-row">
+                <a class=status-label>Status</a>
+                <select class="status-select" asp-for="@Model.PrivatePlugin.Inactive">
+                    <option value="false">Active</option>
+                    <option value="true">Inactive</option>
+                </select>
+            </div>
+            <div class="version-row" style="margin-bottom: 5px">
+                <label class="version-label bold-text">Versions</label>
+                <a class="version-icon version-icon-plus" onclick="javascript: AddNewVersion()"><i class="fas fa-plus"></i></a>
+            </div>
+            <div>
+                <partial name="_PluginVersionPartial" model="@Model.PrivatePlugin.Versions" />
+            </div>
         </div>
-        <h5 class="plugin-title">@Model.PrivatePlugin.Name</h5>
-        <div class="d-flex">
-            <h6 class="col-11 p-0">Versions</h6>
-            <a onclick="javascript: AddNewVersion()" class="new-version-button col-1 text-right"> <i class="fas fa-plus"></i></a>
-        </div>
-        <div>
-            <partial name="_PluginVersionPartial" model="@Model.PrivatePlugin.Versions" />
-        </div>
-    </div>
 
     <div class="col-12 col-lg-8 border-container">
 

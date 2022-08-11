@@ -29,21 +29,12 @@ namespace AppStoreIntegrationService.Controllers
 
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[AllowAnonymous]
-		[ResponseCache(Duration = 540, Location = ResponseCacheLocation.Any,VaryByQueryKeys =new[] {"*"})]
+		[ResponseCache(Duration = 540, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] {"*"})]
 		public async Task<IActionResult> Get([FromQuery]PluginFilter filter)
 		{
-			List<PluginDetails> pluginsList;
-			string sortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;
-			pluginsList = await PluginRepository.GetAll(sortOrder);
-	
-			if (!string.IsNullOrEmpty(filter.Price) || !string.IsNullOrEmpty(filter.Query) || 
-				!string.IsNullOrEmpty(filter.StudioVersion) || !string.IsNullOrEmpty(filter.SortOrder))
-			{
-				var plugins = PluginRepository.SearchPlugins(pluginsList,filter);
-				return Ok(plugins);
-			}
-
-			return Ok(pluginsList);
+			filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;
+			List<PluginDetails> pluginsList = await PluginRepository.GetAll(filter.SortOrder);
+			return Ok(PluginRepository.SearchPlugins(pluginsList, filter));
 		}
 
 		[HttpPut]

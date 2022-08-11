@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using AppStoreIntegrationService.Controllers;
+﻿using AppStoreIntegrationService.Controllers;
 using AppStoreIntegrationService.Model;
-using AppStoreIntegrationService.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AppStoreIntegrationService
 {
@@ -28,7 +27,6 @@ namespace AppStoreIntegrationService
         [BindProperty]
         public string Name { get; set; }
 
-
         public ConfigToolModel(PluginsController pluginsController, IHttpContextAccessor context)
         {
             _pluginsController = pluginsController;
@@ -38,13 +36,8 @@ namespace AppStoreIntegrationService
         public async Task OnGetAsync()
         {
             PrivatePlugins = new List<PrivatePlugin>();
-            var pluginFiler = new PluginFilter
-            {
-                SortOrder = "asc"
-            };
-
-            var privatePluginsResult = await _pluginsController.Get(pluginFiler);
-
+            PluginFilter pluginsFilters = ApplyFilters();
+            var privatePluginsResult = await _pluginsController.Get(pluginsFilters);
             if (privatePluginsResult is OkObjectResult resultObject && resultObject.StatusCode == 200)
             {
                 if (resultObject.Value is List<PluginDetails> privatePlugins)
@@ -87,7 +80,8 @@ namespace AppStoreIntegrationService
                     Description = pluginDetails.Description,
                     Name = pluginDetails.Name,
                     Categories = pluginDetails.Categories,
-                    Versions = pluginDetails.Versions
+                    Versions = pluginDetails.Versions,
+                    Inactive = pluginDetails.Inactive
                 };
                 var iconPath = string.Empty;
                 if (string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl))
@@ -108,6 +102,33 @@ namespace AppStoreIntegrationService
                 PrivatePlugins.Add(privatePlugin);
             }
         }
-       
+
+        private PluginFilter ApplyFilters()
+        {
+            const string statusFilter = "status";
+            const string searchFilter = "search";
+            IQueryCollection query = Request.Query;
+            PluginFilter filters = new PluginFilter
+            {
+                SortOrder = "asc",
+                Status = PluginFilter.StatusValue.All
+            };
+
+            if (query.ContainsKey(statusFilter))
+            {
+                bool isValidType = int.TryParse(query[statusFilter], out int statusValueIndex);
+                if (isValidType && Enum.IsDefined(typeof(PluginFilter.StatusValue), statusValueIndex))
+                {
+                    filters.Status = (PluginFilter.StatusValue)statusValueIndex;
+                }
+            }
+
+            if (query.ContainsKey(searchFilter))
+            {
+                filters.Query = query[searchFilter];
+            }
+
+            return filters;
+        }
     }
 }

@@ -253,7 +253,8 @@ namespace AppStoreIntegrationService
                 Name = pluginDetails.Name,
                 Categories = pluginDetails.Categories,
                 Versions = pluginDetails.Versions,
-                IconUrl = pluginDetails.Icon.MediaUrl
+                IconUrl = pluginDetails.Icon.MediaUrl,
+                Inactive = pluginDetails.Inactive
             };
             if (string.IsNullOrEmpty(PrivatePlugin.IconUrl))
             {
