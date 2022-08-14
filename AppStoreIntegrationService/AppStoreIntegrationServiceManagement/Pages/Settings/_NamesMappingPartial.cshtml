@@ -1,0 +1,63 @@
+﻿@model List<NameMapping>
+
+@for (int i = 0; i < Model.Count; i++)
+{
+    <tr class="table-row">
+        <td>
+            <input class="form-control" hidden="hidden" asp-for="@Model[i].Id">
+            <p class="m-0">@Model[i].Id</p>
+        </td>
+        <td class="editable-field">
+            <input class="form-control form-control-sm name-mapping-input name-mapping-input-nofocus" hidden="hidden" asp-for="@Model[i].OldName">
+            <p class="m-0 name-mapping w-100">@Model[i].OldName</p>
+        </td>
+        <td class="editable-field">
+            <input class="form-control form-control-sm name-mapping-input name-mapping-input-nofocus" hidden="hidden" asp-for="@Model[i].NewName">
+            <p class="m-0 name-mapping w-100">@Model[i].NewName</p>
+        </td>
+        <td class="icon-cell">
+            <i class="fa fa-pen-alt"></i>
+            <i class="fa fa-check-circle d-none"></i>
+        </td>
+        <td class="icon-cell">
+            <i id="@Model[i].Id" class="fa fa-trash-alt name-mapping-eraser"></i>
+            <i class="fa fa-plus-circle custom-cross d-none"></i>
+        </td>
+    </tr>
+}
+
+<div class="modal fade" id="deleteNameMappingModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this plugin name mapping?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" id="deleteNameMappingButton" class="btn add-plugin-btn">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmEditNameMapping" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Keep changes for plugin name mapping?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="discardNameMappingChangesButton" class="btn btn-secondary" data-bs-dismiss="modal">Discard</button>
+                <button type="button" onclick="UpdateNamesMapping()" class="btn add-plugin-btn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

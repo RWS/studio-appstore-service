@@ -1,0 +1,57 @@
+﻿@page
+@model PluginsRenameModel
+@{
+    ViewData["Title"] = "Settings";
+    ViewData["ActivePage"] = ManageSettingsNav.PluginsRename;
+}
+
+<h2>Settings</h2>
+<h4>Change site settings</h4>
+<hr class="w-100">
+<div class="row d-flex" id="settings-page">
+    <partial name="_SettingsNavPartial"></partial>
+    <div class="col-12 col-md-9" id="namesMapping">
+        <div class="settings-details">
+            <h5>Renamed plugins</h5>
+            <form method="post" onsubmit="return false">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr class="table-head-row">
+                            <th>Id</th>
+                            <th>Old Name</th>
+                            <th>New Name</th>
+                            <td class="icon-cell"><i onclick="AddNewNameMapping()" class="fa fa-plus-circle"></i></td>
+                            <td class="icon-cell"></td>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body">
+                        <partial name="_NamesMappingPartial" model="@Model.NamesMapping"></partial>
+                    </tbody>
+                    <tbody id="newNameMappingPartial">
+                    </tbody>
+                </table>
+                <button onclick="AddNewNameMapping()" class="btn add-plugin-btn">Add new</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="modalContainer"></div>
+
+<div class="modal fade" id="confirmDiscardNameMapping" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Discard changes for plugin name mapping?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" id="confirmDiscardChangesButton" data-bs-dismiss="modal" class="btn add-plugin-btn">Discard</button>
+            </div>
+        </div>
+    </div>
+</div>

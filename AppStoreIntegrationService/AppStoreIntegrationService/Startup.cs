@@ -59,8 +59,9 @@ namespace AppStoreIntegrationService
             if (!string.IsNullOrEmpty(configurationSettings.InstrumentationKey))
             {
                 services.AddApplicationInsightsTelemetry();
-                new TelemetryClient(new TelemetryConfiguration(configurationSettings.InstrumentationKey)).TrackEvent(
-                    "Application started");
+                new TelemetryClient(new TelemetryConfiguration{
+                    ConnectionString = configurationSettings.InstrumentationKey,
+                }).TrackEvent("Application started");
             }
 
             services.AddResponseCompression(options =>
