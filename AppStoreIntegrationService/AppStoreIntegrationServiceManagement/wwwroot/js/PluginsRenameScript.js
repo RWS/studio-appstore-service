@@ -9,25 +9,25 @@ window.onload = () => {
     const inputs = document.querySelectorAll('.name-mapping-input');
     const editers = document.querySelectorAll('.icon-cell .fa-pen-alt');
     const checkMarks = document.querySelectorAll('.icon-cell .fa-check-circle');
-    const discardBtns = document.querySelectorAll('.icon-cell .custom-cross');
+    const discardBtns = document.querySelectorAll('.icon-cell .fa-times-circle');
 
     discardBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            ToggleEditForm(GetCurrentRowElements(btn), function () { return; }, '#confirmDiscardNameMapping', document.getElementById('confirmDiscardChangesButton'));
+            ToggleEditForm(GetCurrentRowElements(btn, false), function () { return; }, '#confirmDiscardNameMapping', document.getElementById('confirmDiscardChangesButton'));
             e.stopImmediatePropagation();
         })
     })
 
     checkMarks.forEach(mark => {
         mark.addEventListener('click', (e) => {
-            ToggleEditForm(GetCurrentRowElements(mark), function () { return; }, '#confirmEditNameMapping', document.getElementById('discardNameMappingChangesButton'));
+            ToggleEditForm(GetCurrentRowElements(mark, false), function () { return; }, '#confirmEditNameMapping', document.getElementById('discardNameMappingChangesButton'));
             e.stopImmediatePropagation();
         })
     });
 
     editers.forEach(editer => {
         editer.addEventListener('click', (e) => {
-            const [inputs, paragraphs, icons] = GetCurrentRowElements(editer);
+            const [inputs, paragraphs, icons] = GetCurrentRowElements(editer, false);
 
             CloseNewNameMappingForm(function () {
                 CloseExistingEditForms(function () {
@@ -42,12 +42,10 @@ window.onload = () => {
 
     paragraphs.forEach(p => {
         p.addEventListener('dblclick', (e) => {
-            const [inputs, paragraphs, icons] = GetCurrentRowElements(p);
-
+            const [inputs, paragraphs, icons] = GetCurrentRowElements(p, true);
             CloseNewNameMappingForm(function () {
                 CloseExistingEditForms(function () {
-                    ToggleEditFormInputs(inputs, paragraphs, false, true);
-                    UpdateEditPanelIcons(icons);
+                    ToggleEditFormInputs(inputs, paragraphs, false, false);
                 });
             });
 
@@ -152,12 +150,17 @@ function ToggleEditForm(curentRowElements, callback, confirmationModalId, confir
     oldData = '';
 }
 
-function GetCurrentRowElements(element) {
-    return [
-        element.parentElement.parentElement.querySelectorAll('.editable-field .name-mapping-input'),
-        element.parentElement.parentElement.querySelectorAll('.editable-field .name-mapping'),
-        element.parentElement.parentElement.querySelectorAll('.icon-cell i')
-    ];
+function GetCurrentRowElements(element, isDoubleClickMode) {
+    return isDoubleClickMode ?
+        [
+            element.parentElement.querySelectorAll('.name-mapping-input'),
+            element.parentElement.querySelectorAll('.name-mapping'),
+            []
+        ] : [
+            element.parentElement.parentElement.querySelectorAll('.editable-field .name-mapping-input'),
+            element.parentElement.parentElement.querySelectorAll('.editable-field .name-mapping'),
+            element.parentElement.parentElement.querySelectorAll('.icon-cell i')
+        ];
 }
 
 function InputFocusEventListener(e) {

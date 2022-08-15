@@ -25,7 +25,7 @@
                 {
                     if (!string.IsNullOrEmpty(Model.RequestPage) && Model.RequestPage.Equals("add"))
                     {
-                        <button type="button" onclick="javascript:  window.location.href = 'Edit?Id=${@Model.Id}'" class="btn btn-secondary add-plugin-btn" data-bs-dismiss="modal">Ok</button>
+                        <button type="button" onclick="javascript:  window.location.href = 'Edit?Id=${@Model.Id}'" class="btn btn-secondary pa-admin-success-btn" data-bs-dismiss="modal">Ok</button>
                     }
                     else if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => page.Equals(Model.RequestPage)))
                     {
@@ -34,7 +34,7 @@
                     }
                     else
                     {
-                        <button type="button" onclick="javascript: location.reload()" class="btn btn-primary add-pluginBtn" style="margin-bottom:0px" data-bs-dismiss="modal">Ok</button>
+                        <button type="button" onclick="javascript: location.reload()" class="btn btn-primary pa-admin-success-btn" style="margin-bottom:0px" data-bs-dismiss="modal">Ok</button>
                     }
                 }
                 @if (Model.ModalType == ModalType.WarningMessage)
@@ -42,11 +42,11 @@
                     if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => page.Equals(Model.RequestPage)))
                     {
                         <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
-                        <button type="button" class="btn add-plugin-btn" data-bs-dismiss="modal">No</button>
+                        <button type="button" class="btn pa-admin-success-btn" data-bs-dismiss="modal">No</button>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-success add-plugin-btn" data-bs-dismiss="modal">Ok</button>
+                        <button type="button" class="btn btn-success pa-admin-success-btn" data-bs-dismiss="modal">Ok</button>
                     }
                 }
             </div>

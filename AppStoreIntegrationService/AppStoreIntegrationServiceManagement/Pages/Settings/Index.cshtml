@@ -13,11 +13,11 @@
     <partial name="_SettingsNavPartial"></partial>
     <div class="col-12 col-md-9" id="settings-details-container">
         <div class="settings-details">
-            <h2>Set site name</h2>
+            <h4>Set site name</h4>
             <div>
                 <form method="post" class="mt-3">
                     <input asp-for="@Model.SiteName" value="@Model.SiteName" class="form-control mb-2" />
-                    <button type="submit" asp-page-handler="SaveSiteName" class="btn add-plugin-btn">Set</button>
+                    <button type="submit" asp-page-handler="SaveSiteName" class="btn pa-admin-success-btn">Set</button>
                 </form>
             </div>
         </div>

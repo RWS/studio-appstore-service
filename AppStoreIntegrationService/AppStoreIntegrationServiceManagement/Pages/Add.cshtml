@@ -6,14 +6,14 @@
 
 <partial name="_HeaderPartial" />
 
-<div class="row m-3" id="addPlugin">
+<div class="row px-2" id="addPlugin">
     <div class="col-12 col-lg-4">
-        <div class="image-container-details">
-            <img class="details-img-item" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
+        <div class="d-flex justify-content-center">
+            <img class="img-thumbnail border-0" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
         </div>
-        <h5 class="plugin-title">@Model.PrivatePlugin.Name</h5>
-        <div class="status-row">
-            <a class=status-label>Status</a>
+        <h5 class="text-center p-1">@Model.PrivatePlugin.Name</h5>
+        <div class="d-flex justify-content-between py-2">
+            <a class="text-primary">Status</a>
             <select class="status-select" asp-for="@Model.PrivatePlugin.Inactive">
                 <option value="false">Active</option>
                 <option value="true">Inactive</option>
@@ -39,12 +39,12 @@
             }
 
             <div class="mb-3 d-flex align-content-center col-12 p-0">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Name">Plugin Name <span class="field-validation-error">*</span></label>
+                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Name">Plugin Name <span class="text-danger">*</span></label>
                 <input asp-for="PrivatePlugin.Name" class="form-control" />
                 <span asp-validation-for="PrivatePlugin.Name"></span>
             </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.IconUrl">Icon url <span class="field-validation-error">*</span></label>
+                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.IconUrl">Icon url <span class="text-danger">*</span></label>
                 <input asp-for="PrivatePlugin.IconUrl" class="form-control" />
                 <span asp-validation-for="PrivatePlugin.IconUrl"></span>
             </div>
@@ -54,7 +54,7 @@
                 <span asp-validation-for="PrivatePlugin.DeveloperName"></span>
             </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Description">Description <span class="field-validation-error">*</span></label>
+                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Description">Description <span class="text-danger">*</span></label>
                 <textarea asp-for="PrivatePlugin.Description" class="form-control" ></textarea>
                 <span asp-validation-for="PrivatePlugin.Description"></span>
             </div>
@@ -69,7 +69,7 @@
 
             <div id="pluginVersionContainer">@* used to render the selected version html *@</div>
             <div id="modalContainer"></div>
-            <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary add-plugin-btn ml-lg-3">Save</button>
+            <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary pa-admin-success-btn ml-lg-3">Save</button>
         </form>
     </div>
 </div>

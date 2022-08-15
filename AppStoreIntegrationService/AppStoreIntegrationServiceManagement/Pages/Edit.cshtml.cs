@@ -83,9 +83,9 @@ namespace AppStoreIntegrationServiceManagement.Pages
                 SetEditedValues();
                 try
                 {
-                    await _pluginRepository.AddPrivatePlugin(PrivatePlugin);
+                    await _pluginRepository.UpdatePrivatePlugin(PrivatePlugin);
                     modalDetails.ModalType = ModalType.SuccessMessage;
-                    modalDetails.Message = $"{PrivatePlugin.Name} was added.";
+                    modalDetails.Message = $"{PrivatePlugin.Name} was updated.";
                     modalDetails.Id = PrivatePlugin.Id;
                 }
                 catch (Exception e)

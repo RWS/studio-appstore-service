@@ -7,8 +7,8 @@
             <p class="m-0">@Model.Id</p>
         </div>
     </td>
-    <td class="editable-field"><input class="form-control form-control-sm" asp-for="@Model.NewName" /></td>
     <td class="editable-field"><input class="form-control form-control-sm" asp-for="@Model.OldName" /></td>
-    <td class="icon-cell"><i onclick="AddNameMapping()" class="fa fa-check-circle"></i></td>
-    <td class="icon-cell"><i onclick="CloseNewNameMappingForm(function() { return })" class="fa fa-plus-circle custom-cross"></i></td>
+    <td class="editable-field"><input class="form-control form-control-sm" asp-for="@Model.NewName" /></td>
+    <td class="icon-cell text-center"><i onclick="AddNameMapping()" class="fa fa-check-circle text-success cursor-pointer align-middle"></i></td>
+    <td class="icon-cell text-center"><i onclick="CloseNewNameMappingForm(function() { return })" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
 </tr>
