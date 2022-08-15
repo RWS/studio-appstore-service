@@ -126,6 +126,7 @@ body {
 .plugin-title {
     text-align: center;
     padding: 5px;
+    word-wrap: anywhere;
 }
 
 .new-version-button {
