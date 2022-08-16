@@ -126,6 +126,9 @@ body {
 .plugin-title {
     text-align: center;
     padding: 5px;
+}
+
+.plugin-name-wrap {
     word-wrap: anywhere;
 }
 

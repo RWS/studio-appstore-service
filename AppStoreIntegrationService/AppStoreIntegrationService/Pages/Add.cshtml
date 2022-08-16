@@ -13,7 +13,7 @@
             <div class="image-container-details">
                 <img class="details-img-item" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
             </div>
-            <h5 class="plugin-title">@Model.PrivatePlugin.Name</h5>
+            <h5 class="plugin-title plugin-name-wrap">@Model.PrivatePlugin.Name</h5>
             <div class="status-row">
                 <a class=status-label>Status</a>
                 <select class="status-select" asp-for="@Model.PrivatePlugin.Inactive">
