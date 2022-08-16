@@ -1,5 +1,5 @@
 using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

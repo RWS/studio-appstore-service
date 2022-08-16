@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Repository

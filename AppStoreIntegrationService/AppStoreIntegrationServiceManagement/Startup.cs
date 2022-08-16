@@ -8,6 +8,7 @@ using static AppStoreIntegrationServiceCore.Enums;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceManagement
 {

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {

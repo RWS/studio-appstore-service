@@ -1,6 +1,6 @@
 ﻿using System.Net.Mime;
 using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceAPI.Controllers

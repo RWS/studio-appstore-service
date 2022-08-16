@@ -1,4 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.Repository;
+﻿using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Hosting;
 
 namespace AppStoreIntegrationServiceCore.Model

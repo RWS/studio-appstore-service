@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
 using static AppStoreIntegrationServiceCore.Enums;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceAPI
 {

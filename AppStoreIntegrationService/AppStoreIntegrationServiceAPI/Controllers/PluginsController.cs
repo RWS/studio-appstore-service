@@ -1,12 +1,12 @@
 ﻿using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("[controller]")]
 	[Route("")]
 	[Produces(MediaTypeNames.Application.Json)]
