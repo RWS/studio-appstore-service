@@ -40,6 +40,12 @@ body {
     color: var(--pa-admin-color);
 }
 
+.new-version-button:hover {
+    cursor: pointer;    
+    color: var(--pa-admin-color-hover);
+}
+
+
 .card-status {
     color: #4d4d4d;
     margin-bottom: 0px;

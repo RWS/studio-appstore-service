@@ -25,7 +25,7 @@
                 {
                     if (!string.IsNullOrEmpty(Model.RequestPage) && Model.RequestPage.Equals("add"))
                     {
-                        <button type="button" onclick="javascript:  window.location.href = 'Edit?Id=${@Model.Id}'" class="btn btn-secondary pa-admin-success-btn" data-bs-dismiss="modal">Ok</button>
+                        <button type="button" onclick="javascript:  window.location.href = 'Edit?Id=@Model.Id'" class="btn btn-secondary pa-admin-success-btn" data-bs-dismiss="modal">Ok</button>
                     }
                     else if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => page.Equals(Model.RequestPage)))
                     {
