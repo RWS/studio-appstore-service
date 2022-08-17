@@ -9,8 +9,8 @@
         return;
     }
 
-    if (currentPage == "/Settings/PluginsRename") {
-        CreateRequest(goToPage, $('#namesMapping').find('select, textarea, input').serialize(), `PluginsRename?handler=GoToPage&pageUrl=${goToPage}`);
+    if (currentPage.includes("PluginsRename")) {
+        CreateRequest(goToPage, $('#namesMapping').find('select, textarea, input').serialize(), `PluginsRename/GoToPage/${goToPage.replaceAll('/', '.')}`);
         return;
     }
 

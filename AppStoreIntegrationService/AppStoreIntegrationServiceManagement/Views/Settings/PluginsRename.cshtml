@@ -1,5 +1,4 @@
-﻿@page
-@model PluginsRenameModel
+﻿@model PluginsRenameModel
 @{
     ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageSettingsNav.PluginsRename;
@@ -9,7 +8,7 @@
 <h4>Change site settings</h4>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
-    <partial name="_SettingsNavPartial"></partial>
+    <partial name="/Views/Settings/_SettingsNavPartial.cshtml" />
     <div class="col-12 col-md-9" id="namesMapping">
         <div class="settings-details">
             <h4>Renamed plugins</h4>
@@ -25,7 +24,7 @@
                         </tr>
                     </thead>
                     <tbody class="table-body">
-                        <partial name="_NamesMappingPartial" model="@Model.NamesMapping"></partial>
+                        <partial name="/Views/Settings/_NamesMappingPartial.cshtml" model="@Model.NamesMapping"/>
                     </tbody>
                     <tbody id="newNameMappingPartial">
                     </tbody>

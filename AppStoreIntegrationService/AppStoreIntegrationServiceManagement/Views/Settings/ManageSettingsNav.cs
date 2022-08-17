@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
 
-namespace AppStoreIntegrationServiceManagement.Pages.Settings
+namespace AppStoreIntegrationServiceManagement.Views.Settings
 {
     public static class ManageSettingsNav
     {

@@ -3,10 +3,11 @@
 
     $.ajax({
         data: formData,
+        async: true,
         type: "POST",
         contentType: false,
         processData: false,
-        url: "ImportPlugins?handler=ImportFile",
+        url: "ImportPlugins",
         success: AjaxSuccessCallback
     });
 }

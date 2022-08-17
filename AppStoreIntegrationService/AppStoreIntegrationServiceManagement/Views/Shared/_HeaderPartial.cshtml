@@ -1,0 +1,13 @@
+﻿@using AppStoreIntegrationServiceCore.Model;
+@inject IWritableOptions<SiteSettings> options;
+@{
+    var siteName = options.Value.Name;
+}
+@if (string.IsNullOrEmpty(siteName))
+{
+    <h2 style="color:white">PA Admin</h2>
+}
+else
+{
+    <h2 style="color:white">PA Admin - @siteName</h2>
+}

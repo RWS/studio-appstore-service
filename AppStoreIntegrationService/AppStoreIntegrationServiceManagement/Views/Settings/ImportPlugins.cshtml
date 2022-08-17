@@ -1,5 +1,4 @@
-﻿@page
-@model ImportPluginsModel
+﻿@model ImportPluginsModel
 @{
     ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageSettingsNav.ImportPlugins;
@@ -9,7 +8,7 @@
 <h4>Change site settings</h4>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
-    <partial name="_SettingsNavPartial"></partial>
+    <partial name="/Views/Settings/_SettingsNavPartial.cshtml" />
     <div class="col-12 col-md-9" id="settings-details-container">
         <div class="settings-details">
             <h4>Import plugins</h4>

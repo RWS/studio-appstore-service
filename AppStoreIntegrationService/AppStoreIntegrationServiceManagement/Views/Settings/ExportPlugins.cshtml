@@ -1,6 +1,4 @@
-﻿@page
-@model ExportPluginsModel
-@{
+﻿@{
     ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageSettingsNav.ExportPlugins;
 }
@@ -9,13 +7,13 @@
 <h4>Change site settings</h4>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
-    <partial name="_SettingsNavPartial"></partial>
+    <partial name="/Views/Settings/_SettingsNavPartial.cshtml" />
     <div class="col-12 col-md-9" id="settings-details-container">
         <div class="settings-details">
             <h4>Export plugins</h4>
             <div class="settings-details">
                 <form method="post" class="mt-3">
-                    <input type="submit" class="btn btn-outline-secondary" asp-page-handler="ExportPlugins" value="Export" />
+                    <input type="submit" class="btn btn-outline-secondary" asp-controller="ExportPlugins" asp-action="Export" value="Export" />
                 </form>
             </div>
         </div>

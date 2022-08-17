@@ -1,33 +1,33 @@
-using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AppStoreIntegrationServiceManagement.Pages.Settings
+namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Authorize(Policy = "IsAdmin")]
-    public class ImportPluginsModel : PageModel
+    [Route("Settings/[controller]")]
+    public class ImportPluginsController : Controller
     {
-        private readonly IPluginRepository _repository;
+        private readonly IPluginRepository _pluginRepository;
 
-        public ImportPluginsModel(IPluginRepository repository)
+        public ImportPluginsController(IPluginRepository pluginRepository)
         {
-            _repository = repository;
+            _pluginRepository = pluginRepository;
         }
 
-        [BindProperty]
-        public IFormFile ImportedFile { get; set; }
-
-        public async Task<IActionResult> OnGet()
+        [HttpGet]
+        public IActionResult Get()
         {
-            return Page();
+            return View("Views/Settings/ImportPlugins.cshtml", new ImportPluginsModel());
         }
 
-        public async Task<IActionResult> OnPostImportFile()
+        [HttpPost]
+        public async Task<IActionResult> Import(ImportPluginsModel import)
         {
             var modalDetails = new ModalMessage();
-            var success = await _repository.TryImportPluginsFromFile(ImportedFile);
+            var success = await _pluginRepository.TryImportPluginsFromFile(import.ImportedFile);
             if (success)
             {
                 modalDetails.RequestPage = "/ConfigTool";
@@ -42,7 +42,7 @@ namespace AppStoreIntegrationServiceManagement.Pages.Settings
                 modalDetails.ModalType = ModalType.WarningMessage;
             }
 
-            return Partial("_ModalPartial", modalDetails);
+            return PartialView("/Views/_ModalPartial.cshtml", modalDetails);
         }
     }
 }
