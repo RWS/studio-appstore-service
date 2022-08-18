@@ -8,17 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Pages\Settings\ExportPlugins.cshtml" />
-    <None Include="Pages\Settings\ImportPlugins.cshtml" />
-    <None Include="Pages\Settings\Index.cshtml" />
-    <None Include="Pages\Settings\PluginsRename.cshtml" />
-    <None Include="Pages\Settings\_NamesMappingPartial.cshtml" />
-    <None Include="Pages\Settings\_NewNameMappingPartial.cshtml" />
-    <None Include="Pages\Settings\_SettingsNavPartial.cshtml" />
-    <None Include="Pages\Settings\_ViewImports.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.8" />

@@ -1,4 +1,4 @@
-﻿@model SiteNameModel
+﻿@model SiteSettings
 
 @{
     ViewData["Title"] = "Settings";
@@ -8,17 +8,16 @@
 <h4>Change site settings</h4>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
-    <partial name="/Views/Settings/_SettingsNavPartial.cshtml"/>
+    <partial name="_SettingsNavPartial" />
     <div class="col-12 col-md-9" id="settings-details-container">
         <div class="settings-details">
             <h4>Set site name</h4>
             <div>
                 <form method="post" class="mt-3">
                     <input asp-for="@Model.Name" value="@Model.Name" class="form-control mb-2" />
-                    <button type="submit" asp-controller="SiteName" asp-action="Update" class="btn pa-admin-success-btn">Set</button>
+                    <button type="submit" asp-controller="Settings" asp-action="Update" class="btn pa-admin-success-btn">Set</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-

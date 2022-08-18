@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Authorize(Policy = "IsAdmin")]
-    [Route("Settings/[controller]")]
     public class PluginsRenameController : Controller
     {
         private readonly INamesRepository _namesRepository;
@@ -18,20 +17,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             _namesRepository = namesRepository;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        [Route("Settings/PluginsRename")]
+        public async Task<IActionResult> Index()
         {
-            return View("Views/Settings/PluginsRename.cshtml", new PluginsRenameModel
+            return View(new PluginsRenameModel
             {
                 NamesMapping = await _namesRepository.GetAllNameMappings()
             });
         }
 
-        [Route("/Settings/PluginsRename/AddNewNameMapping")]
         [HttpPost]
-        public IActionResult AddNewNameMapping(IEnumerable<NameMapping> mappings) 
+        public IActionResult AddNew(IEnumerable<NameMapping> mappings) 
         {
-            return PartialView("/Views/Settings/_NewNameMappingPartial.cshtml", new NameMapping
+            return PartialView("_NewNameMappingPartial", new NameMapping
             {
                 Id = SetIndex(mappings),
                 OldName = "",
@@ -39,15 +37,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             });
         }
 
-        [Route("/Settings/PluginsRename/AddNameMapping")]
         [HttpPost]
-        public async Task<IActionResult> AddNameMapping(NameMapping mapping, List<NameMapping> mappings)
+        public async Task<IActionResult> Add(NameMapping mapping, List<NameMapping> mappings)
         {
             if (IsValidNameMapping(mapping))
             {
                 mappings.Add(mapping);
                 await _namesRepository.UpdateNamesMapping(mappings);
-                return RedirectToAction("Get");
+                return RedirectToAction("Index");
             }
 
             var modalDetails = new ModalMessage
@@ -57,17 +54,16 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 ModalType = ModalType.WarningMessage
             };
 
-            return PartialView("/Views/_ModalPartial.cshtml", modalDetails);
+            return PartialView("_ModalPartial", modalDetails);
         }
 
-        [Route("/Settings/PluginsRename/UpdateNamesMapping")]
         [HttpPost]
-        public async Task<IActionResult> UpdateNamesMapping(List<NameMapping> mappings)
+        public async Task<IActionResult> Update(List<NameMapping> mappings)
         {
             if (!mappings.Any(item => string.IsNullOrEmpty(item.OldName) || string.IsNullOrEmpty(item.NewName)))
             {
                 await _namesRepository.UpdateNamesMapping(mappings);
-                return RedirectToAction("Get");
+                return RedirectToAction("Index");
             }
 
             var modalDetails = new ModalMessage
@@ -77,18 +73,17 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 ModalType = ModalType.WarningMessage
             };
 
-            return PartialView("/Views/_ModalPartial.cshtml", modalDetails);
+            return PartialView("_ModalPartial", modalDetails);
         }
 
-        [Route("/Settings/PluginsRename/DeleteNameMapping/{id}")]
         [HttpPost]
-        public async Task<IActionResult> DeleteNameMapping(string id)
+        public async Task<IActionResult> Delete(string id)
         {
             await _namesRepository.DeleteNameMapping(id);
-            return RedirectToAction("Get");
+            return RedirectToAction("Index");
         }
 
-        [Route("/Settings/PluginsRename/GoToPage/{pageUrl}")]
+        [Route("[controller]/[action]/{pageUrl?}")]
         [HttpPost]
         public async Task<IActionResult> GoToPage(string pageUrl, NameMapping mapping, List<NameMapping> mappings)
         {
@@ -107,7 +102,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 RequestPage = $"{pageUrl.Replace('.', '/')}"
             };
 
-            return PartialView("/Views/_ModalPartial.cshtml", modalDetails);
+            return PartialView("_ModalPartial", modalDetails);
         }
 
         private async Task<bool> HaveUnsavedChanges(List<NameMapping> mappings)

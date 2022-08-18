@@ -7,7 +7,7 @@
         type: "POST",
         contentType: false,
         processData: false,
-        url: "ImportPlugins",
+        url: "/ImportExportPlugins/CreateImport",
         success: AjaxSuccessCallback
     });
 }

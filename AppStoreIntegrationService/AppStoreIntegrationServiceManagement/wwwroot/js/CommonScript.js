@@ -10,7 +10,7 @@
     }
 
     if (currentPage.includes("PluginsRename")) {
-        CreateRequest(goToPage, $('#namesMapping').find('select, textarea, input').serialize(), `PluginsRename/GoToPage/${goToPage.replaceAll('/', '.')}`);
+        CreateRequest(goToPage, $('#namesMapping').find('select, textarea, input').serialize(), `/PluginsRename/GoToPage/${goToPage.replaceAll('/', '.')}`);
         return;
     }
 

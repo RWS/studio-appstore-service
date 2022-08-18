@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace AppStoreIntegrationServiceManagement.Views.Settings
+namespace AppStoreIntegrationServiceManagement.Views.Shared
 {
     public static class ManageSettingsNav
     {
@@ -23,7 +23,7 @@ namespace AppStoreIntegrationServiceManagement.Views.Settings
         private static string PageNavClass(ViewContext viewContext, string page)
         {
             var activePage = viewContext.ViewData["ActivePage"] as string
-                ?? System.IO.Path.GetFileNameWithoutExtension(viewContext.ActionDescriptor.DisplayName);
+                ?? Path.GetFileNameWithoutExtension(viewContext.ActionDescriptor.DisplayName);
             return string.Equals(activePage, page, StringComparison.OrdinalIgnoreCase) ? "active" : null;
         }
     }

@@ -1,6 +1,6 @@
 ﻿<div class="col-12 col-md-3">
     <ul class="nav nav-pills flex-column" id="settings-navbar">
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.IndexNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('/Settings/SiteName', '@ViewContext.ActionDescriptor.DisplayName')">Site name</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.IndexNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('/Settings', '@ViewContext.ActionDescriptor.DisplayName')">Site name</a></li>
         <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ImportPluginsNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('/Settings/ImportPlugins', '@ViewContext.ActionDescriptor.DisplayName')">Import plugins</a></li>
         <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ExportPluginsNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('/Settings/ExportPlugins', '@ViewContext.ActionDescriptor.DisplayName')">Export plugins</a></li>
         <li class="nav-item"><a class="nav-link option @ManageSettingsNav.PluginsRenameNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('/Settings/PluginsRename', '@ViewContext.ActionDescriptor.DisplayName')">Renamed plugins</a></li>

@@ -3,28 +3,44 @@ using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Authorize(Policy = "IsAdmin")]
-    [Route("Settings/[controller]")]
-    public class ImportPluginsController : Controller
+    public class ImportExportPluginsController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
 
-        public ImportPluginsController(IPluginRepository pluginRepository)
+        public ImportExportPluginsController(IPluginRepository pluginRepository)
         {
             _pluginRepository = pluginRepository;
         }
 
-        [HttpGet]
-        public IActionResult Get()
+        [Route("Settings/ExportPlugins")]
+        public IActionResult Export()
         {
-            return View("Views/Settings/ImportPlugins.cshtml", new ImportPluginsModel());
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Import(ImportPluginsModel import)
+        public async Task<IActionResult> CreateExport()
+        {
+            var response = new PluginsResponse { Value = await _pluginRepository.GetAll("asc") };
+            var jsonString = JsonConvert.SerializeObject(response);
+            var stream = Encoding.UTF8.GetBytes(jsonString);
+            return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
+        }
+
+        [Route("Settings/ImportPlugins")]
+        public IActionResult Import()
+        {
+            return View(new ImportPluginsModel());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateImport(ImportPluginsModel import)
         {
             var modalDetails = new ModalMessage();
             var success = await _pluginRepository.TryImportPluginsFromFile(import.ImportedFile);
@@ -42,7 +58,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 modalDetails.ModalType = ModalType.WarningMessage;
             }
 
-            return PartialView("/Views/_ModalPartial.cshtml", modalDetails);
+            return PartialView("_ModalPartial", modalDetails);
         }
     }
 }
