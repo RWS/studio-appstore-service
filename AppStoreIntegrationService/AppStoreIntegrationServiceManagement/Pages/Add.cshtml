@@ -11,7 +11,7 @@
         <div class="d-flex justify-content-center">
             <img class="img-thumbnail border-0" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
         </div>
-        <h5 class="text-center p-1">@Model.PrivatePlugin.Name</h5>
+        <h5 class="text-center text-wrap p-1">@Model.PrivatePlugin.Name</h5>
         <div class="d-flex justify-content-between py-2">
             <a class="text-primary">Status</a>
             <select class="status-select" asp-for="@Model.PrivatePlugin.Inactive">

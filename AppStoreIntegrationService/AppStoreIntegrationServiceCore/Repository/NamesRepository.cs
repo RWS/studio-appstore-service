@@ -46,7 +46,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task<List<NameMapping>> ReadLocalNameMappings(string nameMappingsFilePath)
         {
             var nameMappings = await File.ReadAllTextAsync(nameMappingsFilePath);
-            return JsonConvert.DeserializeObject<List<NameMapping>>(nameMappings);
+            return JsonConvert.DeserializeObject<List<NameMapping>>(nameMappings) ?? new List<NameMapping>();
         }
 
         public async Task UpdateNamesMapping(List<NameMapping> namesMapping)

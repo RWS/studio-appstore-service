@@ -10,7 +10,6 @@ namespace AppStoreIntegrationServiceAPI.Controllers
 	[Route("[controller]")]
 	[Route("")]
 	[Produces(MediaTypeNames.Application.Json)]
-	[Authorize]
 	public class PluginsController : Controller
 	{
 		public IPluginRepository PluginRepository { get; set; }

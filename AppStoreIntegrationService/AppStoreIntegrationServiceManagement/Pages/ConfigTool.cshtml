@@ -53,13 +53,13 @@
                 <div class="card card-item @Html.Raw(@plugin.Inactive ? "card-item-inactive" : "")">
                     <img class="img-item" src="@plugin.IconUrl" asp-append-version="true">
                     <div class="card-body text-center d-flex flex-column justify-content-center">
-                        <label>@plugin.Name</label>
+                        <label class="text-wrap">@plugin.Name</label>
                     </div>
                     <div class="d-flex align-items-end flex-column p-3">
                         <label class="card-status">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
                         <div>
                             <a class="focus-transparent me-3" asp-page="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
-                            <a class="cursor-pointer" onclick="javascript: ShowConfirmationModal('@plugin.Id','@plugin.Name')"><i class="far fa-trash-alt text-danger cursor-pointer"></i></a>
+                            <a class="cursor-pointer" onclick="javascript: ShowConfirmationModal('@plugin.Id', '@plugin.Name.Replace("\'", "\\'")')"><i class="far fa-trash-alt text-danger cursor-pointer"></i></a>
                         </div>
                     </div>
                 </div>
