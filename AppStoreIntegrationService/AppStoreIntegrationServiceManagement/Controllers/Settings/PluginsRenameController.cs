@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Authorize(Policy = "IsAdmin")]
+    [Area("Settings")]
     public class PluginsRenameController : Controller
     {
         private readonly INamesRepository _namesRepository;

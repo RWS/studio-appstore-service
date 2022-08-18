@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace AppStoreIntegrationServiceManagement.Views.Shared
+namespace AppStoreIntegrationServiceManagement.Areas.Settings.Views.Shared
 {
     public static class ManageSettingsNav
     {

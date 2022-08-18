@@ -70,7 +70,7 @@ window.onload = () => {
                         $.ajax({
                             data: pageValues,
                             type: "POST",
-                            url: `/PluginsRename/Delete/${eraser.id}`,
+                            url: `PluginsRename/Delete/${eraser.id}`,
                             success: AjaxSuccessCallback
                         })
                     }
@@ -181,7 +181,7 @@ function UpdateNamesMapping() {
     $.ajax({
         data: pageValues,
         type: "POST",
-        url: '/PluginsRename/Update',
+        url: 'PluginsRename/Update',
         success: AjaxSuccessCallback
     })
 }
@@ -192,7 +192,7 @@ function AddNewNameMapping() {
     $.ajax({
         data: pageValues,
         type: "POST",
-        url: "/PluginsRename/AddNew",
+        url: "PluginsRename/AddNew",
         success: function (partialView) {
             $("#newNameMappingPartial").html(partialView);
             CloseExistingEditForms(function () { return; })
@@ -230,7 +230,7 @@ function AddNameMapping() {
     $.ajax({
         data: pageValues,
         type: "POST",
-        url: "/PluginsRename/Add",
+        url: "PluginsRename/Add",
         success: AjaxSuccessCallback
     })
 }

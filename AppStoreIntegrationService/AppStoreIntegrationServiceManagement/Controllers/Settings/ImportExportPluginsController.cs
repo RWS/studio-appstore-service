@@ -9,6 +9,7 @@ using System.Text;
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Authorize(Policy = "IsAdmin")]
+    [Area("Settings")]
     public class ImportExportPluginsController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
