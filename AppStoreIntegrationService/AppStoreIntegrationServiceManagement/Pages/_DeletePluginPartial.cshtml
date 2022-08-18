@@ -10,7 +10,7 @@
 
             <form method="post" asp-page="ConfigTool" asp-page-handler="DeletePlugin">
                 <div class="modal-body">
-                    <div> Are you sure you want to delete @Model.Name ?</div>
+                    <div class="text-wrap"> Are you sure you want to delete @Model.Name ?</div>
                     <input hidden asp-for="@Model.Name" />
                     <input hidden asp-for="@Model.Id" />
                 </div>
