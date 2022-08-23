@@ -1,11 +1,11 @@
 ﻿function RedirectTo(goToPage, currentPage) {
-    if (currentPage == "/Add") {
-        CreateRequest(goToPage, $('#addPlugin').find('select, textarea, input').serialize(), `Add?handler=GoToPage&pageUrl=${goToPage}`);
+    if (currentPage.includes("New")) {
+        CreateRequest(goToPage, $('#addPlugin').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage.replaceAll('/', '.')}/new`);
         return;
     }
 
-    if (currentPage == "/Edit") {
-        CreateRequest(goToPage, $('#editFile').find('select, textarea, input').serialize(), `Edit?handler=GoToPage&pageUrl=${goToPage}`);
+    if (currentPage.includes("Edit")) {
+        CreateRequest(goToPage, $('#editFile').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage.replaceAll('/', '.')}/edit`);
         return;
     }
 

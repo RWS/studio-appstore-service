@@ -173,7 +173,6 @@ namespace AppStoreIntegrationServiceManagement.Pages
         {
             Categories = await _pluginsRepository.GetCategories();
             CategoryListItems = new SelectList(Categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name));
-
         }
 
         private bool IsValid()

@@ -1,26 +1,20 @@
-﻿function ShowNewPluginModal() {
-    var placeholderElement = $('#addModalContainer');
+﻿window.onload = () => {
+    var deletePluginBtns = document.querySelectorAll('#configToolPage .delete-plugin-btn');
 
-    $.ajax({
-        type: "GET",
-        url: "ConfigTool?handler=AddPlugin",
-        success: function (modalPartialView) {
-            placeholderElement.html(modalPartialView);
-            placeholderElement.find('.modal').modal('show');
-        }
-    })
-}
+    deletePluginBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('confirmDeletePluginButton').onclick = function () {
+                $.ajax({
+                    data: "",
+                    type: "POST",
+                    url: `Plugins/Plugins/Delete/${btn.id}`,
+                    success: AjaxSuccessCallback
+                })
+            }
 
-function ShowConfirmationModal(id, name) {
-    document.getElementById("selectedPluginId").value = id;
-    document.getElementById("selectedPluginName").value = name;
-
-    pageValues = $('#configToolPage').find('input').serialize();
-    $.ajax({
-        data: pageValues,
-        type: "GET",
-        url: "ConfigTool?handler=ShowDeleteModal",
-        success: AjaxSuccessCallback
+            document.querySelector('.plugin-name-placeholder').innerHTML = document.querySelector('#configToolPage .plugin-name').innerHTML;
+            $('#confirmDeletePlugin').modal('show');
+        })
     })
 }
 

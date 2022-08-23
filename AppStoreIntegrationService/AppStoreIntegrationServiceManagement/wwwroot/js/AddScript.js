@@ -9,26 +9,24 @@
 }
 
 function AddPlugin() {
-    pageValues = $('#addPlugin').find('select, textarea, input').serialize();
+    var pageValues = $('#addPlugin').find('select, textarea, input').serialize();
 
     $.ajax({
         data: pageValues,
         type: "POST",
-        url: "Add?handler=SaveVersionForPlugin",
+        url: "/Plugins/Plugins/Create",
         success: AjaxSuccessCallback
     })
 }
 
-function ShowVersionDetails(versionId) {
-    document.getElementById("selectedVersionId").value = versionId;
-    var pageValues = $('#addPlugin').find('select, textarea, input').serialize();;
+function AddNewVersion() {
+    var pageValues = $('#addFile').find('select, textarea, input').serialize();
 
     $.ajax({
         async: true,
         data: pageValues,
-        cache: false,
         type: "POST",
-        url: "Add?handler=ShowVersionDetails",
+        url: "/Version/Version/Add",
         success: function (partialView) {
             $('#pluginVersionContainer').html(partialView);
         }

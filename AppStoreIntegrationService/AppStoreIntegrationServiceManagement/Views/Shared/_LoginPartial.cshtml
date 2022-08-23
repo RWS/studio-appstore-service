@@ -7,7 +7,7 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('/ConfigTool', '@ViewContext.ActionDescriptor.DisplayName')" class="text-white nav-link cursor-pointer">Plugins List</a>
+            <a onclick="javascript: RedirectTo('/Plugins', '@ViewContext.ActionDescriptor.DisplayName')" class="text-white nav-link cursor-pointer">Plugins List</a>
         </li>
         @if (User.IsInRole("Administrator"))
         {
@@ -20,7 +20,7 @@
             <a onclick="javascript: RedirectTo('/Identity/Account/Manage', '@ViewContext.ActionDescriptor.DisplayName')" class="nav-link text-white cursor-pointer" id="manage" title="Manage">Hello @UserManager.GetUserName(User)!</a>
         </li>
         <li class="nav-item">
-            <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/configtool", new { area = "" })">
+            <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Plugins", new { area = "" })">
                 <button id="logout" type="submit" class="nav-link btn btn-link text-white cursor-pointer">Sign out</button>
             </form>
         </li>

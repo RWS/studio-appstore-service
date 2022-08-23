@@ -22,7 +22,7 @@ function AddFilter(filterToAdd) {
 function DeleteFilter(filterToDelete) {
     var urlSearchParams = new URLSearchParams(window.location.search);
     if (Array.from(urlSearchParams).length == 1) {
-        window.location.href = window.location.origin + "/ConfigTool";
+        window.location.href = window.location.origin + "/Plugins";
         return;
     }
 

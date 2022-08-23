@@ -364,7 +364,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             {
                 var newPlugin = new PluginDetails
                 {
-                    Name = privatePlugin.Name,
+                    Name = privatePlugin.Name.Trim(),
                     Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName },
                     Description = privatePlugin.Description,
                     PaidFor = privatePlugin.PaidFor,

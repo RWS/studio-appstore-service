@@ -9,7 +9,7 @@
                     async: true,
                     data: pageValues,
                     type: "POST",
-                    url: `Edit?handler=DeleteVersion&Id=${btn.id}`,
+                    url: `/Version/Version/Delete/${btn.id}`,
                     success: AjaxSuccessCallback
                 })
             }
@@ -21,13 +21,12 @@
 
 function AddNewVersion() {
     var pageValues = $('#editFile').find('select, textarea, input').serialize();
-    var url = "Edit?handler=AddVersion";
 
     $.ajax({
         async: true,
         data: pageValues,
         type: "POST",
-        url: url,
+        url: "/Version/Version/Add",
         success: function (partialView) {
             $('#pluginVersionContainer').html(partialView);
         }
@@ -40,7 +39,7 @@ function SavePlugin() {
     $.ajax({
         data: pageValues,
         type: "POST",
-        url: "Edit?handler=SavePlugin",
+        url: "/Plugins/Plugins/Update",
         success: AjaxSuccessCallback
     })
 }
@@ -50,11 +49,9 @@ function ShowVersionDetails(versionId) {
     var pageValues = $('#editFile').find('select, textarea, input').serialize();;
 
     $.ajax({
-        async: true,
         data: pageValues,
-        cache: false,
         type: "POST",
-        url: "Edit?handler=ShowVersionDetails",
+        url: "/Version/Version/Show",
         success: function (partialView) {
             $('#pluginVersionContainer').html(partialView);
         }

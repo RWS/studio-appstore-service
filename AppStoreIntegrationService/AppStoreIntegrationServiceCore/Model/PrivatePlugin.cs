@@ -30,11 +30,6 @@ namespace AppStoreIntegrationServiceCore.Model
         public string IconUrl { get; set; }
 
         public string DeveloperName { get; set; }
-
-        public void SetIcon(string iconPath)
-        {
-            IconUrl = iconPath;
-        }
     }
 }
 

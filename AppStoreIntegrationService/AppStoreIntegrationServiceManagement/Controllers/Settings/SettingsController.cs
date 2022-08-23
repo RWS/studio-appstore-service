@@ -6,11 +6,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Authorize(Policy = "IsAdmin")]
     [Area("Settings")]
-    public class GeneralSettingsController : Controller
+    public class SettingsController : Controller
     {
         private readonly IWritableOptions<SiteSettings> _options;
 
-        public GeneralSettingsController(IWritableOptions<SiteSettings> options)
+        public SettingsController(IWritableOptions<SiteSettings> options)
         {
             _options = options;
         }
