@@ -1,0 +1,26 @@
+﻿@model ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr class="w-100">
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div class="row">
+    <partial name="_ManageNav"></partial>
+    <div class="col-12 col-md-9">
+        <form asp-controller="Manage" asp-action="UpdateUsername" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label"></label>
+                <input asp-for="Username" class="form-control"/>
+            </div>
+            <button type="submit" class="btn pa-admin-success-btn">Save</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

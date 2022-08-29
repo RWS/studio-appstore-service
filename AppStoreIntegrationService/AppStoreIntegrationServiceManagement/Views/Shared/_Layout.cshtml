@@ -23,7 +23,7 @@
                     @{
                         var result = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
                     }
-                    @if (result.Success @*&& ViewContext.RouteData.Values["page"].ToString() != "/Account/Login"*@)
+                    @if (result.Success && ViewContext.RouteData.Values["action"].ToString() != "Login")
                     {
                         <partial name="_LoginPartial" />
                     }

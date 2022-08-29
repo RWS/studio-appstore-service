@@ -22,6 +22,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [Route("Plugins")]
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             PluginFilter pluginsFilters = ApplyFilters();

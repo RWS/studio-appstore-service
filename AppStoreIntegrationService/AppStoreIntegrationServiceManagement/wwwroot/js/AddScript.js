@@ -26,7 +26,7 @@ function AddNewVersion() {
         async: true,
         data: pageValues,
         type: "POST",
-        url: "/Version/Version/Add",
+        url: "/Plugins/Version/Add",
         success: function (partialView) {
             $('#pluginVersionContainer').html(partialView);
         }

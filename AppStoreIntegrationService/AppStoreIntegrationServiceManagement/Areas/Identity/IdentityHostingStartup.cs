@@ -24,8 +24,12 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity
                         options.Password.RequireNonAlphanumeric = false;
                         options.SignIn.RequireConfirmedAccount = false;
                     })
-                    .AddEntityFrameworkStores<AppStoreIntegrationServiceContext>()
-                    .AddDefaultUI();
+                    .AddEntityFrameworkStores<AppStoreIntegrationServiceContext>();
+
+                services.ConfigureApplicationCookie(options =>
+                {
+                    options.LoginPath = "/Identity/Account/Login";
+                });
             });
         }
     }
