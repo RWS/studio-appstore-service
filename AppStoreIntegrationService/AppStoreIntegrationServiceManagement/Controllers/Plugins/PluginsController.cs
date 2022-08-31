@@ -1,6 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,7 +22,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [Route("Plugins")]
-        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             PluginFilter pluginsFilters = ApplyFilters();
@@ -39,7 +38,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             {
                 PrivatePlugin = new PrivatePlugin
                 {
-                    IconUrl = GetDefaultIcon()
+                    IconUrl = GetDefaultIcon(),
+                    IsEditMode = false
                 },
                 SelectedVersionId = Guid.NewGuid().ToString(),
                 Categories = categories,
@@ -50,7 +50,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost]
         public async Task<IActionResult> Create(PluginDetailsModel pluginDetails, List<PluginVersion> versions, PluginVersion version)
         {
-            return await Save(pluginDetails, versions, version, _pluginRepository.AddPrivatePlugin, false);
+            return await Save(pluginDetails, versions, version, _pluginRepository.AddPrivatePlugin);
         }
 
         [Route("Plugins/Edit/{id?}")]
@@ -69,7 +69,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                     Name = pluginDetails.Name,
                     Categories = pluginDetails.Categories,
                     Versions = SetSelectedProducts(pluginDetails.Versions, string.Empty).ToList(),
-                    IconUrl = string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl) ? GetDefaultIcon() : pluginDetails.Icon.MediaUrl
+                    IconUrl = string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl) ? GetDefaultIcon() : pluginDetails.Icon.MediaUrl,
+                    IsEditMode = true
                 },
                 Categories = categories,
                 CategoryListItems = new SelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
@@ -79,7 +80,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost]
         public async Task<IActionResult> Update(PluginDetailsModel pluginDetails, List<PluginVersion> versions, PluginVersion version)
         {
-            return await Save(pluginDetails, versions, version, _pluginRepository.UpdatePrivatePlugin, true);
+            return await Save(pluginDetails, versions, version, _pluginRepository.UpdatePrivatePlugin);
         }
 
         [HttpPost]
@@ -117,19 +118,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
-        private async Task<IActionResult> Save(PluginDetailsModel pluginDetails, List<PluginVersion> versions, PluginVersion version, Func<PrivatePlugin, Task> func, bool isEditMode)
+        private async Task<IActionResult> Save(PluginDetailsModel pluginDetails, List<PluginVersion> versions, PluginVersion version, Func<PrivatePlugin, Task> func)
         {
+            var plugin = pluginDetails.PrivatePlugin;
             var modalDetails = new ModalMessage()
             {
-                RequestPage = isEditMode ? "" : "add",
+                RequestPage = plugin.IsEditMode ? "" : "add",
                 Message = "Please fill all required values.",
                 ModalType = ModalType.WarningMessage
             };
-
-            var plugin = pluginDetails.PrivatePlugin;
-            if (plugin.IsValid(version, isEditMode))
+            
+            if (plugin.IsValid(version))
             {
-                plugin.SetVersionList(versions, version, true);
+                plugin.SetVersionList(versions, version);
                 plugin.SetCategoryList(pluginDetails.SelectedCategories, pluginDetails.Categories);
                 plugin.SetDownloadUrl();
 

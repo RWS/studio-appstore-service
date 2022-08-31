@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace AppStoreIntegrationServiceManagement.Model
+namespace AppStoreIntegrationServiceManagement.Model.Identity
 {
     public class ChangePasswordModel
     {

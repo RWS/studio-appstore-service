@@ -1,6 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -47,7 +47,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             var success = await _pluginRepository.TryImportPluginsFromFile(import.ImportedFile);
             if (success)
             {
-                modalDetails.RequestPage = "/ConfigTool";
+                modalDetails.RequestPage = "/Plugins";
                 modalDetails.ModalType = ModalType.SuccessMessage;
                 modalDetails.Title = "Success!";
                 modalDetails.Message = $"The file content was imported! Return to plugins list?";

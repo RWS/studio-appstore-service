@@ -1,6 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins

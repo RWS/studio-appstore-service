@@ -1,7 +1,7 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace AppStoreIntegrationServiceManagement.Model
+namespace AppStoreIntegrationServiceManagement.Model.Plugins
 {
     public class PluginDetailsModel
     {
@@ -11,7 +11,7 @@ namespace AppStoreIntegrationServiceManagement.Model
 
         public SelectList CategoryListItems { get; set; }
 
-        public List<int> SelectedCategories { get; set; }
+        public List<int> SelectedCategories { get; set; } = new List<int>();
 
         public string SelectedVersionId { get; set; }
     }

@@ -17,10 +17,10 @@
         }
 
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('/Identity/Manage/Profile', '@ViewContext.ActionDescriptor.DisplayName')" class="nav-link text-white cursor-pointer">Hello @UserManager.GetUserName(User)!</a>
+            <a onclick="javascript: RedirectTo('/Identity/Account/Profile', '@ViewContext.ActionDescriptor.DisplayName')" class="nav-link text-white cursor-pointer">Hello @UserManager.GetUserName(User)!</a>
         </li>
         <li class="nav-item">
-            <form asp-controller="Account" asp-action="Logout" asp-area="Identity" method="post">
+            <form asp-controller="Authentication" asp-action="Logout" asp-area="Identity" method="post">
                 <button type="submit" class="nav-link btn btn-link text-white cursor-pointer">Sign out</button>
             </form>
         </li>

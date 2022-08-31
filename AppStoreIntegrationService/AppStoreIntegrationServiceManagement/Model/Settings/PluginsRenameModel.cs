@@ -1,6 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 
-namespace AppStoreIntegrationServiceManagement.Model
+namespace AppStoreIntegrationServiceManagement.Model.Settings
 {
     public class PluginsRenameModel
     {

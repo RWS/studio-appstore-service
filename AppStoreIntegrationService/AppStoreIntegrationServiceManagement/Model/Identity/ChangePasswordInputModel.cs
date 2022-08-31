@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AppStoreIntegrationServiceManagement.Model
+namespace AppStoreIntegrationServiceManagement.Model.Identity
 {
     public class ChangePasswordInputModel
     {

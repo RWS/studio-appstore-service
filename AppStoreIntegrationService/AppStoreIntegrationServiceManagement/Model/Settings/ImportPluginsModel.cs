@@ -1,4 +1,4 @@
-﻿namespace AppStoreIntegrationServiceManagement.Model
+﻿namespace AppStoreIntegrationServiceManagement.Model.Settings
 {
     public class ImportPluginsModel
     {

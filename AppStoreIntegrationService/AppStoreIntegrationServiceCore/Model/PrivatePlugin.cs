@@ -30,6 +30,60 @@ namespace AppStoreIntegrationServiceCore.Model
         public string IconUrl { get; set; }
 
         public string DeveloperName { get; set; }
+
+        public bool IsEditMode { get; set; }
+
+        public bool IsValid(PluginVersion selectedVersion)
+        {
+            var generalDetailsContainsNull = AnyNull(Name, Description, IconUrl);
+            if (!(selectedVersion.Id == null && IsEditMode))
+            {
+                var detailsContainsNull = AnyNull(selectedVersion.VersionNumber, selectedVersion.MinimumRequiredVersionOfStudio, selectedVersion.DownloadUrl);
+                if (generalDetailsContainsNull || detailsContainsNull)
+                {
+                    return false;
+                }
+            }
+            return !generalDetailsContainsNull;
+        }
+
+        public void SetVersionList(List<PluginVersion> versions, PluginVersion selectedVersion)
+        {
+            selectedVersion.SetSupportedProducts();
+            var editedVersion = versions.FirstOrDefault(v => v.Id.Equals(selectedVersion.Id));
+            var selectedProduct = selectedVersion.SupportedProducts.FirstOrDefault(item => item.Id == selectedVersion.SelectedProductId);
+            if (editedVersion != null)
+            {
+                if (!IsEditMode)
+                {
+                    selectedVersion.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
+                }
+
+                versions[versions.IndexOf(editedVersion)] = selectedVersion;
+            }
+            else if (selectedVersion.Id != null)
+            {
+                selectedVersion.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
+                versions.Add(selectedVersion);
+            }
+
+            Versions = versions;
+        }
+
+        public void SetCategoryList(List<int> selectedCategories, List<CategoryDetails> categories)
+        {
+            Categories = selectedCategories?.SelectMany(categoriId => categories.Where(category => category.Id == categoriId)).ToList();
+        }
+
+        public void SetDownloadUrl()
+        {
+            DownloadUrl = Versions.LastOrDefault()?.DownloadUrl;
+        }
+
+        private static bool AnyNull(params object[] objects)
+        {
+            return objects.Any(s => s == null);
+        }
     }
 }
 

@@ -1,96 +1,127 @@
-﻿using AppStoreIntegrationServiceManagement.Model;
-using Microsoft.AspNetCore.Authentication;
+﻿using AppStoreIntegrationServiceManagement.Model.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
     [Area("Identity")]
+    [Authorize]
     public class AccountController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ILogger<LoginModel> _logger;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ILogger<ChangePasswordModel> _logger;
 
-        public AccountController(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ILogger<ChangePasswordModel> logger)
         {
-            _signInManager = signInManager;
             _userManager = userManager;
-
-            if (!userManager.Users.Any())
-            {
-                if (!roleManager.Roles.Any())
-                {
-                    roleManager.CreateAsync(new IdentityRole
-                    {
-                        Name = "Administrator",
-                        Id = "1"
-                    }).Wait();
-                    roleManager.CreateAsync(new IdentityRole
-                    {
-                        Name = "StandardUser",
-                        Id = "2"
-                    }).Wait();
-                }
-
-                var defaultAdminUser = new IdentityUser { UserName = "Admin", Email = "admin@sdl.com" };
-                userManager.CreateAsync(defaultAdminUser, "administrator").Wait();
-
-                userManager.AddToRoleAsync(defaultAdminUser, "Administrator").Wait();
-                _signInManager.SignInAsync(defaultAdminUser, false);
-            }
-
+            _signInManager = signInManager;
             _logger = logger;
         }
 
-        public async Task<IActionResult> Login(string returnUrl = null)
+        public async Task<IActionResult> Profile()
         {
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-            return View(new LoginModel
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList(),
-                ReturnUrl = returnUrl ?? Url.Content("~/Plugins")
-            });
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            return View(await LoadAsync(user));
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostLogin(LoginModel loginModel, string returnUrl)
+        public async Task<IActionResult> Update(ProfileModel profileModel)
         {
-            if (ModelState.IsValid)
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(loginModel.Input.UserName, loginModel.Input.Password, loginModel.Input.RememberMe,
-                    lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
-                }
-                //if (result.RequiresTwoFactor)
-                //{
-                //    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                //}
-                loginModel.ErrorMessage = "Error!Invalid login attempt.";
-                return View("Login", loginModel);
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            loginModel.ErrorMessage = "Error!Something went wrong!";
-            return View("Login", loginModel);
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (user.UserName != profileModel.Username)
+            {
+                await _userManager.SetUserNameAsync(user, profileModel.Username);
+            }
+
+            var oldUserRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+            if (oldUserRole != profileModel.UserRole)
+            {
+                await _userManager.RemoveFromRoleAsync(user, oldUserRole);
+                await _userManager.AddToRoleAsync(user, profileModel.UserRole);
+            }
+
+            profileModel.StatusMessage = "Your profile has been updated";
+            return RedirectToAction("Profile");
         }
 
-        public async Task<IActionResult> Register(string returnUrl = null)
+        public async Task<IActionResult> ChangePassword()
         {
-            returnUrl ??= Url.Content("~/Plugins");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var hasPassword = await _userManager.HasPasswordAsync(user);
+            if (!hasPassword)
+            {
+                return RedirectToPage("./SetPassword");
+            }
+
+            return View(new ChangePasswordModel());
+        }
+
+        public async Task<IActionResult> PostChangePassword(ChangePasswordModel changePasswordModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(new ChangePasswordModel());
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var changePasswordResult = await _userManager.ChangePasswordAsync(user, changePasswordModel.Input.OldPassword, changePasswordModel.Input.NewPassword);
+            if (!changePasswordResult.Succeeded)
+            {
+                foreach (var error in changePasswordResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
+                return RedirectToAction("ChangePassword");
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+            _logger.LogInformation("User changed their password successfully.");
+            changePasswordModel.StatusMessage = "Your password has been changed.";
+
+            return RedirectToAction("ChangePassword");
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Register()
+        {
             return View(new RegisterModel
             {
-                ReturnUrl = returnUrl,
+                ReturnUrl = Url.Content("~/Plugins"),
                 ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
             });
         }
-
+        
         [HttpPost]
-        public async Task<IActionResult> PostRegister(RegisterModel registerModel, string redirectUrl)
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> PostRegister(RegisterModel registerModel)
         {
             registerModel.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
@@ -102,7 +133,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                     await _userManager.AddToRoleAsync(user, registerModel.Input.UserRole);
                     _logger.LogInformation("User created a new account with password.");
 
-                    return LocalRedirect(redirectUrl);
+                    return LocalRedirect(registerModel.ReturnUrl);
                 }
                 foreach (var error in result.Errors)
                 {
@@ -114,13 +145,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return View();
         }
 
-        [HttpPost]
-        public async Task Logout()
+        private async Task<ProfileModel> LoadAsync(IdentityUser user)
         {
-            if (_signInManager.IsSignedIn(User))
+            return new ProfileModel
             {
-                await _signInManager.SignOutAsync();
-            }
+                Username = await _userManager.GetUserNameAsync(user),
+                IsAdmin = await _userManager.IsInRoleAsync(user, "Administrator")
+            };
         }
     }
 }

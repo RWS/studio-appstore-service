@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AppStoreIntegrationServiceManagement.Model
+namespace AppStoreIntegrationServiceManagement.Model.Identity
 {
     public class RegisterInputModel
     {
         [Required]
-        [Display(Name = "UserName")]
+        [Display(Name = "Username")]
         public string UserName { get; set; }
 
         [Required]

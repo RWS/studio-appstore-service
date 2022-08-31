@@ -28,8 +28,9 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity
 
                 services.ConfigureApplicationCookie(options =>
                 {
-                    options.LoginPath = "/Identity/Account/Login";
+                    options.LoginPath = "/Identity/Authentication/Login";
                 });
+                services.AddTransient<IUserSeed, UserSeed>();
             });
         }
     }

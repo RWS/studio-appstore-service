@@ -10,11 +10,22 @@
 <div class="row">
     <partial name="_ManageNav"></partial>
     <div class="col-12 col-md-9">
-        <form asp-controller="Manage" asp-action="UpdateUsername" method="post">
+        <form asp-controller="Account" asp-action="Update" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="mb-3">
                 <label asp-for="Username" class="form-label"></label>
                 <input asp-for="Username" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label asp-for="UserRole" class="form-check-label mb-2"></label>
+                <div class="form-check p-0">
+                    @Html.RadioButton("UserRole", "StandardUser", !Model.IsAdmin)
+                    @Html.Label("Standard")
+                </div>
+                <div class="form-check p-0">
+                    @Html.RadioButton("UserRole", "Administrator", Model.IsAdmin)
+                    @Html.Label("Administrator")
+                </div>
             </div>
             <button type="submit" class="btn pa-admin-success-btn">Save</button>
         </form>
