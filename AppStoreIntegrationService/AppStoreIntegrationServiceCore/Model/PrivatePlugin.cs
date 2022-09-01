@@ -49,7 +49,6 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public void SetVersionList(List<PluginVersion> versions, PluginVersion selectedVersion)
         {
-            selectedVersion.SetSupportedProducts();
             var editedVersion = versions.FirstOrDefault(v => v.Id.Equals(selectedVersion.Id));
             var selectedProduct = selectedVersion.SupportedProducts.FirstOrDefault(item => item.Id == selectedVersion.SelectedProductId);
             if (editedVersion != null)

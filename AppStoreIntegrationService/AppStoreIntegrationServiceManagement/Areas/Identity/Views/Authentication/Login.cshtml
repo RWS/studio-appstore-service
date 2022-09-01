@@ -4,13 +4,13 @@
     ViewData["Title"] = "Log in";
 }
 
-<partial name="_StatusMessage" model="@Model.ErrorMessage"></partial>
+<partial name="_StatusMessage" model="@Model.StatusMessage"></partial>
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-11 col-md-8 col-lg-6 rounded p-5 bg-light">
             <section>
                 <form asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Authentication" asp-action="PostLogin" method="post">
-                    <h4 style="text-align: left">Sign in</h4>
+                    <h4 class="text-start">Sign in</h4>
                     <hr />
                     <div asp-validation-summary="All" class="text-danger"></div>
                     <div class="mb-3">

@@ -11,5 +11,8 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         public string ReturnUrl { get; set; }
 
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+        [TempData]
+        public string StatusMessage { get; set; }
     }
 }

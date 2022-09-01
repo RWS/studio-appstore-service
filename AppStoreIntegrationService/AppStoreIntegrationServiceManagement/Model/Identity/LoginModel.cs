@@ -13,6 +13,6 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         public string ReturnUrl { get; set; }
 
         [TempData]
-        public string ErrorMessage { get; set; }
+        public string StatusMessage { get; set; }
     }
 }

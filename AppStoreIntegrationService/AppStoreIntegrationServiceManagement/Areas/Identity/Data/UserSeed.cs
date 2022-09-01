@@ -17,27 +17,29 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
 
         public void EnsureAdminExistance()
         {
-            if (!_userManager.Users.Any())
+            if (_userManager.Users.Any())
             {
-                if (!_roleManager.Roles.Any())
-                {
-                    _roleManager.CreateAsync(new IdentityRole
-                    {
-                        Name = "Administrator",
-                        Id = "1"
-                    }).Wait();
-                    _roleManager.CreateAsync(new IdentityRole
-                    {
-                        Name = "StandardUser",
-                        Id = "2"
-                    }).Wait();
-                }
-
-                var defaultAdminUser = new IdentityUser { UserName = "Admin", Email = "admin@sdl.com" };
-                _userManager.CreateAsync(defaultAdminUser, "administrator").Wait();
-                _userManager.AddToRoleAsync(defaultAdminUser, "Administrator").Wait();
-                _signInManager.SignInAsync(defaultAdminUser, false).Wait();
+                return;
             }
+
+            if (!_roleManager.Roles.Any())
+            {
+                _roleManager.CreateAsync(new IdentityRole
+                {
+                    Name = "Administrator",
+                    Id = "1"
+                }).Wait();
+                _roleManager.CreateAsync(new IdentityRole
+                {
+                    Name = "StandardUser",
+                    Id = "2"
+                }).Wait();
+            }
+
+            var defaultAdminUser = new IdentityUser { UserName = "Admin", Email = "admin@sdl.com" };
+            _userManager.CreateAsync(defaultAdminUser, "administrator").Wait();
+            _userManager.AddToRoleAsync(defaultAdminUser, "Administrator").Wait();
+            _signInManager.SignInAsync(defaultAdminUser, false).Wait();
         }
     }
 }

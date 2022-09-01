@@ -13,7 +13,7 @@
                 Description = privateDetails.Description,
                 PaidFor = privateDetails.PaidFor,
                 Inactive = privateDetails.Inactive,
-                Categories = privateDetails.Categories,
+                Categories = privateDetails.Categories.Any() ? privateDetails.Categories : foundDetails.Categories,
                 DownloadUrl = foundDetails.DownloadUrl,
                 Versions = PrepareVersions(foundDetails.Versions, selectedVersionDetails)
             };

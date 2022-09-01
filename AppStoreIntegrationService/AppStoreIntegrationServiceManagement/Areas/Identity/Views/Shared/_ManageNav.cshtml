@@ -6,7 +6,7 @@
         <li class="nav-item"><a class="nav-link option @ManageNavPages.ChangePasswordNavClass(ViewContext)" href="/Identity/Account/ChangePassword">Password</a></li>
         @if (User.IsInRole("Administrator"))
         {
-            <li class="nav-item"><a class="nav-link option" href="/Identity/Account/Register">Add another user</a></li>
+            <li class="nav-item"><a class="nav-link option @ManageNavPages.RegisterNavClass(ViewContext)" href="/Identity/Account/Register">Add another user</a></li>
         }
     </ul>
 </div>

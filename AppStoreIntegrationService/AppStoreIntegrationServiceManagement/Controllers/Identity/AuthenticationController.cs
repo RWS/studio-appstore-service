@@ -10,48 +10,40 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     public class AuthenticationController : Controller
     {
         private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly ILogger<LoginModel> _logger;
 
         public AuthenticationController(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, IUserSeed userSeed)
         {
             _signInManager = signInManager;
-            _logger = logger;
             userSeed.EnsureAdminExistance();
         }
 
-        public async Task<IActionResult> Login(string returnUrl = null)
+        public async Task<IActionResult> Login(string statusMessage, string returnUrl = null)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
             return View(new LoginModel
             {
                 ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList(),
-                ReturnUrl = returnUrl ?? Url.Content("~/Plugins")
+                ReturnUrl = returnUrl ?? Url.Content("~/Plugins"),
+                StatusMessage = statusMessage
             });
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostLogin(LoginModel loginModel, string returnUrl)
+        public async Task<IActionResult> PostLogin(LoginModel loginModel, string returnUrl = null)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(loginModel.Input.UserName, loginModel.Input.Password, loginModel.Input.RememberMe,
-                    lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
-                }
-                //if (result.RequiresTwoFactor)
-                //{
-                //    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                //}
-                loginModel.ErrorMessage = "Error! Invalid login attempt.";
+                loginModel.StatusMessage = "Error! Model state is invalid!";
                 return View("Login", loginModel);
             }
 
-            loginModel.ErrorMessage = "Error! Something went wrong!";
+            var result = await _signInManager.PasswordSignInAsync(loginModel.Input.UserName, loginModel.Input.Password, loginModel.Input.RememberMe, false);
+            if (result.Succeeded)
+            {
+                return LocalRedirect(returnUrl);
+            }
+
+            loginModel.StatusMessage = "Error! Something went wrong!";
             return View("Login", loginModel);
         }
 
@@ -59,7 +51,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Login");
+            return RedirectToAction("Login", new { StatusMessage = "Success! You were logged out!" });
         }
     }
 }

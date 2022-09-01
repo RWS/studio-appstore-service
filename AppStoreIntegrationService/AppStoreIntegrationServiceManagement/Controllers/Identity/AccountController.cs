@@ -11,13 +11,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly ILogger<ChangePasswordModel> _logger;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ILogger<ChangePasswordModel> logger)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _logger = logger;
         }
 
         public async Task<IActionResult> Profile()
@@ -25,40 +23,35 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return View(new ProfileModel { StatusMessage = "Error! User is null!" });
             }
 
-            return View(await LoadAsync(user));
+            return View(await LoadAsync(user, ""));
         }
 
         [HttpPost]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Update(ProfileModel profileModel)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            var (newUsername, newRole) = (profileModel.Username, profileModel.UserRole);
+            if (user == null && !ModelState.IsValid)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return View("Profile", new ProfileModel { StatusMessage = "Error! User is null or model state is invalid!" });
             }
 
-            if (!ModelState.IsValid)
+            if (!string.IsNullOrEmpty(newUsername))
             {
-                return RedirectToAction("Index");
+                await _userManager.SetUserNameAsync(user, newUsername);
             }
 
-            if (user.UserName != profileModel.Username)
+            if (!string.IsNullOrEmpty(newRole))
             {
-                await _userManager.SetUserNameAsync(user, profileModel.Username);
+                await _userManager.RemoveFromRoleAsync(user, (await _userManager.GetRolesAsync(user))[0]);
+                await _userManager.AddToRoleAsync(user, newRole);
             }
 
-            var oldUserRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            if (oldUserRole != profileModel.UserRole)
-            {
-                await _userManager.RemoveFromRoleAsync(user, oldUserRole);
-                await _userManager.AddToRoleAsync(user, profileModel.UserRole);
-            }
-
-            profileModel.StatusMessage = "Your profile has been updated";
-            return RedirectToAction("Profile");
+            return View("Profile", await LoadAsync(user, "Success! Profile was updated!"));
         }
 
         public async Task<IActionResult> ChangePassword()
@@ -66,13 +59,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            var hasPassword = await _userManager.HasPasswordAsync(user);
-            if (!hasPassword)
-            {
-                return RedirectToPage("./SetPassword");
+                return View("ChangePassword", new ChangePasswordModel { StatusMessage = "Error! User is null!" });
             }
 
             return View(new ChangePasswordModel());
@@ -80,33 +67,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         public async Task<IActionResult> PostChangePassword(ChangePasswordModel changePasswordModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(new ChangePasswordModel());
-            }
-
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            if (user == null && !ModelState.IsValid)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return View("ChangePassword", new ChangePasswordModel { StatusMessage = "Error! User is null or model state is invalid!" });
             }
 
-            var changePasswordResult = await _userManager.ChangePasswordAsync(user, changePasswordModel.Input.OldPassword, changePasswordModel.Input.NewPassword);
-            if (!changePasswordResult.Succeeded)
-            {
-                foreach (var error in changePasswordResult.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-
-                return RedirectToAction("ChangePassword");
-            }
-
+            await _userManager.ChangePasswordAsync(user, changePasswordModel.Input.OldPassword, changePasswordModel.Input.NewPassword);
             await _signInManager.RefreshSignInAsync(user);
-            _logger.LogInformation("User changed their password successfully.");
-            changePasswordModel.StatusMessage = "Your password has been changed.";
-
-            return RedirectToAction("ChangePassword");
+            return View("ChangePassword", new ChangePasswordModel { StatusMessage = "Success! Password was updated!" });
         }
 
         [Authorize(Roles = "Administrator")]
@@ -131,26 +100,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, registerModel.Input.UserRole);
-                    _logger.LogInformation("User created a new account with password.");
-
                     return LocalRedirect(registerModel.ReturnUrl);
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
-            // If we got this far, something failed, redisplay form
-            return View();
+            return View("Register", new RegisterModel { StatusMessage = "Error! Something went wrong!" });
         }
 
-        private async Task<ProfileModel> LoadAsync(IdentityUser user)
+        private async Task<ProfileModel> LoadAsync(IdentityUser user, string message)
         {
             return new ProfileModel
             {
                 Username = await _userManager.GetUserNameAsync(user),
-                IsAdmin = await _userManager.IsInRoleAsync(user, "Administrator")
+                UserRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault(),
+                StatusMessage = message
             };
         }
     }

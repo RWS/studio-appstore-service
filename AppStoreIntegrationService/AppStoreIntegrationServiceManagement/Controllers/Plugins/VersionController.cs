@@ -26,16 +26,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost]
         public IActionResult Add()
         {
-            var version = new PluginVersion
+            return PartialView("_PluginVersionDetailsPartial", new PluginVersion
             {
                 VersionName = "New plugin version",
                 VersionNumber = string.Empty,
                 IsPrivatePlugin = true,
                 IsNewVersion = true,
                 Id = Guid.NewGuid().ToString()
-            };
-
-            return PartialView("_PluginVersionDetailsPartial", version);
+            });
         }
 
         [HttpPost]

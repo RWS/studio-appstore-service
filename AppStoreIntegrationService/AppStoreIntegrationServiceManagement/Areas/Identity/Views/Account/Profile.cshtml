@@ -8,24 +8,17 @@
 <hr class="w-100">
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 <div class="row">
-    <partial name="_ManageNav"></partial>
+    <partial name="_ManageNav"/>
     <div class="col-12 col-md-9">
         <form asp-controller="Account" asp-action="Update" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="mb-3">
                 <label asp-for="Username" class="form-label"></label>
-                <input asp-for="Username" class="form-control"/>
+                <input disabled asp-for="Username" class="form-control"/>
             </div>
             <div class="mb-3">
                 <label asp-for="UserRole" class="form-check-label mb-2"></label>
-                <div class="form-check p-0">
-                    @Html.RadioButton("UserRole", "StandardUser", !Model.IsAdmin)
-                    @Html.Label("Standard")
-                </div>
-                <div class="form-check p-0">
-                    @Html.RadioButton("UserRole", "Administrator", Model.IsAdmin)
-                    @Html.Label("Administrator")
-                </div>
+                <input disabled asp-for="UserRole" class="form-control"/>
             </div>
             <button type="submit" class="btn pa-admin-success-btn">Save</button>
         </form>

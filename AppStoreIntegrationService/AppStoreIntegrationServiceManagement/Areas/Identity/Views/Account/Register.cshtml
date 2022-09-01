@@ -1,15 +1,16 @@
 ﻿@model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Add new user";
+    ViewData["ActivePage"] = ManageNavPages.Register;
 }
 
-<h1>@ViewData["Title"]</h1>
+<h4>@ViewData["Title"]</h4>
+<hr class="w-100">
+<partial name="_StatusMessage" model="Model.StatusMessage" />
 <div class="row">
-    <div class="col-md-4">
+    <partial name="_ManageNav"/>
+    <div class="col-12 col-md-9">
         <form asp-controller="Account" asp-action="PostRegister" method="post">
-            <h4>Create a new account.</h4>
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
             <div class="mb-3">
                 <label asp-for="Input.UserName" class="form-label"></label>
                 <input asp-for="Input.UserName" class="form-control" />
