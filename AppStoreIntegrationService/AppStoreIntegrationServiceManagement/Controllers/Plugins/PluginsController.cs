@@ -68,6 +68,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                     Description = pluginDetails.Description,
                     Name = pluginDetails.Name,
                     Categories = pluginDetails.Categories,
+                    Inactive = pluginDetails.Inactive,
                     Versions = SetSelectedProducts(pluginDetails.Versions, string.Empty).ToList(),
                     IconUrl = string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl) ? GetDefaultIcon() : pluginDetails.Icon.MediaUrl,
                     IsEditMode = true
