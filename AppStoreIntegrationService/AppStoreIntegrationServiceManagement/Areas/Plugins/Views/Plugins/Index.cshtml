@@ -3,7 +3,7 @@
     ViewData["Title"] = "ConfigTool";
 }
 <div id="toolsMenu" class="row flex-column justify-content-center flex-sm-row justify-content-sm-between px-3">
-    <div id="filterSearch" class="filter-search col-12 col-sm-8 p-0 mb-3 m-sm-0">
+    <div id="filterSearch" class="filter-search col-12 col-sm-8 p-0 order-1 order-sm-0">
         <select id="status" class="filter-search-select" onchange="javscript: AddFilter('status')">
             <option value="2" hidden selected>Status</option>
             <option value="0">Active</option>
@@ -12,7 +12,7 @@
         <input id="search" class="filter-search-text" autocomplete="off" placeholder="Search plugin" onkeydown="javascript: AddFilterOnEnterKey()">
         <i id="applyFilters" class="fas fa-search filter-search-submit" onclick="javascript: AddFilter('search')"></i>
     </div>
-    <div id="newAppButton" class="col-12 col-sm-4 d-flex justify-content-end p-0">
+    <div id="newAppButton" class="col-12 col-sm-4 d-flex justify-content-end p-0 order-0 order-sm-1 mb-3 m-sm-0">
         <a class="btn pa-admin-success-btn" asp-controller="Plugins" asp-action="New">
             <i class="fas fa-puzzle-piece"></i>
             New app
@@ -47,12 +47,12 @@
             <div class="col-12 col-md-4 col-lg-3 p-3 d-flex justify-content-center">
                 <div class="card card-item @Html.Raw(@plugin.Inactive ? "card-item-inactive" : "")">
                     <img class="img-item" src="@plugin.IconUrl" asp-append-version="true">
-                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <div class="card-body text-center d-flex flex-column justify-content-center py-0">
                         <label class="text-wrap plugin-name">@plugin.Name</label>
                     </div>
-                    <div class="d-flex align-items-end flex-column p-3">
-                        <label class="card-status">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
-                        <div>
+                    <div class="d-flex flex-row p-3">
+                        <label class="card-status col-6">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
+                        <div class="col-6 d-flex justify-content-end">
                             <a class="focus-transparent me-3" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
                             <btn class="cursor-pointer delete-plugin-btn" id="@plugin.Id"><i class="far fa-trash-alt text-danger cursor-pointer"></i></btn>
                         </div>

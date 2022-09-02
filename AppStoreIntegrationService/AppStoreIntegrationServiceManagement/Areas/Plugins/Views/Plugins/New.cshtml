@@ -11,8 +11,8 @@
             <img class="img-thumbnail border-0" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
         </div>
         <h5 class="text-center text-wrap p-1">@Model.PrivatePlugin.Name</h5>
-        <div class="d-flex justify-content-between py-2">
-            <p>Status</p>
+        <div class="d-flex align-content-center col-12 p-0 mb-3">
+            <p class="col-4 m-0 align-self-center">Status</p>
             <select class="status-select" asp-for="@Model.PrivatePlugin.Inactive">
                 <option value="false">Active</option>
                 <option value="true">Inactive</option>

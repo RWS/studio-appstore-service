@@ -14,8 +14,7 @@ body {
 }
 
 .card-item {
-    max-height: max-content;
-    min-height: 200px;
+    height: 200px;
     width: 100%;
 }
 
