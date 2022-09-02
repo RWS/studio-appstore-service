@@ -2,8 +2,8 @@
 @{
     ViewData["Title"] = "ConfigTool";
 }
-<div id="toolsMenu" class="row justify-content-between px-3">
-    <div id="filterSearch" class="filter-search col-8 p-0">
+<div id="toolsMenu" class="row flex-column justify-content-center flex-sm-row justify-content-sm-between px-3">
+    <div id="filterSearch" class="filter-search col-12 col-sm-8 p-0 mb-3 m-sm-0">
         <select id="status" class="filter-search-select" onchange="javscript: AddFilter('status')">
             <option value="2" hidden selected>Status</option>
             <option value="0">Active</option>
@@ -12,7 +12,7 @@
         <input id="search" class="filter-search-text" autocomplete="off" placeholder="Search plugin" onkeydown="javascript: AddFilterOnEnterKey()">
         <i id="applyFilters" class="fas fa-search filter-search-submit" onclick="javascript: AddFilter('search')"></i>
     </div>
-    <div id="newAppButton" class="col-4 d-flex justify-content-end p-0">
+    <div id="newAppButton" class="col-12 col-sm-4 d-flex justify-content-end p-0">
         <a class="btn pa-admin-success-btn" asp-controller="Plugins" asp-action="New">
             <i class="fas fa-puzzle-piece"></i>
             New app
@@ -41,7 +41,7 @@
 </div>
 
 <div id="configToolPage">
-    <div class="row justify-content-start">
+    <div class="row justify-content-center">
         @foreach (var plugin in Model)
         {
             <div class="col-12 col-md-4 col-lg-3 p-3 d-flex justify-content-center">

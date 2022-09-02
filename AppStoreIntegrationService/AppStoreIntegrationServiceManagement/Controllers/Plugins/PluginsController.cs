@@ -22,6 +22,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [Route("Plugins")]
+        [Route("/")]
         public async Task<IActionResult> Index()
         {
             PluginFilter pluginsFilters = ApplyFilters();
@@ -104,7 +105,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 RequestPage = $"{redirectUrl.Replace('.', '/')}",
                 ModalType = ModalType.WarningMessage,
                 Title = "Unsaved changes!",
-                Message = $"Discard changes for {(string.IsNullOrEmpty(pluginDetails.PrivatePlugin.Name) ? "plugin" : pluginDetails.PrivatePlugin.Name)}?"
+                Message = string.Format("Discard changes for {0}", string.IsNullOrEmpty(pluginDetails.PrivatePlugin.Name) ? "plugin" : pluginDetails.PrivatePlugin.Name)
             };
 
             return PartialView("_ModalPartial", modalDetails);
@@ -139,7 +140,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 {
                     await func(plugin);
                     modalDetails.ModalType = ModalType.SuccessMessage;
-                    modalDetails.Message = $"{plugin.Name} was updated.";
+                    modalDetails.Message = string.Format("{0} was {1}", plugin.Name, plugin.IsEditMode ? "updated" : "saved");
                     modalDetails.Id = plugin.Id;
                 }
                 catch (Exception e)

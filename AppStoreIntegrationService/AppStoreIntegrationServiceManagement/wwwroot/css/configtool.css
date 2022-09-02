@@ -14,7 +14,8 @@ body {
 }
 
 .card-item {
-    height: 200px;
+    max-height: max-content;
+    min-height: 200px;
     width: 100%;
 }
 
@@ -159,6 +160,12 @@ header{
     #settings-navbar {
         border-bottom: 1px solid #E1E7EB;
         margin-bottom: 10px;
+    }
+}
+
+@media (max-width:576px){
+    #newAppButton .pa-admin-success-btn{
+        width: 100%;
     }
 }
 

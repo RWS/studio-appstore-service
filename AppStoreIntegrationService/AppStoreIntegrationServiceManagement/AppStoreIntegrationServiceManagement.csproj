@@ -24,6 +24,6 @@
     <ProjectReference Include="..\AppStoreIntegrationServiceCore\AppStoreIntegrationServiceCore.csproj" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties pluginsconfig_4pluginsconfig_1json__JsonSchema="https://cdn.jsdelivr.net/gh/roadrunner-server/roadrunner@latest/schemas/config/2.0.schema.json" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>
