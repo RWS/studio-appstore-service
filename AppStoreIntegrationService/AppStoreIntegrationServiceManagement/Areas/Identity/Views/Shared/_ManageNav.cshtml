@@ -1,13 +1,6 @@
-﻿@inject SignInManager<IdentityUser> SignInManager
-
-<div class="col-12 col-md-3">
+﻿<div class="col-12 col-md-3">
     <ul class="nav nav-pills flex-column" id="profile-navbar">
-        <li class="nav-item"><a class="nav-link option @ManageNavPages.IndexNavClass(ViewContext)" href="/Identity/Account/Profile">Profile</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageNavPages.ChangePasswordNavClass(ViewContext)" href="/Identity/Account/ChangePassword">Password</a></li>
-        @if (User.IsInRole("Administrator"))
-        {
-            <li class="nav-item"><a class="nav-link option @ManageNavPages.RegisterNavClass(ViewContext)" href="/Identity/Account/Register">Add another user</a></li>
-        }
+        <li class="nav-item"><a class="nav-link option @ManageNavPages.ManageNavClass(ViewContext)" href="/Identity/Manage/Users">Users</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageNavPages.RegisterNavClass(ViewContext)" href="/Identity/Manage/Register">Add another user</a></li>
     </ul>
 </div>
-

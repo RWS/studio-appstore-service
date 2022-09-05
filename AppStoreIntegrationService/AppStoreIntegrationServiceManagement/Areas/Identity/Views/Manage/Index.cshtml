@@ -1,0 +1,78 @@
+﻿@model List<UserInfoModel>
+@{
+    ViewData["Title"] = "Manage";
+    ViewData["ActivePage"] = ManageNavPages.Manage;
+}
+
+<h2>@ViewData["Title"]</h2>
+<h4>Manage users</h4>
+<hr class="w-100">
+<div class="row justify-content-center">
+    <div id="alertContainer"></div>
+    <partial name="_ManageNav" />
+    <div class="col-12 col-md-9">
+        <h4>Users</h4>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr class="text-center">
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr class="text-center">
+                        <td>@user.Name</td>
+                        <td>@user.Role</td>
+                        @if (user.Name != "Admin")
+                        {
+                            <td>
+                                <a asp-controller="Manage" asp-action="Edit" asp-route-id="@user.Id">
+                                    <i class="fa fa-eye text-secondary cursor-pointer"></i>
+                                </a>
+                            </td>
+                            <td><i id="@user.Id" class="fa fa-trash-alt text-danger cursor-pointer delete-user-btn"></i></td>
+                        }
+                        else
+                        {
+                            <td colspan="2"><i class="fa fa-info-circle text-secondary cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Built in Admin not editable!"></i> </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this plugin name mapping?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" id="deleteUserButton" data-bs-dismiss="modal" class="btn pa-admin-success-btn">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/ManageUsersScript.js"></script>
+<script src="~/js/ToolTipScript.js"></script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+    
+
+
+

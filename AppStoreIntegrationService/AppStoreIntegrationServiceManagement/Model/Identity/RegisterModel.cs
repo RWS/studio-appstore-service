@@ -8,8 +8,6 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         [BindProperty]
         public RegisterInputModel Input { get; set; }
 
-        public string ReturnUrl { get; set; }
-
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         [TempData]

@@ -12,5 +12,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
 
         [Display(Name = "User role")]
         public string UserRole { get; set; }
+
+        public bool IsUsernameEnabled { get; set; }
     }
 }

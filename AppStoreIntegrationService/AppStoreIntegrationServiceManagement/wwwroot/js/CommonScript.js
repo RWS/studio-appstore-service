@@ -1,15 +1,15 @@
 ﻿function RedirectTo(goToPage, currentPage) {
-    if (currentPage.includes("New")) {
+    if (currentPage == "Plugins/New") {
         CreateRequest(goToPage, $('#addPlugin').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage.replaceAll('/', '.')}/new`);
         return;
     }
 
-    if (currentPage.includes("Edit")) {
+    if (currentPage == "Plugins/Edit") {
         CreateRequest(goToPage, $('#editFile').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage.replaceAll('/', '.')}/edit`);
         return;
     }
 
-    if (currentPage.includes("PluginsRename")) {
+    if (currentPage == "PluginsRename/Index") {
         CreateRequest(goToPage, $('#namesMapping').find('select, textarea, input').serialize(), `/PluginsRename/GoToPage/${goToPage.replaceAll('/', '.')}`);
         return;
     }
