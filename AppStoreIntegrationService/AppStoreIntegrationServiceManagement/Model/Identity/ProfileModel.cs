@@ -7,9 +7,6 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
     {
         public string Username { get; set; }
 
-        [TempData]
-        public string StatusMessage { get; set; }
-
         [Display(Name = "User role")]
         public string UserRole { get; set; }
 

@@ -4,11 +4,11 @@
     ViewData["ActivePage"] = ManageNavPages.Register;
 }
 
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <h2>@ViewData["Title"]</h2>
 <h4>Manage users</h4>
 <hr class="w-100">
 <div class="row justify-content-center">
-    <partial name="_StatusMessage" model="@Model.StatusMessage"></partial>
     <partial name="_ManageNav" />
     <div class="col-12 col-md-9">
         <h4>Add new user</h4>

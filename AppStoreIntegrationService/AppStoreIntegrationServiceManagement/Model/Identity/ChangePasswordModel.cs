@@ -6,8 +6,5 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
     {
         [BindProperty]
         public ChangePasswordInputModel Input { get; set; }
-
-        [TempData]
-        public string StatusMessage { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿window.onload = () => {
+﻿document.addEventListener('DOMContentLoaded', function () {
     var deleteBtns = document.querySelectorAll('#selectedVersion .fa-trash-alt');
     deleteBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -17,7 +17,7 @@
             $('#confirmDeletePluginVersion').modal('show');
         })
     })
-}
+});
 
 function AddNewVersion() {
     var pageValues = $('#editFile').find('select, textarea, input').serialize();

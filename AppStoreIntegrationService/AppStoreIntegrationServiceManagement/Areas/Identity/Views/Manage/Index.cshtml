@@ -31,7 +31,7 @@
                         {
                             <td>
                                 <a asp-controller="Manage" asp-action="Edit" asp-route-id="@user.Id">
-                                    <i class="fa fa-eye text-secondary cursor-pointer"></i>
+                                    <i class="fa fa-pen-alt text-secondary cursor-pointer"></i>
                                 </a>
                             </td>
                             <td><i id="@user.Id" class="fa fa-trash-alt text-danger cursor-pointer delete-user-btn"></i></td>
@@ -66,7 +66,6 @@
 </div>
 
 <script src="~/js/ManageUsersScript.js"></script>
-<script src="~/js/ToolTipScript.js"></script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -2,7 +2,7 @@
 let oldData = '';
 let newData = '';
 
-window.onload = () => {
+document.addEventListener('DOMContentLoaded', function () {
 
     const erasers = document.querySelectorAll('.table-row .name-mapping-eraser');
     const paragraphs = document.querySelectorAll('.name-mapping');
@@ -82,7 +82,7 @@ window.onload = () => {
             e.stopImmediatePropagation();
         })
     })
-}
+});
 
 function CloseExistingEditForms(toggleCallback) {
     var openInputs = document.querySelectorAll('.name-mapping-input-open');

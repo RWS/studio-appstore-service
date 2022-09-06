@@ -4,6 +4,7 @@
     ViewData["ActivePage"] = ManageNavPages.EditUser;
 }
 
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 
 <div class="d-flex justify-content-between">
     <h2 class="m-0">@ViewData["Title"]</h2>
@@ -13,7 +14,6 @@
 <h4>Manage users</h4>
 <hr class="w-100">
 <div class="row justify-content-center">
-    <partial name="_StatusMessage" model="@Model.StatusMessage" />
     <partial name="_EditNav" model="@Model.Id"/>
     <div class="col-12 col-md-9">
         <h4>@string.Format("Edit {0}", Model.Name)</h4>

@@ -39,3 +39,14 @@ function CreateRequest(goToPage, pageValues, url) {
 function DiscardChanges(goToPage) {
     window.location.href = `${goToPage}`;
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+    $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+        $(".alert").slideUp(500);
+    });
+});

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Log in";
 }
 
-<partial name="_StatusMessage" model="@Model.StatusMessage"></partial>
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]"/>
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-11 col-md-8 col-lg-6 rounded p-5 bg-light">

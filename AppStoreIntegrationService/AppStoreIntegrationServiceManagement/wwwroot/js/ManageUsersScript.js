@@ -1,12 +1,12 @@
-﻿window.onload = () => {
-    var erasers = document.querySelectorAll(".delete-user-btn");
+﻿document.addEventListener('DOMContentLoaded', function () {
+    const deleteBtns = document.querySelectorAll(".delete-user-btn");
 
-    erasers.forEach(eraser => {
-        eraser.addEventListener('click', (e) => {
+    deleteBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
             document.getElementById('deleteUserButton').onclick = function () {
                 $.ajax({
                     type: "POST",
-                    url: `/Identity/Manage/Delete/${eraser.id}`,
+                    url: `/Identity/Manage/Delete/${btn.id}`,
                     success: function () {
                         location.reload();
                     }
@@ -17,4 +17,4 @@
             e.stopImmediatePropagation();
         })
     })
-}
+});

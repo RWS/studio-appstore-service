@@ -1,4 +1,4 @@
-﻿window.onload = () => {
+﻿document.addEventListener('DOMContentLoaded', function () {
     var deletePluginBtns = document.querySelectorAll('#configToolPage .delete-plugin-btn');
 
     deletePluginBtns.forEach(btn => {
@@ -16,7 +16,7 @@
             $('#confirmDeletePlugin').modal('show');
         })
     })
-}
+});
 
 function AjaxSuccessCallback(modalPartialView) {
     if (modalPartialView.includes("DOCTYPE")) {

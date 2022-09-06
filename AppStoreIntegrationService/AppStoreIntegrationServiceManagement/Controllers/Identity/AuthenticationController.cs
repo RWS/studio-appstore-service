@@ -17,14 +17,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             userSeed.EnsureAdminExistance();
         }
 
-        public async Task<IActionResult> Login(string statusMessage, string returnUrl = null)
+        public async Task<IActionResult> Login(string returnUrl = null)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
             return View(new LoginModel
             {
                 ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList(),
-                ReturnUrl = returnUrl ?? Url.Content("~/Plugins"),
-                StatusMessage = statusMessage
+                ReturnUrl = returnUrl ?? Url.Content("~/Plugins")
             });
         }
 
@@ -33,7 +32,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         {
             if (!ModelState.IsValid)
             {
-                loginModel.StatusMessage = "Error! Model state is invalid!";
+                TempData["StatusMessage"] = "Error! Model state is invalid!";
                 return View("Login", loginModel);
             }
 
@@ -43,7 +42,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return LocalRedirect(returnUrl);
             }
 
-            loginModel.StatusMessage = "Error! Something went wrong!";
+            TempData["StatusMessage"] = "Error! Something went wrong!";
             return View("Login", loginModel);
         }
 
@@ -51,7 +50,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Login", new { StatusMessage = "Success! You were logged out!" });
+            TempData["StatusMessage"] = "Success! You were logged out!";
+            return RedirectToAction("Login");
         }
     }
 }

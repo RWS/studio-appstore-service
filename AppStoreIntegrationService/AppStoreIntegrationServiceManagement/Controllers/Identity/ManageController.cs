@@ -19,7 +19,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [Route("[area]/[controller]/Users")]
-        public async Task<IActionResult> Index(string statusMessage)
+        public async Task<IActionResult> Index()
         {
             var users = new List<UserInfoModel>();
             var currentUser = await _userManager.GetUserAsync(User);
@@ -31,8 +31,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                     {
                         Id = user.Id,
                         Name = user.UserName,
-                        Role = (await _userManager.GetRolesAsync(user))[0],
-                        StatusMessage = statusMessage
+                        Role = (await _userManager.GetRolesAsync(user))[0]
                     });
                 }
             }
@@ -41,7 +40,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [Route("[area]/[controller]/Users/{id?}")]
-        public async Task<IActionResult> Edit(string id, string statusMessage)
+        public async Task<IActionResult> Edit(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
 
@@ -54,8 +53,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             {
                 Id = id,
                 Name = user.UserName,
-                Role = (await _userManager.GetRolesAsync(user))[0],
-                StatusMessage = statusMessage
+                Role = (await _userManager.GetRolesAsync(user))[0]
             });
         }
 
@@ -67,7 +65,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             if (user == null || !ModelState.IsValid)
             {
-                return RedirectToAction("Edit", new { id, statusMessage = "Error! User is null or model state is invalid!" });
+                TempData["StatusMessage"] = "Error! User is null or model state is invalid!";
+                return RedirectToAction("Edit", new { id });
             }
 
             if (newUsername != user.UserName)
@@ -82,11 +81,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 await _userManager.AddToRoleAsync(user, newRole);
             }
 
-            return RedirectToAction("Edit", new { id, statusMessage = "Success! User was updated!" });
+            TempData["StatusMessage"] = string.Format("Success! {0} was updated!", user.UserName);
+            return RedirectToAction("Edit", new { id });
         }
 
         [Route("[area]/[controller]/Reset/{id?}")]
-        public async Task<IActionResult> ResetPassword(string id, string statusMessage)
+        public async Task<IActionResult> ResetPassword(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
 
@@ -98,8 +98,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return View(new ResetPasswordModel
             {
                 Id = id,
-                Username = user.UserName,
-                StatusMessage = statusMessage
+                Username = user.UserName
             });
         }
 
@@ -110,26 +109,27 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             if (user == null && !ModelState.IsValid)
             {
-                return RedirectToAction("ResetPassword", new { id, statusMessage = "Error! User is null or model state is invalid!" });
+                TempData["StatusMessage"] = "Error! User is null or model state is invalid!";
+                return RedirectToAction("ResetPassword", new { id });
             }
 
             if (model.NewPassword != model.ConfirmPassword)
             {
-                return RedirectToAction("ResetPassword", new { id, statusMessage = "Error! Passwords do not match!" });
+                TempData["StatusMessage"] = "Error! Passwords do not match!";
+                return RedirectToAction("ResetPassword", new { id });
             }
 
             await _userManager.RemovePasswordAsync(user);
             await _userManager.AddPasswordAsync(user, model.NewPassword);
-
-            return RedirectToAction("ResetPassword", new { id, statusMessage = "Success! Password was reset!" });
+            TempData["StatusMessage"] = "Success! Password was reset!";
+            return RedirectToAction("ResetPassword", new { id });
         }
 
-        public async Task<IActionResult> Register(string statusMessage)
+        public async Task<IActionResult> Register()
         {
             return View(new RegisterModel
             {
-                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList(),
-                StatusMessage = statusMessage
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
             });
         }
 
@@ -144,11 +144,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, registerModel.Input.UserRole);
-                    return RedirectToAction("Register", new { statusMessage = string.Format("Success! {0} was added!", user.UserName) });
+                    TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.UserName);
+                    return RedirectToAction("Register");
                 }
             }
 
-            return View("Register", new RegisterModel { StatusMessage = "Error! Something went wrong!" });
+            TempData["StatusMessage"] = "Error! Something went wrong!";
+            return RedirectToAction("Register");
         }
 
         public async Task<IActionResult> Delete(string id)
@@ -157,7 +159,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             if (user == null && !ModelState.IsValid)
             {
-                return RedirectToAction("Index", new { id, statusMessage = "Error! User is null or model state is invalid!" });
+                TempData["StatusMessage"] = "Error! User is null or model state is invalid!";
+                return RedirectToAction("Index");
             }
 
             await _userManager.DeleteAsync(user);
