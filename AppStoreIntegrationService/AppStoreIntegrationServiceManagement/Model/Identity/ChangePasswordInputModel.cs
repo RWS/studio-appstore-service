@@ -19,5 +19,10 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         [Display(Name = "Confirm new password")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        public bool IsEmpty()
+        {
+            return new[] { OldPassword, NewPassword, ConfirmPassword }.All(x => x == null);
+        }
     }
 }

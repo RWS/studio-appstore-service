@@ -1,4 +1,5 @@
-﻿using AppStoreIntegrationServiceManagement.Model.Identity;
+﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,70 +19,237 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             _signInManager = signInManager;
         }
 
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> Profile(string id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var wantedUser = await _userManager.FindByIdAsync(id);
+
+            if (!TryValidate(currentUser, id, wantedUser, true, out IActionResult result))
             {
-                TempData["StatusMessage"] = "Error! User is null!";
-                return View();
+                return result;
             }
 
-            return View(await LoadAsync(user));
+            if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
+            {
+                return View(await LoadAsync(currentUser, true));
+            }
+
+            if (User.IsInRole("Administrator") && wantedUser.UserName != "Admin")
+            {
+                return View(await LoadAsync(wantedUser, false));
+            }
+
+            return NotFound();
         }
 
         [HttpPost]
         [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Update(ProfileModel profileModel)
+        public async Task<IActionResult> Update(ProfileModel profileModel, string id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null && !ModelState.IsValid)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var wantedUser = await _userManager.FindByIdAsync(id);
+
+            if (!TryValidate(currentUser, id, wantedUser, true, out IActionResult result))
             {
-                TempData["StatusMessage"] = "Error! User is null or model state is invalid!";
-                return RedirectToAction("Profile");
+                return result;
             }
 
-            var newUsername = profileModel.Username;
-            if (!string.IsNullOrEmpty(newUsername))
+            var (newUsername, newRole) = (profileModel.Username, profileModel.UserRole);
+            if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
             {
-                await _userManager.SetUserNameAsync(user, newUsername);
+                await _userManager.SetUserNameAsync(currentUser, newUsername);
                 TempData["StatusMessage"] = "Success! Profile was updated!";
                 return RedirectToAction("Profile");
             }
 
-            TempData["StatusMessage"] = "Error! Username cannot be null!";
-            return RedirectToAction("Profile");
-        }
-
-        public async Task<IActionResult> ChangePassword()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            if (newUsername != wantedUser.UserName)
             {
-                TempData["StatusMessage"] = "Error! User is null!";
-                return View();
+                await _userManager.SetUserNameAsync(wantedUser, newUsername);
             }
 
-            return View();
+            var oldRole = (await _userManager.GetRolesAsync(wantedUser))[0];
+            if (newRole != oldRole)
+            {
+                await _userManager.RemoveFromRoleAsync(wantedUser, oldRole);
+                await _userManager.AddToRoleAsync(wantedUser, newRole);
+            }
+
+            TempData["StatusMessage"] = "Success! Profile was updated!";
+            return RedirectToAction("Profile", new { id });
+        }
+
+        public async Task<IActionResult> ChangePassword(string id)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            var wantedUser = await _userManager.FindByIdAsync(id);
+
+            if (!TryValidate(currentUser, id, wantedUser, true, out IActionResult result))
+            {
+                return result;
+            }
+
+            if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
+            {
+                return View(new ChangePasswordModel { IsCurrentUserSelected = true });
+            }
+
+            if (User.IsInRole("Administrator") && wantedUser.UserName != "Admin")
+            {
+                return View(new ChangePasswordModel
+                {
+                    Id = wantedUser.Id,
+                    Username = wantedUser.UserName
+                });
+            }
+
+            return NotFound();
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostChangePassword(ChangePasswordModel changePasswordModel)
+        public async Task<IActionResult> PostChangePassword(ChangePasswordModel model, string id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null && !ModelState.IsValid)
+            var currentUser = await _userManager.GetUserAsync(User);
+            var wantedUser = await _userManager.FindByIdAsync(id);
+
+            if (!TryValidate(currentUser, id, wantedUser, model.Input.OldPassword != null, out IActionResult result))
             {
-                TempData["StatusMessage"] = "Error! User is null or model state is invalid!";
-                return RedirectToAction("ChangePassword");
+                return result;
             }
 
-            await _userManager.ChangePasswordAsync(user, changePasswordModel.Input.OldPassword, changePasswordModel.Input.NewPassword);
-            await _signInManager.RefreshSignInAsync(user);
-            TempData["StatusMessage"] = "Success! Password was updated!";
-            return RedirectToAction("ChangePassword");
+            if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
+            {
+                await _userManager.ChangePasswordAsync(currentUser, model.Input.OldPassword, model.Input.NewPassword);
+                await _signInManager.RefreshSignInAsync(currentUser);
+                TempData["StatusMessage"] = "Success! Password was changed!";
+                return RedirectToAction("Profile");
+            }
+
+            await _userManager.RemovePasswordAsync(wantedUser);
+            await _userManager.AddPasswordAsync(wantedUser, model.Input.NewPassword);
+            TempData["StatusMessage"] = "Success! Password was reset!";
+            return RedirectToAction("Profile", new { id });
         }
 
-        private async Task<ProfileModel> LoadAsync(IdentityUser user)
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Users()
+        {
+            var users = new List<UserInfoModel>();
+            foreach (var user in _userManager.Users.ToList())
+            {
+                users.Add(new UserInfoModel
+                {
+                    Id = user.Id,
+                    Name = user.UserName,
+                    Role = (await _userManager.GetRolesAsync(user))[0],
+                    IsCurrentUser = user == (await _userManager.GetUserAsync(User))
+                });
+            }
+
+            return View(users);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Register()
+        {
+            return View(new RegisterModel
+            {
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
+            });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> PostRegister(RegisterModel registerModel)
+        {
+            registerModel.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (ModelState.IsValid)
+            {
+                var user = new IdentityUser { UserName = registerModel.Input.UserName, Email = registerModel.Input.UserName };
+                var result = await _userManager.CreateAsync(user, registerModel.Input.Password);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, registerModel.Input.UserRole);
+                    TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.UserName);
+                    return RedirectToAction("Users");
+                }
+            }
+
+            TempData["StatusMessage"] = "Error! Something went wrong!";
+            return RedirectToAction("Register");
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (!TryValidate(user, null, null, false, out IActionResult result))
+            {
+                return result;
+            }
+
+            if (user == currentUser)
+            {
+                TempData["StatusMessage"] = "Error! You cannot delete your account!";
+                return RedirectToAction("Users");
+            }
+
+            await _userManager.DeleteAsync(user);
+            return RedirectToAction("Users");
+        }
+
+        [Route("[controller]/[action]/{redirectUrl?}/{currentPage?}")]
+        public async Task<IActionResult> GoToPage(ProfileModel profileModel, ChangePasswordModel passwordModel, RegisterModel registerModel, string redirectUrl, string currentPage)
+        {
+            var editedUser = await _userManager.FindByIdAsync(profileModel.Id);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var user = editedUser ?? currentUser;
+
+            if (currentPage == "Profile" && await IsSavedProfile(profileModel, user) ||
+                currentPage == "ChangePassword" && passwordModel.Input.IsEmpty() ||
+                currentPage == "Register" && registerModel.Input.IsEmpty())
+            {
+                return Redirect(redirectUrl.Replace('.', '/'));
+            }
+
+            var modalDetails = new ModalMessage
+            {
+                RequestPage = $"{redirectUrl.Replace('.', '/')}",
+                ModalType = ModalType.WarningMessage,
+                Title = "Unsaved changes!",
+                Message = string.Format("Discard changes for {0}?", user.UserName)
+            };
+
+            return PartialView("_ModalPartial", modalDetails);
+        }
+
+        private bool TryValidate(IdentityUser currentUser, string id, IdentityUser wantedUser, bool checkModelState, out IActionResult result)
+        {
+            if (currentUser == null)
+            {
+                result = NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return false;
+            }
+
+            if (checkModelState && !ModelState.IsValid)
+            {
+                TempData["StatusMessage"] = "Error! Model state is invalid!";
+                result = RedirectToAction("Profile");
+                return false;
+            }
+
+            if (id != null && wantedUser == null)
+            {
+                result = NotFound($"Unable to load user with ID '{id}'.");
+                return false;
+            }
+
+            result = null;
+            return true;
+        }
+
+        private async Task<ProfileModel> LoadAsync(IdentityUser user, bool isCurrentUserProfile)
         {
             var username = await _userManager.GetUserNameAsync(user);
             var role = (await _userManager.GetRolesAsync(user))[0];
@@ -90,7 +258,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             {
                 Username = username,
                 UserRole = role,
-                IsUsernameEnabled = username != "Admin" && role == "Administrator"
+                IsUsernameEditable = !isCurrentUserProfile || username != "Admin" && role == "Administrator",
+                IsUserRoleEditable = !isCurrentUserProfile,
+                Id = isCurrentUserProfile ? null : user.Id
+            };
+        }
+
+        private async Task<bool> IsSavedProfile(ProfileModel model, IdentityUser user)
+        {
+            var (oldUsername, oldUserRole) = (user.UserName, (await _userManager.GetRolesAsync(user))[0]);
+            var (newUsername, newUserRole) = (model.Username, model.UserRole);
+
+            return (newUserRole == null, newUsername == null) switch
+            {
+                (true, true) => true,
+                (true, false) => oldUsername == newUsername,
+                _ => oldUsername == newUsername && oldUserRole == newUserRole
             };
         }
     }

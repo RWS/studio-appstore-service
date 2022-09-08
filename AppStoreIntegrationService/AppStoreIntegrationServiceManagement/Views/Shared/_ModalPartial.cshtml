@@ -6,7 +6,10 @@
         "/Settings/PluginsRename",
         "/Settings/ImportPlugins",
         "/Settings/ExportPlugins",
-        "/Identity/Account/Manage" 
+        "/Identity/Account/Profile", 
+        "/Identity/Account/Register", 
+        "/Identity/Account/Users", 
+        "/Identity/Account/ChangePassword", 
     };
 }
 
@@ -27,7 +30,7 @@
                     {
                         <button type="button" onclick="javascript:  window.location.href = 'Edit?Id=@Model.Id'" class="btn btn-secondary pa-admin-success-btn" data-bs-dismiss="modal">Ok</button>
                     }
-                    else if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => page.Equals(Model.RequestPage)))
+                    else if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => Model.RequestPage.Contains(page)))
                     {
                         <button type="button" onclick="javascript: DiscardChanges('@Model.RequestPage')" class="btn btn-secondary" data-bs-dismiss="modal">Redirect</button>
                         <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
@@ -39,7 +42,7 @@
                 }
                 @if (Model.ModalType == ModalType.WarningMessage)
                 {
-                    if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => page.Equals(Model.RequestPage)))
+                    if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => Model.RequestPage.Contains(page)))
                     {
                         <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
                         <button type="button" class="btn pa-admin-success-btn" data-bs-dismiss="modal">No</button>

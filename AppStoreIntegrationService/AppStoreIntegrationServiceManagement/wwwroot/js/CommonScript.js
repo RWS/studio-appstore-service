@@ -1,16 +1,18 @@
-﻿function RedirectTo(goToPage, currentPage) {
-    if (currentPage == "Plugins/New") {
-        CreateRequest(goToPage, $('#addPlugin').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage.replaceAll('/', '.')}/new`);
+﻿function RedirectTo(goToPage, controller, action) {
+    var currentPage = controller + '/' + action;
+
+    if (currentPage == "Plugins/Edit" || currentPage == "Plugins/New") {
+        CreateRequest(goToPage, $('#pluginDetails').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage.replaceAll('/', '.')}/${action}`);
         return;
     }
 
-    if (currentPage == "Plugins/Edit") {
-        CreateRequest(goToPage, $('#editFile').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage.replaceAll('/', '.')}/edit`);
+    if (controller == "PluginsRename") {
+        CreateRequest(goToPage, $('#namesMapping').find('input').serialize(), `/PluginsRename/GoToPage/${goToPage.replaceAll('/', '.')}`);
         return;
     }
 
-    if (currentPage == "PluginsRename/Index") {
-        CreateRequest(goToPage, $('#namesMapping').find('select, textarea, input').serialize(), `/PluginsRename/GoToPage/${goToPage.replaceAll('/', '.')}`);
+    if (controller == "Account" && action != "Users") {
+        CreateRequest(goToPage, $('body').find("input, input[type='radio']").serialize(), `/Account/GoToPage/${goToPage.replaceAll('/', '.')}/${action}`);
         return;
     }
 

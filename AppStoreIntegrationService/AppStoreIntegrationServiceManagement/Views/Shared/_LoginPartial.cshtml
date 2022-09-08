@@ -11,31 +11,19 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('/Plugins', '@controller/@action')" class="text-white nav-link cursor-pointer">Plugins List</a>
+            <a onclick="javascript: RedirectTo('/Plugins', '@controller', '@action')" class="text-white nav-link cursor-pointer">Plugins List</a>
         </li>
 
         if (User.IsInRole("Administrator"))
         {
             <li class="nav-item">
-                <a onclick="javascript: RedirectTo('/Settings', '@controller/@action')" class="text-white nav-link cursor-pointer">Settings</a>
+                <a onclick="javascript: RedirectTo('/Settings', '@controller', '@action')" class="text-white nav-link cursor-pointer">Settings</a>
             </li>
+        }
 
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle text-white" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Hello @UserManager.GetUserName(User)!
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
-                    <li><a class="dropdown-item cursor-pointer" onclick="javascript: RedirectTo('/Identity/Account/Profile', '@controller/@action')">Profile</a></li>
-                    <li><a class="dropdown-item cursor-pointer" onclick="javascript: RedirectTo('/Identity/Manage/Users', '@controller/@action')">Manage</a></li>
-                </ul>
-            </li>
-        }
-        else
-        {
-            <li class="nav-item">
-                <a onclick="javascript: RedirectTo('/Identity/Account/Profile', '@controller/@action')" class="nav-link text-white cursor-pointer">Hello @UserManager.GetUserName(User)!</a>
-            </li>
-        }
+        <li class="nav-item">
+            <a onclick="javascript: RedirectTo('/Identity/Account/Profile', '@controller', '@action')" class="nav-link text-white cursor-pointer">Hello @UserManager.GetUserName(User)!</a>
+        </li>
 
         <li class="nav-item">
             <form asp-controller="Authentication" asp-action="Logout" asp-area="Identity" method="post">

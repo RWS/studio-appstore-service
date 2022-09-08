@@ -6,7 +6,7 @@
             document.getElementById('deleteUserButton').onclick = function () {
                 $.ajax({
                     type: "POST",
-                    url: `/Identity/Manage/Delete/${btn.id}`,
+                    url: `/Identity/Account/Delete/${btn.id}`,
                     success: function () {
                         location.reload();
                     }

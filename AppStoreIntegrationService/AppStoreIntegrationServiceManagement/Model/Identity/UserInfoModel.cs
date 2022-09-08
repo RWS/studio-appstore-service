@@ -9,5 +9,9 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         public string Name { get; set; }
 
         public string Role { get; set; }
+
+        public bool IsCurrentUser { get; set; }
+
+        public bool IsBuiltInAdmin { get; set; }
     }
 }
