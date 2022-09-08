@@ -12,7 +12,7 @@
     }
 
     if (controller == "Account" && action != "Users") {
-        CreateRequest(goToPage, $('body').find("input, input[type='radio']").serialize(), `/Account/GoToPage/${goToPage.replaceAll('/', '.')}/${action}`);
+        CreateRequest(goToPage, $('main').find("input, input[type='radio']").serialize(), `/Account/GoToPage/${goToPage.replaceAll('/', '.')}/${action}`);
         return;
     }
 

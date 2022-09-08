@@ -6,11 +6,11 @@ namespace AppStoreIntegrationServiceCore.Model
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Plugin Name is required")]
+        [Required]
         [MinLength(5)]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Plugin Descriotion is required")]
+        [Required]
         [MinLength(20)]
         public string Description { get; set; }
 
@@ -18,7 +18,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool Inactive { get; set; }
 
-        [Required(ErrorMessage = "The url from where the plugin should be downloaded is required")]
+        [Required]
         [MinLength(5)]
         public string DownloadUrl { get; set; }
 
@@ -27,6 +27,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public List<PluginVersion> Versions { get; set; }
         public string NewVersionNumber { get; set; }
 
+        [Required]
         public string IconUrl { get; set; }
 
         public string DeveloperName { get; set; }

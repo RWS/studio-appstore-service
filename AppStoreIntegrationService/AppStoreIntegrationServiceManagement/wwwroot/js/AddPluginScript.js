@@ -9,7 +9,7 @@
 }
 
 function AddPlugin() {
-    var pageValues = $('#addPlugin').find('select, textarea, input').serialize();
+    var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();
 
     $.ajax({
         data: pageValues,
@@ -20,7 +20,7 @@ function AddPlugin() {
 }
 
 function AddNewVersion() {
-    var pageValues = $('#addFile').find('select, textarea, input').serialize();
+    var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();
 
     $.ajax({
         async: true,

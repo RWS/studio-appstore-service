@@ -3,6 +3,7 @@
     ViewData["Title"] = "Edit";
 }
 
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row px-2" id="pluginDetails">
     <div class="col-12 col-lg-4">
         <div class="d-flex justify-content-center">
@@ -40,17 +41,16 @@
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Name">Plugin Name <span class="text-danger">*</span></label>
                 <input asp-for="PrivatePlugin.Name" class="form-control" />
-                <span asp-validation-for="PrivatePlugin.Name"></span>
+                <span asp-validation-for="PrivatePlugin.Name" class="text-danger"></span>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.IconUrl">Icon url <span class="text-danger">*</span></label>
                 <input asp-for="PrivatePlugin.IconUrl" class="form-control" />
-                <span asp-validation-for="PrivatePlugin.IconUrl"></span>
+                <span asp-validation-for="PrivatePlugin.IconUrl" class="text-danger"></span>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.DeveloperName">Developer </label>
                 <input asp-for="PrivatePlugin.DeveloperName" class="form-control" />
-                <span asp-validation-for="PrivatePlugin.DeveloperName"></span>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Description">Description <span class="text-danger">*</span></label>
@@ -66,7 +66,7 @@
                 <input asp-for="PrivatePlugin.PaidFor" type="checkbox" class="m-0 align-self-center p-3" />
             </div>
 
-            <div id="pluginVersionContainer">@* used to render the selected version html *@</div>
+            <div id="pluginVersionContainer"></div>
             <div id="modalContainer"></div>
             <button type="button" onclick="javascript: SavePlugin()" class="btn btn-primary pa-admin-success-btn ml-lg-3">Save</button>
         </form>

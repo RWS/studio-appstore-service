@@ -3,7 +3,7 @@
     deleteBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.getElementById('confirmDeletePluginVersionButton').onclick = function () {
-                var pageValues = $('#editFile').find('select, textarea, input').serialize();
+                var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();
 
                 $.ajax({
                     async: true,
@@ -20,7 +20,7 @@
 });
 
 function AddNewVersion() {
-    var pageValues = $('#editFile').find('select, textarea, input').serialize();
+    var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();
 
     $.ajax({
         async: true,
@@ -34,7 +34,7 @@ function AddNewVersion() {
 }
 
 function SavePlugin() {
-    var pageValues = $('#editFile').find('select, textarea, input').serialize();
+    var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();
 
     $.ajax({
         data: pageValues,
@@ -46,7 +46,7 @@ function SavePlugin() {
 
 function ShowVersionDetails(versionId) {
     document.getElementById("selectedVersionId").value = versionId;
-    var pageValues = $('#editFile').find('select, textarea, input').serialize();;
+    var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();;
 
     $.ajax({
         data: pageValues,

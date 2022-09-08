@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -38,6 +39,8 @@ namespace AppStoreIntegrationServiceCore.Model
         public string Id { get; set; }
         public DateTime? ReleasedDate { get; set; }
         public string TechnicalRequirements { get; set; }
+
+        [Required]
         public string VersionNumber { get; set; }
         public List<SupportedProductDetails> SupportedProducts
         {
@@ -51,6 +54,8 @@ namespace AppStoreIntegrationServiceCore.Model
         /// <summary>
         /// For Studio 2021 is 16.0 by default
         /// </summary>
+        
+        [Required]
         public string MinimumRequiredVersionOfStudio { get; set; }
 
         [JsonProperty("SDLHosted")]
@@ -58,6 +63,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool IsNavigationLink { get; set; }
 
+        [Required]
         public string DownloadUrl { get; set; }
         /// <summary>
         /// For the plugins from private repo (config file) by default will be set to true
