@@ -2,44 +2,39 @@
     var currentPage = controller + '/' + action;
 
     if (currentPage == "Plugins/Edit" || currentPage == "Plugins/New") {
-        CreateRequest(goToPage, $('#pluginDetails').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage.replaceAll('/', '.')}/${action}`);
+        CreateRequest($('main').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage}/${action}`);
         return;
     }
 
     if (controller == "PluginsRename") {
-        CreateRequest(goToPage, $('#namesMapping').find('input').serialize(), `/PluginsRename/GoToPage/${goToPage.replaceAll('/', '.')}`);
+        CreateRequest($('#namesMapping').find('input').serialize(), `/PluginsRename/GoToPage/${goToPage}`);
         return;
     }
 
     if (controller == "Account" && action != "Users") {
-        CreateRequest(goToPage, $('main').find("input, input[type='radio']").serialize(), `/Account/GoToPage/${goToPage.replaceAll('/', '.')}/${action}`);
+        CreateRequest($('main').find("input, input[type='radio']").serialize(), `/Account/GoToPage/${goToPage}/${action}`);
         return;
     }
 
+    goToPage = goToPage.replaceAll('.', '\\');
     window.location.href = `${goToPage}`;
 }
 
-function CreateRequest(goToPage, pageValues, url) {
-    var placeholderElement = $('#modalContainer');
-
+function CreateRequest(pageValues, url) {
     $.ajax({
         data: pageValues,
         type: "POST",
         url: url,
-        success: function (modalPartialView) {
-            if (modalPartialView.includes("DOCTYPE")) {
-                window.location.href = goToPage;
+        success: function (actionResult) {
+            if (!actionResult.includes("div")) {
+                window.location.href = actionResult;
             }
             else {
-                placeholderElement.html(modalPartialView);
-                placeholderElement.find('.modal').modal('show');
+                $('#modalContainer').html(actionResult);
+                $('#modalContainer').find('.modal').modal('show');
             }
         }
     })
-}
-
-function DiscardChanges(goToPage) {
-    window.location.href = `${goToPage}`;
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -48,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 
-    $(".alert").fadeTo(2000, 500).slideUp(500, function () {
-        $(".alert").slideUp(500);
+    $(".alert").fadeTo(3000, 500).slideUp(500, function () {
+        $(this).remove();
     });
 });

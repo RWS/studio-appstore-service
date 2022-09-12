@@ -1,17 +1,4 @@
 ﻿@model ModalMessage
-@{
-    var pages = new[] { 
-        "/Plugins", 
-        "/Settings",
-        "/Settings/PluginsRename",
-        "/Settings/ImportPlugins",
-        "/Settings/ExportPlugins",
-        "/Identity/Account/Profile", 
-        "/Identity/Account/Register", 
-        "/Identity/Account/Users", 
-        "/Identity/Account/ChangePassword", 
-    };
-}
 
 <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -26,31 +13,20 @@
             <div class="modal-footer">
                 @if (Model.ModalType == ModalType.SuccessMessage)
                 {
-                    if (!string.IsNullOrEmpty(Model.RequestPage) && Model.RequestPage.Equals("add"))
-                    {
-                        <button type="button" onclick="javascript:  window.location.href = 'Edit?Id=@Model.Id'" class="btn btn-secondary pa-admin-success-btn" data-bs-dismiss="modal">Ok</button>
-                    }
-                    else if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => Model.RequestPage.Contains(page)))
-                    {
-                        <button type="button" onclick="javascript: DiscardChanges('@Model.RequestPage')" class="btn btn-secondary" data-bs-dismiss="modal">Redirect</button>
-                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
-                    }
-                    else
-                    {
-                        <button type="button" onclick="javascript: location.reload()" class="btn btn-primary pa-admin-success-btn mb-0" data-bs-dismiss="modal">Ok</button>
-                    }
+                    <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-secondary" data-bs-dismiss="modal">Redirect</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
                 }
+
                 @if (Model.ModalType == ModalType.WarningMessage)
                 {
-                    if (!string.IsNullOrEmpty(Model.RequestPage) && pages.Any(page => Model.RequestPage.Contains(page)))
-                    {
-                        <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
-                        <button type="button" class="btn pa-admin-success-btn" data-bs-dismiss="modal">No</button>
-                    }
-                    else
-                    {
-                        <button type="button" class="btn btn-success pa-admin-success-btn" data-bs-dismiss="modal">Ok</button>
-                    }
+                    <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
+                    <button type="button" class="btn pa-admin-success-btn" data-bs-dismiss="modal">No</button>
+                }
+
+                @if(Model.ModalType == ModalType.ConfirmationMessage)
+                {
+                    <button type="button" id="dismissBtn" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                    <button type="button" id="confirmationBtn" data-bs-dismiss="modal" class="btn pa-admin-success-btn">Yes</button>
                 }
             </div>
         </div>

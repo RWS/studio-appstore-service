@@ -89,23 +89,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Delete(int id)
         {
             await _pluginRepository.RemovePlugin(id);
-            return RedirectToAction("Index");
+            TempData["StatusMessage"] = "Success! Plugin was removed!";
+            return Content("");
         }
 
-        [Route("[controller]/[action]/{redirectUrl?}/{currentPage?}")]
+        [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
         public async Task<IActionResult> GoToPage(PluginDetailsModel pluginDetails, PluginVersion version, string redirectUrl, string currentPage)
         {
-            if (currentPage != "new" && await IsSaved(pluginDetails, version))
+            redirectUrl = redirectUrl.Replace('.', '/');
+
+            if (currentPage != "New" && await IsSaved(pluginDetails, version))
             {
-                return Redirect(redirectUrl.Replace('.', '/'));
+                return Content($"{redirectUrl}");
             }
 
             var modalDetails = new ModalMessage
             {
-                RequestPage = $"{redirectUrl.Replace('.', '/')}",
+                RequestPage = $"{redirectUrl}",
                 ModalType = ModalType.WarningMessage,
                 Title = "Unsaved changes!",
-                Message = string.Format("Discard changes for {0}", string.IsNullOrEmpty(pluginDetails.PrivatePlugin.Name) ? "plugin" : pluginDetails.PrivatePlugin.Name)
+                Message = string.Format("Discard changes for {0}?", string.IsNullOrEmpty(pluginDetails.PrivatePlugin.Name) ? "plugin" : pluginDetails.PrivatePlugin.Name)
             };
 
             return PartialView("_ModalPartial", modalDetails);
@@ -123,13 +126,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private async Task<IActionResult> Save(PluginDetailsModel pluginDetails, List<PluginVersion> versions, PluginVersion version, Func<PrivatePlugin, Task> func)
         {
             var plugin = pluginDetails.PrivatePlugin;
-            var modalDetails = new ModalMessage()
-            {
-                RequestPage = plugin.IsEditMode ? "" : "add",
-                Message = "Please fill all required values.",
-                ModalType = ModalType.WarningMessage
-            };
-            
+
             if (plugin.IsValid(version))
             {
                 plugin.SetVersionList(versions, version);
@@ -139,17 +136,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 try
                 {
                     await func(plugin);
-                    modalDetails.ModalType = ModalType.SuccessMessage;
-                    modalDetails.Message = string.Format("{0} was {1}", plugin.Name, plugin.IsEditMode ? "updated" : "saved");
-                    modalDetails.Id = plugin.Id;
+                    if (plugin.IsEditMode)
+                    {
+                        TempData["StatusMessage"] = string.Format("Success! {0} was updated!", plugin.Name);
+                        return Content($"/Plugins/Edit/{plugin.Id}");
+                    }
+
+                    TempData["StatusMessage"] = string.Format("Success! {0} was saved!", plugin.Name);
+                    return Content($"/Plugins/Edit/{plugin.Id}");
                 }
                 catch (Exception e)
                 {
-                    modalDetails.Message = e.Message;
+                    return PartialView("_StatusMessage", string.Format("Error! {0}!", e.Message));
                 }
             }
 
-            return PartialView("_ModalPartial", modalDetails);
+            return PartialView("_StatusMessage", "Error! Please fill all required values!");
         }
 
         private static IEnumerable<PluginVersion> SetSelectedProducts(List<PluginVersion> versions, string versionName)

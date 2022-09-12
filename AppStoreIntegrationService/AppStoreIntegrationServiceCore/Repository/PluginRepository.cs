@@ -336,8 +336,15 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task UpdatePrivatePlugin(PrivatePlugin privatePlugin)
         {
             var pluginsList = await GetPlugins();
+
             if (pluginsList != null)
             {
+                var pluginExists = pluginsList.Where(p => p.Name.Equals(privatePlugin.Name)).Count() > 1;
+                if (pluginExists)
+                {
+                    throw new Exception($"Another plugin with the name {privatePlugin.Name} already exists");
+                }
+
                 await BackupFile(pluginsList);
 
                 var pluginToBeUpdated = pluginsList.FirstOrDefault(p => p.Id.Equals(privatePlugin.Id));
@@ -354,6 +361,7 @@ namespace AppStoreIntegrationServiceCore.Repository
                     pluginToBeUpdated.DownloadUrl = privatePlugin.DownloadUrl;
                     pluginToBeUpdated.Inactive = privatePlugin.Inactive;
                 }
+
                 await SaveToFile(pluginsList);
             }
         }

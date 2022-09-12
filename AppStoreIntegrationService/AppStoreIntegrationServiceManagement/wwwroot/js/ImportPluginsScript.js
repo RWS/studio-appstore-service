@@ -8,16 +8,9 @@
         contentType: false,
         processData: false,
         url: "ImportExportPlugins/CreateImport",
-        success: AjaxSuccessCallback
+        success: function (actionResult) {
+            $('#modalContainer').html(actionResult);
+            $('#modalContainer').find('.modal').modal('show');
+        }
     });
-}
-
-function AjaxSuccessCallback(modalPartialView) {
-    if (modalPartialView.includes("DOCTYPE")) {
-        location.reload();
-    }
-    else {
-        $('#modalContainer').html(modalPartialView);
-        $('#modalContainer').find('.modal').modal('show');
-    }
 }

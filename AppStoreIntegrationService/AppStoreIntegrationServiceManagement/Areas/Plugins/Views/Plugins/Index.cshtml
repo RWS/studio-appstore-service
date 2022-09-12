@@ -1,7 +1,15 @@
 ﻿@model List<PrivatePlugin>
 @{
-    ViewData["Title"] = "ConfigTool";
+    ViewData["Title"] = "Plugins";
+    var modal = new ModalMessage 
+    { 
+        ModalType = ModalType.ConfirmationMessage,
+        Title = "Confirmation"
+    };
 }
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+
 <div id="toolsMenu" class="row flex-column justify-content-center flex-sm-row justify-content-sm-between px-3">
     <div id="filterSearch" class="filter-search col-12 col-sm-8 p-0 order-1 order-sm-0">
         <select id="status" class="filter-search-select" onchange="javscript: AddFilter('status')">
@@ -54,35 +62,16 @@
                         <label class="card-status col-6">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
                         <div class="col-6 d-flex justify-content-end">
                             <a class="focus-transparent me-3" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
-                            <btn class="cursor-pointer delete-plugin-btn" id="@plugin.Id"><i class="far fa-trash-alt text-danger cursor-pointer"></i></btn>
+                            <a class="btn p-0"><i class="far fa-trash-alt text-danger cursor-pointer delete-plugin-btn" id="@plugin.Id"></i></a>
                         </div>
                     </div>
                 </div>
             </div>
         }
     </div>
-    <div id="addModalContainer"></div>
-    <div id="modalContainer"></div>
 </div>
 
-<div class="modal fade" id="confirmDeletePlugin" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete <span class="plugin-name-placeholder"></span>?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                <button type="button" id="confirmDeletePluginButton" data-bs-dismiss="modal" class="btn pa-admin-success-btn">Yes</button>
-            </div>
-        </div>
-    </div>
-</div>
-
+<partial name="_ModalPartial" model="@modal" />
 
 <script src="~/js/PluginsScript.js"></script>
 <script src="~/js/FilterScript.js"></script>

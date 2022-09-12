@@ -42,11 +42,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [Required]
         public string VersionNumber { get; set; }
-        public List<SupportedProductDetails> SupportedProducts
-        {
-            get => _supportedProducts ?? _supportedProductDetails;
-            set => _supportedProducts = value;
-        }
+        public List<SupportedProductDetails> SupportedProducts { get; set; }
         public bool AppHasStudioPluginInstaller { get; set; }
 
 
@@ -96,6 +92,15 @@ namespace AppStoreIntegrationServiceCore.Model
         public string VersionName { get; set; }
         [JsonIgnore]
         public bool IsNewVersion { get; set; }
+
+        public void SetSupportedProducts()
+        {
+            if (SupportedProducts == null)
+            {
+                SupportedProducts = new List<SupportedProductDetails>();
+                SupportedProducts.AddRange(_supportedProductDetails);
+            }
+        }
 
         private void UpdateStudioMinVersion()
         {

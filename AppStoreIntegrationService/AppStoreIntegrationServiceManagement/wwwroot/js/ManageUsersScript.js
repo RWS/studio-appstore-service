@@ -3,7 +3,7 @@
 
     deleteBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            document.getElementById('deleteUserButton').onclick = function () {
+            document.getElementById('confirmationBtn').onclick = function () {
                 $.ajax({
                     type: "POST",
                     url: `/Identity/Account/Delete/${btn.id}`,
@@ -12,8 +12,9 @@
                     }
                 })
             }
-
-            $('#deleteUserModal').modal('show');
+            
+            document.querySelector("#confirmationModal .modal-body").innerHTML = "Are you sure you want to delete this user?";
+            $('#confirmationModal').modal('show');
             e.stopImmediatePropagation();
         })
     })

@@ -26,14 +26,17 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost]
         public IActionResult Add()
         {
-            return PartialView("_PluginVersionDetailsPartial", new PluginVersion
+            var version = new PluginVersion
             {
                 VersionName = "New plugin version",
                 VersionNumber = string.Empty,
                 IsPrivatePlugin = true,
                 IsNewVersion = true,
                 Id = Guid.NewGuid().ToString()
-            });
+            };
+
+            version.SetSupportedProducts();
+            return PartialView("_PluginVersionDetailsPartial", version);
         }
 
         [HttpPost]
@@ -41,7 +44,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = pluginDetails.PrivatePlugin;
             await _pluginRepository.RemovePluginVersion(plugin.Id, id);
-            return RedirectToAction("Edit", "Plugins", new { id = plugin.Id, area = "Plugins" });
+
+            TempData["StatusMessage"] = "Success! Version was removed!";
+            return Content($"Plugins/Edit/{plugin.Id}");
         }
     }
 }

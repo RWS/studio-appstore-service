@@ -13,14 +13,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     discardBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            ToggleEditForm(GetCurrentRowElements(btn, false), function () { return; }, '#confirmDiscardNameMapping', document.getElementById('confirmDiscardChangesButton'));
+            ToggleEditForm(GetCurrentRowElements(btn, false), function () { return; }, '#confirmationModal', document.getElementById('confirmationBtn'), null);
             e.stopImmediatePropagation();
         })
     })
 
     checkMarks.forEach(mark => {
         mark.addEventListener('click', (e) => {
-            ToggleEditForm(GetCurrentRowElements(mark, false), function () { return; }, '#confirmEditNameMapping', document.getElementById('discardNameMappingChangesButton'));
+            ToggleEditForm(GetCurrentRowElements(mark, false), function () { return; }, '#confirmationModal', document.getElementById('dismissBtn'), document.getElementById('confirmationBtn'));
             e.stopImmediatePropagation();
         })
     });
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
         eraser.addEventListener('click', (e) => {
             CloseNewNameMappingForm(function () {
                 CloseExistingEditForms(function () {
-                    document.getElementById('deleteNameMappingButton').onclick = function () {
+                    document.getElementById('confirmationBtn').onclick = function () {
                         var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
                         $.ajax({
                             data: pageValues,
@@ -75,7 +75,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         })
                     }
 
-                    $('#deleteNameMappingModal').modal('show');
+                    document.querySelector("#confirmationModal .modal-body").innerHTML = "Are you sure you want to delete this plugin name mapping?";
+                    $('#confirmationModal').modal('show');
                 });
             });
 
@@ -93,7 +94,7 @@ function CloseExistingEditForms(toggleCallback) {
         editCells = openInputs[0].parentElement.parentElement.querySelectorAll('.icon-cell i');
     }
 
-    ToggleEditForm([openInputs, hiddenParagraphs, editCells], toggleCallback, $('#confirmDiscardNameMapping'), document.getElementById('confirmDiscardChangesButton'));
+    ToggleEditForm([openInputs, hiddenParagraphs, editCells], toggleCallback, $('#confirmationModal'), document.getElementById('confirmationBtn'), null);
 }
 
 function GetCurrentMappingData(inputs) {
@@ -130,7 +131,7 @@ function UpdateEditPanelIcons(editIcons) {
     }
 }
 
-function ToggleEditForm(curentRowElements, callback, confirmationModalId, confirmationBtn) {
+function ToggleEditForm(curentRowElements, callback, confirmationModalId, confirmationBtn, dismissBtn) {
     const [inputs, paragraphs, icons] = curentRowElements;
 
     if (oldData == GetCurrentMappingData(inputs)) {
@@ -138,6 +139,14 @@ function ToggleEditForm(curentRowElements, callback, confirmationModalId, confir
         UpdateEditPanelIcons(icons);
         callback();
         return;
+    }
+
+    var modalBody = document.querySelector("#confirmationModal .modal-body");
+    modalBody.innerHTML = "Discard changes for plugin name mapping?";
+
+    if (dismissBtn != null) {
+        modalBody.innerHTML = "Keep changes for plugin name mapping?";
+        dismissBtn.onclick = UpdateNamesMapping;
     }
 
     confirmationBtn.onclick = function () {
@@ -176,7 +185,7 @@ function InputFocusEventListener(e) {
 }
 
 function UpdateNamesMapping() {
-    var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
+    var pageValues = $('#namesMapping').find('input').serialize();
 
     $.ajax({
         data: pageValues,
@@ -216,16 +225,17 @@ function CloseNewNameMappingForm(confirmationCallback) {
         return;
     }
 
-    document.getElementById('confirmDiscardChangesButton').onclick = function () {
+    document.getElementById('confirmationBtn').onclick = function () {
         newNameMappingForm.remove();
         confirmationCallback();
     }
 
-    $('#confirmDiscardNameMapping').modal('show');
+    document.querySelector("#confirmationModal .modal-body").innerHTML = "Discard changes for new name mapping?"
+    $('#confirmationModal').modal('show');
 }
 
 function AddNameMapping() {
-    var pageValues = $('#namesMapping').find('select, textarea, input').serialize();
+    var pageValues = $('#namesMapping').find('input').serialize();
 
     $.ajax({
         data: pageValues,
@@ -235,12 +245,14 @@ function AddNameMapping() {
     })
 }
 
-function AjaxSuccessCallback(modalPartialView) {
-    if (modalPartialView.includes("DOCTYPE")) {
-        location.reload();
+function AjaxSuccessCallback(actionResult) {
+    if (!actionResult.includes("div")) {
+        window.location.href = actionResult;
     }
-    else {
-        $('#modalContainer').html(modalPartialView);
-        $('#modalContainer').find('.modal').modal('show');
-    }
+
+    $('#statusMessageContainer').html(actionResult);
+    $('#statusMessageContainer').find('.modal').modal('show');
+    $(".alert").fadeTo(3000, 500).slideUp(500, function () {
+        $(".alert").slideUp(500);
+    });
 }

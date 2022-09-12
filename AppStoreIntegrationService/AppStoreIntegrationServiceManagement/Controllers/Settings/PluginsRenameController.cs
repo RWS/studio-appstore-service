@@ -45,17 +45,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             {
                 mappings.Add(mapping);
                 await _namesRepository.UpdateNamesMapping(mappings);
-                return RedirectToAction("Index");
+                return Content("/Settings/PluginsRename");
             }
 
-            var modalDetails = new ModalMessage
-            {
-                Title = string.Empty,
-                Message = "Parameter cannot be null!",
-                ModalType = ModalType.WarningMessage
-            };
-
-            return PartialView("_ModalPartial", modalDetails);
+            return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
         }
 
         [HttpPost]
@@ -64,43 +57,38 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             if (!mappings.Any(item => string.IsNullOrEmpty(item.OldName) || string.IsNullOrEmpty(item.NewName)))
             {
                 await _namesRepository.UpdateNamesMapping(mappings);
-                return RedirectToAction("Index");
+                return Content("/Settings/PluginsRename");
             }
 
-            var modalDetails = new ModalMessage
-            {
-                Title = string.Empty,
-                Message = "Parameter cannot be null!",
-                ModalType = ModalType.WarningMessage
-            };
-
-            return PartialView("_ModalPartial", modalDetails);
+            return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
             await _namesRepository.DeleteNameMapping(id);
-            return RedirectToAction("Index");
+            return Content("/Settings/PluginsRename");
         }
 
-        [Route("[controller]/[action]/{pageUrl?}")]
+        [Route("[controller]/[action]/{redirectUrl?}")]
         [HttpPost]
-        public async Task<IActionResult> GoToPage(string pageUrl, NameMapping mapping, List<NameMapping> mappings)
+        public async Task<IActionResult> GoToPage(string redirectUrl, NameMapping mapping, List<NameMapping> mappings)
         {
+            redirectUrl = redirectUrl.Replace('.', '/');
+
             if (string.IsNullOrEmpty(mapping.NewName) &&
                 string.IsNullOrEmpty(mapping.OldName) &&
                 await HaveUnsavedChanges(mappings))
             {
-                return Redirect(pageUrl.Replace('.', '/'));
+                return Content(redirectUrl);
             }
 
             var modalDetails = new ModalMessage
             {
                 ModalType = ModalType.WarningMessage,
                 Title = "Warning!",
-                Message = $"There are unsaved changes for plugins rename. Discard changes?",
-                RequestPage = $"{pageUrl.Replace('.', '/')}"
+                Message = $"Discard changes for plugin rename?",
+                RequestPage = $"{redirectUrl}"
             };
 
             return PartialView("_ModalPartial", modalDetails);

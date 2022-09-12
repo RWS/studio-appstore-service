@@ -58,10 +58,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
             {
                 await _userManager.SetUserNameAsync(currentUser, newUsername);
-                TempData["StatusMessage"] = "Success! Profile was updated!";
+                TempData["StatusMessage"] = "Success! Your profile was updated!";
                 return RedirectToAction("Profile");
             }
 
+            var oldUsername = wantedUser.UserName;
             if (newUsername != wantedUser.UserName)
             {
                 await _userManager.SetUserNameAsync(wantedUser, newUsername);
@@ -74,7 +75,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 await _userManager.AddToRoleAsync(wantedUser, newRole);
             }
 
-            TempData["StatusMessage"] = "Success! Profile was updated!";
+            TempData["StatusMessage"] = string.Format("Success! {0}'s profile was updated!", oldUsername);
             return RedirectToAction("Profile", new { id });
         }
 
@@ -120,13 +121,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             {
                 await _userManager.ChangePasswordAsync(currentUser, model.Input.OldPassword, model.Input.NewPassword);
                 await _signInManager.RefreshSignInAsync(currentUser);
-                TempData["StatusMessage"] = "Success! Password was changed!";
+                TempData["StatusMessage"] = "Success! Your password was changed!";
                 return RedirectToAction("Profile");
             }
 
             await _userManager.RemovePasswordAsync(wantedUser);
             await _userManager.AddPasswordAsync(wantedUser, model.Input.NewPassword);
-            TempData["StatusMessage"] = "Success! Password was reset!";
+            TempData["StatusMessage"] = string.Format("Success! {0}'s password was changed!", wantedUser.UserName);
             return RedirectToAction("Profile", new { id });
         }
 
@@ -192,11 +193,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             if (user == currentUser)
             {
                 TempData["StatusMessage"] = "Error! You cannot delete your account!";
-                return RedirectToAction("Users");
+                return Content("");
             }
 
             await _userManager.DeleteAsync(user);
-            return RedirectToAction("Users");
+            TempData["StatusMessage"] = string.Format("Success! {0} was deleted!", user.UserName);
+            return Content("");
         }
 
         [Route("[controller]/[action]/{redirectUrl?}/{currentPage?}")]
@@ -205,17 +207,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             var editedUser = await _userManager.FindByIdAsync(profileModel.Id);
             var currentUser = await _userManager.GetUserAsync(User);
             var user = editedUser ?? currentUser;
+            redirectUrl = redirectUrl.Replace('.', '/');
 
             if (currentPage == "Profile" && await IsSavedProfile(profileModel, user) ||
                 currentPage == "ChangePassword" && passwordModel.Input.IsEmpty() ||
                 currentPage == "Register" && registerModel.Input.IsEmpty())
             {
-                return Redirect(redirectUrl.Replace('.', '/'));
+                return Content(redirectUrl);
             }
 
             var modalDetails = new ModalMessage
             {
-                RequestPage = $"{redirectUrl.Replace('.', '/')}",
+                RequestPage = $"{redirectUrl}",
                 ModalType = ModalType.WarningMessage,
                 Title = "Unsaved changes!",
                 Message = string.Format("Discard changes for {0}?", user.UserName)

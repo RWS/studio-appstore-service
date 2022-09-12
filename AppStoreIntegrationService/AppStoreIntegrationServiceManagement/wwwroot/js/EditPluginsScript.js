@@ -2,51 +2,55 @@
     var deleteBtns = document.querySelectorAll('#selectedVersion .fa-trash-alt');
     deleteBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            document.getElementById('confirmDeletePluginVersionButton').onclick = function () {
-                var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();
+            document.getElementById('confirmationBtn').onclick = function () {
+                var pageValues = $('main').find('select, textarea, input').serialize();
 
                 $.ajax({
-                    async: true,
                     data: pageValues,
                     type: "POST",
                     url: `/Plugins/Version/Delete/${btn.id}`,
-                    success: AjaxSuccessCallback
+                    success: function () {
+                        location.reload();
+                    }
                 })
             }
 
-            $('#confirmDeletePluginVersion').modal('show');
+            document.querySelector("#confirmationModal .modal-body").innerHTML = "Are you sure you want to delete this plugin version?";
+            $('#confirmationModal').modal('show');
         })
     })
 });
 
-function AddNewVersion() {
-    var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();
+function SavePlugin() {
+    $("#form").validate();
 
+    if ($("#form").valid()) {
+        var pageValues = $('main').find('select, textarea, input').serialize();
+
+        $.ajax({
+            data: pageValues,
+            type: "POST",
+            url: "/Plugins/Plugins/Update",
+            success: AjaxSuccessCallback
+        })
+    }
+}
+
+function AddNewVersion() {
     $.ajax({
-        async: true,
-        data: pageValues,
         type: "POST",
         url: "/Plugins/Version/Add",
         success: function (partialView) {
             $('#pluginVersionContainer').html(partialView);
+            $('#form').data('validator', null);
+            $.validator.unobtrusive.parse('#form');
         }
-    })
-}
-
-function SavePlugin() {
-    var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();
-
-    $.ajax({
-        data: pageValues,
-        type: "POST",
-        url: "/Plugins/Plugins/Update",
-        success: AjaxSuccessCallback
     })
 }
 
 function ShowVersionDetails(versionId) {
     document.getElementById("selectedVersionId").value = versionId;
-    var pageValues = $('#pluginDetails').find('select, textarea, input').serialize();;
+    var pageValues = $('main').find('select, textarea, input').serialize();;
 
     $.ajax({
         data: pageValues,
@@ -54,16 +58,22 @@ function ShowVersionDetails(versionId) {
         url: "/Plugins/Version/Show",
         success: function (partialView) {
             $('#pluginVersionContainer').html(partialView);
+            $('#form').data('validator', null);
+            $.validator.unobtrusive.parse('#form');
         }
     })
 }
 
-function AjaxSuccessCallback(modalPartialView) {
-    if (modalPartialView.includes("DOCTYPE")) {
-        location.reload();
+function AjaxSuccessCallback(actionResult) {
+    if (!actionResult.includes("div")) {
+        window.location.href = actionResult;
+        return;
     }
-    else {
-        $('#modalContainer').html(modalPartialView);
-        $('#modalContainer').find('.modal').modal('show');
-    }
+
+    $('.alert').remove();
+    $('#statusMessageContainer').html(actionResult);
+    $('#statusMessageContainer').find('.modal').modal('show');
+    $(".alert").fadeTo(3000, 500).slideUp(500, function () {
+        $(this).remove();
+    });
 }
