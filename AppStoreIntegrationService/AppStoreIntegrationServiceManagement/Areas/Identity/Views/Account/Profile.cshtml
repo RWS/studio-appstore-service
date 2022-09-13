@@ -20,7 +20,7 @@
     }
 
     <div class="col-12 col-md-9">
-        <h4>@string.Format("Edit profile {0}", Model.Id != null ? $"for {Model.Username}" : null)</h4>
+        <h4 class="text-break">@string.Format("Edit profile {0}", Model.Id != null ? $"for {Model.Username}" : null)</h4>
         <form asp-controller="Account" asp-action="Update" asp-route-id="@Model.Id" method="post">
             <input hidden asp-for="Id" />
             <div class="mb-3">

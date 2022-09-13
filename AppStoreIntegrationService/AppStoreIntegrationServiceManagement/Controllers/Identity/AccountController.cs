@@ -3,6 +3,7 @@ using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
@@ -65,7 +66,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             var oldUsername = wantedUser.UserName;
             if (newUsername != wantedUser.UserName)
             {
-                await _userManager.SetUserNameAsync(wantedUser, newUsername);
+                var identityResult = await _userManager.SetUserNameAsync(wantedUser, newUsername);
+                if (!identityResult.Succeeded)
+                {
+                    TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
+                    return RedirectToAction("Profile", new { id });
+                }
             }
 
             var oldRole = (await _userManager.GetRolesAsync(wantedUser))[0];
@@ -173,9 +179,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                     TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.UserName);
                     return RedirectToAction("Users");
                 }
+
+                TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
+                return RedirectToAction("Register");
             }
 
-            TempData["StatusMessage"] = "Error! Something went wrong!";
+            TempData["StatusMessage"] = "Error! Model state is invalid!";
             return RedirectToAction("Register");
         }
 

@@ -31,11 +31,11 @@
                 @foreach (var user in Model)
                 {
                     <tr class="text-center">
-                        <td>@user.Name</td>
-                        <td>@user.Role</td>
+                        <td class="text-break">@user.Name</td>
+                        <td class="align-middle px-3">@user.Role</td>
                         @if (user.Name != "Admin")
                         {
-                            <td colspan="@(user.IsCurrentUser ? "2" : "1")">
+                            <td class="align-middle px-3" colspan="@(user.IsCurrentUser ? "2" : "1")">
                                 <a asp-controller="Account" asp-action="Profile" asp-route-id="@user.Id">
                                     <i class="fa fa-pen-alt text-secondary cursor-pointer"></i>
                                 </a>
@@ -43,12 +43,12 @@
 
                             @if (!user.IsCurrentUser)
                             {
-                                <td><i id="@user.Id" class="fa fa-trash-alt text-danger cursor-pointer delete-user-btn"></i></td>
+                                <td class="align-middle px-3"><i id="@user.Id" class="fa fa-trash-alt text-danger cursor-pointer delete-user-btn"></i></td>
                             }
                         }
                         else
                         {
-                            <td colspan="2"><i class="fa fa-info-circle text-secondary cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Built in Admin not editable!"></i> </td>
+                            <td class="align-middle px-3" colspan="2"><i class="fa fa-info-circle text-secondary cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Built in Admin not editable!"></i> </td>
                         }
                     </tr>
                 }
