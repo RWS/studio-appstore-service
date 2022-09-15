@@ -1,7 +1,5 @@
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
 using System.Net;
@@ -36,15 +34,6 @@ namespace AppStoreIntegrationServiceAPI
             {
                 options.Level = CompressionLevel.Optimal;
             });
-
-            if (!string.IsNullOrEmpty(configurationSettings.InstrumentationKey))
-            {
-                services.AddApplicationInsightsTelemetry();
-                new TelemetryClient(new TelemetryConfiguration
-                {
-                    ConnectionString = configurationSettings.InstrumentationKey
-                }).TrackEvent("Application started");
-            }
 
             services.AddResponseCompression(options =>
             {
@@ -93,6 +82,7 @@ namespace AppStoreIntegrationServiceAPI
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseResponseCaching();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
