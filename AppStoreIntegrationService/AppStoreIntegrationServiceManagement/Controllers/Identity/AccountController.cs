@@ -58,6 +58,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
             {
                 await _userManager.SetUserNameAsync(currentUser, newUsername);
+                var identityResult = await _userManager.SetUserNameAsync(currentUser, newUsername);
+                if (!identityResult.Succeeded)
+                {
+                    TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
+                    return RedirectToAction("Profile");
+                }
+
                 TempData["StatusMessage"] = "Success! Your profile was updated!";
                 return RedirectToAction("Profile");
             }
