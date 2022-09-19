@@ -9,10 +9,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     public class VersionController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
+        private readonly IProductsRepository _productsRepository;
 
-        public VersionController(IPluginRepository pluginRepository)
+        public VersionController(IPluginRepository pluginRepository, IProductsRepository productsRepository)
         {
             _pluginRepository = pluginRepository;
+            _productsRepository = productsRepository;
         }
 
         [HttpPost]
@@ -24,9 +26,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public IActionResult Add()
+        public async Task<IActionResult> Add()
         {
-            var version = new PluginVersion
+            var version = new PluginVersion((await _productsRepository.GetAllProducts()).ToList())
             {
                 VersionName = "New plugin version",
                 VersionNumber = string.Empty,

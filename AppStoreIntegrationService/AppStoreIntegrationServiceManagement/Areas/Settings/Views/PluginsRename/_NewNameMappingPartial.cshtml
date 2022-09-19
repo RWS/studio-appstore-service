@@ -1,14 +1,14 @@
 ﻿@model NameMapping
 
-<tr class="table-row" id="newNameMappingRow">
+<tr class="table-row d-flex flex-column d-sm-table-row" id="newDataRow">
     <td>
         <div>
             <input hidden asp-for="@Model.Id" />
-            <p class="m-0">@Model.Id</p>
+            <p class="m-0 text-center text-sm-start">@Model.Id</p>
         </div>
     </td>
-    <td class="editable-field"><input class="form-control form-control-sm" asp-for="@Model.OldName" /></td>
-    <td class="editable-field"><input class="form-control form-control-sm" asp-for="@Model.NewName" /></td>
-    <td class="icon-cell text-center"><i onclick="AddNameMapping()" class="fa fa-check-circle text-success cursor-pointer align-middle"></i></td>
-    <td class="icon-cell text-center"><i onclick="CloseNewNameMappingForm(function() { return })" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
+    <td class="editable-field"><input class="form-control form-control-sm" placeholder="OldName" asp-for="@Model.OldName" /></td>
+    <td class="editable-field"><input class="form-control form-control-sm" placeholder="NewName" asp-for="@Model.NewName" /></td>
+    <td class="icon-cell text-center"><i onclick="SaveNewRowData()" class="fa fa-check-circle text-success cursor-pointer align-middle"></i></td>
+    <td class="icon-cell text-center"><i onclick="CloseNewRowForm(function() { return })" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
 </tr>

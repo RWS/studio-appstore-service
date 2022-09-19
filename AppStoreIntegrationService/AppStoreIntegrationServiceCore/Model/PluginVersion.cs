@@ -8,30 +8,14 @@ namespace AppStoreIntegrationServiceCore.Model
     public class PluginVersion
     {
         private readonly List<SupportedProductDetails> _supportedProductDetails;
-        private List<SupportedProductDetails> _supportedProducts;
         private SupportedProductDetails _selectedProduct;
 
-        public PluginVersion()
-        {
-            _supportedProductDetails = new List<SupportedProductDetails>
-            {
-                new SupportedProductDetails
-                {
-                    Id ="37",
-                    ProductName ="SDL Trados Studio 2021",
-                    ParentProductID =14,
-                    MinimumStudioVersion = "16.0"
-                },
-                new SupportedProductDetails
-                {
-                    Id ="38",
-                    ProductName ="Trados Studio 2022",
-                    ParentProductID =14,
-                    MinimumStudioVersion ="17.0"
-                }
-            };
+        public PluginVersion() { }
 
-            SupportedProductsListItems = new SelectList(_supportedProductDetails, nameof(SupportedProductDetails.Id), nameof(SupportedProductDetails.ProductName));
+        public PluginVersion(List<SupportedProductDetails> supportedProductDetails)
+        {
+            _supportedProductDetails = supportedProductDetails;
+            SupportedProductsListItems = new SelectList(supportedProductDetails, nameof(SupportedProductDetails.Id), nameof(SupportedProductDetails.ProductName));
         }
 
         public DateTime? CreatedDate { get; set; }
@@ -75,7 +59,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [BindProperty]
         public SupportedProductDetails SelectedProduct
         {
-            get => _selectedProduct ?? _supportedProductDetails.Last();
+            get => _selectedProduct ?? _supportedProductDetails?.Last();
             set
             {
                 _selectedProduct = value;

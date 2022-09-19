@@ -1,9 +1,10 @@
-﻿@model PluginsRenameModel
+﻿@model ProductsModel
 @{
     ViewData["Title"] = "Settings";
-    ViewData["ActivePage"] = ManageSettingsNav.PluginsRename;
+    ViewData["ActivePage"] = ManageSettingsNav.Products;
 }
-<partial name="_StatusMessage" model="@TempData["StatusMessage"]"/>
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div id="statusMessageContainer"></div>
 <h2>Settings</h2>
 <h4>Change site settings</h4>
@@ -12,20 +13,22 @@
     <partial name="_SettingsNavPartial" />
     <div class="col-12 col-md-9" id="namesMapping">
         <div class="settings-details">
-            <h4>Renamed plugins</h4>
+            <h4>Products</h4>
             <form method="post" id="form" onsubmit="return false">
-                <table class="table table-bordered table-striped" id="mappingsTable">
+                <table id="productsTable" class="table table-bordered table-striped">
                     <thead>
                         <tr class="align-middle d-none d-sm-table-row">
-                            <th>Id</th>
-                            <th>Old Name</th>
-                            <th>New Name</th>
+                            <th class="d-sm-table-cell d-sm-none d-lg-table-cell">Id</th>
+                            <th>ProductName</th>
+                            <th>ProductVersion</th>
+                            <th class="d-sm-table-cell d-sm-none d-lg-table-cell">ProductParentId</th>
+                            <th class="text-center">IsDefault</th>
                             <td class="icon-cell text-center"><i onclick="AddNewRow()" class="fa fa-plus-circle text-success cursor-pointer"></i></td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
                     <tbody class="table-body">
-                        <partial name="_NamesMappingPartial" model="@Model.NamesMapping" />
+                        <partial name="_ProductsPartial" model="@Model.Products" />
                     </tbody>
                     <tbody id="newRowPartial">
                     </tbody>
@@ -36,9 +39,8 @@
     </div>
 </div>
 <div id="modalContainer"></div>
-<partial name="_ModalPartial" model="@new ModalMessage()"/>
+<partial name="_ModalPartial" model="@new ModalMessage()" />
 
 <script src="~/js/TableCRUD.js"></script>
 <script src="~/js/TableCollapse.js"></script>
-<script src="~/js/PluginsRenameScript.js"></script>
-
+<script src="~/js/ProductsScript.js"></script>

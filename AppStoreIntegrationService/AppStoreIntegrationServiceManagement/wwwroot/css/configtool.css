@@ -3,7 +3,7 @@
     --pa-admin-color-hover: #2aa65b;
 }
 
-body {
+body, html {
     overflow-x: hidden;
 }
 
@@ -30,7 +30,6 @@ body {
     color: white;
 }
 
-/*Edit page*/
 .border-container {
     border-left: 1px solid #E1E7EB;
 }
@@ -162,11 +161,6 @@ header{
     }
 }
 
-@media (max-width:576px){
-    #newAppButton .pa-admin-success-btn{
-        width: 100%;
-    }
-}
 
 .focus-transparent:focus {
     background-color: transparent;
@@ -174,4 +168,42 @@ header{
 
 .cursor-pointer {
     cursor: pointer;
+}
+
+@media(max-width: 576px){
+    #newAppButton .pa-admin-success-btn {
+        width: 100%;
+    }
+
+    td {
+        border-bottom: 1px solid #dee2e6 !important;
+        border-bottom-color: #dee2e6 !important;
+    }
+
+    table .section {
+        width: 50% !important;
+    }
+
+    #productsTable .editable-field:nth-of-type(2) .section,
+    #usersTable tr td:nth-of-type(1)
+    {
+        width: 100% !important;
+        font-weight: bold;
+    }
+
+    #productsTable .editable-field:nth-of-type(2) .form-control {
+        border: 1px solid #dee2e6;
+        border-radius:3px !important;
+    }
+
+    table .input-group {
+        border: 1px solid #dee2e6;
+        border-radius:3px;
+    }
+
+    table .form-control {
+        border: none;
+        border-top-left-radius:0px !important;
+        border-bottom-left-radius:0px !important;
+    }
 }

@@ -1,11 +1,6 @@
 ﻿@model PluginDetailsModel
 @{
     ViewData["Title"] = "Edit";
-    var modal = new ModalMessage
-    {
-        ModalType = ModalType.ConfirmationMessage,
-        Title = "Confirmation"
-    };
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
@@ -86,7 +81,7 @@
     </div>
 </form>
 
-<partial name="_ModalPartial" model="@modal" />
+<partial name="_ModalPartial" model="@new ModalMessage()" />
 
 <script src="~/js/EditPluginsScript.js"></script>
 @section Scripts {

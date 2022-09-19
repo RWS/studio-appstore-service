@@ -34,12 +34,18 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         public string MappingFileName { get; set; }
 
         /// <summary>
+        /// NAme of the json file from where service reads supported products
+        /// </summary>
+        public string ProductsFileName { get; set; }
+
+        /// <summary>
         /// Azure Telemetry Instrumentation Key
         /// </summary>
         public string InstrumentationKey { get; set; }
 
         public Enums.DeployMode DeployMode { get; set; }
         public string NameMappingsFilePath { get; set; }
+        public string ProductsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsConfigFilePath { get; set; }
         public string ConfigFileBackUpPath { get; set; }

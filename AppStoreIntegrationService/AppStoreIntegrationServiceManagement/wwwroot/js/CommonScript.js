@@ -7,7 +7,12 @@
     }
 
     if (controller == "PluginsRename") {
-        CreateRequest($('#namesMapping').find('input').serialize(), `/PluginsRename/GoToPage/${goToPage}`);
+        CreateRequest($('main').find('input').serialize(), `/PluginsRename/GoToPage/${goToPage}`);
+        return;
+    }
+
+    if (controller == "Products") {
+        CreateRequest($('main').find('input').serialize(), `/Products/GoToPage/${goToPage}`);
         return;
     }
 
@@ -21,6 +26,7 @@
 }
 
 function CreateRequest(pageValues, url) {
+
     $.ajax({
         data: pageValues,
         type: "POST",

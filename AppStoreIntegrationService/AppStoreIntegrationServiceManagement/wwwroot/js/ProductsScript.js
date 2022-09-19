@@ -1,0 +1,1 @@
+﻿const urlStorage = new UrlStorage("Products/Delete/", "Products/Add", 'Products/Update', "Products/AddNew");
