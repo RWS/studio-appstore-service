@@ -51,17 +51,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         {
             if (!products.Any(item => string.IsNullOrEmpty(item.ProductName)))
             {
-                await _productsRepository.UpdateProducts(EnsureProductsOrder(products));
+                await _productsRepository.UpdateProducts(products);
                 TempData["StatusMessage"] = "Success! Product was updated!";
                 return Content("/Settings/Products");
             }
 
             return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
-        }
-
-        private static List<SupportedProductDetails> EnsureProductsOrder(List<SupportedProductDetails> products)
-        {
-            return products.Where(p => p.IsDefault).Concat(products.Where(p => !p.IsDefault)).ToList();
         }
 
         [HttpPost]

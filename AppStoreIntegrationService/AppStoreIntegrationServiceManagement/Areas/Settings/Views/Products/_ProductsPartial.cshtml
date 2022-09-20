@@ -2,44 +2,44 @@
 
 @for (int i = 0; i < Model.Count; i++)
 {
-    <tr class="table-row d-flex flex-column d-sm-table-row">
-        <td class="editable-field d-none d-table-cell d-sm-none d-lg-table-cell">
+    <tr class="table-row d-flex flex-column d-lg-table-row" id="itemsRow">
+        <td class="editable-field d-none d-lg-table-cell">
             <div class="input-group">
-                <span class="input-group-text text-center w-50 d-inline d-sm-none border-0">Id</span>
-                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-sm-start" hidden="hidden" asp-for="@Model[i].Id">
-                <p class="m-0 section w-100 align-self-center text-center text-sm-start">@Model[i].Id</p>
+                <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Id</span>
+                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start" hidden="hidden" asp-for="@Model[i].Id">
+                <p class="m-0 section w-100 align-self-center text-center text-lg-start">@Model[i].Id</p>
             </div>
         </td>
         <td class="editable-field order-first">
-            <input class="form-control form-control-sm entry entry-nofocus text-center text-sm-start" hidden="hidden" asp-for="@Model[i].ProductName">
-            <p class="m-0 section align-self-center text-center text-sm-start" onclick="Collapse(this)">@Model[i].ProductName</p>
+            <input class="form-control form-control-sm entry entry-nofocus text-center text-lg-start autofocus" hidden="hidden" asp-for="@Model[i].ProductName">
+            <p class="m-0 section align-self-center text-center text-lg-start" onclick="Collapse(this)">@Model[i].ProductName</p>
         </td>
-        <td class="editable-field d-none d-sm-table-cell">
+        <td class="editable-field d-none d-lg-table-cell">
             <div class="input-group">
-                <span class="input-group-text text-center w-50 d-inline d-sm-none border-0">Version</span>
-                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-sm-start" hidden="hidden" asp-for="@Model[i].MinimumStudioVersion">
-                <p class="m-0 section w-100 align-self-center text-center text-sm-start">@Model[i].MinimumStudioVersion</p>
+                <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Version</span>
+                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start" hidden="hidden" asp-for="@Model[i].MinimumStudioVersion">
+                <p class="m-0 section w-100 align-self-center text-center text-lg-start">@Model[i].MinimumStudioVersion</p>
             </div>
         </td>
-        <td class="editable-field d-none d-table-cell d-sm-none d-lg-table-cell">
+        <td class="editable-field d-none d-lg-table-cell">
             <div class="input-group">
-                <span class="input-group-text text-center w-50 d-inline d-sm-none border-0">ParentId</span>
-                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-sm-start" hidden="hidden" asp-for="@Model[i].ParentProductID">
-                <p class="m-0 section w-100 align-self-center text-center text-sm-start">@Model[i].ParentProductID</p>
+                <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">ParentId</span>
+                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start" hidden="hidden" asp-for="@Model[i].ParentProductID">
+                <p class="m-0 section w-100 align-self-center text-center text-lg-start">@Model[i].ParentProductID</p>
             </div>
         </td>
-        <td class="editable-field d-none d-sm-table-cell align-middle">
+        <td class="editable-field d-none d-lg-table-cell align-middle">
             <div class="input-group text-center">
-                <span class="input-group-text text-center w-50 d-inline d-sm-none border-0">IsDefault</span>
+                <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">IsDefault</span>
                 <input class="form-check-input entry entry-nofocus m-auto rounded" hidden="hidden" asp-for="@Model[i].IsDefault">
                 <p class="m-0 section w-100 align-self-center"><i class="fa @(Model[i].IsDefault ? "fa-check-circle text-success" : "fa-times-circle text-danger")"></i></p>
             </div>
         </td>
-        <td class="icon-cell text-center align-middle d-none d-sm-table-cell">
+        <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
             <i class="fa fa-pen-alt text-secondary cursor-pointer"></i>
             <i class="fa fa-check-circle text-success cursor-pointer d-none"></i>
         </td>
-        <td class="icon-cell text-center align-middle d-none d-sm-table-cell">
+        <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
             <i id="@Model[i].Id" class="fa fa-trash-alt row-eraser text-danger cursor-pointer"></i>
             <i class="fa fa-times-circle text-danger cursor-pointer d-none"></i>
         </td>

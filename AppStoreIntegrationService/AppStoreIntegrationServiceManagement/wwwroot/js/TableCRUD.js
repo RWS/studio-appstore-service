@@ -1,7 +1,8 @@
 ﻿let currentParagraphValue;
 let oldData = '';
 let newData = '';
-let oldCheckboxValue = '';
+let oldCheckboxValue;
+let lastDefault;
 
 class UrlStorage {
     constructor(deleteUrl, saveUrl, updateUrl, addNewUrl) {
@@ -15,21 +16,41 @@ class UrlStorage {
 document.addEventListener('DOMContentLoaded', function () {
     const erasers = document.querySelectorAll('.table-row .row-eraser');
     const paragraphs = document.querySelectorAll('.editable-field .section');
+    const autofocusInput = document.querySelector('.editable-field .autofocus');
     const inputs = document.querySelectorAll('.editable-field .entry');
     const editers = document.querySelectorAll('.icon-cell .fa-pen-alt');
     const checkMarks = document.querySelectorAll('.icon-cell .fa-check-circle');
     const discardBtns = document.querySelectorAll('.icon-cell .fa-times-circle');
+    const checkInputs = document.querySelectorAll('.editable-field .form-check-input');
+    lastDefault = Array(...checkInputs).indexOf(Array(...checkInputs).find(input => input.checked));
+
+    checkInputs.forEach(currentElement => {
+        currentElement.addEventListener('change', () => {
+            checkInputs.forEach(input => {
+
+                if (currentElement != input && currentElement.checked) {
+                    ToggleDefault(input, false);
+                    ToggleDefault(currentElement, true);
+                }
+
+                if (!currentElement.checked && checkInputs[lastDefault] != currentElement) {
+                    ToggleDefault(input, false);
+                    ToggleDefault(checkInputs[lastDefault], true);
+                }
+            })
+        })
+    })
 
     discardBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            ToggleEditForm(GetCurrentRowElements(btn, false), function () { return; }, '#confirmationModal', document.getElementById('confirmationBtn'), null);
+            ToggleEditForm(GetCurrentRowElements(btn, false), function () { RestoreDefault(checkInputs, lastDefault) }, '#confirmationModal', document.getElementById('confirmationBtn'), null);
             e.stopImmediatePropagation();
         })
     })
 
     checkMarks.forEach(mark => {
         mark.addEventListener('click', (e) => {
-            ToggleEditForm(GetCurrentRowElements(mark, false), function () { return; }, '#confirmationModal', document.getElementById('dismissBtn'), document.getElementById('confirmationBtn'));
+            ToggleEditForm(GetCurrentRowElements(mark, false), function () { RestoreDefault(checkInputs, lastDefault) }, '#confirmationModal', document.getElementById('dismissBtn'), document.getElementById('confirmationBtn'));
             e.stopImmediatePropagation();
         })
     });
@@ -40,7 +61,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             CloseNewRowForm(function () {
                 CloseExistingEditForms(function () {
-                    ToggleEditFormInputs(inputs, paragraphs, false, true);
+                    RestoreDefault(checkInputs, lastDefault);
+                    ToggleEditFormInputs(inputs, paragraphs, false, true, autofocusInput);
                     UpdateEditPanelIcons(icons);
                 });
             });
@@ -54,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const [inputs, paragraphs, icons] = GetCurrentRowElements(p, true);
             CloseNewRowForm(function () {
                 CloseExistingEditForms(function () {
-                    ToggleEditFormInputs(inputs, paragraphs, false, false);
+                    ToggleEditFormInputs(inputs, paragraphs, false, false, null);
                 });
             });
 
@@ -74,6 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
         eraser.addEventListener('click', (e) => {
             CloseNewRowForm(function () {
                 CloseExistingEditForms(function () {
+                    RestoreDefault(checkInputs, lastDefault);
                     document.getElementById('confirmationBtn').onclick = function () {
                         $.ajax({
                             type: "POST",
@@ -91,6 +114,26 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     })
 });
+
+function ToggleDefault(input, isChecked) {
+    if (isChecked) {
+        input.checked = isChecked;
+        input.nextElementSibling.firstChild.classList.remove('fa-times-circle', 'text-danger');
+        input.nextElementSibling.firstChild.classList.add('fa-check-circle', 'text-success');
+    } else {
+        input.checked = isChecked;
+        input.nextElementSibling.firstChild.classList.add('fa-times-circle', 'text-danger');
+        input.nextElementSibling.firstChild.classList.remove('fa-check-circle', 'text-success');
+    }
+}
+
+function RestoreDefault(inputs, last) {
+    inputs.forEach(input => {
+        ToggleDefault(input, false);
+    })
+
+    ToggleDefault(inputs[last], true);
+}
 
 function CloseExistingEditForms(toggleCallback) {
     var openInputs = document.querySelectorAll('.entry-open');
@@ -114,12 +157,13 @@ function GetCurrentRowData(inputs) {
     return result;
 }
 
-function ToggleEditFormInputs(inputs, paragraphs, restoreChanges, isOpen) {
+function ToggleEditFormInputs(inputs, paragraphs, restoreChanges, isOpen, autofocusInput) {
     oldData = '';
     for (let j = 0; j < inputs.length; j++) {
         if (restoreChanges) {
             if (inputs[j].type == "checkbox") {
                 inputs[j].checked = oldCheckboxValue;
+                oldCheckboxValue = '';
             }
             inputs[j].value = paragraphs[j].innerHTML;
         }
@@ -142,6 +186,10 @@ function ToggleEditFormInputs(inputs, paragraphs, restoreChanges, isOpen) {
             inputs[j].addEventListener('focusout', InputFocusEventListener);
         }
     }
+
+    if (autofocusInput != null) {
+        autofocusInput.focus();
+    }
 }
 
 function UpdateEditPanelIcons(editIcons) {
@@ -154,7 +202,7 @@ function ToggleEditForm(curentRowElements, callback, confirmationModalId, confir
     const [inputs, paragraphs, icons] = curentRowElements;
 
     if (oldData == GetCurrentRowData(inputs)) {
-        ToggleEditFormInputs(inputs, paragraphs, false, false);
+        ToggleEditFormInputs(inputs, paragraphs, false, false, null);
         UpdateEditPanelIcons(icons);
         callback();
         return;
@@ -169,7 +217,7 @@ function ToggleEditForm(curentRowElements, callback, confirmationModalId, confir
     }
 
     confirmationBtn.onclick = function () {
-        ToggleEditFormInputs(inputs, paragraphs, true, false);
+        ToggleEditFormInputs(inputs, paragraphs, true, false, null);
         UpdateEditPanelIcons(icons);
         callback();
     }
@@ -220,6 +268,8 @@ function CloseNewRowForm(confirmationCallback) {
     document.getElementById('confirmationBtn').onclick = function () {
         newNameMappingForm.remove();
         confirmationCallback();
+        var checkInputs = document.querySelectorAll('.editable-field .form-check-input');
+        RestoreDefault(checkInputs, lastDefault);
     }
 
     document.querySelector("#confirmationModal .modal-body").innerHTML = "Discard changes for new item?"
@@ -273,4 +323,18 @@ function AjaxSuccessCallback(actionResult) {
     $(".alert").fadeTo(3000, 500).slideUp(500, function () {
         $(this).remove();
     });
+}
+
+function Change(element) {
+    const checkInputs = document.querySelectorAll('.editable-field .form-check-input');
+
+    checkInputs.forEach(input => {
+        if (element != input && element.checked) {
+            ToggleDefault(input, false);
+        }
+
+        if (!element.checked) {
+            ToggleDefault(checkInputs[lastDefault], true);
+        }
+    })
 }

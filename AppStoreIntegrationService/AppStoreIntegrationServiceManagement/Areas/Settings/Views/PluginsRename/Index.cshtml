@@ -14,9 +14,9 @@
         <div class="settings-details">
             <h4>Renamed plugins</h4>
             <form method="post" id="form" onsubmit="return false">
-                <table class="table table-bordered table-striped" id="mappingsTable">
+                <table class="table table-bordered" id="mappingsTable">
                     <thead>
-                        <tr class="align-middle d-none d-sm-table-row">
+                        <tr class="align-middle d-none d-lg-table-row">
                             <th>Id</th>
                             <th>Old Name</th>
                             <th>New Name</th>
@@ -39,6 +39,5 @@
 <partial name="_ModalPartial" model="@new ModalMessage()"/>
 
 <script src="~/js/TableCRUD.js"></script>
-<script src="~/js/TableCollapse.js"></script>
 <script src="~/js/PluginsRenameScript.js"></script>
 

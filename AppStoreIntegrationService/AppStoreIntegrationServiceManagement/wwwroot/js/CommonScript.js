@@ -43,6 +43,22 @@ function CreateRequest(pageValues, url) {
     })
 }
 
+function Collapse(element) {
+
+    if (window.innerWidth > 992) {
+        return;
+    }
+
+    element.parentElement.classList.toggle('bg-collapsed');
+
+    var children = element.closest('tr').children;
+    for (let child of children) {
+        if (child != element.parentElement) {
+            child.classList.toggle('d-none');
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {

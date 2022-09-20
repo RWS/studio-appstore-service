@@ -17,7 +17,27 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<SupportedProductDetails>> GetAllProducts()
         {
-            return await GetProductsFromPossibleLocation();
+            var backup = new List<SupportedProductDetails>
+            {
+                new SupportedProductDetails
+                {
+                    Id = "37",
+                    ProductName = "SDL Trados Studio 2021",
+                    ParentProductID = 14,
+                    MinimumStudioVersion = "16.0"
+                },
+                new SupportedProductDetails
+                {
+                    Id = "38",
+                    ProductName = "Trados Studio 2022",
+                    ParentProductID = 14,
+                    MinimumStudioVersion = "17.0"
+                },
+                
+            };
+
+            var products = await GetProductsFromPossibleLocation();
+            return products.Any() ? products : backup;
         }
 
         private async Task<List<SupportedProductDetails>> GetProductsFromPossibleLocation()
