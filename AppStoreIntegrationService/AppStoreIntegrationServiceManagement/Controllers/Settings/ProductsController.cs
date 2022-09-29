@@ -35,15 +35,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> Add(SupportedProductDetails product, List<SupportedProductDetails> products)
         {
-            if (IsValidProduct(product))
+            if (TryValidateProduct(product, products, out IActionResult result))
             {
                 products.Add(product);
                 await _productsRepository.UpdateProducts(products);
-                TempData["StatusMessage"] = "Success! Product was added!";
-                return Content("/Settings/Products");
             }
 
-            return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
+            return result;
         }
 
         [HttpPost]
@@ -97,9 +95,24 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             return JsonConvert.SerializeObject(savedNamesMapping) == JsonConvert.SerializeObject(products);
         }
 
-        private static bool IsValidProduct(SupportedProductDetails product)
+        private bool TryValidateProduct(SupportedProductDetails product, List<SupportedProductDetails> products, out IActionResult result)
         {
-            return !string.IsNullOrEmpty(product.ProductName);
+            if (string.IsNullOrEmpty(product.ProductName) ||
+                string.IsNullOrEmpty(product.Id))
+            {
+                result = PartialView("_StatusMessage", "Error! Parameter cannot be null!");
+                return false;
+            }
+
+            if (products.Any(p => p.Id == product.Id || p.ProductName == product.ProductName))
+            {
+                result = PartialView("_StatusMessage", "Error! There are duplicated params!");
+                return false;
+            }
+
+            TempData["StatusMessage"] = "Success! Product was added!";
+            result = Content("/Settings/Products");
+            return true;
         }
     }
 }

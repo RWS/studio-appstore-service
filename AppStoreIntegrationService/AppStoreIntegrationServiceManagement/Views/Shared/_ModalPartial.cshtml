@@ -20,7 +20,7 @@
                 @if (Model.ModalType == ModalType.WarningMessage)
                 {
                     <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
-                    <button type="button" class="btn pa-admin-success-btn" data-bs-dismiss="modal">No</button>
+                    <button type="button" class="btn pa-admin-success-btn" onclick="javascript: $('#confirmationModal').remove()" data-bs-dismiss="modal">No</button>
                 }
 
                 @if(Model.ModalType == ModalType.ConfirmationMessage)

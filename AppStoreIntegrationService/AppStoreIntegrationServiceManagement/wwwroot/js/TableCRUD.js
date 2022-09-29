@@ -48,13 +48,14 @@ class TableCrud {
     }
 
     DeleteRow() {
+        var productId = event.target.id;
         this.CloseNewRowForm(() => {
             this.#CloseExistingEditForms(() => {
                 this.#RestoreDefaultCheckGroup()
                 document.getElementById('confirmationBtn').onclick = () => {
                     $.ajax({
                         type: "POST",
-                        url: this.#deleteUrl + event.target.id,
+                        url: this.#deleteUrl + productId,
                         success: this.#AjaxSuccessCallback
                     })
                 }

@@ -17,7 +17,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<SupportedProductDetails>> GetAllProducts()
         {
-            var backup = new List<SupportedProductDetails>
+            var defaultProducts = new List<SupportedProductDetails>
             {
                 new SupportedProductDetails
                 {
@@ -37,7 +37,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             };
 
             var products = await GetProductsFromPossibleLocation();
-            return products.Any() ? products : backup;
+            return products.Any() ? products : defaultProducts;
         }
 
         private async Task<List<SupportedProductDetails>> GetProductsFromPossibleLocation()
