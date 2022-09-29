@@ -15,7 +15,13 @@ namespace AppStoreIntegrationServiceCore.Model
         public PluginVersion(List<SupportedProductDetails> supportedProductDetails)
         {
             _supportedProductDetails = supportedProductDetails;
-            SupportedProductsListItems = new SelectList(supportedProductDetails, nameof(SupportedProductDetails.Id), nameof(SupportedProductDetails.ProductName));
+            SupportedProductsListItems = new SelectList
+            (
+                supportedProductDetails,
+                nameof(SupportedProductDetails.Id),
+                nameof(SupportedProductDetails.ProductName),
+                supportedProductDetails.FirstOrDefault(x => x.IsDefault)?.Id
+            );
         }
 
         public DateTime? CreatedDate { get; set; }
@@ -34,7 +40,7 @@ namespace AppStoreIntegrationServiceCore.Model
         /// <summary>
         /// For Studio 2021 is 16.0 by default
         /// </summary>
-        
+
         [Required]
         public string MinimumRequiredVersionOfStudio { get; set; }
 

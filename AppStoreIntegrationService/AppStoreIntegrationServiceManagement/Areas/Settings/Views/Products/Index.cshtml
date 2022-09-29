@@ -23,7 +23,7 @@
                             <th>ProductVersion</th>
                             <th>ProductParentId</th>
                             <th class="text-center">IsDefault</th>
-                            <td class="icon-cell text-center"><i onclick="AddNewRow()" class="fa fa-plus-circle text-success cursor-pointer"></i></td>
+                            <td class="icon-cell text-center"><i onclick="table.AddNewRow()" class="fa fa-plus-circle text-success cursor-pointer"></i></td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
@@ -33,7 +33,7 @@
                     <tbody id="newRowPartial">
                     </tbody>
                 </table>
-                <button type="button" onclick="AddNewRow()" class="btn pa-admin-success-btn">Add new</button>
+                <button type="button" onclick="table.AddNewRow()" class="btn pa-admin-success-btn">Add new</button>
             </form>
         </div>
     </div>
@@ -41,5 +41,5 @@
 <div id="modalContainer"></div>
 <partial name="_ModalPartial" model="@new ModalMessage()" />
 
-<script src="~/js/TableCRUD.js"></script>
+<script src="~/js/TableCrud.js"></script>
 <script src="~/js/ProductsScript.js"></script>

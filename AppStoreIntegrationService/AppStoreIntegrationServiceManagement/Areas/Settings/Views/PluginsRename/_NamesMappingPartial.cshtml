@@ -16,24 +16,24 @@
         <td class="editable-field d-none d-lg-table-cell">
             <div class="input-group">
                 <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">OldName</span>
-                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start autofocus" hidden="hidden" asp-for="@Model[i].OldName">
-                <p class="m-0 section w-100 align-self-center text-center text-lg-start">@Model[i].OldName</p>
+                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start autofocus" onfocusout="table.FocusOut()" hidden="hidden" asp-for="@Model[i].OldName">
+                <p class="m-0 section w-100 align-self-center text-center text-lg-start" ondblclick="table.EditCell()">@Model[i].OldName</p>
             </div>
         </td>
         <td class="editable-field d-none d-lg-table-cell">
             <div class="input-group">
                 <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">NewName</span>
-                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start" hidden="hidden" asp-for="@Model[i].NewName">
-                <p class="m-0 section w-100 align-self-center text-center text-lg-start">@Model[i].NewName</p>
+                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start" onfocusout="table.FocusOut()" hidden="hidden" asp-for="@Model[i].NewName">
+                <p class="m-0 section w-100 align-self-center text-center text-lg-start" ondblclick="table.EditCell()">@Model[i].NewName</p>
             </div>
         </td>
         <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-            <i class="fa fa-pen-alt text-secondary cursor-pointer"></i>
-            <i class="fa fa-check-circle text-success cursor-pointer d-none"></i>
+            <i class="fa fa-pen-alt text-secondary cursor-pointer" onclick="table.EditRow()"></i>
+            <i class="fa fa-check-circle text-success cursor-pointer d-none" onclick="table.ApplyChanges()"></i>
         </td>
         <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-            <i id="@Model[i].Id" class="fa fa-trash-alt row-eraser text-danger cursor-pointer"></i>
-            <i class="fa fa-times-circle text-danger cursor-pointer d-none"></i>
+            <i id="@Model[i].Id" class="fa fa-trash-alt row-eraser text-danger cursor-pointer" onclick="table.DeleteRow()"></i>
+            <i class="fa fa-times-circle text-danger cursor-pointer d-none" onclick="table.DiscardChanges()"></i>
         </td>
     </tr>
 }

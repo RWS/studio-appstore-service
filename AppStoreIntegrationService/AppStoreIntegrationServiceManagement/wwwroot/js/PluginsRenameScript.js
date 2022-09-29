@@ -1,1 +1,1 @@
-﻿const urlStorage = new UrlStorage("PluginsRename/Delete/", "PluginsRename/Add", 'PluginsRename/Update', "PluginsRename/AddNew");
+﻿const table = new TableCrud("PluginsRename/Delete/", "PluginsRename/Add", 'PluginsRename/Update', "PluginsRename/AddNew");

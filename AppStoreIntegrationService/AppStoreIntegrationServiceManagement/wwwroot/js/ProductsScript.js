@@ -1,1 +1,1 @@
-﻿const urlStorage = new UrlStorage("Products/Delete/", "Products/Add", 'Products/Update', "Products/AddNew");
+﻿const table = new TableCrud("Products/Delete/", "Products/Add", 'Products/Update', "Products/AddNew");
