@@ -1,0 +1,46 @@
+﻿@model PluginsRenameModel
+@{
+    ViewData["Title"] = "Settings";
+    ViewData["ActivePage"] = ManageSettingsNav.PluginsRename;
+    var modal = new ModalMessage 
+    { 
+        ModalType = ModalType.ConfirmationMessage,
+        Title = "Confirmation"
+    };
+}
+
+<div id="statusMessageContainer"></div>
+<h2>Settings</h2>
+<h4>Change site settings</h4>
+<hr class="w-100">
+<div class="row d-flex" id="settings-page">
+    <partial name="_SettingsNavPartial" />
+    <div class="col-12 col-md-9" id="namesMapping">
+        <div class="settings-details">
+            <h4>Renamed plugins</h4>
+            <form method="post" id="form">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr class="align-middle">
+                            <th>Id</th>
+                            <th>Old Name</th>
+                            <th>New Name</th>
+                            <td class="icon-cell text-center"><i onclick="AddNewNameMapping()" class="fa fa-plus-circle text-success cursor-pointer"></i></td>
+                            <td class="icon-cell"></td>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body">
+                        <partial name="_NamesMappingPartial" model="@Model.NamesMapping" />
+                    </tbody>
+                    <tbody id="newNameMappingPartial">
+                    </tbody>
+                </table>
+                <button onclick="AddNewNameMapping()" class="btn pa-admin-success-btn">Add new</button>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="modalContainer"></div>
+<partial name="_ModalPartial" model="@modal"/>
+
+<script src="~/js/PluginsRenameScript.js"></script>

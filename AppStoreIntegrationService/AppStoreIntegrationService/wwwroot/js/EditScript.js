@@ -9,7 +9,7 @@
                     async: true,
                     data: pageValues,
                     type: "POST",
-                    url: `Edit?handler=DeleteVersion&Id=${btn.id}`,
+                    url: `/Plugins/Plugins/Edit?handler=DeleteVersion&Id=${btn.id}`,
                     success: AjaxSuccessCallback
                 })
             }

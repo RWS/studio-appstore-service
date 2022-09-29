@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "sqlite1": {
+      "ignored": "true",
+      "type": "sqlite"
+    },
+    "storage1": {
+      "ignored": "true",
+      "type": "storage"
+    }
+  }
+}

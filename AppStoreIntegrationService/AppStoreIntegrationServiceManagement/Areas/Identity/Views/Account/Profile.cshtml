@@ -1,0 +1,67 @@
+﻿@model ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<h2>@ViewData["Title"]</h2>
+<h4>Account settings</h4>
+<hr class="w-100">
+<div class="row">
+
+    @if (Model.Id != null)
+    {
+        <partial name="_EditNav" model="@Model.Id" />
+    }
+    else
+    {
+        <partial name="_ProfileNav" />
+    }
+
+    <div class="col-12 col-md-9">
+        <h4 class="text-break">@string.Format("Edit profile {0}", Model.Id != null ? $"for {Model.Username}" : null)</h4>
+        <form asp-controller="Account" asp-action="Update" asp-route-id="@Model.Id" method="post">
+            <input hidden asp-for="Id" />
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label"></label>
+                @if (Model.IsUsernameEditable)
+                {
+                    <input asp-for="Username" class="form-control" />
+                }
+                else
+                {
+                    <input asp-for="Username" class="form-control" disabled />
+                }
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                @if (Model.IsUserRoleEditable)
+                {
+                    <label class="form-label" asp-for="UserRole">Role</label>
+                    <div class="form-check p-0">
+                        <input checked type="radio" asp-for="UserRole" value="StandardUser" />
+                        Standard
+                    </div>
+                    <div class="form-check p-0">
+                        <input type="radio" asp-for="UserRole" value="Administrator" />
+                        Administrator
+                    </div>
+                }
+                else
+                {
+                    <label asp-for="UserRole" class="form-check-label mb-2"></label>
+                    <input disabled asp-for="UserRole" class="form-control" />
+                }
+
+            </div>
+            <button type="submit" class="btn pa-admin-success-btn">Save</button>
+        </form>
+    </div>
+</div>
+
+<div id="modalContainer"></div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

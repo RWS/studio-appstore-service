@@ -1,0 +1,17 @@
+﻿@inject SignInManager<IdentityUser> manager
+@{
+    var controller = ViewContext.RouteData.Values["controller"];
+    var action = ViewContext.RouteData.Values["action"];
+}
+ 
+<div class="col-12 col-md-3">
+    <ul class="nav nav-pills flex-column" id="profile-navbar">
+        <li class="nav-item"><a class="nav-link option @ManageNavPages.ProfileNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Identity.Account.Profile', '@controller', '@action')">Profile</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageNavPages.ChangePasswordNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Identity.Account.ChangePassword', '@controller', '@action')">Password</a></li>
+        @if (User.IsInRole("Administrator")){
+            <li class="nav-item"><a class="nav-link option @ManageNavPages.ManageNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Identity.Account.Users', '@controller', '@action')">Users</a></li>
+            <li class="nav-item"><a class="nav-link option @ManageNavPages.RegisterNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Identity.Account.Register', '@controller', '@action')">Add another user</a></li>
+        }
+    </ul>
+</div>
+

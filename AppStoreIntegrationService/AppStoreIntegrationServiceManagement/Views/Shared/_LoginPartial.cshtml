@@ -1,0 +1,40 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@{
+    var controller = ViewContext.RouteData.Values["controller"];
+    var action = ViewContext.RouteData.Values["action"];
+}
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a onclick="javascript: RedirectTo('.Plugins', '@controller', '@action')" class="text-white nav-link cursor-pointer">Plugins List</a>
+        </li>
+
+        if (User.IsInRole("Administrator"))
+        {
+            <li class="nav-item">
+                <a onclick="javascript: RedirectTo('.Settings', '@controller', '@action')" class="text-white nav-link cursor-pointer">Settings</a>
+            </li>
+        }
+
+        <li class="nav-item">
+            <a onclick="javascript: RedirectTo('.Identity.Account.Profile', '@controller', '@action')" class="nav-link text-white cursor-pointer">Hello @UserManager.GetUserName(User)!</a>
+        </li>
+
+        <li class="nav-item">
+            <form asp-controller="Authentication" asp-action="Logout" asp-area="Identity" method="post">
+                <button type="submit" class="nav-link btn btn-link text-white cursor-pointer">Sign out</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-white" id="login" asp-controller="Authentication" asp-area="Identity" asp-action="Login">Sign in</a>
+        </li>
+    }
+</ul>

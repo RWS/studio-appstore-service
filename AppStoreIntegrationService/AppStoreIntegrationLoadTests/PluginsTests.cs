@@ -1,12 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace AppStoreIntegrationLoadTests
@@ -18,7 +12,7 @@ namespace AppStoreIntegrationLoadTests
         public void GetPlugins()
         {
             var client = new RestClient("https://studio-appstore-api.azurewebsites.net/");
-            var request = new RestRequest("/plugins", Method.GET);
+            var request = new RestRequest("/plugins", Method.Get);
             request.AddHeader("Content-Type", "application/json");
 
             var response = client.Execute(request);

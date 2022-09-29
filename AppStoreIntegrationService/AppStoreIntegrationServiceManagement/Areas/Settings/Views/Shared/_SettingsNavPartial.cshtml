@@ -1,0 +1,13 @@
+﻿@{
+    var controller = ViewContext.RouteData.Values["controller"];
+    var action = ViewContext.RouteData.Values["action"];
+}
+
+<div class="col-12 col-md-3">
+    <ul class="nav nav-pills flex-column" id="settings-navbar">
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.IndexNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings', '@controller', '@action')">Site name</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ImportPluginsNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings.ImportPlugins', '@controller', '@action')">Import plugins</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ExportPluginsNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings.ExportPlugins', '@controller', '@action')">Export plugins</a></li>
+        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.PluginsRenameNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings.PluginsRename', '@controller', '@action')">Renamed plugins</a></li>
+    </ul>
+</div>

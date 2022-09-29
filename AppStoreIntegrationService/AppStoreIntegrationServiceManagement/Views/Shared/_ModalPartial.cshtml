@@ -1,0 +1,35 @@
+﻿@model ModalMessage
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Model.Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Model.Message
+            </div>
+            <div class="modal-footer">
+                @if (Model.ModalType == ModalType.SuccessMessage)
+                {
+                    <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-secondary" data-bs-dismiss="modal">Redirect</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
+                }
+
+                @if (Model.ModalType == ModalType.WarningMessage)
+                {
+                    <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
+                    <button type="button" class="btn pa-admin-success-btn" data-bs-dismiss="modal">No</button>
+                }
+
+                @if(Model.ModalType == ModalType.ConfirmationMessage)
+                {
+                    <button type="button" id="dismissBtn" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                    <button type="button" id="confirmationBtn" data-bs-dismiss="modal" class="btn pa-admin-success-btn">Yes</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
