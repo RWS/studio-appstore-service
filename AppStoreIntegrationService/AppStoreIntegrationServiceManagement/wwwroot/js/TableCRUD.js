@@ -125,9 +125,10 @@ class TableCrud {
             type: "POST",
             url: this.#addNewUrl,
             success: (partialView) => {
-                $("#newRowPartial").html(partialView);
-                this.#CloseExistingEditForms(function() { return; })
-                window.scrollTo(0, document.getElementById("newRowPartial").getBoundingClientRect().y);
+                this.#CloseExistingEditForms(() => {
+                    $("#newRowPartial").html(partialView);
+                    window.scrollTo(0, document.getElementById("newRowPartial").getBoundingClientRect().y);
+                })
             }
         })
     }
