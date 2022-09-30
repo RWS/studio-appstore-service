@@ -16,6 +16,12 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool PaidFor { get; set; }
 
+        public string ChangelogLink { get; set; }
+
+        public string SupportUrl { get; set; }
+
+        public string SupportEmail { get; set; }
+
         public bool Inactive { get; set; }
 
         [Required]
@@ -36,7 +42,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool IsValid(PluginVersion selectedVersion)
         {
-            return selectedVersion.Id == null ? IsEditMode : true;
+            return selectedVersion.Id != null || IsEditMode;
         }
 
         public void SetVersionList(List<PluginVersion> versions, PluginVersion selectedVersion)

@@ -353,6 +353,9 @@ namespace AppStoreIntegrationServiceCore.Repository
                 {
                     pluginToBeUpdated.Name = privatePlugin.Name;
                     pluginToBeUpdated.Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName };
+                    pluginToBeUpdated.ChangelogLink = privatePlugin.ChangelogLink;
+                    pluginToBeUpdated.SupportUrl = privatePlugin.SupportUrl;
+                    pluginToBeUpdated.SupportEmail = privatePlugin.SupportEmail;
                     pluginToBeUpdated.Description = privatePlugin.Description;
                     pluginToBeUpdated.Icon.MediaUrl = privatePlugin.IconUrl;
                     pluginToBeUpdated.PaidFor = privatePlugin.PaidFor;
@@ -375,6 +378,9 @@ namespace AppStoreIntegrationServiceCore.Repository
                     Name = privatePlugin.Name.Trim(),
                     Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName },
                     Description = privatePlugin.Description,
+                    ChangelogLink = privatePlugin.ChangelogLink,
+                    SupportEmail = privatePlugin.SupportEmail,
+                    SupportUrl = privatePlugin.SupportUrl,
                     PaidFor = privatePlugin.PaidFor,
                     Categories = privatePlugin.Categories,
                     Versions = privatePlugin.Versions,

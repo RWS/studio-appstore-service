@@ -32,6 +32,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [Required]
         public string VersionNumber { get; set; }
+        public string FileHash { get; set; }
         public List<SupportedProductDetails> SupportedProducts { get; set; }
         public bool AppHasStudioPluginInstaller { get; set; }
 

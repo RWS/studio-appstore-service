@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-
-namespace AppStoreIntegrationServiceCore.Model
+﻿namespace AppStoreIntegrationServiceCore.Model
 {
 	public class PluginDetails
 	{
@@ -12,7 +7,10 @@ namespace AppStoreIntegrationServiceCore.Model
 		public int Id { get; set; }
 		public string Name { get; set; }
 		public string Description { get; set; }
-		public IconDetails Icon { get; set; }
+        public string ChangelogLink { get; set; }
+        public string SupportUrl { get; set; }
+        public string SupportEmail { get; set; }
+        public IconDetails Icon { get; set; }
 		public DateTime? ReleaseDate { get; set; }
 		public int DownloadCount { get; set; }
 		public int CommentCount { get; set; }
