@@ -7,27 +7,7 @@ namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginVersion
     {
-        private readonly List<SupportedProductDetails> _supportedProductDetails;
         private SupportedProductDetails _selectedProduct;
-
-        public PluginVersion() { }
-
-        public PluginVersion(List<SupportedProductDetails> supportedProductDetails)
-        {
-            _supportedProductDetails = supportedProductDetails;
-            SetSupportedProductsList(supportedProductDetails, supportedProductDetails.FirstOrDefault(x => x.IsDefault)?.Id);
-        }
-
-        public void SetSupportedProductsList(List<SupportedProductDetails> supportedProductDetails, string defaultProduct)
-        {
-            SupportedProductsListItems = new SelectList
-            (
-                supportedProductDetails,
-                nameof(SupportedProductDetails.Id),
-                nameof(SupportedProductDetails.ProductName),
-                defaultProduct
-            );
-        }
 
         public DateTime? CreatedDate { get; set; }
         public int DownloadCount { get; set; }
@@ -71,7 +51,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [BindProperty]
         public SupportedProductDetails SelectedProduct
         {
-            get => _selectedProduct ?? _supportedProductDetails?.Last();
+            get => _selectedProduct ?? SupportedProducts?.Last();
             set
             {
                 _selectedProduct = value;
@@ -89,13 +69,15 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonIgnore]
         public bool IsNewVersion { get; set; }
 
-        public void SetSupportedProducts()
+        public void SetSupportedProductsList(List<SupportedProductDetails> supportedProductDetails, string defaultProduct)
         {
-            if (SupportedProducts == null)
-            {
-                SupportedProducts = new List<SupportedProductDetails>();
-                SupportedProducts.AddRange(_supportedProductDetails);
-            }
+            SupportedProductsListItems = new SelectList
+            (
+                supportedProductDetails,
+                nameof(SupportedProductDetails.Id),
+                nameof(SupportedProductDetails.ProductName),
+                defaultProduct
+            );
         }
 
         private void UpdateStudioMinVersion()
@@ -104,7 +86,7 @@ namespace AppStoreIntegrationServiceCore.Model
             {
                 if (string.IsNullOrEmpty(SelectedProduct?.MinimumStudioVersion))
                 {
-                    var productDetails = _supportedProductDetails.FirstOrDefault(v => v.ProductName.Equals(SelectedProduct.ProductName));
+                    var productDetails = SupportedProducts.FirstOrDefault(v => v.ProductName.Equals(SelectedProduct.ProductName));
                     if (productDetails != null)
                     {
                         var minVersion = productDetails.MinimumStudioVersion;

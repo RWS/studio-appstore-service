@@ -235,9 +235,11 @@ namespace AppStoreIntegrationServiceCore.Repository
                 {
                     //there are some apps in the oos which are working for all studio version. So the field is "SDL Trados Studio" without any studio specific version
                     var version = pluginVersion.SupportedProducts?.FirstOrDefault(s =>
-                        s.ProductName.Equals(oldTradosName) || s.ProductName.Equals(rebrandedStudioName)
-                                                            || s.ProductName.Equals("SDL Trados Studio") ||
-                                                            s.ProductName.Equals("Trados Studio"));
+                                  s.ProductName.Equals(oldTradosName) || 
+                                  s.ProductName.Equals(rebrandedStudioName) || 
+                                  s.ProductName.Equals("SDL Trados Studio") ||
+                                  s.ProductName.Equals("Trados Studio"));
+
                     if (version != null)
                     {
                         matchingVersions.Add(pluginVersion);
