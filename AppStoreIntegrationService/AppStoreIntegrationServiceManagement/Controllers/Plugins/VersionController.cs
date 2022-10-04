@@ -2,6 +2,7 @@
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -18,17 +19,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public IActionResult Show(List<PluginVersion> versions, PluginDetailsModel pluginDetails)
+        public async Task<IActionResult> Show(List<PluginVersion> versions, PluginDetailsModel pluginDetails)
         {
             var version = versions.FirstOrDefault(v => v.Id.Equals(pluginDetails.SelectedVersionId));
-            ModelState.Clear();
+            var products = (await _productsRepository.GetAllProducts()).ToList();
+            version.SetSupportedProductsList(products, version.SelectedProduct.Id);
             return PartialView("_PluginVersionDetailsPartial", version);
         }
 
         [HttpPost]
         public async Task<IActionResult> Add()
         {
-            var version = new PluginVersion((await _productsRepository.GetAllProducts()).ToList())
+            var products = (await _productsRepository.GetAllProducts()).ToList();
+            var version = new PluginVersion
             {
                 VersionName = "New plugin version",
                 VersionNumber = string.Empty,
@@ -37,7 +40,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 Id = Guid.NewGuid().ToString()
             };
 
-            version.SetSupportedProducts();
+            version.SetSupportedProductsList(products, products.FirstOrDefault(x => x.IsDefault).Id);
+
             return PartialView("_PluginVersionDetailsPartial", version);
         }
 

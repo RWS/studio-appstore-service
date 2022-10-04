@@ -15,12 +15,17 @@ namespace AppStoreIntegrationServiceCore.Model
         public PluginVersion(List<SupportedProductDetails> supportedProductDetails)
         {
             _supportedProductDetails = supportedProductDetails;
+            SetSupportedProductsList(supportedProductDetails, supportedProductDetails.FirstOrDefault(x => x.IsDefault)?.Id);
+        }
+
+        public void SetSupportedProductsList(List<SupportedProductDetails> supportedProductDetails, string defaultProduct)
+        {
             SupportedProductsListItems = new SelectList
             (
                 supportedProductDetails,
                 nameof(SupportedProductDetails.Id),
                 nameof(SupportedProductDetails.ProductName),
-                supportedProductDetails.FirstOrDefault(x => x.IsDefault)?.Id
+                defaultProduct
             );
         }
 

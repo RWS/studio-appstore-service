@@ -12,7 +12,7 @@
         <input hidden asp-for="SelectedProduct.ParentProductID" />
         <input hidden asp-for="SelectedProduct.MinimumStudioVersion" />
 
-        @for (int i = 0; i < Model.SupportedProducts.Count; i++)
+        @for (int i = 0; i < Model.SupportedProducts?.Count; i++)
         {
             <input hidden asp-for="SupportedProducts[i].Id" />
             <input hidden asp-for="SupportedProducts[i].ParentProductID" />
@@ -55,14 +55,7 @@
         </div>
         <div class="d-flex align-content-center col-12 p-0">
             <label class="col-4 m-0 align-self-center form-label" asp-for="SelectedProductId">Product</label>
-            @if (Model.IsNewVersion)
-            {
-                <select asp-for="SelectedProductId" asp-items="@Model.SupportedProductsListItems" class="form-select"></select>
-            }
-            else
-            {
-                <input disabled value="@Model.SelectedProduct.ProductName" class="form-control" />
-            }
+            <select asp-for="SelectedProductId" asp-items="@Model.SupportedProductsListItems" class="form-select"></select>
         </div>
     </div>
 </div>

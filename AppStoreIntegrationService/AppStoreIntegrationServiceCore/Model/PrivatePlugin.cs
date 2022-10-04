@@ -45,18 +45,13 @@ namespace AppStoreIntegrationServiceCore.Model
             return selectedVersion.Id != null || IsEditMode;
         }
 
-        public void SetVersionList(List<PluginVersion> versions, PluginVersion selectedVersion)
+        public void SetVersionList(List<PluginVersion> versions, PluginVersion selectedVersion, List<SupportedProductDetails> products)
         {
-            selectedVersion.SetSupportedProducts();
             var editedVersion = versions.FirstOrDefault(v => v.Id.Equals(selectedVersion.Id));
-            var selectedProduct = selectedVersion.SupportedProducts.FirstOrDefault(item => item.Id == selectedVersion.SelectedProductId);
+            var selectedProduct = products?.FirstOrDefault(item => item.Id == selectedVersion.SelectedProductId);
             if (editedVersion != null)
             {
-                if (!IsEditMode)
-                {
-                    selectedVersion.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
-                }
-
+                selectedVersion.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
                 versions[versions.IndexOf(editedVersion)] = selectedVersion;
             }
             else if (selectedVersion.Id != null)

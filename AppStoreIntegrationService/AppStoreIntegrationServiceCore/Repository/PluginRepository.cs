@@ -158,14 +158,12 @@ namespace AppStoreIntegrationServiceCore.Repository
             var content = await categoriesResponse.Content?.ReadAsStringAsync();
             var categories = JsonConvert.DeserializeObject<CategoriesResponse>(content)?.Value;
 
-            const int ParentCategoryId = 1;
             var hiddenCategories = new List<int> {
                 CategoryId_Miscellaneous,
                 CategoryId_ContentManagementConnectors
             };
 
-            return categories.Where(c => c.ParentCategoryID == ParentCategoryId && !hiddenCategories
-                             .Any(hc => hc == c.Id)).ToList();
+            return categories.Where(c => !hiddenCategories.Any(hc => hc == c.Id)).ToList();
         }
 
         private async void OnCacheExpiredCallback(object stateInfo)
