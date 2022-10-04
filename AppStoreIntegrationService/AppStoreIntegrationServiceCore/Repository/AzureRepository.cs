@@ -17,6 +17,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         private CloudBlockBlob _pluginsListBlockBlob;
         private CloudBlockBlob _pluginsBackupBlockBlob;
         private CloudBlockBlob _nameMappingsBlockBlob;
+        private CloudBlockBlob _productsBlockBlob;
         private readonly BlobRequestOptions _blobRequestOptions;
         private readonly IConfigurationSettings _configurationSettings;
 
@@ -146,9 +147,10 @@ namespace AppStoreIntegrationServiceCore.Repository
             CreateEmptyFile(_pluginsListBlockBlob);
             CreateEmptyFile(_pluginsBackupBlockBlob);
             CreateEmptyFile(_nameMappingsBlockBlob);
+            CreateEmptyFile(_productsBlockBlob);
         }
 
-        private void CreateEmptyFile(CloudBlockBlob cloudBlockBlob)
+        private static void CreateEmptyFile(CloudBlockBlob cloudBlockBlob)
         {
             if (cloudBlockBlob is null) return;
             var fileBlobExists = cloudBlockBlob.Exists();
@@ -172,7 +174,15 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
 
             if (!string.IsNullOrEmpty(_configurationSettings.MappingFileName))
+            {
                 _nameMappingsBlockBlob = GetBlockBlobReference(_configurationSettings.MappingFileName);
+            }
+
+            if (!string.IsNullOrEmpty(_configurationSettings.ProductsFileName))
+            {
+                _productsBlockBlob = GetBlockBlobReference(_configurationSettings.ProductsFileName);
+            }
+
         }
 
         private CloudBlockBlob GetBlockBlobReference(string fileName)
@@ -186,6 +196,27 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task UpdateNameMappingsFileBlob(string fileContent)
         {
             await _nameMappingsBlockBlob.UploadTextAsync(fileContent);
+        }
+
+        public async Task<List<SupportedProductDetails>> GetProductsFromContainer()
+        {
+            if (_productsBlockBlob is null)
+            {
+                return new List<SupportedProductDetails>();
+            }
+
+            var containterContent = await _productsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+            var stream = new MemoryStream();
+
+            await _productsBlockBlob.DownloadToStreamAsync(stream, null, _blobRequestOptions, null);
+            var products = JsonConvert.DeserializeObject<List<SupportedProductDetails>>(containterContent);
+            await stream.DisposeAsync();
+            return products ?? new List<SupportedProductDetails>();
+        }
+
+        public async Task UpdateProductsFileBlob(string fileContent)
+        {
+            await _productsBlockBlob.UploadTextAsync(fileContent);
         }
     }
 }

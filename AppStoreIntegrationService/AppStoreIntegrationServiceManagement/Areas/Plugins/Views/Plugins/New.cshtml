@@ -4,8 +4,8 @@
 }
 
 <div id="statusMessageContainer"></div>
-<form method="post" id="form">
-    <div class="row p-2">
+<form method="post" id="form" onsubmit="return false">
+    <div class="row p-2" id="pluginDetails">
         <div class="col-12 col-lg-4">
             <div class="d-flex justify-content-center">
                 <img class="img-thumbnail border-0" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
@@ -13,7 +13,7 @@
             <h5 class="text-center text-wrap p-1">@Model.PrivatePlugin.Name</h5>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <p class="col-4 m-0 align-self-center">Status</p>
-                <select class="status-select" asp-for="@Model.PrivatePlugin.Inactive">
+                <select class="status-select" asp-for="PrivatePlugin.Inactive">
                     <option value="false">Active</option>
                     <option value="true">Inactive</option>
                 </select>
@@ -25,14 +25,13 @@
         </div>
         <div class="col-12 col-lg-8 border-container">
 
-            <input hidden asp-for="@Model.PrivatePlugin.Id" />
-            <input hidden asp-for="@Model.PrivatePlugin.IsEditMode" />
-            <input hidden asp-for="@Model.SelectedVersionId" id="selectedVersionId" />
+            <input hidden asp-for="PrivatePlugin.Id" />
+            <input hidden asp-for="PrivatePlugin.IsEditMode" />
+            <input hidden asp-for="SelectedVersionId" id="selectedVersionId" />
             @for (int i = 0; i < Model.Categories.Count; i++)
             {
-                <input hidden asp-for="@Model.Categories[i].Id" />
-                <input hidden asp-for="@Model.Categories[i].Name" />
-                <input hidden asp-for="@Model.Categories[i].ParentCategoryID" />
+                <input hidden asp-for="Categories[i].Id" />
+                <input hidden asp-for="Categories[i].Name" />
             }
 
             <div class="mb-3 d-flex align-content-center col-12 p-0">
@@ -53,6 +52,18 @@
                 <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.DeveloperName">Developer </label>
                 <input asp-for="PrivatePlugin.DeveloperName" class="form-control" />
             </div>
+            <div class="d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.ChangelogLink">Changelog link </label>
+                <input asp-for="PrivatePlugin.ChangelogLink" class="form-control" />
+            </div>
+            <div class="d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.SupportUrl">Support url </label>
+                <input asp-for="PrivatePlugin.SupportUrl" class="form-control" />
+            </div>
+            <div class="d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.SupportEmail">Support email </label>
+                <input asp-for="PrivatePlugin.SupportEmail" class="form-control" />
+            </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Description">Description <span class="text-danger">*</span></label>
                 <div class="w-100">
@@ -62,7 +73,7 @@
             </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Categories">Plugin categories </label>
-                <select class="form-select" multiple="multiple" asp-for="@Model.SelectedCategories" asp-items="Model.CategoryListItems"></select>
+                <select class="form-select" multiple="multiple" asp-for="SelectedCategories" asp-items="Model.CategoryListItems"></select>
             </div>
             <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0" asp-for="PrivatePlugin.PaidFor">Paid for</label>

@@ -7,32 +7,7 @@ namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginVersion
     {
-        private readonly List<SupportedProductDetails> _supportedProductDetails;
-        private List<SupportedProductDetails> _supportedProducts;
         private SupportedProductDetails _selectedProduct;
-
-        public PluginVersion()
-        {
-            _supportedProductDetails = new List<SupportedProductDetails>
-            {
-                new SupportedProductDetails
-                {
-                    Id ="37",
-                    ProductName ="SDL Trados Studio 2021",
-                    ParentProductID =14,
-                    MinimumStudioVersion = "16.0"
-                },
-                new SupportedProductDetails
-                {
-                    Id ="38",
-                    ProductName ="Trados Studio 2022",
-                    ParentProductID =14,
-                    MinimumStudioVersion ="17.0"
-                }
-            };
-
-            SupportedProductsListItems = new SelectList(_supportedProductDetails, nameof(SupportedProductDetails.Id), nameof(SupportedProductDetails.ProductName));
-        }
 
         public DateTime? CreatedDate { get; set; }
         public int DownloadCount { get; set; }
@@ -42,6 +17,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [Required]
         public string VersionNumber { get; set; }
+        public string FileHash { get; set; }
         public List<SupportedProductDetails> SupportedProducts { get; set; }
         public bool AppHasStudioPluginInstaller { get; set; }
 
@@ -50,7 +26,7 @@ namespace AppStoreIntegrationServiceCore.Model
         /// <summary>
         /// For Studio 2021 is 16.0 by default
         /// </summary>
-        
+
         [Required]
         public string MinimumRequiredVersionOfStudio { get; set; }
 
@@ -75,7 +51,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [BindProperty]
         public SupportedProductDetails SelectedProduct
         {
-            get => _selectedProduct ?? _supportedProductDetails.Last();
+            get => _selectedProduct ?? SupportedProducts?.Last();
             set
             {
                 _selectedProduct = value;
@@ -93,13 +69,15 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonIgnore]
         public bool IsNewVersion { get; set; }
 
-        public void SetSupportedProducts()
+        public void SetSupportedProductsList(List<SupportedProductDetails> supportedProductDetails, string defaultProduct)
         {
-            if (SupportedProducts == null)
-            {
-                SupportedProducts = new List<SupportedProductDetails>();
-                SupportedProducts.AddRange(_supportedProductDetails);
-            }
+            SupportedProductsListItems = new SelectList
+            (
+                supportedProductDetails,
+                nameof(SupportedProductDetails.Id),
+                nameof(SupportedProductDetails.ProductName),
+                defaultProduct
+            );
         }
 
         private void UpdateStudioMinVersion()
@@ -108,7 +86,7 @@ namespace AppStoreIntegrationServiceCore.Model
             {
                 if (string.IsNullOrEmpty(SelectedProduct?.MinimumStudioVersion))
                 {
-                    var productDetails = _supportedProductDetails.FirstOrDefault(v => v.ProductName.Equals(SelectedProduct.ProductName));
+                    var productDetails = SupportedProducts.FirstOrDefault(v => v.ProductName.Equals(SelectedProduct.ProductName));
                     if (productDetails != null)
                     {
                         var minVersion = productDetails.MinimumStudioVersion;

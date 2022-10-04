@@ -7,7 +7,12 @@
     }
 
     if (controller == "PluginsRename") {
-        CreateRequest($('#namesMapping').find('input').serialize(), `/PluginsRename/GoToPage/${goToPage}`);
+        CreateRequest($('main').find('input').serialize(), `/PluginsRename/GoToPage/${goToPage}`);
+        return;
+    }
+
+    if (controller == "Products") {
+        CreateRequest($('main').find('input').serialize(), `/Products/GoToPage/${goToPage}`);
         return;
     }
 
@@ -21,6 +26,7 @@
 }
 
 function CreateRequest(pageValues, url) {
+
     $.ajax({
         data: pageValues,
         type: "POST",
@@ -35,6 +41,22 @@ function CreateRequest(pageValues, url) {
             }
         }
     })
+}
+
+function Collapse(element) {
+
+    if (window.innerWidth > 992) {
+        return;
+    }
+
+    element.parentElement.classList.toggle('bg-collapsed');
+
+    var children = element.closest('tr').children;
+    for (let child of children) {
+        if (child != element.parentElement) {
+            child.classList.toggle('d-none');
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {

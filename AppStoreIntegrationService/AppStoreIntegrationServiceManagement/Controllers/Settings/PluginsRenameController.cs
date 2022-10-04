@@ -45,6 +45,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             {
                 mappings.Add(mapping);
                 await _namesRepository.UpdateNamesMapping(mappings);
+                TempData["StatusMessage"] = "Success! Name mapping was added!";
                 return Content("/Settings/PluginsRename");
             }
 
@@ -57,6 +58,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             if (!mappings.Any(item => string.IsNullOrEmpty(item.OldName) || string.IsNullOrEmpty(item.NewName)))
             {
                 await _namesRepository.UpdateNamesMapping(mappings);
+                TempData["StatusMessage"] = "Success! Name mapping was updated!";
                 return Content("/Settings/PluginsRename");
             }
 
@@ -67,6 +69,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         public async Task<IActionResult> Delete(string id)
         {
             await _namesRepository.DeleteNameMapping(id);
+            TempData["StatusMessage"] = "Success! Name mapping was deleted!";
             return Content("/Settings/PluginsRename");
         }
 

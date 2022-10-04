@@ -1,11 +1,6 @@
 ﻿@model List<PrivatePlugin>
 @{
     ViewData["Title"] = "Plugins";
-    var modal = new ModalMessage 
-    { 
-        ModalType = ModalType.ConfirmationMessage,
-        Title = "Confirmation"
-    };
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
@@ -62,7 +57,7 @@
                         <label class="card-status col-6">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
                         <div class="col-6 d-flex justify-content-end">
                             <a class="focus-transparent me-3" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
-                            <a class="btn p-0"><i class="far fa-trash-alt text-danger cursor-pointer delete-plugin-btn" id="@plugin.Id"></i></a>
+                            <a class="btn p-0"><i class="far fa-trash-alt text-danger cursor-pointer" onclick="DeletePlugin('@plugin.Id', '@plugin.Name')"></i></a>
                         </div>
                     </div>
                 </div>
@@ -71,7 +66,7 @@
     </div>
 </div>
 
-<partial name="_ModalPartial" model="@modal" />
+<partial name="_ModalPartial" model="@new ModalMessage()" />
 
 <script src="~/js/PluginsScript.js"></script>
 <script src="~/js/FilterScript.js"></script>

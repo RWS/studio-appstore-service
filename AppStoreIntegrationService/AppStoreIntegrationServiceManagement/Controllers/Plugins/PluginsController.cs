@@ -13,12 +13,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     public class PluginsController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
+        private readonly IProductsRepository _productsRepository;
         private readonly IHttpContextAccessor _context;
 
-        public PluginsController(IPluginRepository pluginRepository, IHttpContextAccessor context)
+        public PluginsController(IPluginRepository pluginRepository, IHttpContextAccessor context, IProductsRepository productsRepository)
         {
             _pluginRepository = pluginRepository;
             _context = context;
+            _productsRepository = productsRepository;
         }
 
         [Route("Plugins")]
@@ -68,6 +70,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                     DeveloperName = pluginDetails.Developer?.DeveloperName,
                     Description = pluginDetails.Description,
                     Name = pluginDetails.Name,
+                    ChangelogLink = pluginDetails.ChangelogLink,
+                    SupportEmail = pluginDetails.SupportEmail,
+                    SupportUrl = pluginDetails.SupportUrl,
                     Categories = pluginDetails.Categories,
                     Inactive = pluginDetails.Inactive,
                     Versions = SetSelectedProducts(pluginDetails.Versions, string.Empty).ToList(),
@@ -75,7 +80,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                     IsEditMode = true
                 },
                 Categories = categories,
-                CategoryListItems = new SelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
+                CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name)),
+                SelectedCategories = pluginDetails.Categories.Select(c => c.Id).ToList()
             });
         }
 
@@ -117,19 +123,21 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private async Task<bool> IsSaved(PluginDetailsModel pluginDetails, PluginVersion version)
         {
             var plugin = pluginDetails.PrivatePlugin;
+            var products = await _productsRepository.GetAllProducts();
             var foundPluginDetails = await _pluginRepository.GetPluginById(plugin.Id);
             plugin.SetCategoryList(pluginDetails.SelectedCategories, await _pluginRepository.GetCategories());
-            var newPluginDetails = plugin.ConvertToPluginDetails(foundPluginDetails, version);
+            var newPluginDetails = plugin.ConvertToPluginDetails(foundPluginDetails, version, products.ToList());
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
         private async Task<IActionResult> Save(PluginDetailsModel pluginDetails, List<PluginVersion> versions, PluginVersion version, Func<PrivatePlugin, Task> func)
         {
             var plugin = pluginDetails.PrivatePlugin;
+            var products = await _productsRepository.GetAllProducts();
 
             if (plugin.IsValid(version))
             {
-                plugin.SetVersionList(versions, version);
+                plugin.SetVersionList(versions, version, products.ToList());
                 plugin.SetCategoryList(pluginDetails.SelectedCategories, pluginDetails.Categories);
                 plugin.SetDownloadUrl();
 
@@ -156,6 +164,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private static IEnumerable<PluginVersion> SetSelectedProducts(List<PluginVersion> versions, string versionName)
         {
+            var newVersions = new List<PluginVersion>();
             foreach (var version in versions)
             {
                 var lastSupportedProduct = version.SupportedProducts.Last();
@@ -163,8 +172,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 version.SelectedProduct = lastSupportedProduct;
                 version.VersionName = version.IsNewVersion ? versionName : $"{version.SelectedProduct.ProductName} - {version.VersionNumber}";
                 version.IsNewVersion = false;
-                yield return version;
+                newVersions.Add(version);
             }
+
+            return newVersions;
         }
 
         private IEnumerable<PrivatePlugin> InitializePrivatePlugins(List<PluginDetails> plugins)

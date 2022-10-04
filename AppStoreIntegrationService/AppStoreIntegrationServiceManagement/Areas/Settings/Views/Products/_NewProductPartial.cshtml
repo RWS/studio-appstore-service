@@ -1,0 +1,11 @@
+﻿@model SupportedProductDetails
+
+<tr class="table-row d-flex flex-column d-lg-table-row" id="newDataRow">
+    <td class="editable-field"><input class="form-control form-control-sm text-center text-lg-start" asp-for="@Model.Id" placeholder="Id" /></td>
+    <td class="editable-field order-first"><input class="form-control form-control-sm text-center text-lg-start" asp-for="@Model.ProductName" placeholder="ProductName" autofocus /></td>
+    <td class="editable-field"><input class="form-control form-control-sm text-center text-lg-start" asp-for="@Model.MinimumStudioVersion" placeholder="ProductVersion" /></td>
+    <td class="editable-field"><input class="form-control form-control-sm text-center text-lg-start" asp-for="@Model.ParentProductID" placeholder="ParentId" /></td>
+    <td class="editable-field text-center align-middle"><input class="form-check-input" asp-for="@Model.IsDefault" onchange="table.Change()" /></td>
+    <td class="icon-cell text-center"><i onclick="table.SaveNewRowData()" class="fa fa-check-circle text-success cursor-pointer align-middle"></i></td>
+    <td class="icon-cell text-center"><i onclick="table.CloseNewRowForm(function() { return })" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
+</tr>

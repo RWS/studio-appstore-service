@@ -12,9 +12,11 @@ namespace AppStoreIntegrationServiceCore.Model
         public string ConfigFileName { get; set; }
         public string OosUri { get; set; }
         public string MappingFileName { get; set; }
+        public string ProductsFileName { get; set; }
         public string InstrumentationKey { get; set; }
         public Enums.DeployMode DeployMode { get; set; }
         public string NameMappingsFilePath { get; set; }
+        public string ProductsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsConfigFilePath { get; set; }
         public string ConfigFileBackUpPath { get; set; }
@@ -39,7 +41,14 @@ namespace AppStoreIntegrationServiceCore.Model
             }
 
             if (!string.IsNullOrEmpty(MappingFileName))
+            {
                 NameMappingsFilePath = Path.Combine(ConfigFolderPath, MappingFileName);
+            }
+
+            if (!string.IsNullOrEmpty(ProductsFileName))
+            {
+                ProductsFilePath = Path.Combine(ConfigFolderPath, ProductsFileName);
+            }
 
             if (!string.IsNullOrEmpty(ConfigFileName))
             {
@@ -65,6 +74,11 @@ namespace AppStoreIntegrationServiceCore.Model
                     await File.Create(NameMappingsFilePath).DisposeAsync();
                 }
 
+                if (!string.IsNullOrEmpty(ProductsFilePath) && !File.Exists(ProductsFilePath))
+                {
+                    await File.Create(ProductsFilePath).DisposeAsync();
+                }
+
                 if (!string.IsNullOrEmpty(ConfigFileBackUpPath) && !File.Exists(ConfigFileBackUpPath))
                 {
                     await File.Create(ConfigFileBackUpPath).DisposeAsync();
@@ -82,9 +96,10 @@ namespace AppStoreIntegrationServiceCore.Model
             OosUri = GetVariable(ServiceResource.OosUri);
             InstrumentationKey = GetVariable(ServiceResource.TelemetryInstrumentationKey);
             MappingFileName = GetVariable(ServiceResource.MappingFileName);
+            ProductsFileName = GetVariable(ServiceResource.ProductsFileName);
         }
 
-        private string GetVariable(string key)
+        private static string GetVariable(string key)
         {
             // by default it gets a process variable. Allow getting user as well
             return

@@ -159,6 +159,9 @@
   <data name="PluginName" xml:space="preserve">
     <value>Plugin Name</value>
   </data>
+  <data name="ProductsFileName" xml:space="preserve">
+    <value>APPSTOREINTEGRATION_PRODUCTSFILENAME</value>
+  </data>
   <data name="StorageAccountKey" xml:space="preserve">
     <value>APPSTOREINTEGRATION_STORAGE_ACCOUNTKEY</value>
   </data>

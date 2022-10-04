@@ -158,14 +158,12 @@ namespace AppStoreIntegrationServiceCore.Repository
             var content = await categoriesResponse.Content?.ReadAsStringAsync();
             var categories = JsonConvert.DeserializeObject<CategoriesResponse>(content)?.Value;
 
-            const int ParentCategoryId = 1;
             var hiddenCategories = new List<int> {
                 CategoryId_Miscellaneous,
                 CategoryId_ContentManagementConnectors
             };
 
-            return categories.Where(c => c.ParentCategoryID == ParentCategoryId && !hiddenCategories
-                             .Any(hc => hc == c.Id)).ToList();
+            return categories.Where(c => !hiddenCategories.Any(hc => hc == c.Id)).ToList();
         }
 
         private async void OnCacheExpiredCallback(object stateInfo)
@@ -237,9 +235,11 @@ namespace AppStoreIntegrationServiceCore.Repository
                 {
                     //there are some apps in the oos which are working for all studio version. So the field is "SDL Trados Studio" without any studio specific version
                     var version = pluginVersion.SupportedProducts?.FirstOrDefault(s =>
-                        s.ProductName.Equals(oldTradosName) || s.ProductName.Equals(rebrandedStudioName)
-                                                            || s.ProductName.Equals("SDL Trados Studio") ||
-                                                            s.ProductName.Equals("Trados Studio"));
+                                  s.ProductName.Equals(oldTradosName) || 
+                                  s.ProductName.Equals(rebrandedStudioName) || 
+                                  s.ProductName.Equals("SDL Trados Studio") ||
+                                  s.ProductName.Equals("Trados Studio"));
+
                     if (version != null)
                     {
                         matchingVersions.Add(pluginVersion);
@@ -353,6 +353,9 @@ namespace AppStoreIntegrationServiceCore.Repository
                 {
                     pluginToBeUpdated.Name = privatePlugin.Name;
                     pluginToBeUpdated.Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName };
+                    pluginToBeUpdated.ChangelogLink = privatePlugin.ChangelogLink;
+                    pluginToBeUpdated.SupportUrl = privatePlugin.SupportUrl;
+                    pluginToBeUpdated.SupportEmail = privatePlugin.SupportEmail;
                     pluginToBeUpdated.Description = privatePlugin.Description;
                     pluginToBeUpdated.Icon.MediaUrl = privatePlugin.IconUrl;
                     pluginToBeUpdated.PaidFor = privatePlugin.PaidFor;
@@ -375,6 +378,9 @@ namespace AppStoreIntegrationServiceCore.Repository
                     Name = privatePlugin.Name.Trim(),
                     Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName },
                     Description = privatePlugin.Description,
+                    ChangelogLink = privatePlugin.ChangelogLink,
+                    SupportEmail = privatePlugin.SupportEmail,
+                    SupportUrl = privatePlugin.SupportUrl,
                     PaidFor = privatePlugin.PaidFor,
                     Categories = privatePlugin.Categories,
                     Versions = privatePlugin.Versions,

@@ -9,7 +9,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
 
         public List<CategoryDetails> Categories { get; set; }
 
-        public SelectList CategoryListItems { get; set; }
+        public MultiSelectList CategoryListItems { get; set; }
 
         public List<int> SelectedCategories { get; set; } = new List<int>();
 

@@ -187,6 +187,15 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_PRODUCTSFILENAME.
+        /// </summary>
+        public static string ProductsFileName {
+            get {
+                return ResourceManager.GetString("ProductsFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to APPSTOREINTEGRATION_STORAGE_ACCOUNTKEY.
         /// </summary>
         public static string StorageAccountKey {

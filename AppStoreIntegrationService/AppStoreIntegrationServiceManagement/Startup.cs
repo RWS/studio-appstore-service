@@ -66,6 +66,7 @@ namespace AppStoreIntegrationServiceManagement
             services.AddHttpContextAccessor();
             services.AddSingleton<IAzureRepository, AzureRepository>();
             services.AddSingleton<INamesRepository, NamesRepository>();
+            services.AddSingleton<IProductsRepository, ProductsRepository>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
             services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
