@@ -18,6 +18,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         private CloudBlockBlob _pluginsBackupBlockBlob;
         private CloudBlockBlob _nameMappingsBlockBlob;
         private CloudBlockBlob _productsBlockBlob;
+        private CloudBlockBlob _settingsBlockBlob;
         private readonly BlobRequestOptions _blobRequestOptions;
         private readonly IConfigurationSettings _configurationSettings;
 
@@ -25,7 +26,10 @@ namespace AppStoreIntegrationServiceCore.Repository
         {
             _configurationSettings = configurationSettings;
             if (_configurationSettings.DeployMode != DeployMode.AzureBlob ||
-                string.IsNullOrEmpty(_configurationSettings.ConfigFileName)) return;
+                string.IsNullOrEmpty(_configurationSettings.ConfigFileName))
+            {
+                return;
+            }
 
             _blobRequestOptions = new BlobRequestOptions
             {
@@ -148,6 +152,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             CreateEmptyFile(_pluginsBackupBlockBlob);
             CreateEmptyFile(_nameMappingsBlockBlob);
             CreateEmptyFile(_productsBlockBlob);
+            CreateEmptyFile(_settingsBlockBlob);
         }
 
         private static void CreateEmptyFile(CloudBlockBlob cloudBlockBlob)
@@ -181,6 +186,11 @@ namespace AppStoreIntegrationServiceCore.Repository
             if (!string.IsNullOrEmpty(_configurationSettings.ProductsFileName))
             {
                 _productsBlockBlob = GetBlockBlobReference(_configurationSettings.ProductsFileName);
+            }
+
+            if (!string.IsNullOrEmpty(_configurationSettings.SettingsFileName))
+            {
+                _settingsBlockBlob = GetBlockBlobReference(_configurationSettings.SettingsFileName);
             }
 
         }
@@ -217,6 +227,27 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task UpdateProductsFileBlob(string fileContent)
         {
             await _productsBlockBlob.UploadTextAsync(fileContent);
+        }
+
+        public async Task<SiteSettings> GetSettingsFromContainer()
+        {
+            if (_settingsBlockBlob is null)
+            {
+                return new SiteSettings();
+            }
+
+            var containterContent = await _settingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+            var stream = new MemoryStream();
+
+            await _settingsBlockBlob.DownloadToStreamAsync(stream, null, _blobRequestOptions, null);
+            var settings = JsonConvert.DeserializeObject<SiteSettings>(containterContent);
+            await stream.DisposeAsync();
+            return settings ?? new SiteSettings();
+        }
+
+        public async Task UpdateSettingsFileBlob(string fileContent)
+        {
+            await _settingsBlockBlob.UploadTextAsync(fileContent);
         }
     }
 }

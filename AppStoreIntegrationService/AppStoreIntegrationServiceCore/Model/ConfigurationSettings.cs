@@ -20,6 +20,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsConfigFilePath { get; set; }
         public string ConfigFileBackUpPath { get; set; }
+        public string SettingsFileName { get; set; }
 
         public ConfigurationSettings(Enums.DeployMode deployMode)
         {
@@ -97,6 +98,7 @@ namespace AppStoreIntegrationServiceCore.Model
             InstrumentationKey = GetVariable(ServiceResource.TelemetryInstrumentationKey);
             MappingFileName = GetVariable(ServiceResource.MappingFileName);
             ProductsFileName = GetVariable(ServiceResource.ProductsFileName);
+            SettingsFileName = GetVariable(ServiceResource.SettingsFileName);
         }
 
         private static string GetVariable(string key)

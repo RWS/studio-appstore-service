@@ -7,22 +7,23 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         /// <summary>
         /// Refeshes the list of plugins from public appstore service
         /// </summary>
-        public Task UploadToContainer(Stream pluginsStream);
-        public Task<List<PluginDetails>> GetPluginsListFromContainer();
-        public Task<List<NameMapping>> GetNameMappingsFromContainer();
-        public Task<List<SupportedProductDetails>> GetProductsFromContainer();
+        Task UploadToContainer(Stream pluginsStream);
+        Task<List<PluginDetails>> GetPluginsListFromContainer();
+        Task<List<NameMapping>> GetNameMappingsFromContainer();
+        Task<List<SupportedProductDetails>> GetProductsFromContainer();
+        Task<SiteSettings> GetSettingsFromContainer();
+
         /// <summary>
         /// String which contains the plugins list updated. (Format of the file is json)
         /// </summary>
-        public Task UpdatePluginsFileBlob(string fileContent);
-
-        public Task UpdateNameMappingsFileBlob(string fileContent);
-
-        public Task UpdateProductsFileBlob(string fileContent);
+        Task UpdatePluginsFileBlob(string fileContent);
+        Task UpdateNameMappingsFileBlob(string fileContent);
+        Task UpdateProductsFileBlob(string fileContent);
+        Task UpdateSettingsFileBlob(string fileContent);
 
         /// <summary>
         /// Backup plugins list
         /// </summary>
-        public Task BackupFile(string fileContent);
+        Task BackupFile(string fileContent);
     }
 }

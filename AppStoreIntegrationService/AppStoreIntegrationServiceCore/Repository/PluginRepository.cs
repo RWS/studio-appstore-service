@@ -69,8 +69,11 @@ namespace AppStoreIntegrationServiceCore.Repository
         private async Task<List<PluginDetails>> GetPluginsListFromLocalFile()
         {
             var pluginsDetails = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsConfigFilePath);
-
-            return JsonConvert.DeserializeObject<PluginsResponse>(pluginsDetails)?.Value;
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            return JsonConvert.DeserializeObject<PluginsResponse>(pluginsDetails, jsonSerializerSettings)?.Value;
         }
 
         private async Task RefreshCacheList()

@@ -34,9 +34,14 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         public string MappingFileName { get; set; }
 
         /// <summary>
-        /// NAme of the json file from where service reads supported products
+        /// Name of the json file from where service reads supported products
         /// </summary>
+        /// 
         public string ProductsFileName { get; set; }
+        /// <summary>
+        /// Name of the json file from where site name is read when deploy on Azure
+        /// </summary>
+        public string SettingsFileName { get; set; }
 
         /// <summary>
         /// Azure Telemetry Instrumentation Key
