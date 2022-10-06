@@ -19,7 +19,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Show(List<PluginVersion> versions, PluginDetailsModel pluginDetails)
+        public async Task<IActionResult> Show(List<ExtendedPluginVersion> versions, PluginDetailsModel pluginDetails)
         {
             var version = versions.FirstOrDefault(v => v.Id.Equals(pluginDetails.SelectedVersionId));
             var products = (await _productsRepository.GetAllProducts()).ToList();
@@ -31,7 +31,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Add()
         {
             var products = (await _productsRepository.GetAllProducts()).ToList();
-            var version = new PluginVersion
+            var version = new ExtendedPluginVersion
             {
                 VersionName = "New plugin version",
                 VersionNumber = string.Empty,
