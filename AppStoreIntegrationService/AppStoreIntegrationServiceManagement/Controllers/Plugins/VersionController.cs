@@ -46,6 +46,23 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
+        public async Task<IActionResult> GenerateChecksum(ExtendedPluginVersion version)
+        {
+            try
+            {
+                var remoteReader = new RemoteStreamReader(new Uri(version.DownloadUrl));
+                version.FileHash = SHA1Generator.GetHash(await remoteReader.ReadAsync());
+            }
+            catch (Exception e)
+            {
+                return PartialView("_StatusMessage", $"Error! {e.Message}");
+            }
+
+            TempData["Filehash"] = version.FileHash;
+            return PartialView("_StatusMessage", "Success! Checksum was computed!");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Delete(PluginDetailsModel pluginDetails, string id)
         {
             var plugin = pluginDetails.PrivatePlugin;

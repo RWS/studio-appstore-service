@@ -59,6 +59,29 @@ function Collapse(element) {
     }
 }
 
+function GenerateChecksum() {
+    var pageValues = $('main').find('select, textarea, input').serialize();
+    var button = event.target;
+    $("#DownloadUrl").validate();
+
+    if ($("#DownloadUrl").valid()) {
+        button.disabled = true;
+        button.firstElementChild.hidden = false;
+
+        $.ajax({
+            data: pageValues,
+            type: "POST",
+            url: "/Plugins/Version/GenerateChecksum",
+            success: function (result) {
+                button.disabled = false;
+                button.firstElementChild.hidden = true;
+                AjaxSuccessCallback(result);
+                document.getElementById("FileHash").value = fileHash;
+            }
+        })
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -69,3 +92,16 @@ document.addEventListener('DOMContentLoaded', function () {
         $(this).remove();
     });
 });
+
+function AjaxSuccessCallback(actionResult) {
+    if (!actionResult.includes("div")) {
+        window.location.href = actionResult;
+        return;
+    }
+
+    $('#statusMessageContainer').html(actionResult);
+    $('#statusMessageContainer').find('.modal').modal('show');
+    $(".alert").fadeTo(3000, 500).slideUp(500, function () {
+        $(this).remove();
+    });
+}

@@ -50,7 +50,7 @@ function AddNewVersion() {
 
 function ShowVersionDetails(versionId) {
     document.getElementById("selectedVersionId").value = versionId;
-    var pageValues = $('main').find('select, textarea, input').serialize();;
+    var pageValues = $('main').find('select, textarea, input').serialize();
 
     $.ajax({
         data: pageValues,
