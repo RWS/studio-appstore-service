@@ -2,7 +2,7 @@
 {
     public static class PrivatePluginExtention
     {
-        public static PluginDetails ConvertToPluginDetails(this PrivatePlugin privateDetails, PluginDetails foundDetails, PluginVersion selectedVersionDetails, List<SupportedProductDetails> products)
+        public static PluginDetails ConvertToPluginDetails(this PrivatePlugin privateDetails, PluginDetails foundDetails, ExtendedPluginVersion selectedVersionDetails, List<SupportedProductDetails> products)
         {
             return new PluginDetails
             {
@@ -22,7 +22,7 @@
             };
         }
 
-        private static List<PluginVersion> PrepareVersions(List<PluginVersion> versions, PluginVersion selectedVersion, List<SupportedProductDetails> products)
+        private static List<PluginVersion> PrepareVersions(List<PluginVersion> versions, ExtendedPluginVersion selectedVersion, List<SupportedProductDetails> products)
         {
             if (selectedVersion.VersionName == null)
             {

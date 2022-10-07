@@ -69,8 +69,11 @@ namespace AppStoreIntegrationServiceCore.Repository
         private async Task<List<PluginDetails>> GetPluginsListFromLocalFile()
         {
             var pluginsDetails = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsConfigFilePath);
-
-            return JsonConvert.DeserializeObject<PluginsResponse>(pluginsDetails)?.Value;
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            return JsonConvert.DeserializeObject<PluginsResponse>(pluginsDetails, jsonSerializerSettings)?.Value;
         }
 
         private async Task RefreshCacheList()
@@ -360,7 +363,7 @@ namespace AppStoreIntegrationServiceCore.Repository
                     pluginToBeUpdated.Icon.MediaUrl = privatePlugin.IconUrl;
                     pluginToBeUpdated.PaidFor = privatePlugin.PaidFor;
                     pluginToBeUpdated.Categories = privatePlugin.Categories;
-                    pluginToBeUpdated.Versions = privatePlugin.Versions;
+                    pluginToBeUpdated.Versions = privatePlugin.Versions.Cast<PluginVersion>().ToList();
                     pluginToBeUpdated.DownloadUrl = privatePlugin.DownloadUrl;
                     pluginToBeUpdated.Inactive = privatePlugin.Inactive;
                 }
@@ -383,7 +386,7 @@ namespace AppStoreIntegrationServiceCore.Repository
                     SupportUrl = privatePlugin.SupportUrl,
                     PaidFor = privatePlugin.PaidFor,
                     Categories = privatePlugin.Categories,
-                    Versions = privatePlugin.Versions,
+                    Versions = privatePlugin.Versions.Cast<PluginVersion>().ToList(),
                     DownloadUrl = privatePlugin.DownloadUrl,
                     Id = privatePlugin.Id,
                     Icon = new IconDetails { MediaUrl = privatePlugin.IconUrl },

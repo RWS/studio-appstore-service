@@ -1,7 +1,7 @@
 ﻿@using AppStoreIntegrationServiceCore.Model;
-@inject IWritableOptions<SiteSettings> options;
+@inject ISettingsRepository repository;
 @{
-    var siteName = options.Value.Name;
+    var siteName = (await repository.GetSettings()).Name;
 }
 @if (string.IsNullOrEmpty(siteName))
 {

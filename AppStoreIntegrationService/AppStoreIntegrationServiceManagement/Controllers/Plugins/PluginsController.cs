@@ -51,7 +51,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(PluginDetailsModel pluginDetails, List<PluginVersion> versions, PluginVersion version)
+        public async Task<IActionResult> Create(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion> versions, ExtendedPluginVersion version)
         {
             return await Save(pluginDetails, versions, version, _pluginRepository.AddPrivatePlugin);
         }
@@ -75,7 +75,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                     SupportUrl = pluginDetails.SupportUrl,
                     Categories = pluginDetails.Categories,
                     Inactive = pluginDetails.Inactive,
-                    Versions = SetSelectedProducts(pluginDetails.Versions, string.Empty).ToList(),
+                    Versions = SetSelectedProducts(pluginDetails.Versions).ToList(),
                     IconUrl = string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl) ? GetDefaultIcon() : pluginDetails.Icon.MediaUrl,
                     IsEditMode = true
                 },
@@ -86,7 +86,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(PluginDetailsModel pluginDetails, List<PluginVersion> versions, PluginVersion version)
+        public async Task<IActionResult> Update(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion> versions, ExtendedPluginVersion version)
         {
             return await Save(pluginDetails, versions, version, _pluginRepository.UpdatePrivatePlugin);
         }
@@ -100,7 +100,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
-        public async Task<IActionResult> GoToPage(PluginDetailsModel pluginDetails, PluginVersion version, string redirectUrl, string currentPage)
+        public async Task<IActionResult> GoToPage(PluginDetailsModel pluginDetails, ExtendedPluginVersion version, string redirectUrl, string currentPage)
         {
             redirectUrl = redirectUrl.Replace('.', '/');
 
@@ -120,7 +120,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return PartialView("_ModalPartial", modalDetails);
         }
 
-        private async Task<bool> IsSaved(PluginDetailsModel pluginDetails, PluginVersion version)
+        private async Task<bool> IsSaved(PluginDetailsModel pluginDetails, ExtendedPluginVersion version)
         {
             var plugin = pluginDetails.PrivatePlugin;
             var products = await _productsRepository.GetAllProducts();
@@ -130,7 +130,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
-        private async Task<IActionResult> Save(PluginDetailsModel pluginDetails, List<PluginVersion> versions, PluginVersion version, Func<PrivatePlugin, Task> func)
+        private async Task<IActionResult> Save(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion> versions, ExtendedPluginVersion version, Func<PrivatePlugin, Task> func)
         {
             var plugin = pluginDetails.PrivatePlugin;
             var products = await _productsRepository.GetAllProducts();
@@ -162,17 +162,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return PartialView("_StatusMessage", "Error! Please fill all required values!");
         }
 
-        private static IEnumerable<PluginVersion> SetSelectedProducts(List<PluginVersion> versions, string versionName)
+        private static IEnumerable<ExtendedPluginVersion> SetSelectedProducts(List<PluginVersion> versions)
         {
-            var newVersions = new List<PluginVersion>();
+            var newVersions = new List<ExtendedPluginVersion>();
             foreach (var version in versions)
             {
                 var lastSupportedProduct = version.SupportedProducts.Last();
-                version.SelectedProductId = lastSupportedProduct.Id;
-                version.SelectedProduct = lastSupportedProduct;
-                version.VersionName = version.IsNewVersion ? versionName : $"{version.SelectedProduct.ProductName} - {version.VersionNumber}";
-                version.IsNewVersion = false;
-                newVersions.Add(version);
+                newVersions.Add(new ExtendedPluginVersion(version)
+                {
+                    SelectedProductId = lastSupportedProduct.Id,
+                    SelectedProduct = lastSupportedProduct,
+                    VersionName = $"{version.SupportedProducts?.Last().ProductName} - {version.VersionNumber}",
+                });
             }
 
             return newVersions;
@@ -188,7 +189,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                     Description = plugin.Description,
                     Name = plugin.Name,
                     Categories = plugin.Categories,
-                    Versions = plugin.Versions,
+                    Versions = plugin.Versions.Select(v => new ExtendedPluginVersion(v)).ToList(),
                     Inactive = plugin.Inactive,
                     IconUrl = string.IsNullOrEmpty(plugin.Icon.MediaUrl) ? GetDefaultIcon() : plugin.Icon.MediaUrl
                 };

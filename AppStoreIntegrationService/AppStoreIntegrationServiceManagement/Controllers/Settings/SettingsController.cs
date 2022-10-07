@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,24 +9,23 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Area("Settings")]
     public class SettingsController : Controller
     {
-        private readonly IWritableOptions<SiteSettings> _options;
+        private readonly ISettingsRepository _settingsRepository;
 
-        public SettingsController(IWritableOptions<SiteSettings> options)
+        public SettingsController(ISettingsRepository settingsRepository)
         {
-            _options = options;
+            _settingsRepository = settingsRepository;
         }
 
         [Route("Settings")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View(new SiteSettings { Name = _options.Value.Name });
+            return View(await _settingsRepository.GetSettings());
         }
 
         [HttpPost]
-        public IActionResult Update(SiteSettings settings)
+        public async Task<IActionResult> Update(SiteSettings settings)
         {
-            _options.SaveOption(new SiteSettings { Name = settings.Name });
-            _options.Value.Name = settings.Name;
+            await _settingsRepository.SaveSettings(settings);
             return RedirectToAction("Index");
         }
     }

@@ -7,7 +7,6 @@ namespace AppStoreIntegrationServiceCore.Model
         public int Id { get; set; }
 
         [Required]
-        [MinLength(5)]
         public string Name { get; set; }
 
         [Required]
@@ -30,7 +29,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public List<CategoryDetails> Categories { get; set; }
 
-        public List<PluginVersion> Versions { get; set; }
+        public List<ExtendedPluginVersion> Versions { get; set; }
         public string NewVersionNumber { get; set; }
 
         [Required]
@@ -45,7 +44,7 @@ namespace AppStoreIntegrationServiceCore.Model
             return selectedVersion.Id != null || IsEditMode;
         }
 
-        public void SetVersionList(List<PluginVersion> versions, PluginVersion selectedVersion, List<SupportedProductDetails> products)
+        public void SetVersionList(List<ExtendedPluginVersion> versions, ExtendedPluginVersion selectedVersion, List<SupportedProductDetails> products)
         {
             var editedVersion = versions.FirstOrDefault(v => v.Id.Equals(selectedVersion.Id));
             var selectedProduct = products?.FirstOrDefault(item => item.Id == selectedVersion.SelectedProductId);
