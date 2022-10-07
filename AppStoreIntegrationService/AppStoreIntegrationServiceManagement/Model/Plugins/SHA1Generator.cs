@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace AppStoreIntegrationServiceCore.Model
+namespace AppStoreIntegrationServiceManagement.Model.Plugins
 {
     public static class SHA1Generator
     {

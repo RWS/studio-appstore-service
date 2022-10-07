@@ -1,7 +1,7 @@
 ﻿using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Hosting;
 
-namespace AppStoreIntegrationServiceCore.Model
+namespace AppStoreIntegrationServiceCore.Repository
 {
     public class ConfigurationSettings : IConfigurationSettings
     {
