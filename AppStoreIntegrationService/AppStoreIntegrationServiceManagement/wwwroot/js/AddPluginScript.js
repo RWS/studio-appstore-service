@@ -1,4 +1,6 @@
-﻿function AddPlugin() {
+﻿let fileHash;
+
+function AddPlugin() {
     $("#form").validate();
 
     if ($("#form").valid()) {

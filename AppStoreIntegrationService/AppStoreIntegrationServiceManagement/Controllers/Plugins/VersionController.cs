@@ -2,7 +2,6 @@
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -43,6 +42,23 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             version.SetSupportedProductsList(products, products.FirstOrDefault(x => x.IsDefault).Id);
 
             return PartialView("_PluginVersionDetailsPartial", version);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GenerateChecksum(ExtendedPluginVersion version)
+        {
+            try
+            {
+                var remoteReader = new RemoteStreamReader(new Uri(version.DownloadUrl));
+                version.FileHash = SHA1Generator.GetHash(await remoteReader.ReadAsync());
+            }
+            catch (Exception e)
+            {
+                return PartialView("_StatusMessage", $"Error! {e.Message}");
+            }
+
+            TempData["Filehash"] = version.FileHash;
+            return PartialView("_StatusMessage", "Success! Checksum was computed!");
         }
 
         [HttpPost]

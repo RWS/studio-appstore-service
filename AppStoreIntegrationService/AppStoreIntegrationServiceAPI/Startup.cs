@@ -1,4 +1,3 @@
-using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
