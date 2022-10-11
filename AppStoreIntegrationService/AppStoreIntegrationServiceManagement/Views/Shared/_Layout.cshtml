@@ -23,8 +23,8 @@
                     @{
                         var result = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
                     }
-                    @if (result.Success && ViewContext.RouteData.Values["action"].ToString() != "Login")
-                    {
+                    @if (result.Success && new[] { "Login", "PostLogin" }.All(action => action != ViewContext.RouteData.Values["action"].ToString()))
+                            {
                         <partial name="_LoginPartial" />
                     }
                 </div>

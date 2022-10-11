@@ -25,7 +25,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         private List<CategoryDetails> _availableCategories;
         private readonly HttpClient _httpClient;
 
-        public PluginRepository(IAzureRepository azureRepository, IConfigurationSettings configurationSettings, HttpClient httpClient)
+        public PluginRepository(IAzureRepository azureRepository, IConfigurationSettings configurationSettings,  HttpClient httpClient)
         {
             _azureRepository = azureRepository;
             _configurationSettings = configurationSettings;
@@ -53,6 +53,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             {
                 return pluginsList?.OrderByDescending(p => p.Name).ToList();
             }
+
             return pluginsList?.OrderBy(p => p.Name).ToList();
         }
 
@@ -445,7 +446,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
         }
 
-        private async Task SaveToFile(List<PluginDetails> pluginsList)
+        public async Task SaveToFile(List<PluginDetails> pluginsList)
         {
             var pluginResponse = new PluginsResponse
             {

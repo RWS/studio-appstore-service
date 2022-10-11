@@ -13,10 +13,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     public class ImportExportPluginsController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
+        private readonly IProductsSynchronizer _productsSynchronizer;
 
-        public ImportExportPluginsController(IPluginRepository pluginRepository)
+        public ImportExportPluginsController(IPluginRepository pluginRepository, IProductsSynchronizer productsSynchronizer)
         {
             _pluginRepository = pluginRepository;
+            _productsSynchronizer = productsSynchronizer;
         }
 
         [Route("Settings/ExportPlugins")]
@@ -45,8 +47,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         {
             var modalDetails = new ModalMessage();
             var success = await _pluginRepository.TryImportPluginsFromFile(import.ImportedFile);
+            
             if (success)
             {
+                await _productsSynchronizer.SyncOnImport(await _pluginRepository.GetAll(null));
                 modalDetails.RequestPage = "/Plugins";
                 modalDetails.ModalType = ModalType.SuccessMessage;
                 modalDetails.Title = "Success!";

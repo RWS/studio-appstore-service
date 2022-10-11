@@ -9,12 +9,14 @@ class TableCrud {
     #saveUrl;
     #updateUrl;
     #addNewUrl;
+    #syncUrl;
 
-    constructor(deleteUrl, saveUrl, updateUrl, addNewUrl) {
+    constructor(deleteUrl, saveUrl, updateUrl, addNewUrl, syncUrl) {
         this.#deleteUrl = deleteUrl;
         this.#saveUrl = saveUrl;
         this.#updateUrl = updateUrl;
         this.#addNewUrl = addNewUrl;
+        this.#syncUrl = syncUrl;
     }
 
     DiscardChanges() {
@@ -131,6 +133,18 @@ class TableCrud {
                 })
             }
         })
+    }
+
+    Sync() {
+        this.CloseNewRowForm(() => {
+            this.#CloseExistingEditForms(() => {
+                $.ajax({
+                    type: "POST",
+                    url: this.#syncUrl,
+                    success: this.#AjaxSuccessCallback
+                })
+            });
+        });
     }
 
     #UpdateTable() {

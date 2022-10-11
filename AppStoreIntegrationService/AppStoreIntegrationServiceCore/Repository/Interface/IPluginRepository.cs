@@ -8,6 +8,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         Task<List<PluginDetails>> GetAll(string sortOrder);
         List<PluginDetails> SearchPlugins(List<PluginDetails> pluginsList, PluginFilter pluginFilter);
         Task UpdatePrivatePlugin(PrivatePlugin privatePlugin);
+        Task SaveToFile(List<PluginDetails> pluginDetails);
         Task<PluginDetails> GetPluginById(int id);
         Task<List<CategoryDetails>> GetCategories();
         Task AddPrivatePlugin(PrivatePlugin plugin);

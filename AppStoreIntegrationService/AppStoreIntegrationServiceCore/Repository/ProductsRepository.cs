@@ -37,7 +37,13 @@ namespace AppStoreIntegrationServiceCore.Repository
             };
 
             var products = await GetProductsFromPossibleLocation();
-            return products.Any() ? products : defaultProducts;
+            if (products.Any())
+            {
+                return products;
+            }
+
+            await UpdateProducts(defaultProducts);
+            return defaultProducts;
         }
 
         private async Task<List<SupportedProductDetails>> GetProductsFromPossibleLocation()

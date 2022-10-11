@@ -12,10 +12,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     public class ProductsController : Controller
     {
         private readonly IProductsRepository _productsRepository;
+        private readonly IProductsSynchronizer _productsSynchronizer;
 
-        public ProductsController(IProductsRepository productsRepository)
+        public ProductsController(IProductsRepository productsRepository, IProductsSynchronizer productsSynchronizer)
         {
             _productsRepository = productsRepository;
+            _productsSynchronizer = productsSynchronizer;
         }
 
         public async Task<IActionResult> Index()
@@ -47,10 +49,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> Update(List<SupportedProductDetails> products)
         {
-            if (!products.Any(item => string.IsNullOrEmpty(item.ProductName)))
+            if (!products.Any(item => string.IsNullOrEmpty(item.ProductName) || string.IsNullOrEmpty(item.Id)))
             {
                 await _productsRepository.UpdateProducts(products);
-                TempData["StatusMessage"] = "Success! Product was updated!";
+                await _productsSynchronizer.SyncOnUpdate(products);
+                TempData["StatusMessage"] = "Success! Products were updated and synchronized with plugins!";
                 return Content("/Settings/Products");
             }
 
@@ -58,8 +61,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         }
 
         [HttpPost]
+        public async Task<IActionResult> Sync()
+        {
+            await _productsSynchronizer.Sync();
+            TempData["StatusMessage"] = "Success! Products and plugins are synchronized!";
+            return Content("/Settings/Products");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
+            if (await _productsSynchronizer.IsInUse(id))
+            {
+                TempData["StatusMessage"] = "Error! This product is used by plugins!";
+                return Content("/Settings/Products");
+            }
+
             await _productsRepository.DeleteProduct(id);
             TempData["StatusMessage"] = "Success! Product was deleted!";
             return Content("/Settings/Products");

@@ -65,6 +65,7 @@ namespace AppStoreIntegrationServiceManagement
             services.AddResponseCaching();
             services.AddHttpContextAccessor();
             services.AddSingleton<IAzureRepository, AzureRepository>();
+            services.AddSingleton<IProductsSynchronizer, ProductsSynchronizer>();
             services.AddSingleton<INamesRepository, NamesRepository>();
             services.AddSingleton<IProductsRepository, ProductsRepository>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);

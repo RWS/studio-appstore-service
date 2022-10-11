@@ -3,7 +3,7 @@
 @for (int i = 0; i < Model.Count; i++)
 {
     <tr class="table-row d-flex flex-column d-lg-table-row" id="itemsRow">
-        <td class="editable-field d-none d-lg-table-cell">
+        <td class="d-none d-lg-table-cell">
             <div class="input-group">
                 <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Id</span>
                 <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start" hidden="hidden" onfocusout="table.FocusOut()" asp-for="@Model[i].Id">
