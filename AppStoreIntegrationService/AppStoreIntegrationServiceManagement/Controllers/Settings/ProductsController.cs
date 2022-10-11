@@ -49,15 +49,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> Update(List<SupportedProductDetails> products)
         {
-            if (!products.Any(item => string.IsNullOrEmpty(item.ProductName) || string.IsNullOrEmpty(item.Id)))
+            if (!products.Any(item => item.IsValid()))
             {
-                await _productsRepository.UpdateProducts(products);
-                await _productsSynchronizer.SyncOnUpdate(products);
-                TempData["StatusMessage"] = "Success! Products were updated and synchronized with plugins!";
-                return Content("/Settings/Products");
+                return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
             }
 
-            return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
+            if (ExistVersion(products))
+            {
+                return PartialView("_StatusMessage", "Error! There is already a product with this version!");
+            }
+
+            await _productsRepository.UpdateProducts(products);
+            await _productsSynchronizer.SyncOnUpdate(products);
+            TempData["StatusMessage"] = "Success! Products were updated and synchronized with plugins!";
+            return Content("/Settings/Products");
         }
 
         [HttpPost]
@@ -106,6 +111,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             return PartialView("_ModalPartial", modalDetails);
         }
 
+        public bool ExistVersion(List<SupportedProductDetails> products)
+        {
+            return !products.GroupBy(p => p.ProductName, (_, products) => products
+                            .GroupBy(p => p.MinimumStudioVersion, (_, products) => products
+                            .Count() == 1).All(item => item))
+                            .All(item => item);
+        }
+
         private async Task<bool> HaveUnsavedChanges(List<SupportedProductDetails> products)
         {
             var savedNamesMapping = (await _productsRepository.GetAllProducts()).ToList();
@@ -121,7 +134,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 return false;
             }
 
-            if (products.Any(p => p.Id == product.Id || p.ProductName == product.ProductName))
+            if (products.Any(p => p.Id == product.Id || p.Equals(product)))
             {
                 result = PartialView("_StatusMessage", "Error! There are duplicated params!");
                 return false;

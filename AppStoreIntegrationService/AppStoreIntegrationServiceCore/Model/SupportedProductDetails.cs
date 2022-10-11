@@ -38,5 +38,10 @@ namespace AppStoreIntegrationServiceCore.Model
             int hashProductVersion = MinimumStudioVersion == null ? 0 : MinimumStudioVersion.GetHashCode();
             return hashProductName ^ hashProductVersion;
         }
+
+        public bool IsValid()
+        {
+            return new[] { Id, ProductName }.All(item => item != null);
+        }
     }
 }
