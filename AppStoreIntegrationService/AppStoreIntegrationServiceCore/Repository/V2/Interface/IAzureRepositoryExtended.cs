@@ -5,6 +5,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
 {
     public interface IAzureRepositoryExtended<T> : IAzureRepository<T>
     {
+        Task<List<NameMapping>> GetNameMappingsFromContainer();
         Task<List<ParentProduct>> GetParentProductsFromContainer();
         Task<List<ProductDetails>> GetProductsFromContainer();
         Task<SiteSettings> GetSettingsFromContainer();

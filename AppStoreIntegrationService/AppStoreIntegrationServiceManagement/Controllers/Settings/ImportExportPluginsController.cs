@@ -59,7 +59,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             }
             else
             {
-                modalDetails.Title = string.Empty;
+                modalDetails.Title = "Warning!";
                 modalDetails.Message = "The file is empty or in wrong format!";
                 modalDetails.ModalType = ModalType.WarningMessage;
             }

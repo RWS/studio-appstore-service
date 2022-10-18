@@ -8,6 +8,6 @@ namespace AppStoreIntegrationServiceCore.Repository.V1.Interface
 
         Task<List<T>> GetAll(string sortOrder);
 
-        Task<List<CategoryDetails>> GetCategories();
+        List<CategoryDetails> GetCategories();
     }
 }

@@ -12,7 +12,7 @@
     }
 
     if (controller == "Products") {
-        CreateRequest($('main').find('input').serialize(), `/Products/GoToPage/${goToPage}`);
+        CreateRequest($('main').find('input, select').serialize(), `/Products/GoToPage/${goToPage}`);
         return;
     }
 
@@ -80,6 +80,16 @@ function GenerateChecksum() {
             }
         })
     }
+}
+
+function ManageChecksum(url, checksum) {
+    var currentInput = event.target.value;
+    if (url != currentInput) {
+        document.getElementById("FileHash").value = "";
+        return;
+    }
+
+    document.getElementById("FileHash").value = checksum;
 }
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -23,7 +23,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         public string PluginsFileBackUpPathV1 { get; set; }
         public string PluginsFileBackUpPathV2 { get; set; }
         public string SettingsFileName { get; set; }
-        public string OosUri { get; set; }
 
         public ConfigurationSettings(Enums.DeployMode deployMode)
         {

@@ -17,9 +17,9 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             _pluginRepository = pluginRepository;
         }
 
-        public async Task<IActionResult> Get()
+        public IActionResult Get()
         {
-            var categories = await _pluginRepository.GetCategories();
+            var categories = _pluginRepository.GetCategories();
             return Ok(categories);
         }
     }

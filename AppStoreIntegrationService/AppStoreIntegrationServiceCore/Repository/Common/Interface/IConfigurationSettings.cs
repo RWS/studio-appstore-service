@@ -26,10 +26,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
 
         public string PluginsFileNameV2 { get; set; }
         /// <summary>
-        /// Oos uri from where the server will refresh the json file from Azure if the Configuration is set to "AzureBlob")
-        /// </summary>
-        public string OosUri { get; set; }
-        /// <summary>
         /// NAme of the json file from where service reads the plugins name mapping
         /// </summary>
         public string MappingFileName { get; set; }

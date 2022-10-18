@@ -9,14 +9,14 @@ class TableCrud {
     #saveUrl;
     #updateUrl;
     #addNewUrl;
-    #syncUrl;
+    #container;
 
-    constructor(deleteUrl, saveUrl, updateUrl, addNewUrl, syncUrl) {
+    constructor(deleteUrl, saveUrl, updateUrl, addNewUrl, container) {
         this.#deleteUrl = deleteUrl;
         this.#saveUrl = saveUrl;
         this.#updateUrl = updateUrl;
         this.#addNewUrl = addNewUrl;
-        this.#syncUrl = syncUrl;
+        this.#container = container;
     }
 
     DiscardChanges() {
@@ -68,6 +68,17 @@ class TableCrud {
         });
     }
 
+    ChangeParentProduct() {
+        var pageValues = $('main').find('input, select').serialize();
+
+        $.ajax({
+            data: pageValues,
+            type: "POST",
+            url: this.#updateUrl,
+            success: this.#AjaxSuccessCallback
+        })
+    }
+
     EditCell() {
         const [inputs, paragraphs, icons] = this.#GetCurrentRowElements(event.currentTarget, true);
         this.CloseNewRowForm(() => {
@@ -83,14 +94,15 @@ class TableCrud {
     }
 
     CloseNewRowForm(confirmationCallback) {
-        var newNameMappingForm = document.getElementById("newDataRow");
+        var newNameMappingForm = document.querySelector(this.#container + " #newDataRow");
 
         if (!newNameMappingForm) {
             confirmationCallback();
             return;
         }
 
-        var inputs = newNameMappingForm.querySelectorAll('.editable-field input');
+        var inputs = newNameMappingForm.querySelectorAll('.editable-field input:first-child');
+        console.log(inputs)
         if (this.#GetCurrentRowData(inputs) == '' || this.#GetCurrentRowData(inputs) == 'false') {
             newNameMappingForm.remove();
             confirmationCallback();
@@ -109,7 +121,7 @@ class TableCrud {
     }
 
     SaveNewRowData() {
-        var pageValues = $('main').find('input').serialize();
+        var pageValues = $('main').find('input, select').serialize();
 
         $.ajax({
             data: pageValues,
@@ -128,27 +140,15 @@ class TableCrud {
             url: this.#addNewUrl,
             success: (partialView) => {
                 this.#CloseExistingEditForms(() => {
-                    $("#newRowPartial").html(partialView);
-                    window.scrollTo(0, document.getElementById("newRowPartial").getBoundingClientRect().y);
+                    $(this.#container + " #newRowPartial").html(partialView);
+                    window.scrollTo(0, document.querySelector(this.#container + " #newRowPartial").getBoundingClientRect().y);
                 })
             }
         })
     }
 
-    Sync() {
-        this.CloseNewRowForm(() => {
-            this.#CloseExistingEditForms(() => {
-                $.ajax({
-                    type: "POST",
-                    url: this.#syncUrl,
-                    success: this.#AjaxSuccessCallback
-                })
-            });
-        });
-    }
-
     #UpdateTable() {
-        var pageValues = $('main').find('input').serialize();
+        var pageValues = $('main').find('input, select').serialize();
 
         $.ajax({
             data: pageValues,
@@ -252,7 +252,7 @@ class TableCrud {
             if (isOpen) {
                 inputs[j].hidden = false;
                 inputs[j].classList.add('entry-open');
-                inputs[j].setAttribute('onfocusout', null);
+                this.#ToggleAttribute(inputs[j], isOpen);
                 paragraphs[j].classList.add('section-closed');
                 oldData += inputs[j].type == "checkbox" ? inputs[j].checked : inputs[j].value;
                 if (inputs[j].type == "checkbox") {
@@ -260,12 +260,27 @@ class TableCrud {
                 }
             } else {
                 inputs[j].hidden = true;
-                inputs[j].setAttribute('onfocusout', 'table.FocusOut()');
+                this.#ToggleAttribute(inputs[j], isOpen)
             }
         }
 
         if (isOpen) {
             document.querySelector('.editable-field .autofocus.entry-open').focus();
+        }
+    }
+
+    #ToggleAttribute(input, isOpen) {
+        if (isOpen) {
+            input.setAttribute('onfocusout', null);
+            if (input.type == "select-one") {
+                input.setAttribute('onchange', null);
+            }
+            return;
+        }
+
+        input.setAttribute('onfocusout', 'table.FocusOut()');
+        if (input.type == "select-one") {
+            input.setAttribute('onchange', 'table.ChangeParentProduct()');
         }
     }
 
@@ -295,7 +310,7 @@ class TableCrud {
 
         $('#statusMessageContainer').html(actionResult);
         $('#statusMessageContainer').find('.modal').modal('show');
-        $(".alert").fadeTo(3000, 500).slideUp(500, function() {
+        $(".alert").fadeTo(3000, 500).slideUp(500, function () {
             $(this).remove();
         });
     }

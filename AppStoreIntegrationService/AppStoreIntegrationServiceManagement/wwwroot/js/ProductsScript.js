@@ -1,1 +1,2 @@
-﻿const table = new TableCrud("Products/Delete/", "Products/Add", 'Products/Update', "Products/AddNew", "Products/Sync");
+﻿const table = new TableCrud("Products/Delete/", "Products/Add", 'Products/Update', "Products/AddNew", "#productsTable");
+const parentTable = new TableCrud("ParentProducts/Delete/", "ParentProducts/Add", 'ParentProducts/Update', "ParentProducts/AddNew", "#parentProductsTable");

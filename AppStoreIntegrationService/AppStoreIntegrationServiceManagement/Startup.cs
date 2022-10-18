@@ -41,7 +41,6 @@ namespace AppStoreIntegrationServiceManagement
             context.Database.EnsureCreated();
 
             var configurationSettings = GetConfigurationSettings(env, deployMode).Result;
-            ConfigureHttpClient(services);
 
             services.AddMvc();
 
@@ -69,6 +68,7 @@ namespace AppStoreIntegrationServiceManagement
             services.AddResponseCaching();
             services.AddHttpContextAccessor();
             services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
+            services.AddSingleton<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
             services.AddSingleton<IProductsSynchronizer, ProductsSynchronizer>();
             services.AddSingleton<INamesRepository, NamesRepository>();
             services.AddSingleton<IProductsRepository, ProductsRepository>();
@@ -84,31 +84,6 @@ namespace AppStoreIntegrationServiceManagement
 
             services.AddRazorPages()
                 .AddRazorPagesOptions(options => { options.Conventions.AddPageRoute("/Edit", "edit"); });
-        }
-
-        private static void ConfigureHttpClient(IServiceCollection services)
-        {
-            services.AddHttpClient("HttpClientWithSSLUntrusted").ConfigurePrimaryHttpMessageHandler(() =>
-                new HttpClientHandler
-                {
-                    ClientCertificateOptions = ClientCertificateOption.Manual,
-                    ServerCertificateCustomValidationCallback =
-                        (httpRequestMessage, cert, cetChain, policyErrors) => true
-                });
-
-            services.AddHttpClient<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>>>>(l =>
-            {
-                l.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                l.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-                l.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-                l.DefaultRequestHeaders.Connection.Add("Keep-Alive");
-                l.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
-                l.DefaultRequestHeaders.TransferEncodingChunked = false;
-                l.Timeout = TimeSpan.FromMinutes(5);
-            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            });
         }
 
         private async Task<ConfigurationSettings> GetConfigurationSettings(IWebHostEnvironment env, DeployMode deployMode)

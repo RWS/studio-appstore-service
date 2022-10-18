@@ -31,18 +31,13 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
             return JsonConvert.DeserializeObject<PluginResponse<T>>(containerContent)?.Value.Cast<T>().ToList() ?? new List<T>();
         }
 
-        public async Task UploadToContainer(Stream pluginsStream)
-        {
-            await _pluginsListBlockBlob.UploadFromStreamAsync(pluginsStream, null, _blobRequestOptions, null);
-        }
-
-        protected override void InitializeBlockBlobs()
+        private void InitializeBlockBlobs()
         {
             CreateEmptyFile(_pluginsListBlockBlob);
             CreateEmptyFile(_pluginsBackupBlockBlob);
         }
 
-        protected override void SetCloudBlockBlobs()
+        private void SetCloudBlockBlobs()
         {
             if (!string.IsNullOrEmpty(_configurationSettings.PluginsFileNameV1))
             {

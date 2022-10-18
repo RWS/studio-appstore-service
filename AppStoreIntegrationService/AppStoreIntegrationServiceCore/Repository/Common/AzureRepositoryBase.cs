@@ -6,24 +6,19 @@ using Microsoft.Azure.Storage;
 using Newtonsoft.Json;
 using static AppStoreIntegrationServiceCore.Enums;
 using System.Text.RegularExpressions;
-using System.Text;
-using AppStoreIntegrationServiceCore.Model;
 
 namespace AppStoreIntegrationServiceCore.Repository.Common
 {
     public class AzureRepositoryBase<T>
     {
         private CloudBlobContainer _cloudBlobContainer;
-        private CloudBlockBlob _nameMappingsBlockBlob;
-        private CloudBlockBlob _settingsBlockBlob;
         protected readonly BlobRequestOptions _blobRequestOptions;
         protected readonly IConfigurationSettings _configurationSettings;
 
         public AzureRepositoryBase(IConfigurationSettings configurationSettings)
         {
             _configurationSettings = configurationSettings;
-            if (_configurationSettings.DeployMode != DeployMode.AzureBlob ||
-                string.IsNullOrEmpty(_configurationSettings.PluginsFileNameV1))
+            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
                 return;
             }
@@ -41,13 +36,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             {
                 CreateContainer(cloudStorageAccount);
             }
-        }
-
-        public async Task<List<NameMapping>> GetNameMappingsFromContainer()
-        {
-            var containterContent = await _nameMappingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            var nameMappings = JsonConvert.DeserializeObject<List<NameMapping>>(containterContent);
-            return nameMappings ?? new List<NameMapping>();
         }
 
         private CloudStorageAccount GetCloudStorageAccount()
@@ -77,9 +65,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
                     PublicAccess = BlobContainerPublicAccessType.Blob
                 });
             }
-
-            SetCloudBlockBlobs();
-            InitializeBlockBlobs();
         }
 
         private string NormalizeBlobName()
@@ -99,12 +84,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             return normalizedName.ToLower();
         }
 
-        protected virtual void InitializeBlockBlobs()
-        {
-            CreateEmptyFile(_nameMappingsBlockBlob);
-            CreateEmptyFile(_settingsBlockBlob);
-        }
-
         protected static void CreateEmptyFile(CloudBlockBlob cloudBlockBlob)
         {
             if (cloudBlockBlob is null) return;
@@ -113,20 +92,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             {
                 cloudBlockBlob.UploadText(string.Empty);
             }
-        }
-
-        protected virtual void SetCloudBlockBlobs()
-        {
-            if (!string.IsNullOrEmpty(_configurationSettings.MappingFileName))
-            {
-                _nameMappingsBlockBlob = GetBlockBlobReference(_configurationSettings.MappingFileName);
-            }
-
-            if (!string.IsNullOrEmpty(_configurationSettings.SettingsFileName))
-            {
-                _settingsBlockBlob = GetBlockBlobReference(_configurationSettings.SettingsFileName);
-            }
-
         }
 
         protected CloudBlockBlob GetBlockBlobReference(string fileName)
@@ -139,23 +104,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             var cloudBlob = _cloudBlobContainer.GetBlockBlobReference(fileName);
             cloudBlob.Properties.ContentType = Path.GetExtension(fileName);
             return cloudBlob;
-        }
-
-        public async Task UpdateNameMappingsFileBlob(string fileContent)
-        {
-            await _nameMappingsBlockBlob.UploadTextAsync(fileContent);
-        }
-
-        public async Task<SiteSettings> GetSettingsFromContainer()
-        {
-            var containterContent = await _settingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            var settings = JsonConvert.DeserializeObject<SiteSettings>(containterContent);
-            return settings ?? new SiteSettings();
-        }
-
-        public async Task UpdateSettingsFileBlob(string fileContent)
-        {
-            await _settingsBlockBlob.UploadTextAsync(fileContent);
         }
     }
 }

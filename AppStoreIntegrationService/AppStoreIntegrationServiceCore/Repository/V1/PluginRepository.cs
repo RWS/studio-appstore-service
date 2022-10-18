@@ -9,7 +9,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
 {
     public class PluginRepository<T> : PluginRepositoryBase<T>, IPluginRepository<T> where T : PluginDetails<PluginVersion<ProductDetails>>
     {
-        public PluginRepository(IAzureRepository<T> azureRepository, IConfigurationSettings configurationSettings, HttpClient client) : base(azureRepository, configurationSettings, client) { }
+        public PluginRepository(IAzureRepository<T> azureRepository, IConfigurationSettings configurationSettings) : base(azureRepository, configurationSettings) { }
 
         private async Task<List<T>> GetPlugins()
         {

@@ -67,7 +67,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = pluginDetails.PrivatePlugin;
             await _pluginRepository.RemovePluginVersion(plugin.Id, id);
-
             TempData["StatusMessage"] = "Success! Version was removed!";
             return Content($"Plugins/Edit/{plugin.Id}");
         }

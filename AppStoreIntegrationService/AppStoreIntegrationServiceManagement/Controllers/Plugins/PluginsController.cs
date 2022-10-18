@@ -1,6 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
-using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
@@ -37,9 +36,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [Route("Plugins/New")]
-        public async Task<IActionResult> New()
+        public IActionResult New()
         {
-            var categories = await _pluginRepositoryExtended.GetCategories();
+            var categories = _pluginRepositoryExtended.GetCategories();
             return View(new PluginDetailsModel
             {
                 PrivatePlugin = new PrivatePlugin<PluginVersion<string>>
@@ -62,7 +61,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Route("Plugins/Edit/{id?}")]
         public async Task<IActionResult> Edit(int id)
         {
-            var categories = await _pluginRepositoryExtended.GetCategories();
+            var categories = _pluginRepositoryExtended.GetCategories();
             var pluginDetails = await _pluginRepositoryExtended.GetPluginById(id);
             return View(new PluginDetailsModel
             {
@@ -127,7 +126,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = pluginDetails.PrivatePlugin;
             var foundPluginDetails = await _pluginRepositoryExtended.GetPluginById(plugin.Id);
-            plugin.SetCategoryList(pluginDetails.SelectedCategories, await _pluginRepositoryExtended.GetCategories());
+            plugin.SetCategoryList(pluginDetails.SelectedCategories, _pluginRepositoryExtended.GetCategories());
             var newPluginDetails = plugin.ConvertToPluginDetails(foundPluginDetails, version);
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }

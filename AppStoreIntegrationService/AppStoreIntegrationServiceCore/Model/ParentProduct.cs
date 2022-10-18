@@ -1,9 +1,19 @@
 ﻿namespace AppStoreIntegrationServiceCore.Model
 {
-    public class ParentProduct
+    public class ParentProduct : IEquatable<ParentProduct>
     {
-        public string Id { get; set; }
+        public string ParentId { get; set; }
 
-        public string ProductName { get; set; }
+        public string ParentProductName { get; set; }
+
+        public bool Equals(ParentProduct other)
+        {
+            return ParentProductName == other.ParentProductName;
+        }
+
+        public bool IsValid()
+        {
+            return ParentId != null && ParentProductName != null;
+        }
     }
 }

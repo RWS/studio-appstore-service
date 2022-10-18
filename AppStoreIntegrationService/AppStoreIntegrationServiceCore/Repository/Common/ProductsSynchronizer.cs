@@ -16,12 +16,15 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             _productsRepository = productsRepository;
         }
 
-        public async Task<bool> IsInUse(string id)
+        public async Task<bool> IsInUse(string id, ProductType type)
         {
             var plugins = await _pluginRepositoryExtended.GetAll(null);
-            return plugins.Select(p => p.Versions
-                          .Any(v => v.SupportedProducts[0] == id))
-                          .Any(item => item);
+            var products = await _productsRepository.GetAllProducts();
+            return type switch
+            {
+                ProductType.Child => plugins.Select(p => p.Versions.Any(v => v.SupportedProducts[0] == id)).Any(item => item),
+                _ => products.Any(p => p.ParentProductID.ToString() == id)
+            };
         }
 
         public async Task SyncOnUpdate(List<ProductDetails> products)

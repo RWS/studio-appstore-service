@@ -31,7 +31,6 @@ namespace AppStoreIntegrationServiceAPI
             _ = Enum.TryParse(settingsDeployMode, out DeployMode deployMode);
             var configurationSettings = GetConfigurationSettings(env, deployMode).Result;
 
-            ConfigureHttpClient(services);
             services.AddMvc();
             services.AddHttpContextAccessor();
             services.Configure<GzipCompressionProviderOptions>(options =>
@@ -49,33 +48,9 @@ namespace AppStoreIntegrationServiceAPI
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<ProductDetails>>>, AzureRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
             services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
+            services.AddSingleton<IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>>, PluginRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
+            services.AddSingleton<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
             services.AddSingleton<INamesRepository, NamesRepository>();
-        }
-
-        private static void ConfigureHttpClient(IServiceCollection services)
-        {
-            services.AddHttpClient<IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>>, PluginRepository<PluginDetails<PluginVersion<ProductDetails>>>>(l => ConfigureHeaders(l))
-                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-                    {
-                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-                    });
-
-            services.AddHttpClient<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>>>>(l => ConfigureHeaders(l))
-                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-                    {
-                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-                    });
-        }
-
-        private static void ConfigureHeaders(HttpClient l)
-        {
-            l.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            l.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-            l.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-            l.DefaultRequestHeaders.Connection.Add("Keep-Alive");
-            l.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
-            l.DefaultRequestHeaders.TransferEncodingChunked = false;
-            l.Timeout = TimeSpan.FromMinutes(5);
         }
 
         private async Task<ConfigurationSettings> GetConfigurationSettings(IWebHostEnvironment env, DeployMode deployMode)

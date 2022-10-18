@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Common;
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model;
@@ -24,16 +25,43 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         public async Task<IActionResult> Index()
         {
+            var products = await _productsRepository.GetAllProducts();
+            var parents = await _productsRepository.GetAllParentProducts();
+
+            foreach (var product in products)
+            {
+                product.SetParentProductsList(parents.ToList());
+            }
+
             return View(new ProductsModel
             {
-                Products = await _productsRepository.GetAllProducts()
+                Products = products,
+                ParentProducts = parents
             });
         }
 
         [HttpPost]
-        public IActionResult AddNew()
+        public async Task<IActionResult> AddNew()
         {
-            return PartialView("_NewProductPartial", new ProductDetails());
+            var parents = await _productsRepository.GetAllParentProducts();
+            var products = await _productsRepository.GetAllProducts();
+            var product = new ProductDetails
+            {
+                Id = SetIndex(products)
+            };
+            product.SetParentProductsList(parents.ToList());
+            return PartialView("_NewProductPartial", product);
+        }
+
+        private string SetIndex(IEnumerable<ProductDetails> products)
+        {
+            var lastProduct = products.LastOrDefault();
+            if (lastProduct == null)
+            {
+                return "1";
+            }
+
+            return (int.Parse(lastProduct.Id) + 1).ToString();
         }
 
         [HttpPost]
@@ -62,15 +90,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             }
 
             await _productsRepository.UpdateProducts(products);
-            await _productsSynchronizer.SyncOnUpdate(products);
-            TempData["StatusMessage"] = "Success! Products were updated and synchronized with plugins!";
+            TempData["StatusMessage"] = "Success! Products were updated!";
             return Content("/Settings/Products");
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
-            if (await _productsSynchronizer.IsInUse(id))
+            if (await _productsSynchronizer.IsInUse(id, ProductType.Child))
             {
                 TempData["StatusMessage"] = "Error! This product is used by plugins!";
                 return Content("/Settings/Products");
@@ -83,13 +110,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         [Route("[controller]/[action]/{redirectUrl?}")]
         [HttpPost]
-        public async Task<IActionResult> GoToPage(string redirectUrl, ProductDetails product, List<ProductDetails> products)
+        public async Task<IActionResult> GoToPage(string redirectUrl, ProductDetails product, List<ProductDetails> products, ParentProduct parentProduct, List<ParentProduct> parentProducts)
         {
             redirectUrl = redirectUrl.Replace('.', '/');
 
             if (string.IsNullOrEmpty(product.ProductName) &&
                 string.IsNullOrEmpty(product.MinimumStudioVersion) &&
-                await HaveUnsavedChanges(products))
+                string.IsNullOrEmpty(parentProduct.ParentProductName) &&
+                await AreSavedProducts(products, parentProducts))
             {
                 return Content(redirectUrl);
             }
@@ -113,10 +141,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                             .All(item => item);
         }
 
-        private async Task<bool> HaveUnsavedChanges(List<ProductDetails> products)
+        private async Task<bool> AreSavedProducts(List<ProductDetails> products, List<ParentProduct> parentProducts)
         {
-            var savedNamesMapping = (await _productsRepository.GetAllProducts()).ToList();
-            return JsonConvert.SerializeObject(savedNamesMapping) == JsonConvert.SerializeObject(products);
+            var savedProducts = (await _productsRepository.GetAllProducts()).ToList();
+            var savedParentProducts = (await _productsRepository.GetAllParentProducts()).ToList();
+            return JsonConvert.SerializeObject(savedProducts) == JsonConvert.SerializeObject(products) &&
+                   JsonConvert.SerializeObject(savedParentProducts) == JsonConvert.SerializeObject(parentProducts);
         }
 
         private bool TryValidateProduct(ProductDetails product, List<ProductDetails> products, out IActionResult result)

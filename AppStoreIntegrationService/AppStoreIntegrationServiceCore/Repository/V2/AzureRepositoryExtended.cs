@@ -13,8 +13,10 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
     {
         private CloudBlockBlob _pluginsListBlockBlobOptimized;
         private CloudBlockBlob _pluginsBackupBlockBlobOptimized;
+        private CloudBlockBlob _nameMappingsBlockBlob;
+        private CloudBlockBlob _settingsBlockBlob;
 
-        public AzureRepositoryExtended(IConfigurationSettings configurationSettings) : base(configurationSettings) 
+        public AzureRepositoryExtended(IConfigurationSettings configurationSettings) : base(configurationSettings)
         {
             if (configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
@@ -37,11 +39,6 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             return JsonConvert.DeserializeObject<PluginResponse<T>>(containerContent).Products ?? new List<ProductDetails>();
         }
 
-        public async Task UploadToContainer(Stream pluginsStream)
-        {
-            await _pluginsListBlockBlobOptimized.UploadFromStreamAsync(pluginsStream, null, _blobRequestOptions, null);
-        }
-
         public async Task UpdatePluginsFileBlob(string fileContent)
         {
             await _pluginsListBlockBlobOptimized.UploadTextAsync(fileContent);
@@ -57,13 +54,22 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             await UpdatePluginsFileBlob(fileContent);
         }
 
-        protected override void InitializeBlockBlobs()
+        public async Task<List<NameMapping>> GetNameMappingsFromContainer()
+        {
+            var containterContent = await _nameMappingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+            var nameMappings = JsonConvert.DeserializeObject<List<NameMapping>>(containterContent);
+            return nameMappings ?? new List<NameMapping>();
+        }
+
+        private void InitializeBlockBlobs()
         {
             CreateEmptyFile(_pluginsListBlockBlobOptimized);
             CreateEmptyFile(_pluginsBackupBlockBlobOptimized);
+            CreateEmptyFile(_nameMappingsBlockBlob);
+            CreateEmptyFile(_settingsBlockBlob);
         }
 
-        protected override void SetCloudBlockBlobs()
+        private void SetCloudBlockBlobs()
         {
             if (!string.IsNullOrEmpty(_configurationSettings.PluginsFileNameV2))
             {
@@ -72,6 +78,16 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 var backupFileName = $"{Path.GetFileNameWithoutExtension(_configurationSettings.PluginsFileNameV2)}_backupFile.json";
                 _pluginsBackupBlockBlobOptimized = GetBlockBlobReference(backupFileName);
             }
+
+            if (!string.IsNullOrEmpty(_configurationSettings.MappingFileName))
+            {
+                _nameMappingsBlockBlob = GetBlockBlobReference(_configurationSettings.MappingFileName);
+            }
+
+            if (!string.IsNullOrEmpty(_configurationSettings.SettingsFileName))
+            {
+                _settingsBlockBlob = GetBlockBlobReference(_configurationSettings.SettingsFileName);
+            }
         }
 
         public async Task<List<ParentProduct>> GetParentProductsFromContainer()
@@ -79,6 +95,23 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             var containterContent = await _pluginsListBlockBlobOptimized.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
             var parents = JsonConvert.DeserializeObject<PluginResponse<T>>(containterContent)?.ParentProducts;
             return parents ?? new List<ParentProduct>();
+        }
+
+        public async Task UpdateNameMappingsFileBlob(string fileContent)
+        {
+            await _nameMappingsBlockBlob.UploadTextAsync(fileContent);
+        }
+
+        public async Task<SiteSettings> GetSettingsFromContainer()
+        {
+            var containterContent = await _settingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+            var settings = JsonConvert.DeserializeObject<SiteSettings>(containterContent);
+            return settings ?? new SiteSettings();
+        }
+
+        public async Task UpdateSettingsFileBlob(string fileContent)
+        {
+            await _settingsBlockBlob.UploadTextAsync(fileContent);
         }
     }
 }
