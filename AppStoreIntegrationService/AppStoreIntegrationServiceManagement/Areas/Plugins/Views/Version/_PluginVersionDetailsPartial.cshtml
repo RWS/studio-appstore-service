@@ -1,4 +1,4 @@
-﻿@model ExtendedPluginVersion
+﻿@model ExtendedPluginVersion<string>
 
 <div id="pluginVersionContainer">
     <input hidden asp-for="IsPrivatePlugin" value="true" />
@@ -14,10 +14,7 @@
 
         @for (int i = 0; i < Model.SupportedProducts?.Count; i++)
         {
-            <input hidden asp-for="SupportedProducts[i].Id" />
-            <input hidden asp-for="SupportedProducts[i].ParentProductID" />
-            <input hidden asp-for="SupportedProducts[i].ProductName" />
-            <input hidden asp-for="SupportedProducts[i].MinimumStudioVersion" />
+            <input hidden asp-for="SupportedProducts[i]" />
         }
 
         <div class="d-flex align-content-center col-12 p-0 mb-3">

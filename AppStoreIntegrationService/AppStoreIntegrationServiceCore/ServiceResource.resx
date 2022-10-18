@@ -138,17 +138,11 @@
   <data name="CategoryTranslationMemory" xml:space="preserve">
     <value>Translation Memory</value>
   </data>
-  <data name="ConfigFileName" xml:space="preserve">
-    <value>APPSTOREINTEGRATION_CONFIGFILENAME</value>
-  </data>
   <data name="LocalFolderPath" xml:space="preserve">
     <value>APPSTOREINTEGRATION_LOCAL_FOLDERPATH</value>
   </data>
   <data name="MappingFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_MAPPINGFILENAME</value>
-  </data>
-  <data name="OosUri" xml:space="preserve">
-    <value>APPSTOREINTEGRATION_OOS_URI</value>
   </data>
   <data name="PaidFor" xml:space="preserve">
     <value>Paid For</value>
@@ -158,6 +152,12 @@
   </data>
   <data name="PluginName" xml:space="preserve">
     <value>Plugin Name</value>
+  </data>
+  <data name="PluginsFileNameV1" xml:space="preserve">
+    <value>APPSTOREINTEGRATION_CONFIGFILENAMEV1</value>
+  </data>
+  <data name="PluginsFileNameV2" xml:space="preserve">
+    <value>APPSTOREINTEGRATION_CONFIGFILENAMEV2</value>
   </data>
   <data name="ProductsFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_PRODUCTSFILENAME</value>

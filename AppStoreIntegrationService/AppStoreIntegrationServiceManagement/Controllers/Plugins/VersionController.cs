@@ -1,5 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceCore.Repository.Common.Interface;
+using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,17 +9,17 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     [Area("Plugins")]
     public class VersionController : Controller
     {
-        private readonly IPluginRepository _pluginRepository;
+        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> _pluginRepository;
         private readonly IProductsRepository _productsRepository;
 
-        public VersionController(IPluginRepository pluginRepository, IProductsRepository productsRepository)
+        public VersionController(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepository, IProductsRepository productsRepository)
         {
             _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Show(List<ExtendedPluginVersion> versions, PluginDetailsModel pluginDetails)
+        public async Task<IActionResult> Show(List<ExtendedPluginVersion<string>> versions, PluginDetailsModel pluginDetails)
         {
             var version = versions.FirstOrDefault(v => v.Id.Equals(pluginDetails.SelectedVersionId));
             var products = (await _productsRepository.GetAllProducts()).ToList();
@@ -30,7 +31,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Add()
         {
             var products = (await _productsRepository.GetAllProducts()).ToList();
-            var version = new ExtendedPluginVersion
+            var version = new ExtendedPluginVersion<string>
             {
                 VersionName = "New plugin version",
                 VersionNumber = string.Empty,
@@ -45,7 +46,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> GenerateChecksum(ExtendedPluginVersion version)
+        public async Task<IActionResult> GenerateChecksum(ExtendedPluginVersion<string> version)
         {
             try
             {

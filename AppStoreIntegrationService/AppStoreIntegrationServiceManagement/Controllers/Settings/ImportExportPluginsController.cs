@@ -1,5 +1,7 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +14,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Area("Settings")]
     public class ImportExportPluginsController : Controller
     {
-        private readonly IPluginRepository _pluginRepository;
+        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> _pluginRepositoryExtended;
         private readonly IProductsSynchronizer _productsSynchronizer;
 
-        public ImportExportPluginsController(IPluginRepository pluginRepository, IProductsSynchronizer productsSynchronizer)
+        public ImportExportPluginsController(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepositoryExtended, IProductsSynchronizer productsSynchronizer)
         {
-            _pluginRepository = pluginRepository;
+            _pluginRepositoryExtended = pluginRepositoryExtended;
             _productsSynchronizer = productsSynchronizer;
         }
 
@@ -30,7 +32,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> CreateExport()
         {
-            var response = new PluginsResponse { Value = await _pluginRepository.GetAll("asc") };
+            var response = new PluginResponse<PluginDetails<PluginVersion<string>>> { Value = await _pluginRepositoryExtended.GetAll("asc") };
             var jsonString = JsonConvert.SerializeObject(response);
             var stream = Encoding.UTF8.GetBytes(jsonString);
             return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
@@ -46,11 +48,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         public async Task<IActionResult> CreateImport(ImportPluginsModel import)
         {
             var modalDetails = new ModalMessage();
-            var success = await _pluginRepository.TryImportPluginsFromFile(import.ImportedFile);
+            var success = await _pluginRepositoryExtended.TryImportPluginsFromFile(import.ImportedFile);
             
             if (success)
             {
-                await _productsSynchronizer.SyncOnImport(await _pluginRepository.GetAll(null));
                 modalDetails.RequestPage = "/Plugins";
                 modalDetails.ModalType = ModalType.SuccessMessage;
                 modalDetails.Title = "Success!";

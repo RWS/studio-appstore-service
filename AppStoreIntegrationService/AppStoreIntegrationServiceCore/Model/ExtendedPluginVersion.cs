@@ -4,13 +4,13 @@ using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class ExtendedPluginVersion : PluginVersion
+    public class ExtendedPluginVersion<T> : PluginVersion<T>
     {
-        private SupportedProductDetails _selectedProduct;
+        private ProductDetails _selectedProduct;
 
         public ExtendedPluginVersion() { }
 
-        public ExtendedPluginVersion(PluginVersion version) : base(version) { }
+        public ExtendedPluginVersion(PluginVersion<T> version) : base(version) { }
 
         [JsonIgnore]
         [BindProperty]
@@ -18,13 +18,13 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [JsonIgnore]
         [BindProperty]
-        public SupportedProductDetails SelectedProduct
+        public ProductDetails SelectedProduct
         {
             get => _selectedProduct;
             set
             {
                 _selectedProduct = value;
-                UpdateStudioMinVersion();
+                //UpdateStudioMinVersion();
             }
         }
 
@@ -39,18 +39,18 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonIgnore]
         public bool IsNewVersion { get; set; }
 
-        public void SetSupportedProductsList(List<SupportedProductDetails> supportedProductDetails, string defaultProduct)
+        public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, string defaultProduct)
         {
             SupportedProductsListItems = new SelectList
             (
                 supportedProductDetails,
-                nameof(SupportedProductDetails.Id),
-                nameof(SupportedProductDetails.ProductName),
+                nameof(ProductDetails.Id),
+                nameof(ProductDetails.ProductName),
                 defaultProduct
             );
         }
 
-        private void UpdateStudioMinVersion()
+        /*private void UpdateStudioMinVersion()
         {
             if (string.IsNullOrEmpty(MinimumRequiredVersionOfStudio))
             {
@@ -65,6 +65,6 @@ namespace AppStoreIntegrationServiceCore.Model
                     }
                 }
             }
-        }
+        }*/
     }
 }

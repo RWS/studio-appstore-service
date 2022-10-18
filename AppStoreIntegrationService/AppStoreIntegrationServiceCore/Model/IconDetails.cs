@@ -2,9 +2,9 @@
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-	public class IconDetails
-	{
-		[JsonProperty("MediaURL")]
-		public string MediaUrl { get; set; }
-	}
+    public class IconDetails
+    {
+        [JsonProperty("MediaURL")]
+        public string MediaUrl { get; set; }
+    }
 }

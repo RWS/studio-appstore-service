@@ -5,10 +5,14 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using System.Net.Http.Headers;
 using static AppStoreIntegrationServiceCore.Enums;
-using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceCore.Repository.Common;
+using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Repository.V2;
+using AppStoreIntegrationServiceCore.Repository.Common.Interface;
+using AppStoreIntegrationServiceCore.Model.Common.Interface;
 
 namespace AppStoreIntegrationServiceManagement
 {
@@ -64,7 +68,7 @@ namespace AppStoreIntegrationServiceManagement
 
             services.AddResponseCaching();
             services.AddHttpContextAccessor();
-            services.AddSingleton<IAzureRepository, AzureRepository>();
+            services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
             services.AddSingleton<IProductsSynchronizer, ProductsSynchronizer>();
             services.AddSingleton<INamesRepository, NamesRepository>();
             services.AddSingleton<IProductsRepository, ProductsRepository>();
@@ -92,7 +96,7 @@ namespace AppStoreIntegrationServiceManagement
                         (httpRequestMessage, cert, cetChain, policyErrors) => true
                 });
 
-            services.AddHttpClient<IPluginRepository, PluginRepository>(l =>
+            services.AddHttpClient<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>>>>(l =>
             {
                 l.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 l.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));

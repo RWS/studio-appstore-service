@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using AppStoreIntegrationServiceCore.Model.Common.Interface;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

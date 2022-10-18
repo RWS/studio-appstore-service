@@ -1,10 +1,15 @@
-using AppStoreIntegrationServiceCore.Repository;
-using Microsoft.AspNetCore.ResponseCompression;
-using System.IO.Compression;
 using System.Net;
+using System.IO.Compression;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.ResponseCompression;
 using static AppStoreIntegrationServiceCore.Enums;
-using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceCore.Repository.Common;
+using AppStoreIntegrationServiceCore.Repository.Common.Interface;
+using AppStoreIntegrationServiceCore.Repository.V1;
+using AppStoreIntegrationServiceCore.Repository.V2;
+using AppStoreIntegrationServiceCore.Repository.V1.Interface;
+using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Model;
 
 namespace AppStoreIntegrationServiceAPI
 {
@@ -40,26 +45,37 @@ namespace AppStoreIntegrationServiceAPI
                 options.Providers.Add<GzipCompressionProvider>();
             });
 
-            services.AddSingleton<IAzureRepository, AzureRepository>();
-            services.AddSingleton<INamesRepository, NamesRepository>();
+            services.AddSingleton<IProductsRepository, ProductsRepository>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
+            services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<ProductDetails>>>, AzureRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
+            services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
+            services.AddSingleton<INamesRepository, NamesRepository>();
         }
 
         private static void ConfigureHttpClient(IServiceCollection services)
         {
-            services.AddHttpClient<IPluginRepository, PluginRepository>(l =>
-            {
-                l.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                l.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-                l.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-                l.DefaultRequestHeaders.Connection.Add("Keep-Alive");
-                l.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
-                l.DefaultRequestHeaders.TransferEncodingChunked = false;
-                l.Timeout = TimeSpan.FromMinutes(5);
-            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            });
+            services.AddHttpClient<IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>>, PluginRepository<PluginDetails<PluginVersion<ProductDetails>>>>(l => ConfigureHeaders(l))
+                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                    {
+                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                    });
+
+            services.AddHttpClient<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>>>>(l => ConfigureHeaders(l))
+                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                    {
+                        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                    });
+        }
+
+        private static void ConfigureHeaders(HttpClient l)
+        {
+            l.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            l.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+            l.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+            l.DefaultRequestHeaders.Connection.Add("Keep-Alive");
+            l.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
+            l.DefaultRequestHeaders.TransferEncodingChunked = false;
+            l.Timeout = TimeSpan.FromMinutes(5);
         }
 
         private async Task<ConfigurationSettings> GetConfigurationSettings(IWebHostEnvironment env, DeployMode deployMode)

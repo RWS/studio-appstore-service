@@ -1,20 +1,27 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceCore.Model.Common.Interface;
+using AppStoreIntegrationServiceCore.Repository.Common.Interface;
+using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using Newtonsoft.Json;
 using static AppStoreIntegrationServiceCore.Enums;
 
-namespace AppStoreIntegrationServiceCore.Repository
+namespace AppStoreIntegrationServiceCore.Repository.Common
 {
     public class SettingsRepository : ISettingsRepository
     {
         private readonly IWritableOptions<SiteSettings> _options;
-        private readonly IAzureRepository _azureRepository;
+        private readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> _azureRepositoryExtended;
         private readonly IConfigurationSettings _configurationSettings;
 
-        public SettingsRepository(IWritableOptions<SiteSettings> options, IAzureRepository azureRepository, IConfigurationSettings configurationSettings)
+        public SettingsRepository
+        (
+            IWritableOptions<SiteSettings> options, 
+            IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> azureRepositoryExtended, 
+            IConfigurationSettings configurationSettings
+        )
         {
             _options = options;
-            _azureRepository = azureRepository;
+            _azureRepositoryExtended = azureRepositoryExtended;
             _configurationSettings = configurationSettings;
         }
 
@@ -22,7 +29,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         {
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                return await _azureRepository.GetSettingsFromContainer();
+                return await _azureRepositoryExtended.GetSettingsFromContainer();
             }
 
             return new SiteSettings { Name = _options.Value.Name };
@@ -32,7 +39,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         {
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                await _azureRepository.UpdateSettingsFileBlob(JsonConvert.SerializeObject(settings));
+                await _azureRepositoryExtended.UpdateSettingsFileBlob(JsonConvert.SerializeObject(settings));
                 return;
             }
 

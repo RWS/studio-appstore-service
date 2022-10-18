@@ -2,9 +2,14 @@
 {
     public static class PrivatePluginExtention
     {
-        public static PluginDetails ConvertToPluginDetails(this PrivatePlugin privateDetails, PluginDetails foundDetails, ExtendedPluginVersion selectedVersionDetails, List<SupportedProductDetails> products)
+        public static PluginDetails<PluginVersion<string>> ConvertToPluginDetails
+        (
+            this PrivatePlugin<PluginVersion<string>> privateDetails,
+            PluginDetails<PluginVersion<string>> foundDetails,
+            ExtendedPluginVersion<string> selectedVersionDetails
+        )
         {
-            return new PluginDetails
+            return new PluginDetails<PluginVersion<string>>
             {
                 Id = privateDetails.Id,
                 Name = privateDetails.Name,
@@ -18,21 +23,20 @@
                 Inactive = privateDetails.Inactive,
                 Categories = privateDetails.Categories.Any() ? privateDetails.Categories : foundDetails.Categories,
                 DownloadUrl = foundDetails.DownloadUrl,
-                Versions = PrepareVersions(foundDetails.Versions, selectedVersionDetails, products)
+                Versions = PrepareVersions(foundDetails.Versions, selectedVersionDetails)
             };
         }
 
-        private static List<PluginVersion> PrepareVersions(List<PluginVersion> versions, ExtendedPluginVersion selectedVersion, List<SupportedProductDetails> products)
+        private static List<PluginVersion<string>> PrepareVersions(List<PluginVersion<string>> versions, ExtendedPluginVersion<string> selectedVersion)
         {
             if (selectedVersion.VersionName == null)
             {
                 return versions;
             }
 
-            var newVersionList = new List<PluginVersion>(versions);
+            var newVersionList = new List<PluginVersion<string>>(versions);
             var existingVersion = newVersionList.FirstOrDefault(v => v.Id.Equals(selectedVersion.Id));
-            var selectedProduct = products?.FirstOrDefault(p => p.Id == selectedVersion.SelectedProductId);
-            selectedVersion.SupportedProducts = new List<SupportedProductDetails> { selectedProduct };
+            selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
             newVersionList[newVersionList.IndexOf(existingVersion)] = selectedVersion;
             return newVersionList;
         }

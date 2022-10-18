@@ -1,17 +1,18 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceCore.Repository.Common.Interface;
+using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using Newtonsoft.Json;
 
-namespace AppStoreIntegrationServiceCore.Repository
+namespace AppStoreIntegrationServiceCore.Repository.Common
 {
     public class NamesRepository : INamesRepository
     {
-        private readonly IAzureRepository _azureRepository;
+        private readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> _azureRepositoryExtended;
         private readonly IConfigurationSettings _configurationSettings;
 
-        public NamesRepository(IAzureRepository azureRepository, IConfigurationSettings configurationSettings)
+        public NamesRepository(IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> azureRepositoryExtended, IConfigurationSettings configurationSettings)
         {
-            _azureRepository = azureRepository;
+            _azureRepositoryExtended = azureRepositoryExtended;
             _configurationSettings = configurationSettings;
         }
 
@@ -40,7 +41,7 @@ namespace AppStoreIntegrationServiceCore.Repository
                 return await ReadLocalNameMappings(_configurationSettings.NameMappingsFilePath);
             }
 
-            return await _azureRepository.GetNameMappingsFromContainer();
+            return await _azureRepositoryExtended.GetNameMappingsFromContainer();
         }
 
         public async Task<List<NameMapping>> ReadLocalNameMappings(string nameMappingsFilePath)
@@ -57,7 +58,7 @@ namespace AppStoreIntegrationServiceCore.Repository
                 return;
             }
 
-            await _azureRepository.UpdateNameMappingsFileBlob(JsonConvert.SerializeObject(namesMapping));
+            await _azureRepositoryExtended.UpdateNameMappingsFileBlob(JsonConvert.SerializeObject(namesMapping));
         }
 
         public async Task DeleteNameMapping(string id)

@@ -1,7 +1,6 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 
-namespace AppStoreIntegrationServiceCore.Repository.Interface
+namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
 {
     public interface IConfigurationSettings
     {
@@ -23,7 +22,9 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         /// <summary>
         /// Name of the json file with plugin details (file saved locally or on Azure)
         /// </summary>
-        public string ConfigFileName { get; set; }
+        public string PluginsFileNameV1 { get; set; }
+
+        public string PluginsFileNameV2 { get; set; }
         /// <summary>
         /// Oos uri from where the server will refresh the json file from Azure if the Configuration is set to "AzureBlob")
         /// </summary>
@@ -52,8 +53,10 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         public string NameMappingsFilePath { get; set; }
         public string ProductsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
-        public string LocalPluginsConfigFilePath { get; set; }
-        public string ConfigFileBackUpPath { get; set; }
+        public string LocalPluginsFilePathV1 { get; set; }
+        public string LocalPluginsFilePathV2 { get; set; }
+        public string PluginsFileBackUpPathV1 { get; set; }
+        public string PluginsFileBackUpPathV2 { get; set; }
         public Task SetFilePathsProperties(IWebHostEnvironment environment);
     }
 }

@@ -1,7 +1,7 @@
-﻿using AppStoreIntegrationServiceCore.Repository.Interface;
+﻿using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using Microsoft.AspNetCore.Hosting;
 
-namespace AppStoreIntegrationServiceCore.Repository
+namespace AppStoreIntegrationServiceCore.Repository.Common
 {
     public class ConfigurationSettings : IConfigurationSettings
     {
@@ -9,8 +9,8 @@ namespace AppStoreIntegrationServiceCore.Repository
         public string StorageAccountKey { get; set; }
         public string BlobName { get; set; }
         public string LocalFolderPath { get; set; }
-        public string ConfigFileName { get; set; }
-        public string OosUri { get; set; }
+        public string PluginsFileNameV1 { get; set; }
+        public string PluginsFileNameV2 { get; set; }
         public string MappingFileName { get; set; }
         public string ProductsFileName { get; set; }
         public string InstrumentationKey { get; set; }
@@ -18,9 +18,12 @@ namespace AppStoreIntegrationServiceCore.Repository
         public string NameMappingsFilePath { get; set; }
         public string ProductsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
-        public string LocalPluginsConfigFilePath { get; set; }
-        public string ConfigFileBackUpPath { get; set; }
+        public string LocalPluginsFilePathV1 { get; set; }
+        public string LocalPluginsFilePathV2 { get; set; }
+        public string PluginsFileBackUpPathV1 { get; set; }
+        public string PluginsFileBackUpPathV2 { get; set; }
         public string SettingsFileName { get; set; }
+        public string OosUri { get; set; }
 
         public ConfigurationSettings(Enums.DeployMode deployMode)
         {
@@ -51,10 +54,16 @@ namespace AppStoreIntegrationServiceCore.Repository
                 ProductsFilePath = Path.Combine(ConfigFolderPath, ProductsFileName);
             }
 
-            if (!string.IsNullOrEmpty(ConfigFileName))
+            if (!string.IsNullOrEmpty(PluginsFileNameV1))
             {
-                LocalPluginsConfigFilePath = Path.Combine(ConfigFolderPath, ConfigFileName);
-                ConfigFileBackUpPath = Path.Combine(ConfigFolderPath, $"{Path.GetFileNameWithoutExtension(ConfigFileName)}_backup.json");
+                LocalPluginsFilePathV1 = Path.Combine(ConfigFolderPath, PluginsFileNameV1);
+                PluginsFileBackUpPathV1 = Path.Combine(ConfigFolderPath, $"{Path.GetFileNameWithoutExtension(PluginsFileNameV1)}_backup.json");
+            }
+
+            if (!string.IsNullOrEmpty(PluginsFileNameV2))
+            {
+                LocalPluginsFilePathV2 = Path.Combine(ConfigFolderPath, PluginsFileNameV2);
+                PluginsFileBackUpPathV2 = Path.Combine(ConfigFolderPath, $"{Path.GetFileNameWithoutExtension(PluginsFileNameV2)}_backup.json");
             }
 
             await CreateConfigurationFiles();
@@ -65,9 +74,14 @@ namespace AppStoreIntegrationServiceCore.Repository
             if (!string.IsNullOrEmpty(ConfigFolderPath))
             {
                 Directory.CreateDirectory(ConfigFolderPath);
-                if (!string.IsNullOrEmpty(LocalPluginsConfigFilePath) && !File.Exists(LocalPluginsConfigFilePath))
+                if (!string.IsNullOrEmpty(LocalPluginsFilePathV1) && !File.Exists(LocalPluginsFilePathV1))
                 {
-                    await File.Create(LocalPluginsConfigFilePath).DisposeAsync();
+                    await File.Create(LocalPluginsFilePathV1).DisposeAsync();
+                }
+
+                if (!string.IsNullOrEmpty(LocalPluginsFilePathV2) && !File.Exists(LocalPluginsFilePathV2))
+                {
+                    await File.Create(LocalPluginsFilePathV2).DisposeAsync();
                 }
 
                 if (!string.IsNullOrEmpty(NameMappingsFilePath) && !File.Exists(NameMappingsFilePath))
@@ -80,9 +94,14 @@ namespace AppStoreIntegrationServiceCore.Repository
                     await File.Create(ProductsFilePath).DisposeAsync();
                 }
 
-                if (!string.IsNullOrEmpty(ConfigFileBackUpPath) && !File.Exists(ConfigFileBackUpPath))
+                if (!string.IsNullOrEmpty(PluginsFileBackUpPathV1) && !File.Exists(PluginsFileBackUpPathV1))
                 {
-                    await File.Create(ConfigFileBackUpPath).DisposeAsync();
+                    await File.Create(PluginsFileBackUpPathV1).DisposeAsync();
+                }
+
+                if (!string.IsNullOrEmpty(PluginsFileBackUpPathV2) && !File.Exists(PluginsFileBackUpPathV2))
+                {
+                    await File.Create(PluginsFileBackUpPathV2).DisposeAsync();
                 }
             }
         }
@@ -93,8 +112,8 @@ namespace AppStoreIntegrationServiceCore.Repository
             StorageAccountKey = GetVariable(ServiceResource.StorageAccountKey);
             BlobName = GetVariable(ServiceResource.BlobName);
             LocalFolderPath = GetVariable(ServiceResource.LocalFolderPath);
-            ConfigFileName = GetVariable(ServiceResource.ConfigFileName);
-            OosUri = GetVariable(ServiceResource.OosUri);
+            PluginsFileNameV1 = GetVariable(ServiceResource.PluginsFileNameV1);
+            PluginsFileNameV2 = GetVariable(ServiceResource.PluginsFileNameV2);
             InstrumentationKey = GetVariable(ServiceResource.TelemetryInstrumentationKey);
             MappingFileName = GetVariable(ServiceResource.MappingFileName);
             ProductsFileName = GetVariable(ServiceResource.ProductsFileName);

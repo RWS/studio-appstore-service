@@ -1,4 +1,4 @@
-﻿@model List<ExtendedPluginVersion>
+﻿@model List<ExtendedPluginVersion<string>>
 
 <div id="selectedVersion">
     @if (Model != null)
@@ -22,10 +22,7 @@
 
             for (int j = 0; j < Model[i].SupportedProducts.Count; j++)
             {
-                <input hidden asp-for="@Model[i].SupportedProducts[j].Id" />
-                <input hidden asp-for="@Model[i].SupportedProducts[j].ParentProductID" />
-                <input hidden asp-for="@Model[i].SupportedProducts[j].ProductName" />
-                <input hidden asp-for="@Model[i].SupportedProducts[j].MinimumStudioVersion" />
+                <input hidden asp-for="@Model[i].SupportedProducts[j]" />
             }
 
             <input hidden asp-for="@Model[i].VersionName" />

@@ -1,5 +1,8 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +15,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     [Area("Plugins")]
     public class PluginsController : Controller
     {
-        private readonly IPluginRepository _pluginRepository;
+        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> _pluginRepositoryExtended;
         private readonly IProductsRepository _productsRepository;
         private readonly IHttpContextAccessor _context;
 
-        public PluginsController(IPluginRepository pluginRepository, IHttpContextAccessor context, IProductsRepository productsRepository)
+        public PluginsController(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepositoryExtended, IHttpContextAccessor context, IProductsRepository productsRepository)
         {
-            _pluginRepository = pluginRepository;
+            _pluginRepositoryExtended = pluginRepositoryExtended;
             _context = context;
             _productsRepository = productsRepository;
         }
@@ -28,18 +31,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index()
         {
             PluginFilter pluginsFilters = ApplyFilters();
-            List<PluginDetails> pluginsList = await _pluginRepository.GetAll(pluginsFilters.SortOrder);
-            _pluginRepository.SearchPlugins(pluginsList, pluginsFilters);
-            return View(InitializePrivatePlugins(_pluginRepository.SearchPlugins(pluginsList, pluginsFilters)).ToList());
+            var pluginsList = await _pluginRepositoryExtended.GetAll(pluginsFilters.SortOrder);
+            _pluginRepositoryExtended.SearchPlugins(pluginsList, pluginsFilters);
+            return View(InitializePrivatePlugins(_pluginRepositoryExtended.SearchPlugins(pluginsList, pluginsFilters)).ToList());
         }
 
         [Route("Plugins/New")]
         public async Task<IActionResult> New()
         {
-            var categories = await _pluginRepository.GetCategories();
+            var categories = await _pluginRepositoryExtended.GetCategories();
             return View(new PluginDetailsModel
             {
-                PrivatePlugin = new PrivatePlugin
+                PrivatePlugin = new PrivatePlugin<PluginVersion<string>>
                 {
                     IconUrl = GetDefaultIcon(),
                     IsEditMode = false
@@ -51,19 +54,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion> versions, ExtendedPluginVersion version)
+        public async Task<IActionResult> Create(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
         {
-            return await Save(pluginDetails, versions, version, _pluginRepository.AddPrivatePlugin);
+            return await Save(pluginDetails, versions, version, _pluginRepositoryExtended.AddPrivatePlugin);
         }
 
         [Route("Plugins/Edit/{id?}")]
         public async Task<IActionResult> Edit(int id)
         {
-            var categories = await _pluginRepository.GetCategories();
-            var pluginDetails = await _pluginRepository.GetPluginById(id);
+            var categories = await _pluginRepositoryExtended.GetCategories();
+            var pluginDetails = await _pluginRepositoryExtended.GetPluginById(id);
             return View(new PluginDetailsModel
             {
-                PrivatePlugin = new PrivatePlugin
+                PrivatePlugin = new PrivatePlugin<PluginVersion<string>>
                 {
                     Id = pluginDetails.Id,
                     PaidFor = pluginDetails.PaidFor,
@@ -86,21 +89,21 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion> versions, ExtendedPluginVersion version)
+        public async Task<IActionResult> Update(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
         {
-            return await Save(pluginDetails, versions, version, _pluginRepository.UpdatePrivatePlugin);
+            return await Save(pluginDetails, versions, version, _pluginRepositoryExtended.UpdatePrivatePlugin);
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            await _pluginRepository.RemovePlugin(id);
+            await _pluginRepositoryExtended.RemovePlugin(id);
             TempData["StatusMessage"] = "Success! Plugin was removed!";
             return Content("");
         }
 
         [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
-        public async Task<IActionResult> GoToPage(PluginDetailsModel pluginDetails, ExtendedPluginVersion version, string redirectUrl, string currentPage)
+        public async Task<IActionResult> GoToPage(PluginDetailsModel pluginDetails, ExtendedPluginVersion<string> version, string redirectUrl, string currentPage)
         {
             redirectUrl = redirectUrl.Replace('.', '/');
 
@@ -120,17 +123,16 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return PartialView("_ModalPartial", modalDetails);
         }
 
-        private async Task<bool> IsSaved(PluginDetailsModel pluginDetails, ExtendedPluginVersion version)
+        private async Task<bool> IsSaved(PluginDetailsModel pluginDetails, ExtendedPluginVersion<string> version)
         {
             var plugin = pluginDetails.PrivatePlugin;
-            var products = await _productsRepository.GetAllProducts();
-            var foundPluginDetails = await _pluginRepository.GetPluginById(plugin.Id);
-            plugin.SetCategoryList(pluginDetails.SelectedCategories, await _pluginRepository.GetCategories());
-            var newPluginDetails = plugin.ConvertToPluginDetails(foundPluginDetails, version, products.ToList());
+            var foundPluginDetails = await _pluginRepositoryExtended.GetPluginById(plugin.Id);
+            plugin.SetCategoryList(pluginDetails.SelectedCategories, await _pluginRepositoryExtended.GetCategories());
+            var newPluginDetails = plugin.ConvertToPluginDetails(foundPluginDetails, version);
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
-        private async Task<IActionResult> Save(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion> versions, ExtendedPluginVersion version, Func<PrivatePlugin, Task> func)
+        private async Task<IActionResult> Save(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version, Func<PrivatePlugin<PluginVersion<string>>, Task> func)
         {
             var plugin = pluginDetails.PrivatePlugin;
             var products = await _productsRepository.GetAllProducts();
@@ -162,34 +164,35 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return PartialView("_StatusMessage", "Error! Please fill all required values!");
         }
 
-        private static IEnumerable<ExtendedPluginVersion> SetSelectedProducts(List<PluginVersion> versions)
+        private IEnumerable<ExtendedPluginVersion<string>> SetSelectedProducts(List<PluginVersion<string>> versions)
         {
-            var newVersions = new List<ExtendedPluginVersion>();
+            var products = _productsRepository.GetAllProducts().Result;
+            var newVersions = new List<ExtendedPluginVersion<string>>();
             foreach (var version in versions)
             {
-                var lastSupportedProduct = version.SupportedProducts.Last();
-                newVersions.Add(new ExtendedPluginVersion(version)
+                var lastSupportedProduct = products.FirstOrDefault(p => p.Id == version.SupportedProducts[0]);
+                newVersions.Add(new ExtendedPluginVersion<string>(version)
                 {
                     SelectedProductId = lastSupportedProduct.Id,
                     SelectedProduct = lastSupportedProduct,
-                    VersionName = $"{version.SupportedProducts?.Last().ProductName} - {version.VersionNumber}",
+                    VersionName = $"{lastSupportedProduct.ProductName} - {version.VersionNumber}",
                 });
             }
 
             return newVersions;
         }
 
-        private IEnumerable<PrivatePlugin> InitializePrivatePlugins(List<PluginDetails> plugins)
+        private IEnumerable<PrivatePlugin<PluginVersion<string>>> InitializePrivatePlugins(List<PluginDetails<PluginVersion<string>>> plugins)
         {
             foreach (var plugin in plugins)
             {
-                yield return new PrivatePlugin
+                yield return new PrivatePlugin<PluginVersion<string>>
                 {
                     Id = plugin.Id,
                     Description = plugin.Description,
                     Name = plugin.Name,
                     Categories = plugin.Categories,
-                    Versions = plugin.Versions.Select(v => new ExtendedPluginVersion(v)).ToList(),
+                    Versions = plugin.Versions.Select(v => new ExtendedPluginVersion<string>(v)).ToList(),
                     Inactive = plugin.Inactive,
                     IconUrl = string.IsNullOrEmpty(plugin.Icon.MediaUrl) ? GetDefaultIcon() : plugin.Icon.MediaUrl
                 };

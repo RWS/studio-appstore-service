@@ -5,7 +5,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
 {
     public class PluginDetailsModel
     {
-        public PrivatePlugin PrivatePlugin { get; set; }
+        public PrivatePlugin<PluginVersion<string>> PrivatePlugin { get; set; }
 
         public List<CategoryDetails> Categories { get; set; }
 

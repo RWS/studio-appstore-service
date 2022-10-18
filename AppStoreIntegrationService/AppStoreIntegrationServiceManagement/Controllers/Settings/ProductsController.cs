@@ -1,5 +1,7 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,11 +33,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public IActionResult AddNew()
         {
-            return PartialView("_NewProductPartial", new SupportedProductDetails());
+            return PartialView("_NewProductPartial", new ProductDetails());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(SupportedProductDetails product, List<SupportedProductDetails> products)
+        public async Task<IActionResult> Add(ProductDetails product, List<ProductDetails> products)
         {
             if (TryValidateProduct(product, products, out IActionResult result))
             {
@@ -47,7 +49,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(List<SupportedProductDetails> products)
+        public async Task<IActionResult> Update(List<ProductDetails> products)
         {
             if (!products.Any(item => item.IsValid()))
             {
@@ -62,14 +64,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             await _productsRepository.UpdateProducts(products);
             await _productsSynchronizer.SyncOnUpdate(products);
             TempData["StatusMessage"] = "Success! Products were updated and synchronized with plugins!";
-            return Content("/Settings/Products");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Sync()
-        {
-            await _productsSynchronizer.Sync();
-            TempData["StatusMessage"] = "Success! Products and plugins are synchronized!";
             return Content("/Settings/Products");
         }
 
@@ -89,7 +83,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         [Route("[controller]/[action]/{redirectUrl?}")]
         [HttpPost]
-        public async Task<IActionResult> GoToPage(string redirectUrl, SupportedProductDetails product, List<SupportedProductDetails> products)
+        public async Task<IActionResult> GoToPage(string redirectUrl, ProductDetails product, List<ProductDetails> products)
         {
             redirectUrl = redirectUrl.Replace('.', '/');
 
@@ -111,7 +105,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             return PartialView("_ModalPartial", modalDetails);
         }
 
-        public bool ExistVersion(List<SupportedProductDetails> products)
+        public bool ExistVersion(List<ProductDetails> products)
         {
             return !products.GroupBy(p => p.ProductName, (_, products) => products
                             .GroupBy(p => p.MinimumStudioVersion, (_, products) => products
@@ -119,13 +113,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                             .All(item => item);
         }
 
-        private async Task<bool> HaveUnsavedChanges(List<SupportedProductDetails> products)
+        private async Task<bool> HaveUnsavedChanges(List<ProductDetails> products)
         {
             var savedNamesMapping = (await _productsRepository.GetAllProducts()).ToList();
             return JsonConvert.SerializeObject(savedNamesMapping) == JsonConvert.SerializeObject(products);
         }
 
-        private bool TryValidateProduct(SupportedProductDetails product, List<SupportedProductDetails> products, out IActionResult result)
+        private bool TryValidateProduct(ProductDetails product, List<ProductDetails> products, out IActionResult result)
         {
             if (string.IsNullOrEmpty(product.ProductName) ||
                 string.IsNullOrEmpty(product.Id))

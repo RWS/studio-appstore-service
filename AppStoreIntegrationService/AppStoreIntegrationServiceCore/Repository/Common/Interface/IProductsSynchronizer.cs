@@ -4,12 +4,8 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface IProductsSynchronizer
     {
-        Task SyncOnUpdate(List<SupportedProductDetails> products);
-
-        Task Sync();
+        Task SyncOnUpdate(List<ProductDetails> products);
 
         Task<bool> IsInUse(string id);
-
-        Task SyncOnImport(List<PluginDetails> plugins);
     }
 }

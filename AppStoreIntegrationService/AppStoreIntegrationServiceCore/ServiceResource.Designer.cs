@@ -124,15 +124,6 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_CONFIGFILENAME.
-        /// </summary>
-        public static string ConfigFileName {
-            get {
-                return ResourceManager.GetString("ConfigFileName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to APPSTOREINTEGRATION_LOCAL_FOLDERPATH.
         /// </summary>
         public static string LocalFolderPath {
@@ -147,15 +138,6 @@ namespace AppStoreIntegrationServiceCore {
         public static string MappingFileName {
             get {
                 return ResourceManager.GetString("MappingFileName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_OOS_URI.
-        /// </summary>
-        public static string OosUri {
-            get {
-                return ResourceManager.GetString("OosUri", resourceCulture);
             }
         }
         
@@ -183,6 +165,24 @@ namespace AppStoreIntegrationServiceCore {
         public static string PluginName {
             get {
                 return ResourceManager.GetString("PluginName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_CONFIGFILENAMEV1.
+        /// </summary>
+        public static string PluginsFileNameV1 {
+            get {
+                return ResourceManager.GetString("PluginsFileNameV1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_CONFIGFILENAMEV2.
+        /// </summary>
+        public static string PluginsFileNameV2 {
+            get {
+                return ResourceManager.GetString("PluginsFileNameV2", resourceCulture);
             }
         }
         
