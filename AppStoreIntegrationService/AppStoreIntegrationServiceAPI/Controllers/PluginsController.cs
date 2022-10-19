@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using AppStoreIntegrationServiceCore.Repository.V1.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {
@@ -15,16 +16,22 @@ namespace AppStoreIntegrationServiceAPI.Controllers
 	public class PluginsController : Controller
 	{
 		public IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>> _pluginRepository;
+		public IProductsRepository _productsRepository;
+		public IVersionProvider _versionProvider;
 		public IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> _pluginRepositoryExtended;
 
 		public PluginsController
 		(
 			IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>> pluginRepository, 
-			IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepositoryExtended
+			IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepositoryExtended,
+			IProductsRepository productsRepository,
+			IVersionProvider versionProvider
 		)
 		{
 			_pluginRepository = pluginRepository;
 			_pluginRepositoryExtended = pluginRepositoryExtended;
+			_productsRepository = productsRepository;
+			_versionProvider = versionProvider;
 		}
 
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -39,7 +46,13 @@ namespace AppStoreIntegrationServiceAPI.Controllers
                 return Ok(_pluginRepository.SearchPlugins(await _pluginRepository.GetAll(filter.SortOrder), filter));
             }
 
-            return Ok(_pluginRepositoryExtended.SearchPlugins(await _pluginRepositoryExtended.GetAll(filter.SortOrder), filter));
+            return Ok(new PluginResponse<PluginDetails<PluginVersion<string>>>
+            {
+                APIVersion = await _versionProvider.GetAPIVersion(),
+                Value = _pluginRepositoryExtended.SearchPlugins(await _pluginRepositoryExtended.GetAll(filter.SortOrder), filter),
+				Products = await _productsRepository.GetAllProducts(),
+				ParentProducts = await _productsRepository.GetAllParents()
+            }); ;
         }
 	}
 }

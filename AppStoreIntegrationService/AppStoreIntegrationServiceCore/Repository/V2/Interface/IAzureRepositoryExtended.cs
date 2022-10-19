@@ -9,6 +9,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
         Task<List<ParentProduct>> GetParentProductsFromContainer();
         Task<List<ProductDetails>> GetProductsFromContainer();
         Task<SiteSettings> GetSettingsFromContainer();
+        Task<string> GetAPIVersionFromContainer();
         Task UpdateMappingsFileBlob(List<NameMapping> mappings);
         Task UpdateSettingsFileBlob(SiteSettings settings);
         Task UpdatePluginsFileBlob(List<T> plugins);

@@ -91,5 +91,10 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             });
             await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, text);
         }
+
+        public async Task<string> GetAPIVersionFromFile()
+        {
+            return (await ReadFromFile()).APIVersion ?? "1.0.0";
+        }
     }
 }

@@ -12,5 +12,6 @@ namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
         Task<List<ProductDetails>> ReadProductsFromFile();
         Task<List<ParentProduct>> ReadParentsFromFile();
         Task<List<NameMapping>> ReadMappingsFromFile();
+        Task<string> GetAPIVersionFromFile();
     }
 }

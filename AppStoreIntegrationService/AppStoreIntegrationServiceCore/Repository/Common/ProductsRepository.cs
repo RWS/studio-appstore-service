@@ -88,13 +88,13 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
 
         }
 
-        public async Task<IEnumerable<ProductDetails>> GetAllProducts()
+        public async Task<List<ProductDetails>> GetAllProducts()
         {
             await InitProductLists();
             return _defaultProducts;
         }
 
-        public async Task<IEnumerable<ParentProduct>> GetAllParents()
+        public async Task<List<ParentProduct>> GetAllParents()
         {
             await InitProductLists();
             return _defaultParentProducts;

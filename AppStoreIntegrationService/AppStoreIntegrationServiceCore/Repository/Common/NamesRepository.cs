@@ -1,7 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
-using Newtonsoft.Json;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.Common

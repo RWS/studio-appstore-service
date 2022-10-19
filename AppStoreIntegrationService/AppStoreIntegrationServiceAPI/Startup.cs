@@ -44,6 +44,7 @@ namespace AppStoreIntegrationServiceAPI
 
             services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>>>>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
+            services.AddSingleton<IVersionProvider, VersionProvider<PluginDetails<PluginVersion<string>>>>();
             services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<ProductDetails>>>, AzureRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
             services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
             services.AddSingleton<IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>>, PluginRepository<PluginDetails<PluginVersion<ProductDetails>>>>();

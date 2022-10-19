@@ -148,5 +148,10 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             var text = JsonConvert.SerializeObject(settings);
             await _settingsBlockBlob.UploadTextAsync(text);
         }
+
+        public async Task<string> GetAPIVersionFromContainer()
+        {
+            return (await ReadFromContainer()).APIVersion ?? "1.0.0";
+        }
     }
 }
