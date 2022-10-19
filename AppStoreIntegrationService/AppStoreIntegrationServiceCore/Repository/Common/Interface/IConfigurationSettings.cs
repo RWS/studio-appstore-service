@@ -31,11 +31,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
         public string MappingFileName { get; set; }
 
         /// <summary>
-        /// Name of the json file from where service reads supported products
-        /// </summary>
-        /// 
-        public string ProductsFileName { get; set; }
-        /// <summary>
         /// Name of the json file from where site name is read when deploy on Azure
         /// </summary>
         public string SettingsFileName { get; set; }
@@ -47,7 +42,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
 
         public Enums.DeployMode DeployMode { get; set; }
         public string NameMappingsFilePath { get; set; }
-        public string ProductsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsFilePathV1 { get; set; }
         public string LocalPluginsFilePathV2 { get; set; }

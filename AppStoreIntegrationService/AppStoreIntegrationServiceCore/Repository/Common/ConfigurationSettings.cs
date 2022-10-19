@@ -12,11 +12,9 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         public string PluginsFileNameV1 { get; set; }
         public string PluginsFileNameV2 { get; set; }
         public string MappingFileName { get; set; }
-        public string ProductsFileName { get; set; }
         public string InstrumentationKey { get; set; }
         public Enums.DeployMode DeployMode { get; set; }
         public string NameMappingsFilePath { get; set; }
-        public string ProductsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsFilePathV1 { get; set; }
         public string LocalPluginsFilePathV2 { get; set; }
@@ -46,11 +44,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             if (!string.IsNullOrEmpty(MappingFileName))
             {
                 NameMappingsFilePath = Path.Combine(ConfigFolderPath, MappingFileName);
-            }
-
-            if (!string.IsNullOrEmpty(ProductsFileName))
-            {
-                ProductsFilePath = Path.Combine(ConfigFolderPath, ProductsFileName);
             }
 
             if (!string.IsNullOrEmpty(PluginsFileNameV1))
@@ -88,11 +81,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
                     await File.Create(NameMappingsFilePath).DisposeAsync();
                 }
 
-                if (!string.IsNullOrEmpty(ProductsFilePath) && !File.Exists(ProductsFilePath))
-                {
-                    await File.Create(ProductsFilePath).DisposeAsync();
-                }
-
                 if (!string.IsNullOrEmpty(PluginsFileBackUpPathV1) && !File.Exists(PluginsFileBackUpPathV1))
                 {
                     await File.Create(PluginsFileBackUpPathV1).DisposeAsync();
@@ -115,7 +103,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             PluginsFileNameV2 = GetVariable(ServiceResource.PluginsFileNameV2);
             InstrumentationKey = GetVariable(ServiceResource.TelemetryInstrumentationKey);
             MappingFileName = GetVariable(ServiceResource.MappingFileName);
-            ProductsFileName = GetVariable(ServiceResource.ProductsFileName);
             SettingsFileName = GetVariable(ServiceResource.SettingsFileName);
         }
 
