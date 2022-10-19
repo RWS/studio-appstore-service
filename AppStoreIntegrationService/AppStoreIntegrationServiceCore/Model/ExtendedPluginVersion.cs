@@ -6,8 +6,6 @@ namespace AppStoreIntegrationServiceCore.Model
 {
     public class ExtendedPluginVersion<T> : PluginVersion<T>
     {
-        private ProductDetails _selectedProduct;
-
         public ExtendedPluginVersion() { }
 
         public ExtendedPluginVersion(PluginVersion<T> version) : base(version) { }
@@ -18,15 +16,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [JsonIgnore]
         [BindProperty]
-        public ProductDetails SelectedProduct
-        {
-            get => _selectedProduct;
-            set
-            {
-                _selectedProduct = value;
-                //UpdateStudioMinVersion();
-            }
-        }
+        public ProductDetails SelectedProduct { get; set; }
 
         [JsonIgnore]
         [BindProperty]
@@ -49,22 +39,5 @@ namespace AppStoreIntegrationServiceCore.Model
                 defaultProduct
             );
         }
-
-        /*private void UpdateStudioMinVersion()
-        {
-            if (string.IsNullOrEmpty(MinimumRequiredVersionOfStudio))
-            {
-                if (string.IsNullOrEmpty(SelectedProduct?.MinimumStudioVersion))
-                {
-                    var productDetails = SupportedProducts?.FirstOrDefault(v => v.ProductName.Equals(SelectedProduct?.ProductName));
-                    if (productDetails != null)
-                    {
-                        var minVersion = productDetails.MinimumStudioVersion;
-                        SelectedProduct.MinimumStudioVersion = minVersion;
-                        MinimumRequiredVersionOfStudio = minVersion;
-                    }
-                }
-            }
-        }*/
     }
 }

@@ -2,17 +2,25 @@
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using Newtonsoft.Json;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.Common
 {
     public class NamesRepository : INamesRepository
     {
         private readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> _azureRepositoryExtended;
+        private readonly ILocalRepositoryExtended<PluginDetails<PluginVersion<string>>> _localRepositoryExtended;
         private readonly IConfigurationSettings _configurationSettings;
 
-        public NamesRepository(IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> azureRepositoryExtended, IConfigurationSettings configurationSettings)
+        public NamesRepository
+        (
+            IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> azureRepositoryExtended,
+            ILocalRepositoryExtended<PluginDetails<PluginVersion<string>>> localRepositoryExtended,
+            IConfigurationSettings configurationSettings
+        )
         {
             _azureRepositoryExtended = azureRepositoryExtended;
+            _localRepositoryExtended = localRepositoryExtended;
             _configurationSettings = configurationSettings;
         }
 
@@ -31,40 +39,28 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
 
         private async Task<List<NameMapping>> GetNameMappingsFromPossibleLocation()
         {
-            if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
+            return _configurationSettings.DeployMode switch
             {
-                if (string.IsNullOrEmpty(_configurationSettings.NameMappingsFilePath))
-                {
-                    return new List<NameMapping>();
-                }
-
-                return await ReadLocalNameMappings(_configurationSettings.NameMappingsFilePath);
-            }
-
-            return await _azureRepositoryExtended.GetNameMappingsFromContainer();
+                DeployMode.AzureBlob => await _azureRepositoryExtended.GetNameMappingsFromContainer(),
+                _ => await _localRepositoryExtended.ReadMappingsFromFile()
+            };
         }
 
-        public async Task<List<NameMapping>> ReadLocalNameMappings(string nameMappingsFilePath)
+        public async Task UpdateMappings(List<NameMapping> names)
         {
-            var nameMappings = await File.ReadAllTextAsync(nameMappingsFilePath);
-            return JsonConvert.DeserializeObject<List<NameMapping>>(nameMappings) ?? new List<NameMapping>();
-        }
-
-        public async Task UpdateNamesMapping(List<NameMapping> namesMapping)
-        {
-            if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
+            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
-                await File.WriteAllTextAsync(_configurationSettings.NameMappingsFilePath, JsonConvert.SerializeObject(namesMapping));
+                await _localRepositoryExtended.SaveMappingsToFile(names);
                 return;
             }
 
-            await _azureRepositoryExtended.UpdateNameMappingsFileBlob(JsonConvert.SerializeObject(namesMapping));
+            await _azureRepositoryExtended.UpdateMappingsFileBlob(names);
         }
 
-        public async Task DeleteNameMapping(string id)
+        public async Task DeleteMapping(string id)
         {
-            var newNamesMapping = (await GetNameMappingsFromPossibleLocation()).Where(item => item.Id != id).ToList();
-            await UpdateNamesMapping(newNamesMapping);
+            var newNames = (await GetNameMappingsFromPossibleLocation()).Where(item => item.Id != id).ToList();
+            await UpdateMappings(newNames);
         }
     }
 }

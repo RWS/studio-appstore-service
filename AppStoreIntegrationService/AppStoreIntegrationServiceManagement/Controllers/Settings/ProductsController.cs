@@ -26,7 +26,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         public async Task<IActionResult> Index()
         {
             var products = await _productsRepository.GetAllProducts();
-            var parents = await _productsRepository.GetAllParentProducts();
+            var parents = await _productsRepository.GetAllParents();
 
             foreach (var product in products)
             {
@@ -43,25 +43,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> AddNew()
         {
-            var parents = await _productsRepository.GetAllParentProducts();
+            var parents = await _productsRepository.GetAllParents();
             var products = await _productsRepository.GetAllProducts();
             var product = new ProductDetails
             {
-                Id = SetIndex(products)
+                Id = _productsSynchronizer.SetIndex(products)
             };
             product.SetParentProductsList(parents.ToList());
             return PartialView("_NewProductPartial", product);
-        }
-
-        private string SetIndex(IEnumerable<ProductDetails> products)
-        {
-            var lastProduct = products.LastOrDefault();
-            if (lastProduct == null)
-            {
-                return "1";
-            }
-
-            return (int.Parse(lastProduct.Id) + 1).ToString();
         }
 
         [HttpPost]
@@ -84,7 +73,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
             }
 
-            if (ExistVersion(products))
+            if (_productsSynchronizer.ExistDuplicate(products))
             {
                 return PartialView("_StatusMessage", "Error! There is already a product with this version!");
             }
@@ -103,7 +92,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 return Content("/Settings/Products");
             }
 
-            await _productsRepository.DeleteProduct(id);
+            await _productsRepository.DeleteProduct(id, ProductType.Child);
             TempData["StatusMessage"] = "Success! Product was deleted!";
             return Content("/Settings/Products");
         }
@@ -133,18 +122,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             return PartialView("_ModalPartial", modalDetails);
         }
 
-        public bool ExistVersion(List<ProductDetails> products)
-        {
-            return !products.GroupBy(p => p.ProductName, (_, products) => products
-                            .GroupBy(p => p.MinimumStudioVersion, (_, products) => products
-                            .Count() == 1).All(item => item))
-                            .All(item => item);
-        }
-
         private async Task<bool> AreSavedProducts(List<ProductDetails> products, List<ParentProduct> parentProducts)
         {
             var savedProducts = (await _productsRepository.GetAllProducts()).ToList();
-            var savedParentProducts = (await _productsRepository.GetAllParentProducts()).ToList();
+            var savedParentProducts = (await _productsRepository.GetAllParents()).ToList();
             return JsonConvert.SerializeObject(savedProducts) == JsonConvert.SerializeObject(products) &&
                    JsonConvert.SerializeObject(savedParentProducts) == JsonConvert.SerializeObject(parentProducts);
         }

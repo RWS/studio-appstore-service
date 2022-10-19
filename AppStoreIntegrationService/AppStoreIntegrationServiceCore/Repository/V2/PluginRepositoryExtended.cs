@@ -13,16 +13,19 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
     {
         private readonly IAzureRepositoryExtended<T> _azureRepositoryExtended;
         private readonly IProductsRepository _productsRepository;
+        private readonly ILocalRepositoryExtended<T> _localRepositoryExtended;
 
         public PluginRepositoryExtended
         (
             IAzureRepositoryExtended<T> azureRepositoryExtended,
             IProductsRepository productsRepository,
-            IConfigurationSettings configurationSettings
+            IConfigurationSettings configurationSettings,
+            ILocalRepositoryExtended<T> localRepositoryExtended
         ) : base(azureRepositoryExtended, configurationSettings)
         {
             _azureRepositoryExtended = azureRepositoryExtended;
             _productsRepository = productsRepository;
+            _localRepositoryExtended = localRepositoryExtended;
         }
 
         public async Task UpdatePrivatePlugin(PrivatePlugin<PluginVersion<string>> privatePlugin)
@@ -181,62 +184,32 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
         {
             if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
             {
-                return await GetPluginsListFromLocalFile();
+                return await _localRepositoryExtended.ReadPluginsFromFile();
             }
 
-            return await _azureRepository.GetPluginsListFromContainer();
+            return await _azureRepository.GetPluginsFromContainer();
         }
 
-        private async Task<List<T>> GetPluginsListFromLocalFile()
+        private async Task BackupFile(List<T> plugins)
         {
-            var content = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePathV2);
-            return JsonConvert.DeserializeObject<PluginResponse<T>>(content)?.Value ?? new List<T>();
-        }
-
-        private async Task BackupFile(List<T> pluginsList)
-        {
-            var response = await GetResponse();
-            string updatedPluginsText = JsonConvert.SerializeObject(new PluginResponse<T> 
-            { 
-                Value = pluginsList,
-                Products = response.Products,
-                ParentProducts = response.ParentProducts
-            });
-
             if (_configurationSettings.DeployMode == Enums.DeployMode.AzureBlob)
             {
-                await _azureRepositoryExtended.BackupFile(updatedPluginsText);
+                await _azureRepositoryExtended.BackupFile(plugins);
+                return;
             }
-            else
-            {
-                await File.WriteAllTextAsync(_configurationSettings.PluginsFileBackUpPathV2, updatedPluginsText);
-            }
-        }
 
-        private async Task<PluginResponse<T>> GetResponse()
-        {
-            var content = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePathV2);
-            return JsonConvert.DeserializeObject<PluginResponse<T>>(content);
+            await _localRepositoryExtended.SavePluginsToFile(plugins);
         }
 
         public async Task SaveToFile(List<T> pluginsList)
         {
-            var response = await GetResponse();
-            string updatedPluginsText = JsonConvert.SerializeObject(new PluginResponse<T>
-            {
-                Value = pluginsList,
-                Products = response.Products,
-                ParentProducts = response.ParentProducts
-            });
-
             if (_configurationSettings.DeployMode == Enums.DeployMode.AzureBlob)
             {
-                await _azureRepositoryExtended.UpdatePluginsFileBlob(updatedPluginsText);
+                await _azureRepositoryExtended.UpdatePluginsFileBlob(pluginsList);
+                return;
             }
-            else
-            {
-                await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, updatedPluginsText);
-            }
+
+            await _localRepositoryExtended.SavePluginsToFile(pluginsList);
         }
 
         public async Task<List<T>> GetAll(string sortOrder)

@@ -3,7 +3,6 @@ using Microsoft.Azure.Storage.Auth;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Azure.Storage.RetryPolicies;
 using Microsoft.Azure.Storage;
-using Newtonsoft.Json;
 using static AppStoreIntegrationServiceCore.Enums;
 using System.Text.RegularExpressions;
 

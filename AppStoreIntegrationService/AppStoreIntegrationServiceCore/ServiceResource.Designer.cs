@@ -169,7 +169,7 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_CONFIGFILENAMEV1.
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_PLUGINSFILENAMEV1.
         /// </summary>
         public static string PluginsFileNameV1 {
             get {
@@ -178,7 +178,7 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_CONFIGFILENAMEV2.
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_PLUGINSFILENAMEV2.
         /// </summary>
         public static string PluginsFileNameV2 {
             get {

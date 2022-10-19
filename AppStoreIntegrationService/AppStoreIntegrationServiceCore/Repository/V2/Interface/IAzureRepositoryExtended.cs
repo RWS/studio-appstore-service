@@ -9,11 +9,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
         Task<List<ParentProduct>> GetParentProductsFromContainer();
         Task<List<ProductDetails>> GetProductsFromContainer();
         Task<SiteSettings> GetSettingsFromContainer();
-        Task UpdateNameMappingsFileBlob(string fileContent);
-        Task UpdateSettingsFileBlob(string fileContent);
-        Task UpdatePluginsFileBlob(string fileContent);
-        Task BackupFile(string fileContent);
-        Task UpdateProductsFileBlob(string fileContent);
-
+        Task UpdateMappingsFileBlob(List<NameMapping> mappings);
+        Task UpdateSettingsFileBlob(SiteSettings settings);
+        Task UpdatePluginsFileBlob(List<T> plugins);
+        Task UpdateProductsFileBlob(List<ProductDetails> products);
+        Task UpdateParentsFileBlob(List<ParentProduct> products);
+        Task BackupFile(List<T> plugins);
     }
 }

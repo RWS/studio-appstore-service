@@ -1,6 +1,4 @@
-using System.Net;
 using System.IO.Compression;
-using System.Net.Http.Headers;
 using Microsoft.AspNetCore.ResponseCompression;
 using static AppStoreIntegrationServiceCore.Enums;
 using AppStoreIntegrationServiceCore.Repository.Common;
@@ -44,12 +42,14 @@ namespace AppStoreIntegrationServiceAPI
                 options.Providers.Add<GzipCompressionProvider>();
             });
 
-            services.AddSingleton<IProductsRepository, ProductsRepository>();
+            services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>>>>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<ProductDetails>>>, AzureRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
             services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
             services.AddSingleton<IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>>, PluginRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
             services.AddSingleton<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
+            services.AddSingleton<ILocalRepositoryExtended<PluginDetails<PluginVersion<string>>>, LocalRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
+            services.AddSingleton<ILocalRepository<PluginDetails<PluginVersion<ProductDetails>>>, LocalRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
             services.AddSingleton<INamesRepository, NamesRepository>();
         }
 

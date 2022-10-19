@@ -27,38 +27,74 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             InitializeBlockBlobs();
         }
 
-        public async Task<List<T>> GetPluginsListFromContainer()
+        public async Task<List<T>> GetPluginsFromContainer()
+        {
+            return (await ReadFromContainer()).Value ?? new List<T>();
+        }
+
+        private async Task<PluginResponse<T>> ReadFromContainer()
         {
             string containerContent = await _pluginsListBlockBlobOptimized.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<PluginResponse<T>>(containerContent)?.Value ?? new List<T>();
+            return JsonConvert.DeserializeObject<PluginResponse<T>>(containerContent) ?? new PluginResponse<T>();
         }
 
         public async Task<List<ProductDetails>> GetProductsFromContainer()
         {
-            string containerContent = await _pluginsListBlockBlobOptimized.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<PluginResponse<T>>(containerContent).Products ?? new List<ProductDetails>();
+            return (await ReadFromContainer()).Products ?? new List<ProductDetails>();
         }
 
-        public async Task UpdatePluginsFileBlob(string fileContent)
+        public async Task UpdatePluginsFileBlob(List<T> plugins)
         {
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(fileContent);
+            var response = await ReadFromContainer();
+            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            {
+                Value = plugins,
+                Products = response.Products,
+                ParentProducts = response.ParentProducts
+            });
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(text));
         }
 
-        public async Task BackupFile(string fileContent)
+        public async Task BackupFile(List<T> plugins)
         {
-            await _pluginsBackupBlockBlobOptimized.UploadTextAsync(fileContent);
+            var response = await ReadFromContainer();
+            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            {
+                Value = plugins,
+                Products = response.Products,
+                ParentProducts = response.ParentProducts
+            });
+            await _pluginsBackupBlockBlobOptimized.UploadTextAsync(text);
         }
 
-        public async Task UpdateProductsFileBlob(string fileContent)
+        public async Task UpdateProductsFileBlob(List<ProductDetails> products)
         {
-            await UpdatePluginsFileBlob(fileContent);
+            var response = await ReadFromContainer();
+            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            {
+                Value = response.Value,
+                Products = products,
+                ParentProducts = response.ParentProducts
+            });
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(text));
+        }
+
+        public async Task UpdateParentsFileBlob(List<ParentProduct> products)
+        {
+            var response = await ReadFromContainer();
+            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            {
+                Value = response.Value,
+                Products = response.Products,
+                ParentProducts = products
+            });
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(text));
         }
 
         public async Task<List<NameMapping>> GetNameMappingsFromContainer()
         {
             var containterContent = await _nameMappingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            var nameMappings = JsonConvert.DeserializeObject<List<NameMapping>>(containterContent);
-            return nameMappings ?? new List<NameMapping>();
+            return JsonConvert.DeserializeObject<List<NameMapping>>(containterContent) ?? new List<NameMapping>();
         }
 
         private void InitializeBlockBlobs()
@@ -92,26 +128,25 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<ParentProduct>> GetParentProductsFromContainer()
         {
-            var containterContent = await _pluginsListBlockBlobOptimized.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            var parents = JsonConvert.DeserializeObject<PluginResponse<T>>(containterContent)?.ParentProducts;
-            return parents ?? new List<ParentProduct>();
+            return (await ReadFromContainer()).ParentProducts ?? new List<ParentProduct>();
         }
 
-        public async Task UpdateNameMappingsFileBlob(string fileContent)
+        public async Task UpdateMappingsFileBlob(List<NameMapping> mappings)
         {
-            await _nameMappingsBlockBlob.UploadTextAsync(fileContent);
+            var text = JsonConvert.SerializeObject(mappings);
+            await _nameMappingsBlockBlob.UploadTextAsync(text);
         }
 
         public async Task<SiteSettings> GetSettingsFromContainer()
         {
             var containterContent = await _settingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            var settings = JsonConvert.DeserializeObject<SiteSettings>(containterContent);
-            return settings ?? new SiteSettings();
+            return JsonConvert.DeserializeObject<SiteSettings>(containterContent) ?? new SiteSettings();
         }
 
-        public async Task UpdateSettingsFileBlob(string fileContent)
+        public async Task UpdateSettingsFileBlob(SiteSettings settings)
         {
-            await _settingsBlockBlob.UploadTextAsync(fileContent);
+            var text = JsonConvert.SerializeObject(settings);
+            await _settingsBlockBlob.UploadTextAsync(text);
         }
     }
 }

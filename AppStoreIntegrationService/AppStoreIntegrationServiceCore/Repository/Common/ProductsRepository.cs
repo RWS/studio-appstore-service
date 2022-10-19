@@ -1,27 +1,29 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
-using Newtonsoft.Json;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.Common
 {
     public enum ProductType
     {
-        Child = 0,
+        Child,
         Parent
     }
 
-    public class ProductsRepository : IProductsRepository
+    public class ProductsRepository<T> : IProductsRepository where T : PluginDetails<PluginVersion<string>>, new()
     {
-        protected readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> _azureRepositoryExtended;
+        protected readonly IAzureRepositoryExtended<T> _azureRepositoryExtended;
         protected readonly IConfigurationSettings _configurationSettings;
-        protected readonly List<ProductDetails> _defaultProducts;
-        protected readonly List<ParentProduct> _defaultParentProducts;
+        private readonly ILocalRepositoryExtended<T> _localRepositoryExtended;
+        protected List<ProductDetails> _defaultProducts;
+        protected List<ParentProduct> _defaultParentProducts;
 
-        public ProductsRepository(IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> azureRepositoryExtended, IConfigurationSettings configurationSettings)
+        public ProductsRepository(IAzureRepositoryExtended<T> azureRepositoryExtended, IConfigurationSettings configurationSettings, ILocalRepositoryExtended<T> localRepositoryExtended)
         {
             _azureRepositoryExtended = azureRepositoryExtended;
             _configurationSettings = configurationSettings;
+            _localRepositoryExtended = localRepositoryExtended;
             _defaultProducts = new List<ProductDetails>
             {
                 new ProductDetails
@@ -53,100 +55,62 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
 
         public async Task UpdateProducts(List<ProductDetails> products)
         {
-            var response = await ReadLocalFile();
-            var newResponse = new PluginResponse<PluginDetails<PluginVersion<string>>>
+            if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                Value = response.Value,
-                Products = products,
-                ParentProducts = response.ParentProducts
-            };
-
-            if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
-            {
-                await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, JsonConvert.SerializeObject(newResponse));
+                await _azureRepositoryExtended.UpdateProductsFileBlob(products);
                 return;
             }
 
-            await _azureRepositoryExtended.UpdateProductsFileBlob(JsonConvert.SerializeObject(newResponse));
+            await _localRepositoryExtended.SaveProductsToFile(products);
         }
 
-        private async Task<PluginResponse<PluginDetails<PluginVersion<string>>>> ReadLocalFile()
+        public async Task UpdateProducts(List<ParentProduct> products)
         {
-            var fileContent = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePathV2);
-            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>>>>(fileContent) ?? new PluginResponse<PluginDetails<PluginVersion<string>>>();
-        }
-
-        private async Task<List<ProductDetails>> GetProductsFromPossibleLocation()
-        {
-            if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
+            if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                if (string.IsNullOrEmpty(_configurationSettings.LocalPluginsFilePathV2))
-                {
-                    return new List<ProductDetails>();
-                }
-
-                return (await ReadLocalFile()).Products ?? new List<ProductDetails>();
+                await _azureRepositoryExtended.UpdateParentsFileBlob(products);
+                return;
             }
 
-            return await _azureRepositoryExtended.GetProductsFromContainer();
+            await _localRepositoryExtended.SaveParentsToFile(products);
         }
 
-        public async Task DeleteProduct(string id)
+        public async Task DeleteProduct(string id, ProductType type)
         {
-            var newProducts = (await GetProductsFromPossibleLocation()).Where(item => item.Id != id).ToList();
-            await UpdateProducts(newProducts);
+            await InitProductLists();
+            if (type == ProductType.Child)
+            {
+                await UpdateProducts(_defaultProducts.Where(item => item.Id != id).ToList());
+                return;
+            }
+
+            await UpdateProducts(_defaultParentProducts.Where(item => item.ParentId != id).ToList());
+
         }
 
         public async Task<IEnumerable<ProductDetails>> GetAllProducts()
         {
-            var products = await GetProductsFromPossibleLocation();
-            return products.Any() ? products : _defaultProducts;
+            await InitProductLists();
+            return _defaultProducts;
         }
 
-        public async Task<IEnumerable<ParentProduct>> GetAllParentProducts()
+        public async Task<IEnumerable<ParentProduct>> GetAllParents()
         {
-            var products = await GetParentProductsFromPossibleLocation();
-            return products.Any() ? products : _defaultParentProducts;
+            await InitProductLists();
+            return _defaultParentProducts;
         }
 
-        private async Task<List<ParentProduct>> GetParentProductsFromPossibleLocation()
+        private async Task InitProductLists()
         {
             if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
             {
-                if (string.IsNullOrEmpty(_configurationSettings.LocalPluginsFilePathV2))
-                {
-                    return new List<ParentProduct>();
-                }
-
-                return (await ReadLocalFile()).ParentProducts ?? new List<ParentProduct>();
-            }
-
-            return await _azureRepositoryExtended.GetParentProductsFromContainer();
-        }
-
-        public async Task UpdateParentProducts(List<ParentProduct> products)
-        {
-            var response = await ReadLocalFile();
-            var newResponse = new PluginResponse<PluginDetails<PluginVersion<string>>>
-            {
-                Value = response.Value,
-                Products = response.Products,
-                ParentProducts = products
-            };
-
-            if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
-            {
-                await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, JsonConvert.SerializeObject(newResponse));
+                _defaultProducts = await _localRepositoryExtended.ReadProductsFromFile();
+                _defaultParentProducts = await _localRepositoryExtended.ReadParentsFromFile();
                 return;
             }
 
-            await _azureRepositoryExtended.UpdateProductsFileBlob(JsonConvert.SerializeObject(newResponse));
-        }
-
-        public async Task DeleteParentProduct(string id)
-        {
-            var newProducts = (await GetParentProductsFromPossibleLocation()).Where(item => item.ParentId != id).ToList();
-            await UpdateParentProducts(newProducts);
+            _defaultProducts = await _azureRepositoryExtended.GetProductsFromContainer() ?? _defaultProducts;
+            _defaultParentProducts = await _azureRepositoryExtended.GetParentProductsFromContainer() ?? _defaultParentProducts ;
         }
     }
 }

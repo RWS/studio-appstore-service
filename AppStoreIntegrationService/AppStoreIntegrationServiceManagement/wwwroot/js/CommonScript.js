@@ -84,9 +84,11 @@ function GenerateChecksum() {
 
 function ManageChecksum(url, checksum) {
     var currentInput = event.target.value;
+
     if (url != currentInput) {
         document.getElementById("FileHash").value = "";
         return;
+
     }
 
     document.getElementById("FileHash").value = checksum;

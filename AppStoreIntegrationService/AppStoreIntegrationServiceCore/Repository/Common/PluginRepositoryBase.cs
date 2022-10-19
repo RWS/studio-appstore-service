@@ -1,7 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V1.Interface;
-using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Repository.Common
 {

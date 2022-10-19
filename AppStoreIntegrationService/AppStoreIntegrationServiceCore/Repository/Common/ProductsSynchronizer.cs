@@ -16,6 +16,21 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             _productsRepository = productsRepository;
         }
 
+        public bool ExistDuplicate(IEnumerable<ParentProduct> products)
+        {
+            return !products.GroupBy(p => p.ParentProductName, (_, products) => products
+                            .Count() == 1)
+                            .All(item => item);
+        }
+
+        public bool ExistDuplicate(IEnumerable<ProductDetails> products)
+        {
+            return !products.GroupBy(p => p.ProductName, (_, products) => products
+                            .GroupBy(p => p.MinimumStudioVersion, (_, products) => products
+                            .Count() == 1).All(item => item))
+                            .All(item => item);
+        }
+
         public async Task<bool> IsInUse(string id, ProductType type)
         {
             var plugins = await _pluginRepositoryExtended.GetAll(null);
@@ -27,26 +42,26 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             };
         }
 
-        public async Task SyncOnUpdate(List<ProductDetails> products)
+        public string SetIndex(IEnumerable<ProductDetails> products)
         {
-            var plugins = await _pluginRepositoryExtended.GetAll(null);
-            await SyncPluginsAndProducts(plugins, products);
-        }
-
-        private async Task SyncPluginsAndProducts(List<PluginDetails<PluginVersion<string>>> plugins, List<ProductDetails> products)
-        {
-            foreach (var version in plugins.SelectMany(p => p.Versions))
+            var lastProduct = products.LastOrDefault();
+            if (lastProduct == null)
             {
-                foreach (var product in products)
-                {
-                    if (product.Id == version.SupportedProducts[0])
-                    {
-                        version.SupportedProducts = new List<string> { product.Id };
-                    }
-                }
+                return "1";
             }
 
-            await _pluginRepositoryExtended.SaveToFile(plugins);
+            return (int.Parse(lastProduct.Id) + 1).ToString();
+        }
+
+        public string SetIndex(IEnumerable<ParentProduct> products)
+        {
+            var lastProduct = products.LastOrDefault();
+            if (lastProduct == null)
+            {
+                return "1";
+            }
+
+            return (int.Parse(lastProduct.ParentId) + 1).ToString();
         }
     }
 }

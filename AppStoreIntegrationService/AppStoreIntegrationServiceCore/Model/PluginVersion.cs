@@ -27,7 +27,6 @@ namespace AppStoreIntegrationServiceCore.Model
         public string FileHash { get; set; }
         public List<T> SupportedProducts { get; set; }
         public bool AppHasStudioPluginInstaller { get; set; }
-        [Required]
         public string MinimumRequiredVersionOfStudio { get; set; }
         [JsonProperty("SDLHosted")]
         public bool SdlHosted { get; set; }

@@ -4,6 +4,6 @@ namespace AppStoreIntegrationServiceCore.Repository.V1.Interface
 {
     public interface IAzureRepository<T>
     {
-        Task<List<T>> GetPluginsListFromContainer();
+        Task<List<T>> GetPluginsFromContainer();
     }
 }

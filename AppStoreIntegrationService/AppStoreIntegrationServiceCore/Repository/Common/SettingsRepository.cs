@@ -2,7 +2,6 @@
 using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
-using Newtonsoft.Json;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.Common
@@ -39,7 +38,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         {
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                await _azureRepositoryExtended.UpdateSettingsFileBlob(JsonConvert.SerializeObject(settings));
+                await _azureRepositoryExtended.UpdateSettingsFileBlob(settings);
                 return;
             }
 

@@ -23,10 +23,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> AddNew()
         {
-            var products = await _productsRepository.GetAllParentProducts();
+            var products = await _productsRepository.GetAllParents();
             return PartialView("_NewParentProductPartial", new ParentProduct
             {
-                ParentId = SetIndex(products)
+                ParentId = _productsSynchronizer.SetIndex(products)
             });
         }
 
@@ -36,7 +36,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             if (TryValidateProduct(product, products, out IActionResult result))
             {
                 products.Add(product);
-                await _productsRepository.UpdateParentProducts(products);
+                await _productsRepository.UpdateProducts(products);
             }
 
             return result;
@@ -50,12 +50,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
             }
 
-            if (ExitsProduct(products))
+            if (_productsSynchronizer.ExistDuplicate(products))
             {
                 return PartialView("_StatusMessage", "Error! There is already a parent product with this name!");
             }
 
-            await _productsRepository.UpdateParentProducts(products);
+            await _productsRepository.UpdateProducts(products);
             TempData["StatusMessage"] = "Success! Parent products table was updated!";
             return Content("/Settings/Products");
         }
@@ -69,27 +69,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 return Content("/Settings/Products");
             }
 
-            await _productsRepository.DeleteParentProduct(id);
+            await _productsRepository.DeleteProduct(id, ProductType.Parent);
             TempData["StatusMessage"] = "Success! Product was deleted!";
             return Content("/Settings/Products");
-        }
-
-        private static string SetIndex(IEnumerable<ParentProduct> products)
-        {
-            var lastProduct = products.LastOrDefault();
-            if (lastProduct == null)
-            {
-                return "1";
-            }
-
-            return (int.Parse(lastProduct.ParentId) + 1).ToString();
-        }
-
-        public bool ExitsProduct(List<ParentProduct> products)
-        {
-            return !products.GroupBy(p => p.ParentProductName, (_, products) => products
-                            .Count() == 1)
-                            .All(item => item);
         }
 
         private bool TryValidateProduct(ParentProduct product, List<ParentProduct> products, out IActionResult result)

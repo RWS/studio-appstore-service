@@ -5,7 +5,10 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface IProductsSynchronizer
     {
-        Task SyncOnUpdate(List<ProductDetails> products);
         Task<bool> IsInUse(string id, ProductType type);
+        bool ExistDuplicate(IEnumerable<ParentProduct> products);
+        bool ExistDuplicate(IEnumerable<ProductDetails> products);
+        string SetIndex(IEnumerable<ProductDetails> products);
+        string SetIndex(IEnumerable<ParentProduct> products);
     }
 }

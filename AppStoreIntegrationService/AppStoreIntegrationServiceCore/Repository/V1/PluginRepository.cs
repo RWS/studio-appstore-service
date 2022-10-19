@@ -2,29 +2,27 @@
 using AppStoreIntegrationServiceCore.Repository.Common;
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V1.Interface;
-using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 
 namespace AppStoreIntegrationServiceCore.Repository.V1
 {
     public class PluginRepository<T> : PluginRepositoryBase<T>, IPluginRepository<T> where T : PluginDetails<PluginVersion<ProductDetails>>
     {
-        public PluginRepository(IAzureRepository<T> azureRepository, IConfigurationSettings configurationSettings) : base(azureRepository, configurationSettings) { }
+        private readonly ILocalRepository<T> _localRepository;
+
+        public PluginRepository(IAzureRepository<T> azureRepository, IConfigurationSettings configurationSettings, ILocalRepository<T> localRepository) : base(azureRepository, configurationSettings) 
+        { 
+            _localRepository = localRepository;
+        }
 
         private async Task<List<T>> GetPlugins()
         {
             if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
             {
-                return await GetPluginsListFromLocalFile();
+                return await _localRepository.ReadPluginsFromFile();
             }
 
-            return await _azureRepository.GetPluginsListFromContainer();
-        }
-
-        private async Task<List<T>> GetPluginsListFromLocalFile()
-        {
-            var pluginsDetails = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePathV1);
-            return JsonConvert.DeserializeObject<PluginResponse<T>>(pluginsDetails)?.Value.Cast<T>().ToList();
+            return await _azureRepository.GetPluginsFromContainer();
         }
 
         private static List<T> FilterByStatus(List<T> searchedPluginList, PluginFilter.StatusValue status)

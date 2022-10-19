@@ -25,16 +25,13 @@
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0 align-self-center form-label" asp-for="MinimumRequiredVersionOfStudio">Minimum Studio Version <span class="text-danger">*</span></label>
-            <div class="w-100">
-                <input asp-for="MinimumRequiredVersionOfStudio" class="form-control" />
-                <span asp-validation-for="MinimumRequiredVersionOfStudio" class="text-danger"></span>
-            </div>
+            <label class="col-4 m-0 align-self-center form-label" asp-for="MinimumRequiredVersionOfStudio">Minimum Studio Version </label>
+            <input asp-for="MinimumRequiredVersionOfStudio" class="form-control" />
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 align-self-center" asp-for="DownloadUrl">Download URL <span class="text-danger">*</span></label>
             <div class="w-100">
-                <input asp-for="DownloadUrl" class="form-control" oninput="ManageChecksum('@Model.DownloadUrl', '@Model.FileHash')"/>
+                <input asp-for="DownloadUrl" class="form-control" oninput="ManageChecksum('@Model.DownloadUrl', '@Model.FileHash')" />
                 <span asp-validation-for="DownloadUrl" class="text-danger"></span>
             </div>
         </div>
