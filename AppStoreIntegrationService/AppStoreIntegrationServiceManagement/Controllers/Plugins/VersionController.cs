@@ -40,7 +40,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 Id = Guid.NewGuid().ToString()
             };
 
-            version.SetSupportedProductsList(products, products.FirstOrDefault(x => x.IsDefault).Id);
+            version.SetSupportedProductsList(products, products.FirstOrDefault(x => x.IsDefault)?.Id);
 
             return PartialView("_PluginVersionDetailsPartial", version);
         }

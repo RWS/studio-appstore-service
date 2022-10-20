@@ -45,7 +45,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsFilePathV1 { get; set; }
         public string LocalPluginsFilePathV2 { get; set; }
-        public string PluginsFileBackUpPathV1 { get; set; }
         public string PluginsFileBackUpPathV2 { get; set; }
         public Task SetFilePathsProperties(IWebHostEnvironment environment);
     }

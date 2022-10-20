@@ -27,15 +27,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         {
             var products = await _productsRepository.GetAllProducts();
             var parents = await _productsRepository.GetAllParents();
+            var extendedProducts = new List<ExtendedProductDetails>();
 
             foreach (var product in products)
             {
-                product.SetParentProductsList(parents.ToList());
+                var extended = new ExtendedProductDetails(product);
+                extended.SetParentProductsList(parents);
+                extendedProducts.Add(extended);
             }
 
             return View(new ProductsModel
             {
-                Products = products,
+                Products = extendedProducts,
                 ParentProducts = parents
             });
         }
@@ -45,11 +48,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         {
             var parents = await _productsRepository.GetAllParents();
             var products = await _productsRepository.GetAllProducts();
-            var product = new ProductDetails
+            var product = new ExtendedProductDetails
             {
                 Id = _productsSynchronizer.SetIndex(products)
             };
-            product.SetParentProductsList(parents.ToList());
+            product.SetParentProductsList(parents);
             return PartialView("_NewProductPartial", product);
         }
 

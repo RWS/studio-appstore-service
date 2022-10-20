@@ -37,7 +37,15 @@
             var newVersionList = new List<PluginVersion<string>>(versions);
             var existingVersion = newVersionList.FirstOrDefault(v => v.Id.Equals(selectedVersion.Id));
             selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
-            newVersionList[newVersionList.IndexOf(existingVersion)] = selectedVersion;
+            if (Equals(existingVersion, null))
+            {
+                newVersionList.Add(selectedVersion);
+            }
+            else
+            {
+                newVersionList[newVersionList.IndexOf(existingVersion)] = selectedVersion;
+            }
+            
             return newVersionList;
         }
     }

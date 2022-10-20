@@ -52,7 +52,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 Products = response.Products,
                 ParentProducts = response.ParentProducts
             });
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(text));
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
         }
 
         public async Task BackupFile(List<T> plugins)
@@ -76,7 +76,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 Products = products,
                 ParentProducts = response.ParentProducts
             });
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(text));
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
         }
 
         public async Task UpdateParentsFileBlob(List<ParentProduct> products)
@@ -88,7 +88,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 Products = response.Products,
                 ParentProducts = products
             });
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(text));
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
         }
 
         public async Task<List<NameMapping>> GetNameMappingsFromContainer()

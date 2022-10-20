@@ -18,7 +18,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsFilePathV1 { get; set; }
         public string LocalPluginsFilePathV2 { get; set; }
-        public string PluginsFileBackUpPathV1 { get; set; }
         public string PluginsFileBackUpPathV2 { get; set; }
         public string SettingsFileName { get; set; }
 
@@ -49,7 +48,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
             if (!string.IsNullOrEmpty(PluginsFileNameV1))
             {
                 LocalPluginsFilePathV1 = Path.Combine(ConfigFolderPath, PluginsFileNameV1);
-                PluginsFileBackUpPathV1 = Path.Combine(ConfigFolderPath, $"{Path.GetFileNameWithoutExtension(PluginsFileNameV1)}_backup.json");
             }
 
             if (!string.IsNullOrEmpty(PluginsFileNameV2))
@@ -81,11 +79,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
                     await File.Create(NameMappingsFilePath).DisposeAsync();
                 }
 
-                if (!string.IsNullOrEmpty(PluginsFileBackUpPathV1) && !File.Exists(PluginsFileBackUpPathV1))
-                {
-                    await File.Create(PluginsFileBackUpPathV1).DisposeAsync();
-                }
-
                 if (!string.IsNullOrEmpty(PluginsFileBackUpPathV2) && !File.Exists(PluginsFileBackUpPathV2))
                 {
                     await File.Create(PluginsFileBackUpPathV2).DisposeAsync();
@@ -108,10 +101,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
 
         private static string GetVariable(string key)
         {
-            // by default it gets a process variable. Allow getting user as well
-            return
-                Environment.GetEnvironmentVariable(key) ??
-                Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.User);
+            return Environment.GetEnvironmentVariable(key) ?? Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.User);
         }
     }
 }
