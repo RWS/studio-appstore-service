@@ -1,5 +1,4 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Mvc;
@@ -9,19 +8,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     [Area("Plugins")]
     public class VersionController : Controller
     {
-        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> _pluginRepository;
+        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
         private readonly IProductsRepository _productsRepository;
 
-        public VersionController(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepository, IProductsRepository productsRepository)
+        public VersionController(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> pluginRepository, IProductsRepository productsRepository)
         {
             _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Show(List<ExtendedPluginVersion<string>> versions, PluginDetailsModel pluginDetails)
+        public async Task<IActionResult> Show(List<ExtendedPluginVersion<string>> versions, PrivatePlugin<PluginVersion<string>> plugin)
         {
-            var version = versions.FirstOrDefault(v => v.Id.Equals(pluginDetails.SelectedVersionId));
+            var version = versions.FirstOrDefault(v => v.VersionId.Equals(plugin.SelectedVersionId));
             var products = (await _productsRepository.GetAllProducts()).ToList();
             version.SetSupportedProductsList(products, version.SelectedProduct.Id);
             return PartialView("_PluginVersionDetailsPartial", version);
@@ -37,7 +36,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 VersionNumber = string.Empty,
                 IsPrivatePlugin = true,
                 IsNewVersion = true,
-                Id = Guid.NewGuid().ToString()
+                VersionId = Guid.NewGuid().ToString()
             };
 
             version.SetSupportedProductsList(products, products.FirstOrDefault(x => x.IsDefault)?.Id);
@@ -50,7 +49,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             try
             {
-                var remoteReader = new RemoteStreamReader(new Uri(version.DownloadUrl));
+                var remoteReader = new RemoteStreamReader(new Uri(version.VersionDownloadUrl));
                 version.FileHash = SHA1Generator.GetHash(await remoteReader.ReadAsync());
             }
             catch (Exception e)
@@ -63,9 +62,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(PluginDetailsModel pluginDetails, string id)
+        public async Task<IActionResult> Delete(PrivatePlugin<PluginVersion<string>> plugin, string id)
         {
-            var plugin = pluginDetails.PrivatePlugin;
             await _pluginRepository.RemovePluginVersion(plugin.Id, id);
             TempData["StatusMessage"] = "Success! Version was removed!";
             return Content($"Plugins/Edit/{plugin.Id}");

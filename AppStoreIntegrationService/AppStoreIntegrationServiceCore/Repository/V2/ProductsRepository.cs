@@ -3,7 +3,7 @@ using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using static AppStoreIntegrationServiceCore.Enums;
 
-namespace AppStoreIntegrationServiceCore.Repository.Common
+namespace AppStoreIntegrationServiceCore.Repository.V2
 {
     public enum ProductType
     {
@@ -11,7 +11,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         Parent
     }
 
-    public class ProductsRepository<T> : IProductsRepository where T : PluginDetails<PluginVersion<string>>, new()
+    public class ProductsRepository<T> : IProductsRepository where T : PluginDetails<PluginVersion<string>, string>, new()
     {
         protected readonly IAzureRepositoryExtended<T> _azureRepositoryExtended;
         protected readonly IConfigurationSettings _configurationSettings;
@@ -77,40 +77,39 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
 
         public async Task DeleteProduct(string id, ProductType type)
         {
-            await InitProductLists();
+            var(Products, Parents) = await GetProductsFromPossibleLocations();
             if (type == ProductType.Child)
             {
-                await UpdateProducts(_defaultProducts.Where(item => item.Id != id).ToList());
+                await UpdateProducts(Products.Where(item => item.Id != id).ToList());
                 return;
             }
 
-            await UpdateProducts(_defaultParentProducts.Where(item => item.ParentId != id).ToList());
+            await UpdateProducts(Parents.Where(item => item.ParentId != id).ToList());
 
         }
 
         public async Task<List<ProductDetails>> GetAllProducts()
         {
-            await InitProductLists();
-            return _defaultProducts;
+            var (Products, _) = await GetProductsFromPossibleLocations();
+            return Products;
         }
 
         public async Task<List<ParentProduct>> GetAllParents()
         {
-            await InitProductLists();
-            return _defaultParentProducts;
+            var (_, Parents) = await GetProductsFromPossibleLocations();
+            return Parents;
         }
 
-        private async Task InitProductLists()
+        private async Task<(List<ProductDetails> Products, List<ParentProduct> Parents)> GetProductsFromPossibleLocations()
         {
-            if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
+            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
-                _defaultProducts = await _localRepositoryExtended.ReadProductsFromFile();
-                _defaultParentProducts = await _localRepositoryExtended.ReadParentsFromFile();
-                return;
+                return (Products: await _localRepositoryExtended.ReadProductsFromFile() ?? _defaultProducts,
+                        Parents: await _localRepositoryExtended.ReadParentsFromFile() ?? _defaultParentProducts);
             }
 
-            _defaultProducts = await _azureRepositoryExtended.GetProductsFromContainer() ?? _defaultProducts;
-            _defaultParentProducts = await _azureRepositoryExtended.GetParentProductsFromContainer() ?? _defaultParentProducts ;
+            return (Products: await _azureRepositoryExtended.GetProductsFromContainer() ?? _defaultProducts,
+                    Parents: await _azureRepositoryExtended.GetParentProductsFromContainer() ?? _defaultParentProducts);
         }
     }
 }

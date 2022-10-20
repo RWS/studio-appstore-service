@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Repository.V2
 {
-    public class LocalRepositoryExtended<T> : ILocalRepositoryExtended<T> where T : PluginDetails<PluginVersion<string>>, new()
+    public class LocalRepositoryExtended<T> : ILocalRepositoryExtended<T> where T : PluginDetails<PluginVersion<string>, string>, new()
     {
         private readonly IConfigurationSettings _configurationSettings;
 
@@ -38,7 +38,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<ParentProduct>> ReadParentsFromFile()
         {
-            return (await ReadFromFile()).ParentProducts ?? new List<ParentProduct>();
+            return (await ReadFromFile()).ParentProducts;
         }
 
         public async Task<List<T>> ReadPluginsFromFile()
@@ -48,7 +48,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<ProductDetails>> ReadProductsFromFile()
         {
-            return (await ReadFromFile()).Products ?? new List<ProductDetails>();
+            return (await ReadFromFile()).Products;
         }
 
         public async Task SaveMappingsToFile(List<NameMapping> names)
@@ -61,9 +61,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             var response = await ReadFromFile();
             var text = JsonConvert.SerializeObject(new PluginResponse<T>
             {
+                APIVersion = response.APIVersion,
                 Value = response.Value,
                 Products = response.Products,
-                ParentProducts = products
+                ParentProducts = products,
+                Categories = response.Categories
             });
             await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, text);
         }
@@ -73,9 +75,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             var response = await ReadFromFile();
             var text = JsonConvert.SerializeObject(new PluginResponse<T>
             {
+                APIVersion = response.APIVersion,
                 Value = plugins,
                 Products = response.Products,
-                ParentProducts = response.ParentProducts
+                ParentProducts = response.ParentProducts,
+                Categories = response.Categories
             });
             await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, text);
         }
@@ -85,9 +89,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             var response = await ReadFromFile();
             var text = JsonConvert.SerializeObject(new PluginResponse<T>
             {
+                APIVersion = response.APIVersion,
                 Value = response.Value,
                 Products = products,
-                ParentProducts = response.ParentProducts
+                ParentProducts = response.ParentProducts,
+                Categories = response.Categories
             });
             await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, text);
         }
@@ -95,6 +101,25 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
         public async Task<string> GetAPIVersionFromFile()
         {
             return (await ReadFromFile()).APIVersion ?? "1.0.0";
+        }
+
+        public async Task SaveCategoriesToFile(List<CategoryDetails> categories)
+        {
+            var response = await ReadFromFile();
+            var text = JsonConvert.SerializeObject(new PluginResponse<T>
+            {
+                APIVersion = response.APIVersion,
+                Value = response.Value,
+                Products = response.Products,
+                ParentProducts = response.ParentProducts,
+                Categories = categories
+            });
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, text);
+        }
+
+        public async Task<List<CategoryDetails>> ReadCategoriesFromFile()
+        {
+            return (await ReadFromFile()).Categories;
         }
     }
 }

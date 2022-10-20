@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using AppStoreIntegrationServiceCore.Repository.V1.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {
@@ -15,23 +14,26 @@ namespace AppStoreIntegrationServiceAPI.Controllers
 	[Produces(MediaTypeNames.Application.Json)]
 	public class PluginsController : Controller
 	{
-		public IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>> _pluginRepository;
+		public IPluginRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>> _pluginRepository;
 		public IProductsRepository _productsRepository;
 		public IVersionProvider _versionProvider;
-		public IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> _pluginRepositoryExtended;
+		public IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepositoryExtended;
+		private readonly ICategoriesRepository _categoriesRepository;
 
 		public PluginsController
 		(
-			IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>> pluginRepository, 
-			IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepositoryExtended,
+			IPluginRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>> pluginRepository, 
+			IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> pluginRepositoryExtended,
 			IProductsRepository productsRepository,
-			IVersionProvider versionProvider
+			IVersionProvider versionProvider,
+			ICategoriesRepository categoriesRepository
 		)
 		{
 			_pluginRepository = pluginRepository;
 			_pluginRepositoryExtended = pluginRepositoryExtended;
 			_productsRepository = productsRepository;
 			_versionProvider = versionProvider;
+			_categoriesRepository = categoriesRepository;
 		}
 
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -46,13 +48,14 @@ namespace AppStoreIntegrationServiceAPI.Controllers
                 return Ok(_pluginRepository.SearchPlugins(await _pluginRepository.GetAll(filter.SortOrder), filter));
             }
 
-            return Ok(new PluginResponse<PluginDetails<PluginVersion<string>>>
+            return Ok(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = await _versionProvider.GetAPIVersion(),
                 Value = _pluginRepositoryExtended.SearchPlugins(await _pluginRepositoryExtended.GetAll(filter.SortOrder), filter),
 				Products = await _productsRepository.GetAllProducts(),
-				ParentProducts = await _productsRepository.GetAllParents()
-            }); ;
+				ParentProducts = await _productsRepository.GetAllParents(),
+				Categories = await _categoriesRepository.GetAllCategories()
+            });
         }
 	}
 }

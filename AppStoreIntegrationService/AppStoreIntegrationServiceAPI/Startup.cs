@@ -42,15 +42,16 @@ namespace AppStoreIntegrationServiceAPI
                 options.Providers.Add<GzipCompressionProvider>();
             });
 
-            services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>>>>();
+            services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
-            services.AddSingleton<IVersionProvider, VersionProvider<PluginDetails<PluginVersion<string>>>>();
-            services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<ProductDetails>>>, AzureRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
-            services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
-            services.AddSingleton<IPluginRepository<PluginDetails<PluginVersion<ProductDetails>>>, PluginRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
-            services.AddSingleton<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
-            services.AddSingleton<ILocalRepositoryExtended<PluginDetails<PluginVersion<string>>>, LocalRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
-            services.AddSingleton<ILocalRepository<PluginDetails<PluginVersion<ProductDetails>>>, LocalRepository<PluginDetails<PluginVersion<ProductDetails>>>>();
+            services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
+            services.AddSingleton<IVersionProvider, VersionProvider<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>, AzureRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>>();
+            services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IPluginRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>, PluginRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>>();
+            services.AddSingleton<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<ILocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>>, LocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<ILocalRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>, LocalRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>>();
             services.AddSingleton<INamesRepository, NamesRepository>();
         }
 

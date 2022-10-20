@@ -6,7 +6,6 @@ using Microsoft.ApplicationInsights.Extensibility;
 using static AppStoreIntegrationServiceCore.Enums;
 using AppStoreIntegrationServiceCore.Repository.V2;
 using AppStoreIntegrationServiceCore.Repository.Common;
-using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
@@ -61,15 +60,16 @@ namespace AppStoreIntegrationServiceManagement
             services.AddResponseCaching();
             services.AddHttpContextAccessor();
             services.AddSingleton<INamesRepository, NamesRepository>();
-            services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>>>>();
+            services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
             services.AddSingleton<ISettingsRepository, SettingsRepository>();
             services.AddSingleton<IProductsSynchronizer, ProductsSynchronizer>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
             services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
-            services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
-            services.AddSingleton<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
-            services.AddSingleton<ILocalRepositoryExtended<PluginDetails<PluginVersion<string>>>, LocalRepositoryExtended<PluginDetails<PluginVersion<string>>>>();
+            services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<ILocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>>, LocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>>>();
 
             services.AddAuthorization(options =>
             {

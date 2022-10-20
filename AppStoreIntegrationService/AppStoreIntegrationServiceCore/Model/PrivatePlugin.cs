@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -27,10 +28,9 @@ namespace AppStoreIntegrationServiceCore.Model
         [MinLength(5)]
         public string DownloadUrl { get; set; }
 
-        public List<CategoryDetails> Categories { get; set; }
+        public List<string> Categories { get; set; }
 
         public List<ExtendedPluginVersion<string>> Versions { get; set; }
-        public string NewVersionNumber { get; set; }
 
         [Required]
         public string IconUrl { get; set; }
@@ -39,21 +39,24 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool IsEditMode { get; set; }
 
+        public MultiSelectList CategoryListItems { get; set; }
+
+        public string SelectedVersionId { get; set; }
+
         public bool IsValid(PluginVersion<string> selectedVersion)
         {
-            return selectedVersion.Id != null || IsEditMode;
+            return selectedVersion.VersionId != null || IsEditMode;
         }
 
-        public void SetVersionList(List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> selectedVersion, List<ProductDetails> products)
+        public void SetVersionList(List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> selectedVersion)
         {
-            var editedVersion = versions.FirstOrDefault(v => v.Id.Equals(selectedVersion.Id));
-            var selectedProduct = products?.FirstOrDefault(item => item.Id == selectedVersion.SelectedProductId);
+            var editedVersion = versions.FirstOrDefault(v => v.VersionId.Equals(selectedVersion.VersionId));
             if (editedVersion != null)
             {
                 selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
                 versions[versions.IndexOf(editedVersion)] = selectedVersion;
             }
-            else if (selectedVersion.Id != null)
+            else if (selectedVersion.VersionId != null)
             {
                 selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
                 versions.Add(selectedVersion);
@@ -62,14 +65,9 @@ namespace AppStoreIntegrationServiceCore.Model
             Versions = versions;
         }
 
-        public void SetCategoryList(List<int> selectedCategories, List<CategoryDetails> categories)
-        {
-            Categories = selectedCategories?.SelectMany(categoriId => categories.Where(category => category.Id == categoriId)).ToList();
-        }
-
         public void SetDownloadUrl()
         {
-            DownloadUrl = Versions.LastOrDefault()?.DownloadUrl;
+            DownloadUrl = Versions.LastOrDefault()?.VersionDownloadUrl;
         }
     }
 }

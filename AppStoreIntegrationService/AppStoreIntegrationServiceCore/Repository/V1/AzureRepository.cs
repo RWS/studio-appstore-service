@@ -9,7 +9,7 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.V1
 {
-    public class AzureRepository<T> : AzureRepositoryBase<T>, IAzureRepository<T> where T : PluginDetails<PluginVersion<ProductDetails>>
+    public class AzureRepository<T> : AzureRepositoryBase<T>, IAzureRepository<T> where T : PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>
     {
         private CloudBlockBlob _pluginsListBlockBlob;
 

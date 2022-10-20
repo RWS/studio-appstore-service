@@ -1,0 +1,1 @@
+﻿const table = new TableCrud("Categories/Delete/", "Categories/Add", 'Categories/Update', "Categories/AddNew", "#categoriesTable");

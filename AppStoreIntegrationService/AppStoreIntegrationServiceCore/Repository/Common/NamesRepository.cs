@@ -7,14 +7,14 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
 {
     public class NamesRepository : INamesRepository
     {
-        private readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> _azureRepositoryExtended;
-        private readonly ILocalRepositoryExtended<PluginDetails<PluginVersion<string>>> _localRepositoryExtended;
+        private readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _azureRepositoryExtended;
+        private readonly ILocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _localRepositoryExtended;
         private readonly IConfigurationSettings _configurationSettings;
 
         public NamesRepository
         (
-            IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> azureRepositoryExtended,
-            ILocalRepositoryExtended<PluginDetails<PluginVersion<string>>> localRepositoryExtended,
+            IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>> azureRepositoryExtended,
+            ILocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>> localRepositoryExtended,
             IConfigurationSettings configurationSettings
         )
         {

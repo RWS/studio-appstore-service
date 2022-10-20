@@ -4,18 +4,18 @@ using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using static AppStoreIntegrationServiceCore.Enums;
 
-namespace AppStoreIntegrationServiceCore.Repository.Common
+namespace AppStoreIntegrationServiceCore.Repository.V2
 {
     public class SettingsRepository : ISettingsRepository
     {
         private readonly IWritableOptions<SiteSettings> _options;
-        private readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> _azureRepositoryExtended;
+        private readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _azureRepositoryExtended;
         private readonly IConfigurationSettings _configurationSettings;
 
         public SettingsRepository
         (
-            IWritableOptions<SiteSettings> options, 
-            IAzureRepositoryExtended<PluginDetails<PluginVersion<string>>> azureRepositoryExtended, 
+            IWritableOptions<SiteSettings> options,
+            IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>> azureRepositoryExtended,
             IConfigurationSettings configurationSettings
         )
         {

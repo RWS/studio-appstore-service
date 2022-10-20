@@ -1,6 +1,6 @@
 ﻿namespace AppStoreIntegrationServiceCore.Model
 {
-    public class PluginDetails<T>
+    public class PluginDetails<T, U>
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -20,7 +20,7 @@
         public DeveloperDetails Developer { get; set; }
         public List<IconDetails> Media { get; set; }
         public List<T> Versions { get; set; }
-        public List<CategoryDetails> Categories { get; set; }
+        public List<U> Categories { get; set; }
         public string DownloadUrl { get; set; }
         public DateTime? CreatedDate { get; set; }
     }

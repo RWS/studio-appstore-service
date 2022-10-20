@@ -2,14 +2,14 @@
 {
     public static class PrivatePluginExtention
     {
-        public static PluginDetails<PluginVersion<string>> ConvertToPluginDetails
+        public static PluginDetails<PluginVersion<string>, string> ConvertToPluginDetails
         (
             this PrivatePlugin<PluginVersion<string>> privateDetails,
-            PluginDetails<PluginVersion<string>> foundDetails,
+            PluginDetails<PluginVersion<string>,  string> foundDetails,
             ExtendedPluginVersion<string> selectedVersionDetails
         )
         {
-            return new PluginDetails<PluginVersion<string>>
+            return new PluginDetails<PluginVersion<string>, string>
             {
                 Id = privateDetails.Id,
                 Name = privateDetails.Name,
@@ -21,7 +21,7 @@
                 Description = privateDetails.Description,
                 PaidFor = privateDetails.PaidFor,
                 Inactive = privateDetails.Inactive,
-                Categories = privateDetails.Categories.Any() ? privateDetails.Categories : foundDetails.Categories,
+                Categories = privateDetails.Categories,
                 DownloadUrl = foundDetails.DownloadUrl,
                 Versions = PrepareVersions(foundDetails.Versions, selectedVersionDetails)
             };
@@ -35,7 +35,7 @@
             }
 
             var newVersionList = new List<PluginVersion<string>>(versions);
-            var existingVersion = newVersionList.FirstOrDefault(v => v.Id.Equals(selectedVersion.Id));
+            var existingVersion = newVersionList.FirstOrDefault(v => v.VersionId.Equals(selectedVersion.VersionId));
             selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
             if (Equals(existingVersion, null))
             {

@@ -8,6 +8,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
         Task<List<NameMapping>> GetNameMappingsFromContainer();
         Task<List<ParentProduct>> GetParentProductsFromContainer();
         Task<List<ProductDetails>> GetProductsFromContainer();
+        Task<List<CategoryDetails>> GetCategoriesFromContainer();
         Task<SiteSettings> GetSettingsFromContainer();
         Task<string> GetAPIVersionFromContainer();
         Task UpdateMappingsFileBlob(List<NameMapping> mappings);
@@ -15,6 +16,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
         Task UpdatePluginsFileBlob(List<T> plugins);
         Task UpdateProductsFileBlob(List<ProductDetails> products);
         Task UpdateParentsFileBlob(List<ParentProduct> products);
+        Task UpdateCategoriesFileBlob(List<CategoryDetails> products);
         Task BackupFile(List<T> plugins);
     }
 }

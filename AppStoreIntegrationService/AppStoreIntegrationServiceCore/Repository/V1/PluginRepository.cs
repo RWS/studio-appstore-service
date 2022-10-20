@@ -1,18 +1,21 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common;
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V1.Interface;
 using System.Text.RegularExpressions;
 
 namespace AppStoreIntegrationServiceCore.Repository.V1
 {
-    public class PluginRepository<T> : PluginRepositoryBase<T>, IPluginRepository<T> where T : PluginDetails<PluginVersion<ProductDetails>>
+    public class PluginRepository<T> : IPluginRepository<T> where T : PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>
     {
         private readonly ILocalRepository<T> _localRepository;
+        private readonly IAzureRepository<T> _azureRepository;
+        private readonly IConfigurationSettings _configurationSettings;
 
-        public PluginRepository(IAzureRepository<T> azureRepository, IConfigurationSettings configurationSettings, ILocalRepository<T> localRepository) : base(azureRepository, configurationSettings) 
+        public PluginRepository(IAzureRepository<T> azureRepository, IConfigurationSettings configurationSettings, ILocalRepository<T> localRepository)
         { 
             _localRepository = localRepository;
+            _configurationSettings = configurationSettings;
+            _azureRepository = azureRepository;
         }
 
         private async Task<List<T>> GetPlugins()
@@ -89,7 +92,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
                     if (version != null)
                     {
                         matchingVersions.Add(pluginVersion);
-                        plugin.DownloadUrl = pluginVersion.DownloadUrl;
+                        plugin.DownloadUrl = pluginVersion.VersionDownloadUrl;
                     }
                 }
 

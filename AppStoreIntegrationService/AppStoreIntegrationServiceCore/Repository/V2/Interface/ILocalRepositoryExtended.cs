@@ -9,9 +9,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
         Task SaveProductsToFile(List<ProductDetails> products);
         Task SaveParentsToFile(List<ParentProduct> products);
         Task SaveMappingsToFile(List<NameMapping> names);
+        Task SaveCategoriesToFile(List<CategoryDetails> categories);
         Task<List<ProductDetails>> ReadProductsFromFile();
         Task<List<ParentProduct>> ReadParentsFromFile();
         Task<List<NameMapping>> ReadMappingsFromFile();
+        Task<List<CategoryDetails>> ReadCategoriesFromFile();
         Task<string> GetAPIVersionFromFile();
     }
 }

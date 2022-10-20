@@ -1,5 +1,4 @@
 ﻿using System.Net.Mime;
-using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,16 +9,16 @@ namespace AppStoreIntegrationServiceAPI.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     public class CategoriesController : ControllerBase
     {
-        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> _pluginRepository;
+        private readonly ICategoriesRepository _categoriesRepository;
 
-        public CategoriesController(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepository)
+        public CategoriesController(ICategoriesRepository categoriesRepository)
         {
-            _pluginRepository = pluginRepository;
+            _categoriesRepository = categoriesRepository;
         }
 
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var categories = _pluginRepository.GetCategories();
+            var categories = await _categoriesRepository.GetAllCategories();
             return Ok(categories);
         }
     }

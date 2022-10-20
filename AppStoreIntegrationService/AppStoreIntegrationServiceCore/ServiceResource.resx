@@ -120,38 +120,11 @@
   <data name="BlobName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_BLOBNAME</value>
   </data>
-  <data name="CategoryAutomatedTranslation" xml:space="preserve">
-    <value>Automated translation</value>
-  </data>
-  <data name="CategoryFileFiltersConverters" xml:space="preserve">
-    <value>File filters &amp; converters</value>
-  </data>
-  <data name="CategoryProcessAutomationAndManagement" xml:space="preserve">
-    <value>Process automation &amp; management</value>
-  </data>
-  <data name="CategoryReference" xml:space="preserve">
-    <value>Reference</value>
-  </data>
-  <data name="CategoryTerminology" xml:space="preserve">
-    <value>Terminology</value>
-  </data>
-  <data name="CategoryTranslationMemory" xml:space="preserve">
-    <value>Translation Memory</value>
-  </data>
   <data name="LocalFolderPath" xml:space="preserve">
     <value>APPSTOREINTEGRATION_LOCAL_FOLDERPATH</value>
   </data>
   <data name="MappingFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_MAPPINGFILENAME</value>
-  </data>
-  <data name="PaidFor" xml:space="preserve">
-    <value>Paid For</value>
-  </data>
-  <data name="PluginDescription" xml:space="preserve">
-    <value>Plugin Description</value>
-  </data>
-  <data name="PluginName" xml:space="preserve">
-    <value>Plugin Name</value>
   </data>
   <data name="PluginsFileNameV1" xml:space="preserve">
     <value>APPSTOREINTEGRATION_PLUGINSFILENAMEV1</value>

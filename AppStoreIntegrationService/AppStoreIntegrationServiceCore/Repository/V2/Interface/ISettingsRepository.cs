@@ -1,6 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 
-namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
+namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
 {
     public interface ISettingsRepository
     {

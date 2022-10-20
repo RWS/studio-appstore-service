@@ -1,5 +1,4 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common;
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using Microsoft.AspNetCore.Http;
@@ -9,11 +8,12 @@ using System.Text.RegularExpressions;
 
 namespace AppStoreIntegrationServiceCore.Repository.V2
 {
-    public class PluginRepositoryExtended<T> : PluginRepositoryBase<T>, IPluginRepositoryExtended<T> where T : PluginDetails<PluginVersion<string>>, new()
+    public class PluginRepositoryExtended<T> : IPluginRepositoryExtended<T> where T : PluginDetails<PluginVersion<string>, string>, new()
     {
         private readonly IAzureRepositoryExtended<T> _azureRepositoryExtended;
         private readonly IProductsRepository _productsRepository;
         private readonly ILocalRepositoryExtended<T> _localRepositoryExtended;
+        private readonly IConfigurationSettings _configurationSettings;
 
         public PluginRepositoryExtended
         (
@@ -21,11 +21,12 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             IProductsRepository productsRepository,
             IConfigurationSettings configurationSettings,
             ILocalRepositoryExtended<T> localRepositoryExtended
-        ) : base(azureRepositoryExtended, configurationSettings)
+        )
         {
             _azureRepositoryExtended = azureRepositoryExtended;
             _productsRepository = productsRepository;
             _localRepositoryExtended = localRepositoryExtended;
+            _configurationSettings = configurationSettings;
         }
 
         public async Task UpdatePrivatePlugin(PrivatePlugin<PluginVersion<string>> privatePlugin)
@@ -162,7 +163,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
         {
             var pluginList = await GetPlugins();
             var pluginToBeUpdated = pluginList.FirstOrDefault(plugin => plugin.Id.Equals(pluginId));
-            var versionToBeRemoved = pluginToBeUpdated.Versions.FirstOrDefault(version => version.Id.Equals(versionId));
+            var versionToBeRemoved = pluginToBeUpdated.Versions.FirstOrDefault(version => version.VersionId.Equals(versionId));
             await BackupFile(pluginList);
             pluginToBeUpdated.Versions.Remove(versionToBeRemoved);
             await SaveToFile(pluginList);
@@ -187,7 +188,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 return await _localRepositoryExtended.ReadPluginsFromFile();
             }
 
-            return await _azureRepository.GetPluginsFromContainer();
+            return await _azureRepositoryExtended.GetPluginsFromContainer();
         }
 
         private async Task BackupFile(List<T> plugins)
@@ -288,7 +289,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                     if (version != null)
                     {
                         matchingVersions.Add(pluginVersion);
-                        plugin.DownloadUrl = pluginVersion.DownloadUrl;
+                        plugin.DownloadUrl = pluginVersion.VersionDownloadUrl;
                     }
                 }
 
@@ -312,7 +313,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 {
                     if (plugin.Categories != null)
                     {
-                        var containsCategory = plugin.Categories.Any(c => c.Id.Equals(categoryId));
+                        var containsCategory = plugin.Categories.Any(c => c.Equals(categoryId));
                         if (containsCategory)
                         {
                             var pluginExist = searchedPluginsResult.Any(p => p.Id.Equals(plugin.Id));

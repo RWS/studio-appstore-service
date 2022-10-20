@@ -70,60 +70,6 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Automated translation.
-        /// </summary>
-        public static string CategoryAutomatedTranslation {
-            get {
-                return ResourceManager.GetString("CategoryAutomatedTranslation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to File filters &amp; converters.
-        /// </summary>
-        public static string CategoryFileFiltersConverters {
-            get {
-                return ResourceManager.GetString("CategoryFileFiltersConverters", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Process automation &amp; management.
-        /// </summary>
-        public static string CategoryProcessAutomationAndManagement {
-            get {
-                return ResourceManager.GetString("CategoryProcessAutomationAndManagement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Reference.
-        /// </summary>
-        public static string CategoryReference {
-            get {
-                return ResourceManager.GetString("CategoryReference", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Terminology.
-        /// </summary>
-        public static string CategoryTerminology {
-            get {
-                return ResourceManager.GetString("CategoryTerminology", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Translation Memory.
-        /// </summary>
-        public static string CategoryTranslationMemory {
-            get {
-                return ResourceManager.GetString("CategoryTranslationMemory", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to APPSTOREINTEGRATION_LOCAL_FOLDERPATH.
         /// </summary>
         public static string LocalFolderPath {
@@ -138,33 +84,6 @@ namespace AppStoreIntegrationServiceCore {
         public static string MappingFileName {
             get {
                 return ResourceManager.GetString("MappingFileName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Paid For.
-        /// </summary>
-        public static string PaidFor {
-            get {
-                return ResourceManager.GetString("PaidFor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Plugin Description.
-        /// </summary>
-        public static string PluginDescription {
-            get {
-                return ResourceManager.GetString("PluginDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Plugin Name.
-        /// </summary>
-        public static string PluginName {
-            get {
-                return ResourceManager.GetString("PluginName", resourceCulture);
             }
         }
         

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Repository.V1
 {
-    public class LocalRepository<T> : ILocalRepository<T> where T : PluginDetails<PluginVersion<ProductDetails>>, new()
+    public class LocalRepository<T> : ILocalRepository<T> where T : PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>, new()
     {
         private readonly IConfigurationSettings _configurationSettings;
 

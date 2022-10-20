@@ -5,7 +5,7 @@
     {
         @for (int i = 0; i < @Model.Count; i++)
         {
-            <input hidden asp-for="@Model[i].Id" />
+            <input hidden asp-for="@Model[i].VersionId" />
             <input hidden asp-for="@Model[i].VersionNumber" />
             <input hidden asp-for="@Model[i].FileHash" />
             <input hidden asp-for="@Model[i].IsNewVersion" />
@@ -17,7 +17,7 @@
             <input hidden asp-for="@Model[i].SelectedProduct.ProductName" />
             <input hidden asp-for="@Model[i].SelectedProduct.ParentProductID" />
             <input hidden asp-for="@Model[i].SelectedProduct.MinimumStudioVersion" />
-            <input hidden asp-for="@Model[i].DownloadUrl" />
+            <input hidden asp-for="@Model[i].VersionDownloadUrl" />
             <input hidden asp-for="@Model[i].IsPrivatePlugin" />
 
             for (int j = 0; j < Model[i].SupportedProducts.Count; j++)
@@ -27,10 +27,10 @@
 
             <input hidden asp-for="@Model[i].VersionName" />
             <div class="d-flex justify-content-between">
-                <label class="cursor-pointer" onclick="ShowVersionDetails('@Model[i].Id')">@Model[i].VersionName</label>
+                <label class="cursor-pointer" onclick="ShowVersionDetails('@Model[i].VersionId')">@Model[i].VersionName</label>
                 @if (Model.Count > 1)
                 {
-                    <i class="far fa-trash-alt text-danger cursor-pointer" id="@Model[i].Id"></i>
+                    <i class="far fa-trash-alt text-danger cursor-pointer" id="@Model[i].VersionId"></i>
                 }
             </div>
         }

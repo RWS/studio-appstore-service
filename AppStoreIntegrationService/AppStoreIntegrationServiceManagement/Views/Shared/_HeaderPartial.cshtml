@@ -1,5 +1,4 @@
-﻿@using AppStoreIntegrationServiceCore.Model;
-@inject ISettingsRepository repository;
+﻿@inject ISettingsRepository repository;
 @{
     var siteName = (await repository.GetSettings()).Name;
 }

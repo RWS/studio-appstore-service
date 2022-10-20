@@ -7,7 +7,5 @@ namespace AppStoreIntegrationServiceCore.Repository.V1.Interface
         List<T> SearchPlugins(List<T> pluginsList, PluginFilter filter);
 
         Task<List<T>> GetAll(string sortOrder);
-
-        List<CategoryDetails> GetCategories();
     }
 }

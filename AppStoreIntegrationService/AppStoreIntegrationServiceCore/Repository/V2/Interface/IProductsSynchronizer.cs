@@ -1,7 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common;
 
-namespace AppStoreIntegrationServiceCore.Repository.Interface
+namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
 {
     public interface IProductsSynchronizer
     {

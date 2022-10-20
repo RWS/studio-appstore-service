@@ -1,16 +1,14 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
-using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 
-namespace AppStoreIntegrationServiceCore.Repository.Common
+namespace AppStoreIntegrationServiceCore.Repository.V2
 {
     public class ProductsSynchronizer : IProductsSynchronizer
     {
-        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> _pluginRepositoryExtended;
+        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepositoryExtended;
         private readonly IProductsRepository _productsRepository;
 
-        public ProductsSynchronizer(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepository, IProductsRepository productsRepository)
+        public ProductsSynchronizer(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> pluginRepository, IProductsRepository productsRepository)
         {
             _pluginRepositoryExtended = pluginRepository;
             _productsRepository = productsRepository;

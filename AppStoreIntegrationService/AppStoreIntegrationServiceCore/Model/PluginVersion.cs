@@ -19,7 +19,8 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public DateTime? CreatedDate { get; set; }
         public int DownloadCount { get; set; }
-        public string Id { get; set; }
+        [JsonProperty("Id")]
+        public string VersionId { get; set; }
         public DateTime? ReleasedDate { get; set; }
         public string TechnicalRequirements { get; set; }
         [Required]
@@ -32,7 +33,8 @@ namespace AppStoreIntegrationServiceCore.Model
         public bool SdlHosted { get; set; }
         public bool IsNavigationLink { get; set; }
         [Required]
-        public string DownloadUrl { get; set; }
+        [JsonProperty("DownloadUrl")]
+        public string VersionDownloadUrl { get; set; }
         public bool IsPrivatePlugin { get; set; }
     }
 }

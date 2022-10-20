@@ -5,7 +5,7 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.V2
 {
-    public class VersionProvider<T> : IVersionProvider where T : PluginDetails<PluginVersion<string>>, new()
+    public class VersionProvider<T> : IVersionProvider where T : PluginDetails<PluginVersion<string>, string>, new()
     {
         private readonly IConfigurationSettings _configurationSettings;
         private readonly IAzureRepositoryExtended<T> _azureRepositoryExtended;

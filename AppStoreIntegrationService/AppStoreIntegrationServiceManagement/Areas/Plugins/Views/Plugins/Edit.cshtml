@@ -1,4 +1,4 @@
-﻿@model PluginDetailsModel
+﻿@model PrivatePlugin<PluginVersion<string>>
 @{
     ViewData["Title"] = "Edit";
 }
@@ -10,12 +10,12 @@
     <div class="row px-2">
         <div class="col-12 col-lg-4">
             <div class="d-flex justify-content-center">
-                <img class="img-thumbnail border-0" src="@Model.PrivatePlugin.IconUrl" asp-append-version="true">
+                <img class="img-thumbnail border-0" src="@Model.IconUrl" asp-append-version="true">
             </div>
-            <h5 class="text-center p-1 text-wrap">@Model.PrivatePlugin.Name</h5>
+            <h5 class="text-center p-1 text-wrap">@Model.Name</h5>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <p class="col-4 m-0 align-self-center">Status</p>
-                <select class="status-select" asp-for="@Model.PrivatePlugin.Inactive">
+                <select class="status-select" asp-for="Inactive">
                     <option value="false">Active</option>
                     <option value="true">Inactive</option>
                 </select>
@@ -25,64 +25,60 @@
                 <a onclick="javascript: AddNewVersion()" class="new-version-button"> <i class="fas fa-plus"></i></a>
             </div>
             <div>
-                <partial name="_PluginVersionPartial" model="@Model.PrivatePlugin.Versions" />
+                <partial name="_PluginVersionPartial" model="@Model.Versions" />
             </div>
         </div>
 
         <div class="col-12 col-lg-8 border-container">
-            <input hidden asp-for="@Model.PrivatePlugin.Id" />
-            <input hidden asp-for="@Model.PrivatePlugin.IsEditMode" />
-            <input hidden asp-for="@Model.SelectedVersionId" id="selectedVersionId" />
-            @for (int i = 0; i < Model.Categories.Count; i++)
-            {
-                <input hidden asp-for="@Model.Categories[i].Id" />
-                <input hidden asp-for="@Model.Categories[i].Name" />
-            }
+            <input hidden asp-for="Id" />
+            <input hidden asp-for="IsEditMode" />
+            <input hidden asp-for="SelectedVersionId" id="selectedVersionId" />
+
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Name">Plugin Name <span class="text-danger">*</span></label>
+                <label class="col-4 m-0 align-self-center form-label" asp-for="Name">Plugin Name <span class="text-danger">*</span></label>
                 <div class="w-100">
-                    <input asp-for="PrivatePlugin.Name" class="form-control" />
-                    <span asp-validation-for="PrivatePlugin.Name" class="text-danger"></span>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.IconUrl">Icon url <span class="text-danger">*</span></label>
+                <label class="col-4 m-0 align-self-center form-label" asp-for="IconUrl">Icon url <span class="text-danger">*</span></label>
                 <div class="w-100">
-                    <input asp-for="PrivatePlugin.IconUrl" class="form-control" />
-                    <span asp-validation-for="PrivatePlugin.IconUrl" class="text-danger"></span>
+                    <input asp-for="IconUrl" class="form-control" />
+                    <span asp-validation-for="IconUrl" class="text-danger"></span>
                 </div>
 
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.DeveloperName">Developer </label>
-                <input asp-for="PrivatePlugin.DeveloperName" class="form-control" />
+                <label class="col-4 m-0 align-self-center form-label" asp-for="DeveloperName">Developer </label>
+                <input asp-for="DeveloperName" class="form-control" />
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.ChangelogLink">Changelog link </label>
-                <input asp-for="PrivatePlugin.ChangelogLink" class="form-control" />
+                <label class="col-4 m-0 align-self-center form-label" asp-for="ChangelogLink">Changelog link </label>
+                <input asp-for="ChangelogLink" class="form-control" />
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.SupportUrl">Support url </label>
-                <input asp-for="PrivatePlugin.SupportUrl" class="form-control" />
+                <label class="col-4 m-0 align-self-center form-label" asp-for="SupportUrl">Support url </label>
+                <input asp-for="SupportUrl" class="form-control" />
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.SupportEmail">Support email </label>
-                <input asp-for="PrivatePlugin.SupportEmail" class="form-control" />
+                <label class="col-4 m-0 align-self-center form-label" asp-for="SupportEmail">Support email </label>
+                <input asp-for="SupportEmail" class="form-control" />
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="PrivatePlugin.Description">Description <span class="text-danger">*</span></label>
+                <label class="col-4 m-0 align-self-center form-label" asp-for="Description">Description <span class="text-danger">*</span></label>
                 <div class="w-100">
-                    <textarea asp-for="PrivatePlugin.Description" class="form-control" rows="7"></textarea>
-                    <span asp-validation-for="PrivatePlugin.Description" class="text-danger"></span>
+                    <textarea asp-for="Description" class="form-control" rows="7"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center" asp-for="PrivatePlugin.Categories">Plugin categories </label>
-                <select class="form-select" multiple="multiple" asp-for="SelectedCategories" asp-items="Model.CategoryListItems"></select>
+                <label class="col-4 m-0 align-self-center" asp-for="Categories">Plugin categories </label>
+                <select class="form-select" multiple="multiple" asp-for="@Model.Categories" asp-items="Model.CategoryListItems"></select>
             </div>
             <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0" asp-for="PrivatePlugin.PaidFor">Paid for</label>
-                <input asp-for="PrivatePlugin.PaidFor" type="checkbox" class="m-0 align-self-center p-3" />
+                <label class="col-4 m-0" asp-for="PaidFor">Paid for</label>
+                <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3" />
             </div>
 
             <div id="pluginVersionContainer"></div>

@@ -1,8 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using AppStoreIntegrationServiceManagement.Model;
-using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,15 +12,23 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     [Area("Plugins")]
     public class PluginsController : Controller
     {
-        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> _pluginRepositoryExtended;
+        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepositoryExtended;
         private readonly IProductsRepository _productsRepository;
+        private readonly ICategoriesRepository _categoriesRepository;
         private readonly IHttpContextAccessor _context;
 
-        public PluginsController(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>>> pluginRepositoryExtended, IHttpContextAccessor context, IProductsRepository productsRepository)
+        public PluginsController
+        (
+            IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> pluginRepositoryExtended,
+            IHttpContextAccessor context,
+            IProductsRepository productsRepository,
+            ICategoriesRepository categoriesRepository
+        )
         {
             _pluginRepositoryExtended = pluginRepositoryExtended;
             _context = context;
             _productsRepository = productsRepository;
+            _categoriesRepository = categoriesRepository;
         }
 
         [Route("Plugins")]
@@ -36,61 +42,52 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [Route("Plugins/New")]
-        public IActionResult New()
+        public async Task<IActionResult> New()
         {
-            var categories = _pluginRepositoryExtended.GetCategories();
-            return View(new PluginDetailsModel
+            var categories = await _categoriesRepository.GetAllCategories();
+            return View(new PrivatePlugin<PluginVersion<string>>
             {
-                PrivatePlugin = new PrivatePlugin<PluginVersion<string>>
-                {
-                    IconUrl = GetDefaultIcon(),
-                    IsEditMode = false
-                },
+                IconUrl = GetDefaultIcon(),
+                IsEditMode = false,
                 SelectedVersionId = Guid.NewGuid().ToString(),
-                Categories = categories,
-                CategoryListItems = new SelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
+                CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
             });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
+        public async Task<IActionResult> Create(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
         {
-            return await Save(pluginDetails, versions, version, _pluginRepositoryExtended.AddPrivatePlugin);
+            return await Save(plugin, versions, version, _pluginRepositoryExtended.AddPrivatePlugin);
         }
 
         [Route("Plugins/Edit/{id?}")]
         public async Task<IActionResult> Edit(int id)
         {
-            var categories = _pluginRepositoryExtended.GetCategories();
+            var categories = await _categoriesRepository.GetAllCategories();
             var pluginDetails = await _pluginRepositoryExtended.GetPluginById(id);
-            return View(new PluginDetailsModel
+            return View(new PrivatePlugin<PluginVersion<string>>
             {
-                PrivatePlugin = new PrivatePlugin<PluginVersion<string>>
-                {
-                    Id = pluginDetails.Id,
-                    PaidFor = pluginDetails.PaidFor,
-                    DeveloperName = pluginDetails.Developer?.DeveloperName,
-                    Description = pluginDetails.Description,
-                    Name = pluginDetails.Name,
-                    ChangelogLink = pluginDetails.ChangelogLink,
-                    SupportEmail = pluginDetails.SupportEmail,
-                    SupportUrl = pluginDetails.SupportUrl,
-                    Categories = pluginDetails.Categories,
-                    Inactive = pluginDetails.Inactive,
-                    Versions = SetSelectedProducts(pluginDetails.Versions).ToList(),
-                    IconUrl = string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl) ? GetDefaultIcon() : pluginDetails.Icon.MediaUrl,
-                    IsEditMode = true
-                },
-                Categories = categories,
-                CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name)),
-                SelectedCategories = pluginDetails.Categories.Select(c => c.Id).ToList()
+                Id = pluginDetails.Id,
+                PaidFor = pluginDetails.PaidFor,
+                DeveloperName = pluginDetails.Developer?.DeveloperName,
+                Description = pluginDetails.Description,
+                Name = pluginDetails.Name,
+                ChangelogLink = pluginDetails.ChangelogLink,
+                SupportEmail = pluginDetails.SupportEmail,
+                SupportUrl = pluginDetails.SupportUrl,
+                Categories = pluginDetails.Categories,
+                Inactive = pluginDetails.Inactive,
+                Versions = SetSelectedProducts(pluginDetails.Versions).ToList(),
+                IconUrl = string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl) ? GetDefaultIcon() : pluginDetails.Icon.MediaUrl,
+                IsEditMode = true,
+                CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
             });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
+        public async Task<IActionResult> Update(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
         {
-            return await Save(pluginDetails, versions, version, _pluginRepositoryExtended.UpdatePrivatePlugin);
+            return await Save(plugin, versions, version, _pluginRepositoryExtended.UpdatePrivatePlugin);
         }
 
         [HttpPost]
@@ -102,11 +99,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
-        public async Task<IActionResult> GoToPage(PluginDetailsModel pluginDetails, ExtendedPluginVersion<string> version, string redirectUrl, string currentPage)
+        public async Task<IActionResult> GoToPage(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, string redirectUrl, string currentPage)
         {
             redirectUrl = redirectUrl.Replace('.', '/');
 
-            if (currentPage != "New" && await IsSaved(pluginDetails, version))
+            if (currentPage != "New" && await IsSaved(plugin, version))
             {
                 return Content($"{redirectUrl}");
             }
@@ -116,42 +113,30 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 RequestPage = $"{redirectUrl}",
                 ModalType = ModalType.WarningMessage,
                 Title = "Unsaved changes!",
-                Message = string.Format("Discard changes for {0}?", string.IsNullOrEmpty(pluginDetails.PrivatePlugin.Name) ? "plugin" : pluginDetails.PrivatePlugin.Name)
+                Message = string.Format("Discard changes for {0}?", string.IsNullOrEmpty(plugin.Name) ? "plugin" : plugin.Name)
             };
 
             return PartialView("_ModalPartial", modalDetails);
         }
 
-        private async Task<bool> IsSaved(PluginDetailsModel pluginDetails, ExtendedPluginVersion<string> version)
+        private async Task<bool> IsSaved(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
         {
-            var plugin = pluginDetails.PrivatePlugin;
             var foundPluginDetails = await _pluginRepositoryExtended.GetPluginById(plugin.Id);
-            plugin.SetCategoryList(pluginDetails.SelectedCategories, _pluginRepositoryExtended.GetCategories());
             var newPluginDetails = plugin.ConvertToPluginDetails(foundPluginDetails, version);
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
-        private async Task<IActionResult> Save(PluginDetailsModel pluginDetails, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version, Func<PrivatePlugin<PluginVersion<string>>, Task> func)
+        private async Task<IActionResult> Save(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version, Func<PrivatePlugin<PluginVersion<string>>, Task> func)
         {
-            var plugin = pluginDetails.PrivatePlugin;
-            var products = await _productsRepository.GetAllProducts();
-
             if (plugin.IsValid(version))
             {
-                plugin.SetVersionList(versions, version, products.ToList());
-                plugin.SetCategoryList(pluginDetails.SelectedCategories, pluginDetails.Categories);
+                plugin.SetVersionList(versions, version);
                 plugin.SetDownloadUrl();
 
                 try
                 {
                     await func(plugin);
-                    if (plugin.IsEditMode)
-                    {
-                        TempData["StatusMessage"] = string.Format("Success! {0} was updated!", plugin.Name);
-                        return Content($"/Plugins/Edit/{plugin.Id}");
-                    }
-
-                    TempData["StatusMessage"] = string.Format("Success! {0} was saved!", plugin.Name);
+                    TempData["StatusMessage"] = string.Format("Success! {0} was {1}!", plugin.Name, plugin.IsEditMode ? "updated" : "saved");
                     return Content($"/Plugins/Edit/{plugin.Id}");
                 }
                 catch (Exception e)
@@ -181,7 +166,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return newVersions;
         }
 
-        private IEnumerable<PrivatePlugin<PluginVersion<string>>> InitializePrivatePlugins(List<PluginDetails<PluginVersion<string>>> plugins)
+        private IEnumerable<PrivatePlugin<PluginVersion<string>>> InitializePrivatePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
         {
             foreach (var plugin in plugins)
             {

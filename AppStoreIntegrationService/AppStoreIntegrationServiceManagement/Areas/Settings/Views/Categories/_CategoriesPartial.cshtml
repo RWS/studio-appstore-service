@@ -1,0 +1,26 @@
+﻿@model List<CategoryDetails>
+
+@for (int i = 0; i < Model.Count; i++)
+{
+    <tr class="table-row d-flex flex-column d-lg-table-row" id="itemsRow">
+        <td class="d-none d-lg-table-cell">
+            <div class="input-group">
+                <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Id</span>
+                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start" hidden="hidden" onfocusout="table.FocusOut()" asp-for="@Model[i].Id">
+                <p class="m-0 section w-100 align-self-center text-center text-lg-start" ondblclick="table.EditCell()">@Model[i].Id</p>
+            </div>
+        </td>
+        <td class="editable-field order-first">
+            <input class="form-control form-control-sm entry entry-nofocus text-center text-lg-start autofocus" hidden="hidden" onfocusout="table.FocusOut()" asp-for="@Model[i].Name">
+            <p class="m-0 section align-self-center text-center text-lg-start" ondblclick="table.EditCell()" onclick="Collapse(this)">@Model[i].Name</p>
+        </td>   
+        <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
+            <i class="fa fa-pen-alt text-secondary cursor-pointer" onclick="table.EditRow()"></i>
+            <i class="fa fa-check-circle text-success cursor-pointer d-none" onclick="table.ApplyChanges()"></i>
+        </td>
+        <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
+            <i id="@Model[i].Id" class="fa fa-trash-alt row-eraser text-danger cursor-pointer" onclick="table.DeleteRow()"></i>
+            <i class="fa fa-times-circle text-danger cursor-pointer d-none" onclick="table.DiscardChanges()"></i>
+        </td>
+    </tr>
+}

@@ -11,11 +11,11 @@
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
     <partial name="_SettingsNavPartial" />
-    <div class="col-12 col-md-9" id="namesMapping">
+    <div class="col-12 col-md-9">
         <div class="settings-details">
             <form method="post" id="form" onsubmit="return false">
                 <h4>Parent Products</h4>
-                <table id="parentProductsTable" class="table table-bordered">
+                <table id="parentProductsTable" class="table table-bordered table-collapse">
                     <thead>
                         <tr class="align-middle d-none d-lg-table-row">
                             <th>Id</th>
@@ -33,7 +33,7 @@
                 <button type="button" onclick="parentTable.AddNewRow()" class="btn pa-admin-success-btn d-inline mb-2">Add new</button>
                 <hr class="w-100" />
                 <h4>Products</h4>
-                <table id="productsTable" class="table table-bordered">
+                <table id="productsTable" class="table table-bordered table-collapse">
                     <thead>
                         <tr class="align-middle d-none d-lg-table-row">
                             <th>Id</th>

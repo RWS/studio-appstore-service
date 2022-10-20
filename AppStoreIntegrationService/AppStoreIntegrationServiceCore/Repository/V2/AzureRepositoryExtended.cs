@@ -9,7 +9,7 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.V2
 {
-    public class AzureRepositoryExtended<T> : AzureRepositoryBase<T>, IAzureRepositoryExtended<T> where T : PluginDetails<PluginVersion<string>>
+    public class AzureRepositoryExtended<T> : AzureRepositoryBase<T>, IAzureRepositoryExtended<T> where T : PluginDetails<PluginVersion<string>, string>
     {
         private CloudBlockBlob _pluginsListBlockBlobOptimized;
         private CloudBlockBlob _pluginsBackupBlockBlobOptimized;
@@ -40,7 +40,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<ProductDetails>> GetProductsFromContainer()
         {
-            return (await ReadFromContainer()).Products ?? new List<ProductDetails>();
+            return (await ReadFromContainer()).Products;
         }
 
         public async Task UpdatePluginsFileBlob(List<T> plugins)
@@ -48,9 +48,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             var response = await ReadFromContainer();
             string text = JsonConvert.SerializeObject(new PluginResponse<T>
             {
+                APIVersion = response.APIVersion,
                 Value = plugins,
                 Products = response.Products,
-                ParentProducts = response.ParentProducts
+                ParentProducts = response.ParentProducts,
+                Categories = response.Categories
             });
             await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
         }
@@ -60,9 +62,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             var response = await ReadFromContainer();
             string text = JsonConvert.SerializeObject(new PluginResponse<T>
             {
+                APIVersion = response.APIVersion,
                 Value = plugins,
                 Products = response.Products,
-                ParentProducts = response.ParentProducts
+                ParentProducts = response.ParentProducts,
+                Categories = response.Categories
             });
             await _pluginsBackupBlockBlobOptimized.UploadTextAsync(text);
         }
@@ -72,9 +76,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             var response = await ReadFromContainer();
             string text = JsonConvert.SerializeObject(new PluginResponse<T>
             {
+                APIVersion = response.APIVersion,
                 Value = response.Value,
                 Products = products,
-                ParentProducts = response.ParentProducts
+                ParentProducts = response.ParentProducts,
+                Categories = response.Categories
             });
             await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
         }
@@ -84,9 +90,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             var response = await ReadFromContainer();
             string text = JsonConvert.SerializeObject(new PluginResponse<T>
             {
+                APIVersion = response.APIVersion,
                 Value = response.Value,
                 Products = response.Products,
-                ParentProducts = products
+                ParentProducts = products,
+                Categories = response.Categories
             });
             await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
         }
@@ -128,7 +136,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<ParentProduct>> GetParentProductsFromContainer()
         {
-            return (await ReadFromContainer()).ParentProducts ?? new List<ParentProduct>();
+            return (await ReadFromContainer()).ParentProducts;
         }
 
         public async Task UpdateMappingsFileBlob(List<NameMapping> mappings)
@@ -152,6 +160,25 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
         public async Task<string> GetAPIVersionFromContainer()
         {
             return (await ReadFromContainer()).APIVersion ?? "1.0.0";
+        }
+
+        public async Task<List<CategoryDetails>> GetCategoriesFromContainer()
+        {
+            return (await ReadFromContainer()).Categories;
+        }
+
+        public async Task UpdateCategoriesFileBlob(List<CategoryDetails> categories)
+        {
+            var response = await ReadFromContainer();
+            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            {
+                APIVersion = response.APIVersion,
+                Value = response.Value,
+                Products = response.Products,
+                ParentProducts = response.ParentProducts,
+                Categories = categories
+            });
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
         }
     }
 }
