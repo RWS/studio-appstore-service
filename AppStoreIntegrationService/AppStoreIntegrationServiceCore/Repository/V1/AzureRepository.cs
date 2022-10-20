@@ -12,7 +12,6 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
     public class AzureRepository<T> : AzureRepositoryBase<T>, IAzureRepository<T> where T : PluginDetails<PluginVersion<ProductDetails>>
     {
         private CloudBlockBlob _pluginsListBlockBlob;
-        private CloudBlockBlob _pluginsBackupBlockBlob;
 
         public AzureRepository(IConfigurationSettings configurationSettings) : base(configurationSettings)
         {
@@ -34,7 +33,6 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
         private void InitializeBlockBlobs()
         {
             CreateEmptyFile(_pluginsListBlockBlob);
-            CreateEmptyFile(_pluginsBackupBlockBlob);
         }
 
         private void SetCloudBlockBlobs()
@@ -42,9 +40,6 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
             if (!string.IsNullOrEmpty(_configurationSettings.PluginsFileNameV1))
             {
                 _pluginsListBlockBlob = GetBlockBlobReference(_configurationSettings.PluginsFileNameV1);
-
-                var backupFileName = $"{Path.GetFileNameWithoutExtension(_configurationSettings.PluginsFileNameV1)}_backupFile.json";
-                _pluginsBackupBlockBlob = GetBlockBlobReference(backupFileName);
             }
         }
     }
