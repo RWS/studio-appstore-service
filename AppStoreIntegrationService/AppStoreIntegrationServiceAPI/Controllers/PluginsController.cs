@@ -14,10 +14,10 @@ namespace AppStoreIntegrationServiceAPI.Controllers
 	[Produces(MediaTypeNames.Application.Json)]
 	public class PluginsController : Controller
 	{
-		public IPluginRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>> _pluginRepository;
-		public IProductsRepository _productsRepository;
-		public IVersionProvider _versionProvider;
-		public IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepositoryExtended;
+		private readonly IPluginRepository<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>> _pluginRepository;
+		private readonly IProductsRepository _productsRepository;
+		private readonly IVersionProvider _versionProvider;
+		private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepositoryExtended;
 		private readonly ICategoriesRepository _categoriesRepository;
 
 		public PluginsController

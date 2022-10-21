@@ -61,6 +61,7 @@ namespace AppStoreIntegrationServiceManagement
             services.AddHttpContextAccessor();
             services.AddSingleton<INamesRepository, NamesRepository>();
             services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IVersionProvider, VersionProvider<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
             services.AddSingleton<ISettingsRepository, SettingsRepository>();
             services.AddSingleton<IProductsSynchronizer, ProductsSynchronizer>();

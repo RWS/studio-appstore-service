@@ -26,8 +26,8 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             {
                 new CategoryDetails
                 {
-                    Name = "Automated translation",
-                    Id = "6"
+                    Name = "File filters & converters",
+                    Id = "2"
                 },
                 new CategoryDetails
                 {
@@ -36,23 +36,23 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 },
                 new CategoryDetails
                 {
-                    Name = "Process automation & management",
-                    Id = "5"
-                },
-                new CategoryDetails
-                {
-                    Name = "Reference",
-                    Id = "7"
-                },
-                new CategoryDetails
-                {
                     Name = "Terminology",
                     Id = "4"
                 },
                 new CategoryDetails
                 {
-                    Name = "File filters & converters",
-                    Id = "2"
+                    Name = "Process automation & management",
+                    Id = "5"
+                },
+                new CategoryDetails
+                {
+                    Name = "Automated translation",
+                    Id = "6"
+                },
+                new CategoryDetails
+                {
+                    Name = "Reference",
+                    Id = "7"
                 }
             };
         }

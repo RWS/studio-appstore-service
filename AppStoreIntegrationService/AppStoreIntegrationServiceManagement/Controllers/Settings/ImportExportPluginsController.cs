@@ -14,12 +14,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     public class ImportExportPluginsController : Controller
     {
         private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepositoryExtended;
-        private readonly IProductsSynchronizer _productsSynchronizer;
+        private readonly IProductsRepository _productsRepository;
+        private readonly IVersionProvider _versionProvider;
+        private readonly ICategoriesRepository _categoriesRepository;
 
-        public ImportExportPluginsController(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> pluginRepositoryExtended, IProductsSynchronizer productsSynchronizer)
+        public ImportExportPluginsController
+        (
+            IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> pluginRepositoryExtended, 
+            IProductsRepository productsRepository, 
+            IVersionProvider versionProvider, 
+            ICategoriesRepository categoriesRepository
+        )
         {
             _pluginRepositoryExtended = pluginRepositoryExtended;
-            _productsSynchronizer = productsSynchronizer;
+            _productsRepository = productsRepository;
+            _versionProvider = versionProvider;
+            _categoriesRepository = categoriesRepository;
         }
 
         [Route("Settings/ExportPlugins")]
@@ -31,7 +41,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> CreateExport()
         {
-            var response = new PluginResponse<PluginDetails<PluginVersion<string>, string>> { Value = await _pluginRepositoryExtended.GetAll("asc") };
+            var response = new PluginResponse<PluginDetails<PluginVersion<string>, string>> 
+            { 
+                APIVersion = await _versionProvider.GetAPIVersion(),
+                Value = await _pluginRepositoryExtended.GetAll("asc"),
+                Products = await _productsRepository.GetAllProducts(),
+                ParentProducts = await _productsRepository.GetAllParents(),
+                Categories = await _categoriesRepository.GetAllCategories()
+            };
             var jsonString = JsonConvert.SerializeObject(response);
             var stream = Encoding.UTF8.GetBytes(jsonString);
             return File(stream, "application/octet-stream", "ExportPluginsConfig.json");

@@ -26,7 +26,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Categories
             var categories = await _categoriesRepository.GetAllCategories();
             return View(new CategoriesModel
             {
-                Categories = categories.OrderBy(c => c.Id).ToList()
+                Categories = categories
             });
         }
 
@@ -36,7 +36,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Categories
             var categories = await _categoriesRepository.GetAllCategories();
             return PartialView("_NewCategoryPartial", new CategoryDetails
             {
-                Id = SetIndex(categories.OrderBy(c => c.Id).ToList()),
+                Id = SetIndex(categories),
             });
         }
 
@@ -62,7 +62,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Categories
 
             if (ExistDuplicate(categories))
             {
-                return PartialView("_StatusMessage", "Error! There is already a categoryt with this name!");
+                return PartialView("_StatusMessage", "Error! There is already a category with this name!");
             }
 
             await _categoriesRepository.UpdateCategories(categories);
@@ -76,7 +76,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Categories
             if (await IsInUse(id))
             {
                 TempData["StatusMessage"] = "Error! This category is used by plugins!";
-                return Content("/Settings/Products");
+                return Content("/Settings/Categories");
             }
 
             await _categoriesRepository.DeleteCategory(id);
@@ -128,7 +128,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Categories
 
         private static string SetIndex(List<CategoryDetails> categories)
         {
-            var lastCategory = categories.LastOrDefault();
+            var lastCategory = categories.MaxBy(c => c.Id);
             if (lastCategory == null)
             {
                 return "1";
@@ -151,7 +151,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Categories
                 return false;
             }
 
-            TempData["StatusMessage"] = "Success! Product was added!";
+            TempData["StatusMessage"] = "Success! Category was added!";
             result = Content("/Settings/Categories");
             return true;
         }
