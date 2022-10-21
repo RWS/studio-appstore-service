@@ -1,128 +1,152 @@
-# studio-appstore-service
-This is the home for the appstore service used by SDL Trados Studio 2021 onwards for searching and installing plugins.
+# AppStoreIntegrationServiceManagement & AppStoreIntegrationSeriveAPI
 
 ## Table of contents 
 
-1. [Intro](#intro)
-2. [Getting started](#getting-started)
-3. [How to configure the service](#how-to-configure-the-service)
-4. [How to run the service](#how-to-run-the-service)
-5. [How to host a service on IIS](#how-to-host-a-service-on-iis)
+1. [How to publish AppStoreIntegrationServiceManagement on local folder path](#publishing-PAAdmin-on-local-folder-path)
+2. [How to publish AppStoreIntegrationServiceAPI on local folder path](#publishing-API-on-local-folder-path)
+3. [How to publish AppStoreIntegrationServiceManagement on IIS Server](#publishing-PAAdmin-on-IIS)
+4. [How to publish AppStoreIntegrationServiceAPI on IIS Server](#publishing-API-on-IIS)
 
-## Intro
-This service allows users to create a **Private AppStore** which can be used in SDL Trados Studio to install and update plugins whether they are released on the AppStore web site or not.
+<a name="publishing-PAAdmin-on-local-folder-path"/>
 
-The service reads a *Json* with a predefined structure containing details for all the plugins which will be made available in SDL Trados Studio.
+## 1. Publishing AppStoreIntegrationServiceManagement (PA Admin) on local folder path (.exe)
 
-## Getting started
-In the **release section** there is an archive available for the latest version of the Service. This archive contains the following items:
-1. The executable file of the service *AppStoreIntegrationService.exe*.
-2. A configuration file used by the service which needs to be completed by each user *appsettings.json*.
-3. A folder called *PluginsConfig* which contains an example of the json file used by the Service. 
-4. A folder called *SettingsFileExample* which has 3 files containing the settings needed by the service based on the Deploy Mode.
+### Configuration of the local folder path
++ Go to release section and download the latest version available
+  ![alt text][Release]
++ The .zip file contains the source code, two json files with the formats used by studio and a file with possible configuration for appsettings.json
++ Download, unzip and open the solution in Visual Studio
++ From the files three under the AppStoreIntegrationServiceManagement project open appsettings.json
++ Go to the .zip file you just downloaded and copy the content of the file "appsettings-local.json" into the appsettings.json from Visual studio and save it
++ Now, the AppStoreIntegrationServiceManagement is set for local folder path deployment
+	
+### Publishing to local folder path
++ From the Solution Explorer right-click on AppStoreIntegrationServiceManagement and select Publish
++ On the Publish window, click new to create a new Publish profile
+  ![alt text][New-publish-profile]
++ Select Folder from the prompt
+  ![alt text][Publish-folder-path]
++ Make sure you choose an easy to find location becase this is where your .exe file will be published
++ Click Finish
 
-For the latest release of the service, **SqlLocalDB** must be installed on the machine. This  dependency was introduced when we added support for Authentication/Authorization.
-This dependency can be downloaded from: https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SqlLocalDB.msi
+### Running the PA Admin
++ Go to the folder where you published your application
++ Double-click AppStoreIntegrationServiceManagement.exe
++ A console will open that will tell you "The application has started"
++ In the same console you will find the port where you can view your application (e.g. https://localhost:5005)
++ Copy the link in the browser and the application should start
 
-## How to configure the service
-The service can be configured to read the **json file with the plugins info** in 3 ways:
-1. From an **Azure Storage** account. That means the json file is stored in a Blob in Azure.
-2. From a **Local Path** on the server.
-3. From a **Network file path**.
+### Login in the PA Admin
+	- The application has a build in user with administrator privillege with the following credentials:
+		- Username: Admin
+		- Password: Administrator
+	- Pass the credentials in the login form and click sign-in
 
-The configuration to support this needs to be added in the **appsettings.json** file.
+<a name="publishing-API-on-local-folder-path"/>
 
-### What information should be added in the appsettings.json file
+## 2. Publishing AppStoreIntegrationServiceAPI on local folder path (.exe)
 
-In the *SettingsFileExample* folder there are 3 files which correspond to each deploy option available. Copy the content of the file which corresponds to the desired deploy option and paste it into the **appsettings.json** file.
+### Configuration of the local folder path
++ Go to release section and download the latest version available
+  ![alt text][Release]
++ The .zip file contains the source code, a json file with the formats used by studio and a file with possible configuration for appsettings.json
++ Open the solution in Visual Studio
++ From the files three under the AppStoreIntegrationServiceAPI project open appsettings.json
++ Go to the .zip file you just downloaded and copy the content of the file "appsettings-local.json" into the appsettings.json from Visual studio and save it
++ Now, the AppStoreIntegrationServiceAPI is set for local folder path deployment
 
-### Azure Blob Deploy mode
-In order to use the Azure deploy mode you need to add the Azure **Storage Account Name** and the **Storage Account Key**. This information needs to be written into the **"ConfigurationSettings"** object in the **appsettings** file or in the **System environment variables**.
+### Publishing to local folder path
++ From the Solution Explorer right-click on AppStoreIntegrationServiceAPI and select Publish
++ On the Publish window, click new to create a new Publish profile
+  ![alt text][New-publish-profile]
++ Select Folder from the prompt
+  ![alt text][Publish-folder-path]
++ Make sure you choose an easy to find location becase this is where your .exe file will be published
++ Click Finish
 
-#### System environment variables
-If you choose the add the settings in the system variables please make sure you remove the **ConfigurationSettings object** from the **appsettings** file (if you had added it) and create the following **Environment Variables**: 
-```
-1. APPSTOREINTEGRATION_BLOBNAME
-2. APPSTOREINTEGRATION_CONFIGFILENAME
-3. APPSTOREINTEGRATION_STORAGE_ACCOUNTKEY
-4. APPSTOREINTEGRATION_STORAGE_ACCOUNTNAME
-5. APPSTOREINTEGRATION_MAPPINGFILENAME (Not mandatory. This variable is used for Name mapping feature)
-```
-**Blob name rules** 
+### Running the API
++ Go to the folder where you published your application
++ Double-click AppStoreIntegrationServiceAPI.exe
++ A console will open that will tell you "The application has started"
++ In the same console you will find the port where you can view your application (e.g. https://localhost:5005)
++ Copy the link in the browser and the response should apper
 
-Azure has following validation rules for Blob name:
-```
-- It should contain only lower case letters, letters and digits. No special characters are allowed.
-- Minimum required lenght is 3
-```
-Appstore service by default change the blob name to follow the Azure requirements:
-```
-1. If the blob name is not provider the default name used is **defaultblobname**.
-2. If the choosed name contains special characters they'll stripped out.
-3. Blob name will be converted to lower case.
-4. If the name doesn't have more that 3 letters we'll add "appstore" to choosen name.
-For example: 
-Name selected: private_appstore_Blob this name will be transformed by the service in -> privateappstoreblob
-Name selected: PRIVATEstore -> privatestore
-Name selected: abc -> abcappstore
-```
+<a name="publishing-PAAdmin-on-IIS"/>
 
-The **ConnectionStrings** section of the **appsettings** can also be set as an environment variable.
+## 3. Publishing AppStoreIntegrationServiceManagement (PA Admin) on IIS server
 
-### ServerFilePath and NetworkFilePath Deploy mode
-In order to use one of these deploy options in the **appsettings.json**, or in the **Environment Variables**, the local folder path" and configuration file name should be added.
+### Prerequisites
++ Go to [this page](https://msdn.microsoft.com/en-us/windowsserver2012r2.aspx) and download IIS Server
++ Install the IIS server, or follow [this link](https://www.guru99.com/deploying-website-iis.html) for instalation steps
++ Download the [Windows Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer), otherwise your IIS server will not work!
 
-```
-//Replace with the local path on the server where the json with the plugins info is saved
-  "ConfigurationSettings": {
-	"LocalFolderPath": "\\PluginsConfig",
-	"ConfigFileName": "pluginsConfig.json",
-	"MappingFileName": "mappingFile.json" // json file where the old name of the plugin is mapped with the new one (Used in Trados Studio to avoid duplicated plugins after a plugin name is changed)
-  }
-  //If the folder or file does not exist in the specified location they'll be created
-  ```
-**ServerFilePath** config file
- 
-In the archive, the "PluginsConfig" folder corresponds to the "LocalFolderPath" set in the example settings file. **If you don't want to set the json file in another path just edit the existing json file from the folder and paste the "ConfigurationSettings" into the existing appsettings.json**.
-  
-  **NetworkFilePath** config file
-  
-The steps described in the Server File Path case above apply to the Network deploy case, however the value used for the "LocalFilePath" property should point to a network file path.
-Example: "\\\\Networkname\\Folder\\PluginsConfig"
+### Configuration of the IIS Server
++ Open the IIS server you installed
++ In the left-hand side you will find the name of your computer (e.g. WSAMZN-FGLJ96PK)
+  ![alt text][IIS-computer-name]
++ Exapand or right-click to create a new webiste
+  ![alt text][Add-website]
++ In the New Website prompt enter your site data
+  ![alt text][Site-data]
 
-If you don't want to specify this property in the file the following properties should be added in the **System environment variables**:
+### Publishing to IIS
++ Replace the content of appsettings.json in Visual Studio with the content from appsettings-local.json
++ In Visual Studio, from the solution explorer right-click on AppStoreIntegrationServiceManagement and select Publish
++ On the Publish window click new to create a new Publish profile
+  ![alt text][New-publish-profile]
++ Select Web Server (IIS) from the list
+  ![alt text][IIS-server]
++ Select Web Deploy in the following window
+  ![alt-text][Web-deploy]
++ In the next window enter the details of your webiste you created in IIS Server
+	- Server: localhost
+	- Site name: the name of the site you set in IIS Server APP
+	- Destination URL: http://localhost:80/Plugins (if you enter https instead of htpp you will have to enter your credentials)
++ Click on validate connection
++ If the connection succedeed you can click finish
++ Wait for the publish to end and the application should open in browser
 
- ```
-1. APPSTOREINTEGRATION_LOCAL_FOLDERPATH
-2. APPSTOREINTEGRATION_CONFIGFILENAME
-```
+<a name="publishing-API-on-IIS"/>
 
-## How to run the service
+## 4. Publishing AppStoreIntegrationServiceAPI on IIS Server
 
-- Open a comand prompt window and navigate to the folder where the server is located. 
-- Type the following command **AppStoreIntegrationService.exe**
+### Prerequisites
++ Go to [this page](https://msdn.microsoft.com/en-us/windowsserver2012r2.aspx) and download IIS Server
++ Install the IIS server, or follow [this link](https://www.guru99.com/deploying-website-iis.html) for instalation steps
++ Download the [Windows Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer), otherwise your IIS server will not work!
+
+### Configuration of the IIS Server
++ Open the IIS server you installed
++ In the left-hand side you will find the name of your computer (e.g. WSAMZN-FGLJ96PK)
+  ![alt text][IIS-computer-name]
++ Exapand or right-click to create a new webiste
+  ![alt text][Add-website]
++ In the New Website prompt enter your site data
+  ![alt text][Site-data]
+
+### Publishing to IIS
++ Replace the content of appsettings.json in Visual Studio with the content from appsettings-local.json
++ In Visual Studio, from the solution explorer right-click on AppStoreIntegrationServiceAPI and select Publish
++ On the Publish window click new to create a new Publish profile
+  ![alt text][New-publish-profile]
++ Select Web Server (IIS) from the list
+  ![alt text][IIS-server]
++ Select Web Deploy in the following window
+  ![alt-text][Web-deploy]
++ In the next window enter the details of your webiste you created in IIS Server
+	- Server: localhost
+	- Site name: the name of the site you set in IIS Server APP
+	- Destination URL: http://localhost:80/Plugins (if you enter https instead of htpp you will have to enter your credentials)
++ Click on validate connection
++ If the connection succedeed you can click finish
++ Wait for the publish to end and the application should open in browser
 
 
-**If you get an HTTPS error message in the console when trying to start the service**
-
-- execute ```dotnet dev-certs https --trust```
-
-- if that command is not working either, check to see if you've got the .NET Core installed by executing ```dotnet --info``` which should show you details regarding the .NET installation on your PC. You should have .NET Core 3.1 SDK or greater, installed.
-
-- if you don't, then go to https://dotnet.microsoft.com/download#windowsvs2015 and install it
-- restart the PC and execute ```dotnet dev-certs https --trust``` again
-- run the service again
-
-## How to host a service on IIS
-A detailed explanation on how to host on IIS can be found [here](https://www.guru99.com/deploying-website-iis.html).
-
-When hosting on IIS, change the connection string from 
-```
-AppStoreIntegrationServiceContextConnection": "Server=(localdb)\\mssqllocaldb;Database=AppStoreIntegrationServiceAuthentication;Trusted_Connection=True;MultipleActiveResultSets=true"
-```
-to
-```
-"AppStoreIntegrationServiceContextConnection": "Server=localhost\\SQLEXPRESS;Database=AppStoreIntegrationAuthentication;Trusted_Connection=True;"
-```
-Make sure you have installed SQL Express on your server: https://www.microsoft.com/en-us/sql-server/sql-server-downloads
-
+[Release]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Release.png
+[New-publish-profile]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/New-publish-profile.png
+[Publish-folder-path]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Publish-folder-path.png
+[IIS-computer-name]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/IIS-computer-name.png
+[Add-website]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Add-website.png
+[Site-data]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Site-data.png
+[IIS-server]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/IIS-serer.png
+[Web-deploy]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Web-deploy.png
