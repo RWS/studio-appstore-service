@@ -6,6 +6,8 @@
   2. [How to publish AppStoreIntegrationServiceAPI on local folder path](#publishing-API-on-local-folder-path)
   3. [How to publish AppStoreIntegrationServiceManagement on IIS Server](#publishing-PAAdmin-on-IIS)
   4. [How to publish AppStoreIntegrationServiceAPI on IIS Server](#publishing-API-on-IIS)
+  5. [How to publish AppStoreIntegrationServiceManagement on Azure](#publishing-PAAdmin-on-Azure)
+  6. [How to publish AppStoreIntegrationServiceAPI on Azure](#publishing-API-on-Azure)
 
 <a name="publishing-PAAdmin-on-local-folder-path"/>
 
@@ -184,12 +186,145 @@
 + If the connection succedeed you can click finish
 + Wait for the publish to end and the application should open in browser
 
+<a name="publishing-PAAdmin-on-Azure"/>
 
-[Release]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Release.PNG
-[New-publish-profile]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/New-publish-profile.png
-[Publish-folder-path]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Publish-folder-path.PNG
-[IIS-computer-name]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/IIS-computer-name.PNG
-[Add-website]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Add-website.PNG
-[Site-data]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Site-data.PNG
-[IIS-server]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/IIS-server.PNG
-[Web-deploy]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM-3929-AddCategoriesTable/Images/Web-deploy.PNG
+## 5. Publishing AppStoreIntegrationServiceManagement on Azure
+
+### Configure Azure Resources for AppStoreIntegrationServiceManagement
++ Go to [Microsoft Azure](https://portal.azure.com/#home)
++ Click on __Resource Groups__ icon:
+
+	> ![alt-text][Resource-groups]
++ Click on __AppService__ in the list
++ On the AppService page, make sure the __Overview__ tab is selected from the navigation bar:
+
+	> ![alt-text][Overview]
++ In the __Resources__ list clik on your resource you want to use to host the application
++ On your application resource click on __Configuration__ in the left side navigation bar
++ The __Application settings__ section should be configured with the following key-value pairs
+```
+APPSTOREINTEGRATION_BLOBNAME: _the blobl used for your application_ (e.g. managementpluginblob)
+APPSTOREINTEGRATION_PLUGINSFILENAMEV1: _the file used to store the plugins_ (e.g. pluginsV1.json)
+APPSTOREINTEGRATION_PLUGINSFILENAMEV2: _the file used to store the plugins_ (e.g. pluginsV2.json)
+APPSTOREINTEGRATION_MAPPINGFILENAME: _the file used to store the name mappings_ (e.g. mappings.json) 
+APPSTOREINTEGRATION_PRODUCTSFILENAME: _the file used to store the products_ (e.g. productsFile.json)  
+APPSTOREINTEGRATION_SETTINGSFILENAME: _the file used to store the site settings_ (e.g. settingsFile.json)   
+APPSTOREINTEGRATION_STORAGE_ACCOUNTKEY: _the account key from your Azure_
+APPSTOREINTEGRATION_STORAGE_ACCOUNTNAME: _the account name of your Azure_
+```
++ The __Connection string__ section should be configured with the following key-value pair:
+```
+AppStoreIntegrationServiceContextConnection: _your data base connection string_
+```
++ _Note:_ The __Application settings__ and __Connection string__ sections from both _AppStoreIntegrationServiceAPI_ and _AppStoreIntegrationServiceManagement_ should always be in sync
++ Don't forget to click __Save__ otherwise your configuration will be lost:
+
+	> ![alt-text][Save]	
+### Download publish profile for AppStoreIntegraionServiceManagement
++ Go to [Microsoft Azure](https://portal.azure.com/#home)
++ Click on __Resource Groups__ icon:
+
+	> ![alt-text][Resource-groups]
++ Click on __AppService__ in the list
++ On the AppService page, make sure the __Overview__ tab is selected from the navigation bar:
+
+	> ![alt-text][Overview]
++ On the top of the page click on __Get publish profile__ to download the profile locally:
+
+	> ![alt-text][Download-publish-profile]
+### Prepare publish profile in Visual Studio for AppStoreIntegrationServiceManagement
++ __Warning:__ Before proceeding to publishing steps make sure you copy the content from _appsettings-azure.json_ into _appsettings.json_ from the solution explorer
++ Open the solution containg the __AppStoreIntegrationServiceManagement__ in Visual Studio
++ Right-click on __AppStoreIntegrationServiceManagement__ and select _Publish_
++ On the Publish page press _New:_
+
+	> ![alt-text][New-publish-profile]
++ In the promted window select _Import file:_
+
+	> ![alt-text][Import-profile]
++ Click _Next_ and browse your computer for the publish profile you downloaded at _step 2_
++ Click _Finish_
++ In the __Settings__ tab on __Publish__ page click on _Show all settings_
++ Under _File Publish Option_ make your you check:
+
+	> ![alt-text][Settings-check]
++ Click __Publish__ and wait for the process to finish. If there are no errors during the process the application should open in browser
+
+<a name="publishing-API-on-Azure"/>
+
+## 6. Publishing AppStoreIntegrationServiceAPI on Azure
+
+### Configure Azure Resources for AppStoreIntegrationServiceManagement
++ Go to [Microsoft Azure](https://portal.azure.com/#home)
++ Click on __Resource Groups__ icon:
+
+	> ![alt-text][Resource-groups]
++ Click on __AppService__ in the list
++ On the AppService page, make sure the __Overview__ tab is selected from the navigation bar:
+
+	> ![alt-text][Overview]
++ In the __Resources__ list clik on your resource you want to use to host the application
++ On your application resource click on __Configuration__ in the left side navigation bar
++ The __Application settings__ section should be configured with the following key-value pairs
+```
+APPSTOREINTEGRATION_BLOBNAME: _the blobl used for your application_ (e.g. managementpluginblob)
+APPSTOREINTEGRATION_PLUGINSFILENAMEV1: _the file used to store the plugins_ (e.g. pluginsV1.json)
+APPSTOREINTEGRATION_PLUGINSFILENAMEV2: _the file used to store the plugins_ (e.g. pluginsV2.json)
+APPSTOREINTEGRATION_MAPPINGFILENAME: _the file used to store the name mappings_ (e.g. mappings.json) 
+APPSTOREINTEGRATION_PRODUCTSFILENAME: _the file used to store the products_ (e.g. productsFile.json)  
+APPSTOREINTEGRATION_SETTINGSFILENAME: _the file used to store the site settings_ (e.g. settingsFile.json)   
+APPSTOREINTEGRATION_STORAGE_ACCOUNTKEY: _the account key from your Azure_
+APPSTOREINTEGRATION_STORAGE_ACCOUNTNAME: _the account name of your Azure_
+```
++ The __Connection string__ section should be configured with the following key-value pair:
+```
+AppStoreIntegrationServiceContextConnection: _your data base connection string_
+```
++ _Note:_ The __Application settings__ and __Connection string__ sections from both _AppStoreIntegrationServiceAPI_ and _AppStoreIntegrationServiceManagement_ should always be in sync
++ Don't forget to click __Save__ otherwise your configuration will be lost:
+
+	> ![alt-text][Save]
+### Download publish profile for AppStoreIntegraionServiceAPI
++ Go to [Microsoft Azure](https://portal.azure.com/#home)
++ Click on __Resource Groups__ icon:
+
+	> ![alt-text][Resource-groups]
++ Click on __AppService__ in the list
++ On the AppService page, make sure the __Overview__ tab is selected from the navigation bar:
+
+	> ![alt-text][Overview]
++ On the top of the page click on __Get publish profile__ to download the profile locally:
+
+	> ![alt-text][Download-publish-profile]
+### Prepare publish profile in Visual Studio for AppStoreIntegrationServiceAPI
++ __Warning:__ Before proceeding to publishing steps make sure you copy the content from _appsettings-azure.json_ into _appsettings.json_ from the solution explorer
++ Open the solution containg the __AppStoreIntegrationServiceAPI__ in Visual Studio
++ Right-click on __AppStoreIntegrationServiceAPI__ and select _Publish_
++ On the Publish page press _New:_
+
+	> ![alt-text][New-publish-profile]
++ In the promted window select _Import file:_
+
+	> ![alt-text][Import-profile]
++ Click _Next_ and browse your computer for the publish profile you downloaded at _step 2_
++ Click _Finish_
++ In the __Settings__ tab on __Publish__ page click on _Show all settings_
++ Under _File Publish Option_ make your you check:
+
+	> ![alt-text][Settings-check]
++ Click __Publish__ and wait for the process to finish. If there are no errors during the process the application should open in browser
+
+[Release]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Release.PNG
+[New-publish-profile]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/New-publish-profile.png
+[Publish-folder-path]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Publish-folder-path.PNG
+[IIS-computer-name]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/IIS-computer-name.PNG
+[Add-website]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Add-website.PNG
+[Site-data]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Site-data.PNG
+[IIS-server]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/IIS-server.PNG
+[Web-deploy]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Web-deploy.PNG
+[Resource-groups]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Resource-groups.png
+[Overview]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Overview.png
+[Download-publish-profile]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Download-publish-profile.png
+[Settings-check]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Settings-check.png
+[Save]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Save.png
+[Import-profile]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Import-profile.png
