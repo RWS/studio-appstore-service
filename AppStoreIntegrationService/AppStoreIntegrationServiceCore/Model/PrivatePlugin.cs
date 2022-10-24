@@ -16,15 +16,19 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool PaidFor { get; set; }
 
+        [Url(ErrorMessage = "ChangelogLink is in wrong format!")]
         public string ChangelogLink { get; set; }
 
+        [Url(ErrorMessage = "SupportUrl is in wrong format!")]
         public string SupportUrl { get; set; }
 
+        [EmailAddress(ErrorMessage = "SupportEmail is in wrong format!")]
         public string SupportEmail { get; set; }
 
         public bool Inactive { get; set; }
 
         [Required]
+        [Url(ErrorMessage = "DownloadUrl is in wrong format!")]
         [MinLength(5)]
         public string DownloadUrl { get; set; }
 
@@ -33,6 +37,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public List<ExtendedPluginVersion<string>> Versions { get; set; }
 
         [Required]
+        [RegularExpression(@"^https?:\/\/\w+(\.\w+)*(:[0-9]+)?(\/.*)?$", ErrorMessage = "IconUrl is in wrong format!")]
         public string IconUrl { get; set; }
 
         public string DeveloperName { get; set; }
@@ -70,5 +75,6 @@ namespace AppStoreIntegrationServiceCore.Model
             DownloadUrl = Versions.LastOrDefault()?.VersionDownloadUrl;
         }
     }
+
 }
 

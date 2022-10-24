@@ -27,7 +27,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
         public async Task<List<T>> GetPluginsFromContainer()
         {
             string containerContent = await _pluginsListBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<PluginResponse<T>>(containerContent)?.Value ?? new List<T>();
+            return JsonConvert.DeserializeObject<PluginResponse<T>>(containerContent)?.Value;
         }
 
         private void InitializeBlockBlobs()

@@ -22,7 +22,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             }
 
             var content = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePathV2);
-            return JsonConvert.DeserializeObject<PluginResponse<T>>(content);
+            return JsonConvert.DeserializeObject<PluginResponse<T>>(content) ?? new PluginResponse<T>();
         }
 
         public async Task<List<NameMapping>> ReadMappingsFromFile()
@@ -38,17 +38,17 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<ParentProduct>> ReadParentsFromFile()
         {
-            return (await ReadFromFile()).ParentProducts;
+            return (await ReadFromFile())?.ParentProducts;
         }
 
         public async Task<List<T>> ReadPluginsFromFile()
         {
-            return (await ReadFromFile()).Value ?? new List<T>();
+            return (await ReadFromFile())?.Value;
         }
 
         public async Task<List<ProductDetails>> ReadProductsFromFile()
         {
-            return (await ReadFromFile()).Products;
+            return (await ReadFromFile())?.Products;
         }
 
         public async Task SaveMappingsToFile(List<NameMapping> names)
@@ -100,7 +100,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<string> GetAPIVersionFromFile()
         {
-            return (await ReadFromFile()).APIVersion ?? "1.0.0";
+            return (await ReadFromFile())?.APIVersion ?? "1.0.0";
         }
 
         public async Task SaveCategoriesToFile(List<CategoryDetails> categories)
@@ -119,7 +119,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<CategoryDetails>> ReadCategoriesFromFile()
         {
-            return (await ReadFromFile()).Categories;
+            return (await ReadFromFile())?.Categories;
         }
     }
 }

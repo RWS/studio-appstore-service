@@ -49,15 +49,24 @@
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="ChangelogLink">Changelog link </label>
-                <input asp-for="ChangelogLink" class="form-control" />
+                <div class="w-100">
+                    <input asp-for="ChangelogLink" class="form-control" />
+                    <span asp-validation-for="ChangelogLink" class="text-danger"></span>
+                </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="SupportUrl">Support url </label>
-                <input asp-for="SupportUrl" class="form-control" />
+                <div class="w-100">
+                    <input asp-for="SupportUrl" class="form-control" />
+                    <span asp-validation-for="SupportUrl" class="text-danger"></span>
+                </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="SupportEmail">Support email </label>
-                <input asp-for="SupportEmail" class="form-control" />
+                <div class="w-100">
+                    <input asp-for="SupportEmail" class="form-control" />
+                    <span asp-validation-for="SupportEmail" class="text-danger"></span>
+                </div>
             </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="Description">Description <span class="text-danger">*</span></label>

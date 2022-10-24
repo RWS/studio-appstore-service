@@ -16,7 +16,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
 
         public async Task<List<T>> ReadPluginsFromFile()
         {
-            return (await ReadFromFile()).Value;
+            return (await ReadFromFile())?.Value;
         }
 
         private async Task<PluginResponse<T>> ReadFromFile()

@@ -30,14 +30,14 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 {
                     Id = "1",
                     ProductName = "SDL Trados Studio 2021",
-                    ParentProductID = "14",
+                    ParentProductID = "1",
                     MinimumStudioVersion = "16.0"
                 },
                 new ProductDetails
                 {
                     Id = "2",
                     ProductName = "Trados Studio 2022",
-                    ParentProductID = "14",
+                    ParentProductID = "1",
                     MinimumStudioVersion = "17.0"
                 },
 

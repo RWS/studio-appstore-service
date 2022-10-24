@@ -29,7 +29,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<T>> GetPluginsFromContainer()
         {
-            return (await ReadFromContainer()).Value ?? new List<T>();
+            return (await ReadFromContainer())?.Value;
         }
 
         private async Task<PluginResponse<T>> ReadFromContainer()
@@ -40,7 +40,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<ProductDetails>> GetProductsFromContainer()
         {
-            return (await ReadFromContainer()).Products;
+            return (await ReadFromContainer())?.Products;
         }
 
         public async Task UpdatePluginsFileBlob(List<T> plugins)
@@ -136,7 +136,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<List<ParentProduct>> GetParentProductsFromContainer()
         {
-            return (await ReadFromContainer()).ParentProducts;
+            return (await ReadFromContainer())?.ParentProducts;
         }
 
         public async Task UpdateMappingsFileBlob(List<NameMapping> mappings)
@@ -159,12 +159,12 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<string> GetAPIVersionFromContainer()
         {
-            return (await ReadFromContainer()).APIVersion ?? "1.0.0";
+            return (await ReadFromContainer())?.APIVersion ?? "1.0.0";
         }
 
         public async Task<List<CategoryDetails>> GetCategoriesFromContainer()
         {
-            return (await ReadFromContainer()).Categories;
+            return (await ReadFromContainer())?.Categories;
         }
 
         public async Task UpdateCategoriesFileBlob(List<CategoryDetails> categories)

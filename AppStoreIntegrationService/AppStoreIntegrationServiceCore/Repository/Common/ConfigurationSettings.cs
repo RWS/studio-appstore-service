@@ -1,5 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using Microsoft.AspNetCore.Hosting;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.Common
 {
@@ -21,7 +22,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         public string PluginsFileBackUpPathV2 { get; set; }
         public string SettingsFileName { get; set; }
 
-        public ConfigurationSettings(Enums.DeployMode deployMode)
+        public ConfigurationSettings(DeployMode deployMode)
         {
             DeployMode = deployMode;
         }
@@ -33,7 +34,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
                 case Enums.DeployMode.AzureBlob:
                     return;
                 case Enums.DeployMode.ServerFilePath:
-                    ConfigFolderPath = $"{environment.ContentRootPath}{LocalFolderPath}";
+                    ConfigFolderPath = $"{Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..\\"))}{LocalFolderPath}";
                     break;
                 case Enums.DeployMode.NetworkFilePath:
                     ConfigFolderPath = LocalFolderPath;

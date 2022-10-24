@@ -126,8 +126,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         private async Task<bool> AreSavedProducts(List<ProductDetails> products, List<ParentProduct> parentProducts)
         {
-            var savedProducts = (await _productsRepository.GetAllProducts()).ToList();
-            var savedParentProducts = (await _productsRepository.GetAllParents()).ToList();
+            var savedProducts = await _productsRepository.GetAllProducts();
+            var savedParentProducts = await _productsRepository.GetAllParents();
             return JsonConvert.SerializeObject(savedProducts) == JsonConvert.SerializeObject(products) &&
                    JsonConvert.SerializeObject(savedParentProducts) == JsonConvert.SerializeObject(parentProducts);
         }

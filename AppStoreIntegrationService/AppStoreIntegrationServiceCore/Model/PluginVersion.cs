@@ -32,8 +32,10 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonProperty("SDLHosted")]
         public bool SdlHosted { get; set; }
         public bool IsNavigationLink { get; set; }
+
         [Required]
         [JsonProperty("DownloadUrl")]
+        [Url(ErrorMessage = "DownloadUrl is in wrong format!")]
         public string VersionDownloadUrl { get; set; }
         public bool IsPrivatePlugin { get; set; }
     }

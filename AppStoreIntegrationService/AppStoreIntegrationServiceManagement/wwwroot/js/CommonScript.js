@@ -16,6 +16,11 @@
         return;
     }
 
+    if (controller == "Categories") {
+        CreateRequest($('main').find('input, select').serialize(), `/Categories/GoToPage/${goToPage}`);
+        return;
+    }
+
     if (controller == "Account" && action != "Users") {
         CreateRequest($('main').find("input, input[type='radio']").serialize(), `/Account/GoToPage/${goToPage}/${action}`);
         return;
