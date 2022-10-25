@@ -67,9 +67,9 @@ function Collapse(element) {
 function GenerateChecksum() {
     var pageValues = $('main').find('select, textarea, input').serialize();
     var button = event.target;
-    $("#DownloadUrl").validate();
+    $("#VersionDownloadUrl").validate();
 
-    if ($("#DownloadUrl").valid()) {
+    if ($("#VersionDownloadUrl").valid()) {
         button.disabled = true;
         button.firstElementChild.hidden = false;
 

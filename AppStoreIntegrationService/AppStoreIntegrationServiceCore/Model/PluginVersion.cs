@@ -23,19 +23,22 @@ namespace AppStoreIntegrationServiceCore.Model
         public string VersionId { get; set; }
         public DateTime? ReleasedDate { get; set; }
         public string TechnicalRequirements { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Version number is required!")]
+        [RegularExpression(@"^(\d+\.)?(\d+\.)?(\d+\.)?(\d+)$", ErrorMessage = "Invalid version number!")]
         public string VersionNumber { get; set; }
+        [RegularExpression(@"\b(?:[0-9a-z]-?){40}\b", ErrorMessage = "Invalid checksum!")]
         public string FileHash { get; set; }
         public List<T> SupportedProducts { get; set; }
         public bool AppHasStudioPluginInstaller { get; set; }
+        [RegularExpression(@"^(\d{1,2}\.)?(\d{1})$", ErrorMessage = "Invalid version number!")]
         public string MinimumRequiredVersionOfStudio { get; set; }
         [JsonProperty("SDLHosted")]
         public bool SdlHosted { get; set; }
         public bool IsNavigationLink { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Version download url is required!")]
         [JsonProperty("DownloadUrl")]
-        [Url(ErrorMessage = "DownloadUrl is in wrong format!")]
+        [Url(ErrorMessage = "Invalid url!")]
         public string VersionDownloadUrl { get; set; }
         public bool IsPrivatePlugin { get; set; }
     }

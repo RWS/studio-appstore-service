@@ -44,7 +44,6 @@ body, html {
     color: var(--pa-admin-color-hover);
 }
 
-
 .card-status {
     color: #4d4d4d;
     margin-bottom: 0px;
@@ -65,9 +64,9 @@ body, html {
     width: max-content;
 }
 
-    .delete-filter:hover {
-        background: var(--pa-admin-color-hover);
-    }
+.delete-filter:hover {
+    background: var(--pa-admin-color-hover);
+}
 
 .delete-filter-active {
     display: inline-block;
@@ -85,41 +84,23 @@ body, html {
     white-space: nowrap;
 }
 
-.filter-search-select {
-    color: white;
-    background: var(--pa-admin-color);
-    height: 100%;
-    width: 30%;
-    text-align: left;
-    border: 0px solid var(--pa-admin-color);
-    border-right-width: 10px;
-    border-left-width: 10px;
-    padding-bottom: 2px;
-    cursor: pointer;
-}
-
-    .filter-search-select:hover {
-        background-color: var(--pa-admin-color-hover);
-        border-color: var(--pa-admin-color-hover);
-    }
-
 .filter-search-text {
     background: transparent;
     height: 100%;
-    width: 63%;
+    width: 90%;
     outline: none;
     border: transparent;
-    margin: -5px;
     text-indent: 5px;
+    padding: 0px;
 }
 
-    .filter-search-text:focus {
-        border-color: var(--pa-admin-color);
-    }
+.filter-search-text:focus {
+    border-color: var(--pa-admin-color);
+}
 
-        .filter-search-text:focus::placeholder {
-            color: transparent;
-        }
+.filter-search-text:focus::placeholder {
+    color: transparent;
+}
 
 .filter-search-submit {
     color: #929292;
@@ -127,15 +108,14 @@ body, html {
     font-size: 14px;
 }
 
-.status-select {
-    max-height: 30px;
-    min-width: 100px;
-    width: 75%;
-    background: transparent;
-    border-radius: 0.25rem;
-    border: 1px solid #ced4da;
-    color: #495057;
-    padding-left: 5px;
+.pa-admin-select {
+    background: var(--pa-admin-color);
+    border-radius: 3px;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    width: 35%;
+    height: 100%;
 }
 
 @media (max-width:992px) {

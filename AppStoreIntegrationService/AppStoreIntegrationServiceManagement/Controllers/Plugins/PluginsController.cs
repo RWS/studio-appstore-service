@@ -1,10 +1,12 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -37,8 +39,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             PluginFilter pluginsFilters = ApplyFilters();
             var pluginsList = await _pluginRepositoryExtended.GetAll(pluginsFilters.SortOrder);
-            _pluginRepositoryExtended.SearchPlugins(pluginsList, pluginsFilters);
-            return View(InitializePrivatePlugins(_pluginRepositoryExtended.SearchPlugins(pluginsList, pluginsFilters)).ToList());
+            var products = await _productsRepository.GetAllProducts();
+            return View(new ConfigToolModel
+            {
+                Plugins = InitializePrivatePlugins(_pluginRepositoryExtended.SearchPlugins(pluginsList, pluginsFilters)).ToList(),
+                ProductsListItems = new SelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName)),
+                StatusExists = Request.Query.TryGetValue("status", out var statusValue),
+                StatusValue = statusValue,
+                SearchExists = Request.Query.TryGetValue("search", out var searchValue),
+                SearchValue = searchValue,
+                ProductExists = Request.Query.TryGetValue("product", out var productValue),
+                ProductName = products.FirstOrDefault(p => p.Id == productValue)?.ProductName
+            });
         }
 
         [Route("Plugins/New")]
@@ -187,20 +199,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             const string statusFilter = "status";
             const string searchFilter = "search";
+            const string productFilter = "product";
             var query = Request.Query;
             var filters = new PluginFilter()
             {
                 SortOrder = "asc",
-                Status = PluginFilter.StatusValue.All,
+                Status = StatusValue.All,
+                SupportedProduct = query.ContainsKey(productFilter) ? query[productFilter] : default,
                 Query = query.ContainsKey(searchFilter) ? query[searchFilter] : default
             };
 
             if (query.ContainsKey(statusFilter))
             {
                 bool isValidType = int.TryParse(query[statusFilter], out int statusValueIndex);
-                if (isValidType && Enum.IsDefined(typeof(PluginFilter.StatusValue), statusValueIndex))
+                if (isValidType && Enum.IsDefined(typeof(StatusValue), statusValueIndex))
                 {
-                    filters.Status = (PluginFilter.StatusValue)statusValueIndex;
+                    filters.Status = (StatusValue)statusValueIndex;
                 }
             }
 

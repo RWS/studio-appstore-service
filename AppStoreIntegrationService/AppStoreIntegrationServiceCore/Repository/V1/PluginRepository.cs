@@ -2,6 +2,7 @@
 using AppStoreIntegrationServiceCore.Repository.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.V1.Interface;
 using System.Text.RegularExpressions;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.V1
 {
@@ -20,7 +21,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
 
         private async Task<List<T>> GetPlugins()
         {
-            if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
+            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
                 return await _localRepository.ReadPluginsFromFile();
             }
@@ -28,12 +29,12 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
             return await _azureRepository.GetPluginsFromContainer();
         }
 
-        private static List<T> FilterByStatus(List<T> searchedPluginList, PluginFilter.StatusValue status)
+        private static List<T> FilterByStatus(List<T> searchedPluginList, StatusValue status)
         {
             return status switch
             {
-                PluginFilter.StatusValue.Active => searchedPluginList.Where(x => !x.Inactive).ToList(),
-                PluginFilter.StatusValue.Inactive => searchedPluginList.Where(x => x.Inactive).ToList(),
+                StatusValue.Active => searchedPluginList.Where(x => !x.Inactive).ToList(),
+                StatusValue.Inactive => searchedPluginList.Where(x => x.Inactive).ToList(),
                 _ => searchedPluginList
             };
         }
@@ -132,15 +133,15 @@ namespace AppStoreIntegrationServiceCore.Repository.V1
             return searchedPluginsResult;
         }
 
-        private static List<T> ApplySort(List<T> pluginsList, PluginFilter.SortType sortType)
+        private static List<T> ApplySort(List<T> pluginsList, SortType sortType)
         {
             return sortType switch
             {
-                PluginFilter.SortType.TopRated => pluginsList.OrderByDescending(p => p.RatingSummary?.AverageOverallRating).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.DownloadCount => pluginsList.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.ReviewCount => pluginsList.OrderByDescending(p => p.RatingSummary?.RatingsCount).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.LastUpdated => pluginsList.OrderByDescending(p => p.ReleaseDate).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.NewlyAdded => pluginsList.OrderByDescending(p => p.CreatedDate).ThenBy(p => p.Name).ToList(),
+                SortType.TopRated => pluginsList.OrderByDescending(p => p.RatingSummary?.AverageOverallRating).ThenBy(p => p.Name).ToList(),
+                SortType.DownloadCount => pluginsList.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Name).ToList(),
+                SortType.ReviewCount => pluginsList.OrderByDescending(p => p.RatingSummary?.RatingsCount).ThenBy(p => p.Name).ToList(),
+                SortType.LastUpdated => pluginsList.OrderByDescending(p => p.ReleaseDate).ThenBy(p => p.Name).ToList(),
+                SortType.NewlyAdded => pluginsList.OrderByDescending(p => p.CreatedDate).ThenBy(p => p.Name).ToList(),
                 _ => pluginsList,
             };
         }

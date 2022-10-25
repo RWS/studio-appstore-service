@@ -1,51 +1,67 @@
-﻿@model List<PrivatePlugin<PluginVersion<string>>>
+﻿@model ConfigToolModel
 @{
     ViewData["Title"] = "Plugins";
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<div class="row flex-column justify-content-center flex-lg-row px-3 justify-content-between">
+    <div class="container-fluid col-12 col-lg-8 m-0 order-1 order-lg-0">
+        <div class="row flex-column flex-lg-row">
+            <div class="col-12 col-lg-8 d-flex justify-content-between my-3 m-lg-0">
+                <div class="d-flex align-items-center me-2">
+                    <p class="m-0 text-nowrap">Quick filters:</p>
+                </div>
+                <select id="status" class="pa-admin-select" onchange="javscript: AddFilter('status')">
+                    <option value="2" hidden selected>Status</option>
+                    <option value="0">Active</option>
+                    <option value="1">Inactive</option>
+                </select>
+                <select id="product" class="pa-admin-select" asp-items="@Model.ProductsListItems" onchange="javscript: AddFilter('product')">
+                    <option hidden selected>Products</option>
+                </select>
+            </div>
 
-<div id="toolsMenu" class="row flex-column justify-content-center flex-sm-row justify-content-sm-between px-3">
-    <div id="filterSearch" class="filter-search col-12 col-sm-8 p-0 order-1 order-sm-0">
-        <select id="status" class="filter-search-select" onchange="javscript: AddFilter('status')">
-            <option value="2" hidden selected>Status</option>
-            <option value="0">Active</option>
-            <option value="1">Inactive</option>
-        </select>
-        <input id="search" class="filter-search-text" autocomplete="off" placeholder="Search plugin" onkeydown="javascript: AddFilterOnEnterKey()">
-        <i id="applyFilters" class="fas fa-search filter-search-submit" onclick="javascript: AddFilter('search')"></i>
+            <div class="col-12 col-lg-4">
+                <div id="filterSearch" class="filter-search w-100">
+                    <input id="search" class="filter-search-text" autocomplete="off" placeholder="Search plugin" onkeydown="javascript: AddFilterOnEnterKey()">
+                    <i id="applyFilters" class="fas fa-search filter-search-submit" onclick="javascript: AddFilter('search')"></i>
+                </div>
+            </div>
+        </div>
+
     </div>
-    <div id="newAppButton" class="col-12 col-sm-4 d-flex justify-content-end p-0 order-0 order-sm-1 mb-3 m-sm-0">
+
+    <div id="newAppButton" class="col-12 col-lg-4 d-flex justify-content-start justify-content-lg-end order-0 order-lg-1">
         <a class="btn pa-admin-success-btn" asp-controller="Plugins" asp-action="New">
             <i class="fas fa-puzzle-piece"></i>
             New app
         </a>
     </div>
+
 </div>
 
 <div id="activeFilters" class="row px-3 pt-3">
-    @{
-        var reqQuery = Context.Request.Query;
-        var statusExists = reqQuery.TryGetValue("status", out var statusValue);
-        var searchExists = reqQuery.TryGetValue("search", out var searchValue);
-    }
-    <label id="clearAllFilter" class="delete-filter me-1 @Html.Raw(statusExists && searchExists ? "delete-filter-active" : "")">
+    <label id="clearAllFilter" class="delete-filter me-1 @Html.Raw(Model.ClearAllExists ? "delete-filter-active" : "")">
         <i class="fas fa-times-circle cursor-pointer delete-filter-img" onclick="javascript: RedirectTo('/Plugins','/plugins')"></i>
         <label class="filter-current-label">Clear all</label>
     </label>
-    <label id="clearStatusFilter" class="delete-filter me-1 @Html.Raw(statusExists ? "delete-filter-active" : "")">
+    <label id="clearStatusFilter" class="delete-filter me-1 @Html.Raw(Model.StatusExists ? "delete-filter-active" : "")">
         <i class="fas fa-times-circle cursor-pointer delete-filter-img" onclick="javascript: DeleteFilter('status')"></i>
-        <label id="labelStatusFilter" class="filter-current-label">@Html.Raw(statusValue == "0" ? "Active" : statusValue == "1" ? "Inactive" : "All")</label>
+        <label id="labelStatusFilter" class="filter-current-label">@Html.Raw(Model.StatusValue == "0" ? "Active" : Model.StatusValue == "1" ? "Inactive" : "All")</label>
     </label>
-    <label id="clearSearchFilter" class="delete-filter me-1 @Html.Raw(searchExists ? "delete-filter-active" : "")">
+    <label id="clearSearchFilter" class="delete-filter me-1 @Html.Raw(Model.SearchExists ? "delete-filter-active" : "")">
         <i class="fas fa-times-circle cursor-pointer delete-filter-img" onclick="javascript: DeleteFilter('search')"></i>
-        <label id="labelSearchFilter" class="filter-current-label">@searchValue</label>
+        <label id="labelSearchFilter" class="filter-current-label">@Model.SearchValue</label>
+    </label>
+    <label id="clearProductFilter" class="delete-filter me-1 @Html.Raw(Model.ProductExists ? "delete-filter-active" : "")">
+        <i class="fas fa-times-circle cursor-pointer delete-filter-img" onclick="javascript: DeleteFilter('product')"></i>
+        <label id="labelSearchFilter" class="filter-current-label">@Model.ProductName</label>
     </label>
 </div>
 
 <div id="configToolPage">
     <div class="row justify-content-center">
-        @foreach (var plugin in Model)
+        @foreach (var plugin in Model.Plugins)
         {
             <div class="col-12 col-md-4 col-lg-3 p-3 d-flex justify-content-center">
                 <div class="card card-item @Html.Raw(@plugin.Inactive ? "card-item-inactive" : "")">

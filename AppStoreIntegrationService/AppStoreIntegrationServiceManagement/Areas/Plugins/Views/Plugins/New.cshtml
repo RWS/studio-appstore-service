@@ -13,7 +13,7 @@
             <h5 class="text-center text-wrap p-1">@Model.Name</h5>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <p class="col-4 m-0 align-self-center">Status</p>
-                <select class="status-select" asp-for="Inactive">
+                <select class="form-select form-select-sm" asp-for="Inactive">
                     <option value="false">Active</option>
                     <option value="true">Inactive</option>
                 </select>
@@ -45,7 +45,10 @@
             </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="DeveloperName">Developer </label>
-                <input asp-for="DeveloperName" class="form-control" />
+                <div class="w-100">
+                    <input asp-for="DeveloperName" class="form-control" />
+                    <span asp-validation-for="DeveloperName" class="text-danger"></span>
+                </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="ChangelogLink">Changelog link </label>

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Text;
 using System.Text.RegularExpressions;
+using static AppStoreIntegrationServiceCore.Enums;
+using static AppStoreIntegrationServiceCore.Model.PluginFilter;
 
 namespace AppStoreIntegrationServiceCore.Repository.V2
 {
@@ -225,12 +227,12 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             return pluginsList?.OrderBy(p => p.Name).ToList();
         }
 
-        private static List<T> FilterByStatus(List<T> searchedPluginList, PluginFilter.StatusValue status)
+        private static List<T> FilterByStatus(List<T> searchedPluginList, StatusValue status)
         {
             return status switch
             {
-                PluginFilter.StatusValue.Active => searchedPluginList.Where(x => !x.Inactive).ToList(),
-                PluginFilter.StatusValue.Inactive => searchedPluginList.Where(x => x.Inactive).ToList(),
+                StatusValue.Active => searchedPluginList.Where(x => !x.Inactive).ToList(),
+                StatusValue.Inactive => searchedPluginList.Where(x => x.Inactive).ToList(),
                 _ => searchedPluginList
             };
         }
@@ -328,27 +330,29 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             return searchedPluginsResult;
         }
 
-        private static List<T> ApplySort(List<T> pluginsList, PluginFilter.SortType sortType)
+        private static List<T> ApplySort(List<T> pluginsList, SortType sortType)
         {
             return sortType switch
             {
-                PluginFilter.SortType.TopRated => pluginsList.OrderByDescending(p => p.RatingSummary?.AverageOverallRating).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.DownloadCount => pluginsList.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.ReviewCount => pluginsList.OrderByDescending(p => p.RatingSummary?.RatingsCount).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.LastUpdated => pluginsList.OrderByDescending(p => p.ReleaseDate).ThenBy(p => p.Name).ToList(),
-                PluginFilter.SortType.NewlyAdded => pluginsList.OrderByDescending(p => p.CreatedDate).ThenBy(p => p.Name).ToList(),
+                SortType.TopRated => pluginsList.OrderByDescending(p => p.RatingSummary?.AverageOverallRating).ThenBy(p => p.Name).ToList(),
+                SortType.DownloadCount => pluginsList.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Name).ToList(),
+                SortType.ReviewCount => pluginsList.OrderByDescending(p => p.RatingSummary?.RatingsCount).ThenBy(p => p.Name).ToList(),
+                SortType.LastUpdated => pluginsList.OrderByDescending(p => p.ReleaseDate).ThenBy(p => p.Name).ToList(),
+                SortType.NewlyAdded => pluginsList.OrderByDescending(p => p.CreatedDate).ThenBy(p => p.Name).ToList(),
                 _ => pluginsList,
             };
         }
 
         public List<T> SearchPlugins(List<T> pluginsList, PluginFilter filter)
         {
-            if (pluginsList is null)
+            pluginsList ??= new List<T>();
+
+            var searchedPluginList = FilterByStatus(pluginsList, filter.Status);
+            if (!string.IsNullOrEmpty(filter?.SupportedProduct))
             {
-                pluginsList = new List<T>();
+                searchedPluginList = FilterByProduct(searchedPluginList, filter.SupportedProduct);
             }
 
-            List<T> searchedPluginList = FilterByStatus(pluginsList, filter.Status);
             if (!string.IsNullOrEmpty(filter?.Query))
             {
                 searchedPluginList = FilterByQuery(searchedPluginList, filter.Query);
@@ -372,6 +376,13 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
             searchedPluginList = ApplySort(searchedPluginList, filter.SortBy);
             return searchedPluginList;
+        }
+
+        private static List<T> FilterByProduct(List<T> plugins, string product)
+        {
+            return plugins.Where(plugin => plugin.Versions
+                          .Any(v => v.SupportedProducts[0] == product))
+                          .ToList();
         }
     }
 }

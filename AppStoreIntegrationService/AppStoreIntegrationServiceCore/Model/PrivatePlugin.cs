@@ -7,39 +7,40 @@ namespace AppStoreIntegrationServiceCore.Model
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Plugin name is required!")]
+        [MinLength(5, ErrorMessage = "The field name must contain at least 5 characters!")]
         public string Name { get; set; }
 
-        [Required]
-        [MinLength(20)]
+        [Required(ErrorMessage = "Description field is required!")]
+        [MinLength(20, ErrorMessage = "The field description must contain at least 20 characters!")]
         public string Description { get; set; }
 
         public bool PaidFor { get; set; }
 
-        [Url(ErrorMessage = "ChangelogLink is in wrong format!")]
+        [Url(ErrorMessage = "Invalid url!")]
         public string ChangelogLink { get; set; }
 
-        [Url(ErrorMessage = "SupportUrl is in wrong format!")]
+        [Url(ErrorMessage = "Invalid url!")]
         public string SupportUrl { get; set; }
 
-        [EmailAddress(ErrorMessage = "SupportEmail is in wrong format!")]
+        [EmailAddress(ErrorMessage = "Invalid email address!")]
         public string SupportEmail { get; set; }
 
         public bool Inactive { get; set; }
 
-        [Required]
-        [Url(ErrorMessage = "DownloadUrl is in wrong format!")]
-        [MinLength(5)]
+        [Required(ErrorMessage = "Plugin downoad url is required!")]
+        [Url(ErrorMessage = "Invalid url!")]
         public string DownloadUrl { get; set; }
 
         public List<string> Categories { get; set; }
 
         public List<ExtendedPluginVersion<string>> Versions { get; set; }
 
-        [Required]
-        [RegularExpression(@"^https?:\/\/\w+(\.\w+)*(:[0-9]+)?(\/.*)?$", ErrorMessage = "IconUrl is in wrong format!")]
+        [Required(ErrorMessage = "Icon url is required!")]
+        [RegularExpression(@"^https?:\/\/\w+([\.\-]\w+)*(:[0-9]+)?(\/.*)?$", ErrorMessage = "Invalid url!")]
         public string IconUrl { get; set; }
 
+        [MinLength(5, ErrorMessage = "The field developer name must contain at least 5 characters!")]
         public string DeveloperName { get; set; }
 
         public bool IsEditMode { get; set; }

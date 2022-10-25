@@ -99,6 +99,7 @@
 ### Prerequisites
 + Go to [this page](https://msdn.microsoft.com/en-us/windowsserver2012r2.aspx) and download the IIS Server on your computer
 + Install the IIS server, or follow [this link](https://www.guru99.com/deploying-website-iis.html) for instalation steps
++ Download and Install [Url Rewrite](https://www.iis.net/downloads/microsoft/url-rewrite)
 + Download the [Windows Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer), otherwise your IIS server will not work!
 
 ### Configuration of the IIS Server
@@ -146,6 +147,7 @@
 ### Prerequisites
 + Go to [this page](https://msdn.microsoft.com/en-us/windowsserver2012r2.aspx) and download the IIS Server on your computer
 + Install the IIS server, or follow [this link](https://www.guru99.com/deploying-website-iis.html) for instalation steps
++ Download and Install [Url Rewrite](https://www.iis.net/downloads/microsoft/url-rewrite)
 + Download the [Windows Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer), otherwise your IIS server will not work!
 
 ### Configuration of the IIS Server

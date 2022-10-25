@@ -14,7 +14,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         public string PluginsFileNameV2 { get; set; }
         public string MappingFileName { get; set; }
         public string InstrumentationKey { get; set; }
-        public Enums.DeployMode DeployMode { get; set; }
+        public DeployMode DeployMode { get; set; }
         public string NameMappingsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsFilePathV1 { get; set; }
@@ -31,12 +31,12 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         {
             switch (DeployMode)
             {
-                case Enums.DeployMode.AzureBlob:
+                case DeployMode.AzureBlob:
                     return;
-                case Enums.DeployMode.ServerFilePath:
+                case DeployMode.ServerFilePath:
                     ConfigFolderPath = $"{Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..\\"))}{LocalFolderPath}";
                     break;
-                case Enums.DeployMode.NetworkFilePath:
+                case DeployMode.NetworkFilePath:
                     ConfigFolderPath = LocalFolderPath;
                     break;
             }

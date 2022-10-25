@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
 {
@@ -40,7 +41,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
         /// </summary>
         public string InstrumentationKey { get; set; }
 
-        public Enums.DeployMode DeployMode { get; set; }
+        public DeployMode DeployMode { get; set; }
         public string NameMappingsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsFilePathV1 { get; set; }
