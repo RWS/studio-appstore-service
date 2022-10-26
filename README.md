@@ -24,7 +24,6 @@
 + The .zip file contains the _source code_, two _json files_ with the formats used by studio and a _folder with possible configuration for appsettings.json_
 + Download and unzip the files
 + Run Visual Studio as __administrator__ and open the solution
-+ Open _Windows PowerShell_, navigate to the folder containing the solution (e.g. D:\Coding\AppStoreServer\AppStoreIntegrationService) and run the command `dotnet restore` to make sure all the dependencies are installed
 + From the files three under the __AppStoreIntegrationServiceManagement__ project open _appsettings.json_
 + Go to the .zip file you just downloaded and copy the content of the file __appsettings-local.json__ into the __appsettings.json__ from project solution and save it
 + Now, the __AppStoreIntegrationServiceManagement__ is set for local folder path deployment
@@ -35,6 +34,7 @@
 
 	> ![alt text][New-publish-profile]
 + Select __Folder__ from the prompt
+
   	> ![alt text][Publish-folder-path]
 + Make sure you choose an easy to find location becase this is where your .exe file will be published
 + Click __Finish__
@@ -67,7 +67,6 @@
 + The .zip file contains the _source code_, two _json files_ with the formats used by studio and a _folder with possible configuration for appsettings.json_
 + Download and unzip the files
 + Run Visual Studio as __administrator__ and open the solution
-+ Open _Windows PowerShell_, navigate to the folder containing the solution (e.g. D:\Coding\AppStoreServer\AppStoreIntegrationService) and run the command `dotnet restore` to make sure all the dependencies are installed
 + From the files three under the __AppStoreIntegrationServiceAPI__ project open _appsettings.json_
 + Go to the .zip file you just downloaded and copy the content of the file __appsettings-local.json__ into the __appsettings.json__ from project solution and save it
 + Now, the __AppStoreIntegrationServiceAPI__ is set for local folder path deployment
@@ -93,14 +92,12 @@
 
 ## 3. Publishing AppStoreIntegrationServiceManagement (PA Admin) on IIS server
 
-### Prerequisite
-+ Download [SqlLocalDb](https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SqlLocalDB.msi)
-
 ### Prerequisites
++ Download [SqlLocalDb](https://go.microsoft.com/fwlink/?linkid=866658)
 + Go to [this page](https://msdn.microsoft.com/en-us/windowsserver2012r2.aspx) and download the IIS Server on your computer
 + Install the IIS server, or follow [this link](https://www.guru99.com/deploying-website-iis.html) for instalation steps
 + Download and Install [Url Rewrite](https://www.iis.net/downloads/microsoft/url-rewrite)
-+ Download the [Windows Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer), otherwise your IIS server will not work!
++ Download the [Windows Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-6.0.10-windows-hosting-bundle-installer), otherwise your IIS server will not work!
 
 ### Configuration of the IIS Server
 + Open the __IIS server__ you installed
@@ -113,9 +110,22 @@
 + In the New Website prompt enter your site data
 
   	> ![alt text][Site-data]
++ Click on __Test Settings__ to check if the IIS Manager has access to the application path
+
+	> ![alt text][Test-connection]
++ If you got the same warning as in the previous image, close the window and select __Connect As__ to enter the credentials used to login in windows
+
+	> ![alt text][Connect-as]
++ For the application pool you can used either the application pool created when you enter your site name, or the built in _DefaultAppPool_
++ In the left-hand side you will find the application pool directory
+
+	> ![alt text][Application-pool]
++ In the application pools list select the one used by your application and from the right hand-side menu click on __Advanced settings__
++ In the promt, make sure the __Identity__ field is set to _Locals system_
+
+	> ![alt text][AppPool-settings]
 
 ### Publishing to IIS
-+ Open _Windows PowerShell_, navigate to the folder containing the solution (e.g. D:\Coding\AppStoreServer\AppStoreIntegrationService) and run the command `dotnet restore` to make sure all the dependencies are installed
 + Run Visual Studio as __administrator__!
 + Replace the content of __appsettings.json__ in Visual Studio with the content from __appsettings-local.json__
 + In __Visual Studio__, from the solution explorer right-click on __AppStoreIntegrationServiceManagement__ and select __Publish__
@@ -145,13 +155,14 @@
 ## 4. Publishing AppStoreIntegrationServiceAPI on IIS Server
 
 ### Prerequisites
++ Download [SqlLocalDb](https://go.microsoft.com/fwlink/?linkid=866658)
 + Go to [this page](https://msdn.microsoft.com/en-us/windowsserver2012r2.aspx) and download the IIS Server on your computer
 + Install the IIS server, or follow [this link](https://www.guru99.com/deploying-website-iis.html) for instalation steps
 + Download and Install [Url Rewrite](https://www.iis.net/downloads/microsoft/url-rewrite)
-+ Download the [Windows Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-3.1.3-windows-hosting-bundle-installer), otherwise your IIS server will not work!
++ Download the [Windows Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-aspnetcore-6.0.10-windows-hosting-bundle-installer), otherwise your IIS server will not work!
 
 ### Configuration of the IIS Server
-+ Open the __IIS server__ you installed as __administrator__!
++ Open the __IIS server__ you installed
 + In the left-hand side you will find the name of your computer (e.g. WSAMZN-FGLJ96PK)
 
   	> ![alt text][IIS-computer-name]
@@ -161,9 +172,22 @@
 + In the New Website prompt enter your site data
 
   	> ![alt text][Site-data]
++ Click on __Test Settings__ to check if the IIS Manager has access to the application path
+
+	> ![alt text][Test-connection]
++ If you got the same warning as in the previous image, close the window and select __Connect As__ to enter the credentials used to login in windows
+
+	> ![alt text][Connect-as]
++ For the application pool you can used either the application pool created when you enter your site name, or the built in _DefaultAppPool_
++ In the left-hand side you will find the application pool directory
+
+	> ![alt text][Application-pool]
++ In the application pools list select the one used by your application and from the right hand-side menu click on __Advanced settings__
++ In the promt, make sure the __Identity__ field is set to _Locals system_
+
+	> ![alt text][AppPool-settings]
 
 ### Publishing to IIS
-+ Open _Windows PowerShell_, navigate to the folder containing the solution (e.g. D:\Coding\AppStoreServer\AppStoreIntegrationService) and run the command `dotnet restore` to make sure all the dependencies are installed
 + Run Visual Studio as __administrator__!
 + Replace the content of __appsettings.json__ in Visual Studio with the content from __appsettings-local.json__
 + In __Visual Studio__, from the solution explorer right-click on __AppStoreIntegrationServiceAPI__ and select __Publish__
@@ -316,17 +340,22 @@ AppStoreIntegrationServiceContextConnection: _your data base connection string_
 	> ![alt-text][Settings-check]
 + Click __Publish__ and wait for the process to finish. If there are no errors during the process the application should open in browser
 
-[Release]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Release.PNG
-[New-publish-profile]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/New-publish-profile.png
-[Publish-folder-path]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Publish-folder-path.PNG
-[IIS-computer-name]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/IIS-computer-name.PNG
-[Add-website]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Add-website.PNG
-[Site-data]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Site-data.PNG
-[IIS-server]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/IIS-server.PNG
-[Web-deploy]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Web-deploy.PNG
-[Resource-groups]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Resource-groups.png
-[Overview]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Overview.png
-[Download-publish-profile]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Download-publish-profile.png
-[Settings-check]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Settings-check.png
-[Save]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Save.png
-[Import-profile]: https://github.com/RWS/studio-appstore-service/blob/SDLCOM3898-UIValidation/Images/Import-profile.png
+[Release]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Release.PNG
+[New-publish-profile]: https://github.com/RWS/studio-appstore-service/blob/master/Images/New-publish-profile.png
+[Publish-folder-path]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Publish-folder-path.PNG
+[IIS-computer-name]: https://github.com/RWS/studio-appstore-service/blob/master/Images/IIS-computer-name.PNG
+[Add-website]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Add-website.PNG
+[Site-data]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Site-data.PNG
+[IIS-server]: https://github.com/RWS/studio-appstore-service/blob/master/Images/IIS-server.PNG
+[Web-deploy]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Web-deploy.PNG
+[Resource-groups]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Resource-groups.png
+[Overview]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Overview.png
+[Download-publish-profile]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Download-publish-profile.png
+[Settings-check]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Settings-check.png
+[Save]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Images/Save.png
+[Import-profile]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Import-profile.png
+
+[Application-pool]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Application-pool.PNG
+[AppPool-settings]: https://github.com/RWS/studio-appstore-service/blob/master/Images/AppPool-settings.PNG
+[Test-connection]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Test-connection.PNG
+[Connect-as]: https://github.com/RWS/studio-appstore-service/blob/master/Images/Connect-as.PNG
