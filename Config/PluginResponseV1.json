@@ -1,0 +1,71 @@
+{
+  "Value": [
+    {
+      "Id": 6,
+      "Name": "Checksum app",
+      "Description": "Checking checksum checking.",
+      "ChangelogLink": "https://community.rws.com/product-groups/trados-portfolio/rws-appstore/w/wiki/6291/changelog-multilingual-excel-filetype",
+      "SupportUrl": "https://community.rws.com/product-groups/trados-portfolio/rws-appstore/f/rws-appstore",
+      "SupportEmail": "n/a",
+      "Icon": {
+        "MediaURL": "https://studio-appstore-management-betatat.azurewebsites.net/images/plugin.ico"
+      },
+      "ReleaseDate": null,
+      "DownloadCount": 0,
+      "CommentCount": 0,
+      "SupportText": null,
+      "PaidFor": false,
+      "Inactive": false,
+      "Pricing": null,
+      "RatingSummary": null,
+      "Developer": {
+        "DeveloperName": "CheckingMan",
+        "DeveloperDescription": null,
+        "DeveloperURL": null
+      },
+      "Media": null,
+      "Versions": [
+        {
+          "CreatedDate": null,
+          "DownloadCount": 0,
+          "Id": "f4db0924-6043-4a14-a79a-7a3226f8a360",
+          "ReleasedDate": null,
+          "TechnicalRequirements": null,
+          "VersionNumber": "4.5.6.7",
+          "FileHash": "94286ee7e278cdf143690df36e7c087369b91ea8",
+          "SupportedProducts": [
+            {
+              "Id": "38",
+              "ProductName": "Trados Studio 2022",
+              "ParentProductID": 14,
+              "MinimumStudioVersion": "17.0",
+              "IsDefault": true
+            }
+          ],
+          "AppHasStudioPluginInstaller": true,
+          "MinimumRequiredVersionOfStudio": "17.1",
+          "SDLHosted": false,
+          "IsNavigationLink": false,
+          "DownloadUrl": "https://www.dropbox.com/s/defu0bssi3crwm7/Sdl.Community.YourProductivity.sdlplugin?dl=1",
+          "IsPrivatePlugin": true
+        }
+      ],
+      "Categories": [
+        {
+          "Id": 3,
+          "Name": "Translation Memory"
+        },
+        {
+          "Id": 5,
+          "Name": "Process automation & management"
+        },
+        {
+          "Id": 7,
+          "Name": "Reference"
+        }
+      ],
+      "DownloadUrl": "https://www.dropbox.com/s/defu0bssi3crwm7/Sdl.Community.YourProductivity.sdlplugin?dl=1",
+      "CreatedDate": null
+    }
+  ]
+}
