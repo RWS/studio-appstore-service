@@ -88,20 +88,11 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_PLUGINSFILENAMEV1.
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_PLUGINSFILENAME.
         /// </summary>
-        public static string PluginsFileNameV1 {
+        public static string PluginsFileName {
             get {
-                return ResourceManager.GetString("PluginsFileNameV1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_PLUGINSFILENAMEV2.
-        /// </summary>
-        public static string PluginsFileNameV2 {
-            get {
-                return ResourceManager.GetString("PluginsFileNameV2", resourceCulture);
+                return ResourceManager.GetString("PluginsFileName", resourceCulture);
             }
         }
         

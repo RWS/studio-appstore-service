@@ -1,27 +1,26 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using Newtonsoft.Json;
 
-namespace AppStoreIntegrationServiceCore.Repository.V2
+namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class LocalRepositoryExtended<T> : ILocalRepositoryExtended<T> where T : PluginDetails<PluginVersion<string>, string>, new()
+    public class LocalRepository<T> : ILocalRepository<T> where T : PluginDetails<PluginVersion<string>, string>, new()
     {
         private readonly IConfigurationSettings _configurationSettings;
 
-        public LocalRepositoryExtended(IConfigurationSettings configurationSettings)
+        public LocalRepository(IConfigurationSettings configurationSettings)
         {
             _configurationSettings = configurationSettings;
         }
 
         private async Task<PluginResponse<T>> ReadFromFile()
         {
-            if (string.IsNullOrEmpty(_configurationSettings.LocalPluginsFilePathV2))
+            if (string.IsNullOrEmpty(_configurationSettings.LocalPluginsFilePath))
             {
                 return new PluginResponse<T>();
             }
 
-            var content = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePathV2);
+            var content = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePath);
             return JsonConvert.DeserializeObject<PluginResponse<T>>(content) ?? new PluginResponse<T>();
         }
 
@@ -67,7 +66,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 ParentProducts = products,
                 Categories = response.Categories
             });
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, text);
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
         }
 
         public async Task SavePluginsToFile(List<T> plugins)
@@ -81,7 +80,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 ParentProducts = response.ParentProducts,
                 Categories = response.Categories
             });
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, text);
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
         }
 
         public async Task SaveProductsToFile(List<ProductDetails> products)
@@ -95,7 +94,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 ParentProducts = response.ParentProducts,
                 Categories = response.Categories
             });
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, text);
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
         }
 
         public async Task<string> GetAPIVersionFromFile()
@@ -114,12 +113,26 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 ParentProducts = response.ParentProducts,
                 Categories = categories
             });
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePathV2, text);
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
         }
 
         public async Task<List<CategoryDetails>> ReadCategoriesFromFile()
         {
             return (await ReadFromFile())?.Categories;
+        }
+
+        public async Task SaveAPIVersionToFile(string version)
+        {
+            var response = await ReadFromFile();
+            var text = JsonConvert.SerializeObject(new PluginResponse<T>
+            {
+                APIVersion = version,
+                Value = response.Value,
+                Products = response.Products,
+                ParentProducts = response.ParentProducts,
+                Categories = response.Categories
+            });
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
         }
     }
 }

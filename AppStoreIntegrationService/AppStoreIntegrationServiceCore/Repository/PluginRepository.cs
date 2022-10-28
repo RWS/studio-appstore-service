@@ -1,33 +1,31 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using static AppStoreIntegrationServiceCore.Enums;
-using static AppStoreIntegrationServiceCore.Model.PluginFilter;
 
-namespace AppStoreIntegrationServiceCore.Repository.V2
+namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class PluginRepositoryExtended<T> : IPluginRepositoryExtended<T> where T : PluginDetails<PluginVersion<string>, string>, new()
+    public class PluginRepository<T> : IPluginRepository<T> where T : PluginDetails<PluginVersion<string>, string>, new()
     {
-        private readonly IAzureRepositoryExtended<T> _azureRepositoryExtended;
+        private readonly IAzureRepository<T> _azureRepository;
         private readonly IProductsRepository _productsRepository;
-        private readonly ILocalRepositoryExtended<T> _localRepositoryExtended;
+        private readonly ILocalRepository<T> _localRepository;
         private readonly IConfigurationSettings _configurationSettings;
 
-        public PluginRepositoryExtended
+        public PluginRepository
         (
-            IAzureRepositoryExtended<T> azureRepositoryExtended,
+            IAzureRepository<T> azureRepository,
             IProductsRepository productsRepository,
             IConfigurationSettings configurationSettings,
-            ILocalRepositoryExtended<T> localRepositoryExtended
+            ILocalRepository<T> localRepository
         )
         {
-            _azureRepositoryExtended = azureRepositoryExtended;
+            _azureRepository = azureRepository;
             _productsRepository = productsRepository;
-            _localRepositoryExtended = localRepositoryExtended;
+            _localRepository = localRepository;
             _configurationSettings = configurationSettings;
         }
 
@@ -132,35 +130,6 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             return new T();
         }
 
-        public async Task<bool> TryImportPluginsFromFile(IFormFile file)
-        {
-            var result = new StringBuilder();
-            using (var reader = new StreamReader(file.OpenReadStream()))
-            {
-                while (reader.Peek() >= 0)
-                {
-                    result.AppendLine(reader.ReadLine());
-                }
-            }
-
-            if (!string.IsNullOrEmpty(result.ToString()))
-            {
-                try
-                {
-                    var response = JsonConvert.DeserializeObject<PluginResponse<T>>(result.ToString());
-                    await SaveToFile(response.Value);
-                    return true;
-
-                }
-                catch (JsonException)
-                {
-                    return false;
-                }
-            }
-
-            return false;
-        }
-
         public async Task RemovePluginVersion(int pluginId, string versionId)
         {
             var pluginList = await GetPlugins();
@@ -185,34 +154,34 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         private async Task<List<T>> GetPlugins()
         {
-            if (_configurationSettings.DeployMode != Enums.DeployMode.AzureBlob)
+            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
-                return await _localRepositoryExtended.ReadPluginsFromFile();
+                return await _localRepository.ReadPluginsFromFile();
             }
 
-            return await _azureRepositoryExtended.GetPluginsFromContainer();
+            return await _azureRepository.GetPluginsFromContainer();
         }
 
         private async Task BackupFile(List<T> plugins)
         {
-            if (_configurationSettings.DeployMode == Enums.DeployMode.AzureBlob)
+            if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                await _azureRepositoryExtended.BackupFile(plugins);
+                await _azureRepository.BackupFile(plugins);
                 return;
             }
 
-            await _localRepositoryExtended.SavePluginsToFile(plugins);
+            await _localRepository.SavePluginsToFile(plugins);
         }
 
         public async Task SaveToFile(List<T> pluginsList)
         {
-            if (_configurationSettings.DeployMode == Enums.DeployMode.AzureBlob)
+            if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                await _azureRepositoryExtended.UpdatePluginsFileBlob(pluginsList);
+                await _azureRepository.UpdatePluginsFileBlob(pluginsList);
                 return;
             }
 
-            await _localRepositoryExtended.SavePluginsToFile(pluginsList);
+            await _localRepository.SavePluginsToFile(pluginsList);
         }
 
         public async Task<List<T>> GetAll(string sortOrder)

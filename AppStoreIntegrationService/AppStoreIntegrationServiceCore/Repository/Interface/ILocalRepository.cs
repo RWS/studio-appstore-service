@@ -1,15 +1,16 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.V1.Interface;
 
-namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
+namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
-    public interface ILocalRepositoryExtended<T> : ILocalRepository<T>
+    public interface ILocalRepository<T>
     {
+        Task<List<T>> ReadPluginsFromFile();
         Task SavePluginsToFile(List<T> plugins);
         Task SaveProductsToFile(List<ProductDetails> products);
         Task SaveParentsToFile(List<ParentProduct> products);
         Task SaveMappingsToFile(List<NameMapping> names);
         Task SaveCategoriesToFile(List<CategoryDetails> categories);
+        Task SaveAPIVersionToFile(string version);
         Task<List<ProductDetails>> ReadProductsFromFile();
         Task<List<ParentProduct>> ReadParentsFromFile();
         Task<List<NameMapping>> ReadMappingsFromFile();

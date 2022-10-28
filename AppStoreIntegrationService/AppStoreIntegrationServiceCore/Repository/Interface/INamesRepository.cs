@@ -1,6 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 
-namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
+namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface INamesRepository
     {

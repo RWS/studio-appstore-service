@@ -1,16 +1,16 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 
-namespace AppStoreIntegrationServiceCore.Repository.V2
+namespace AppStoreIntegrationServiceCore.Repository
 {
     public class ProductsSynchronizer : IProductsSynchronizer
     {
-        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepositoryExtended;
+        private readonly IPluginRepository<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
         private readonly IProductsRepository _productsRepository;
 
-        public ProductsSynchronizer(IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> pluginRepository, IProductsRepository productsRepository)
+        public ProductsSynchronizer(IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository, IProductsRepository productsRepository)
         {
-            _pluginRepositoryExtended = pluginRepository;
+            _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
         }
 
@@ -31,7 +31,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         public async Task<bool> IsInUse(string id, ProductType type)
         {
-            var plugins = await _pluginRepositoryExtended.GetAll(null);
+            var plugins = await _pluginRepository.GetAll(null);
             var products = await _productsRepository.GetAllProducts();
             return type switch
             {

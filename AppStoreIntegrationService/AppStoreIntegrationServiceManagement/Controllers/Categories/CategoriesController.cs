@@ -1,5 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Settings;
 using Microsoft.AspNetCore.Authorization;
@@ -13,12 +13,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Categories
     public class CategoriesController : Controller
     {
         public readonly ICategoriesRepository _categoriesRepository;
-        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepositoryExtended;
+        private readonly IPluginRepository<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
 
-        public CategoriesController(ICategoriesRepository categoriesRepository, IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> pluginRepositoryExtended)
+        public CategoriesController(ICategoriesRepository categoriesRepository, IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository)
         {
             _categoriesRepository = categoriesRepository;
-            _pluginRepositoryExtended = pluginRepositoryExtended;
+            _pluginRepository = pluginRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -115,7 +115,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Categories
 
         private async Task<bool> IsInUse(string id)
         {
-            var plugins = await _pluginRepositoryExtended.GetAll(null);
+            var plugins = await _pluginRepository.GetAll(null);
             return plugins.Select(p => p.Categories.Any(c => c == id)).Any(item => item);
         }
 

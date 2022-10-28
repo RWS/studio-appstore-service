@@ -1,26 +1,25 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using static AppStoreIntegrationServiceCore.Enums;
 
-namespace AppStoreIntegrationServiceCore.Repository.V2
+namespace AppStoreIntegrationServiceCore.Repository
 {
     public class CategoriesRepository : ICategoriesRepository
     {
-        private readonly ILocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _localRepositoryExtended;
-        private readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _azureRepositoryExtended;
+        private readonly ILocalRepository<PluginDetails<PluginVersion<string>, string>> _localRepository;
+        private readonly IAzureRepository<PluginDetails<PluginVersion<string>, string>> _azureRepository;
         private readonly IConfigurationSettings _configurationSettings;
         private readonly List<CategoryDetails> _defaultCategories;
 
         public CategoriesRepository
         (
-            ILocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>> localRepositoryExtended, 
-            IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>> azureRepositoryExtended, 
+            ILocalRepository<PluginDetails<PluginVersion<string>, string>> localRepository,
+            IAzureRepository<PluginDetails<PluginVersion<string>, string>> azureRepository,
             IConfigurationSettings configurationSettings
         )
         {
-            _localRepositoryExtended = localRepositoryExtended;
-            _azureRepositoryExtended = azureRepositoryExtended;
+            _localRepository = localRepository;
+            _azureRepository = azureRepository;
             _configurationSettings = configurationSettings;
             _defaultCategories = new List<CategoryDetails>
             {
@@ -72,21 +71,21 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
         {
             if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
-                await _localRepositoryExtended.SaveCategoriesToFile(categories);
+                await _localRepository.SaveCategoriesToFile(categories);
                 return;
             }
 
-            await _azureRepositoryExtended.UpdateCategoriesFileBlob(categories);
+            await _azureRepository.UpdateCategoriesFileBlob(categories);
         }
 
         private async Task<List<CategoryDetails>> GetCategoriesFromPossibleLocation()
         {
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                return await _azureRepositoryExtended.GetCategoriesFromContainer() ?? _defaultCategories;
+                return await _azureRepository.GetCategoriesFromContainer() ?? _defaultCategories;
             }
 
-            return await _localRepositoryExtended.ReadCategoriesFromFile() ?? _defaultCategories;
+            return await _localRepository.ReadCategoriesFromFile() ?? _defaultCategories;
         }
     }
 }
