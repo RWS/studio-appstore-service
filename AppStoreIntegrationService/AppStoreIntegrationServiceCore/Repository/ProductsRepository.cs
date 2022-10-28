@@ -1,9 +1,8 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using static AppStoreIntegrationServiceCore.Enums;
 
-namespace AppStoreIntegrationServiceCore.Repository.V2
+namespace AppStoreIntegrationServiceCore.Repository
 {
     public enum ProductType
     {
@@ -13,17 +12,17 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
     public class ProductsRepository<T> : IProductsRepository where T : PluginDetails<PluginVersion<string>, string>, new()
     {
-        protected readonly IAzureRepositoryExtended<T> _azureRepositoryExtended;
+        protected readonly IAzureRepository<T> _azureRepository;
         protected readonly IConfigurationSettings _configurationSettings;
-        private readonly ILocalRepositoryExtended<T> _localRepositoryExtended;
+        private readonly ILocalRepository<T> _localRepository;
         protected List<ProductDetails> _defaultProducts;
         protected List<ParentProduct> _defaultParentProducts;
 
-        public ProductsRepository(IAzureRepositoryExtended<T> azureRepositoryExtended, IConfigurationSettings configurationSettings, ILocalRepositoryExtended<T> localRepositoryExtended)
+        public ProductsRepository(IAzureRepository<T> azureRepository, IConfigurationSettings configurationSettings, ILocalRepository<T> localRepository)
         {
-            _azureRepositoryExtended = azureRepositoryExtended;
+            _azureRepository = azureRepository;
             _configurationSettings = configurationSettings;
-            _localRepositoryExtended = localRepositoryExtended;
+            _localRepository = localRepository;
             _defaultProducts = new List<ProductDetails>
             {
                 new ProductDetails
@@ -57,27 +56,27 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
         {
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                await _azureRepositoryExtended.UpdateProductsFileBlob(products);
+                await _azureRepository.UpdateProductsFileBlob(products);
                 return;
             }
 
-            await _localRepositoryExtended.SaveProductsToFile(products);
+            await _localRepository.SaveProductsToFile(products);
         }
 
         public async Task UpdateProducts(List<ParentProduct> products)
         {
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
-                await _azureRepositoryExtended.UpdateParentsFileBlob(products);
+                await _azureRepository.UpdateParentsFileBlob(products);
                 return;
             }
 
-            await _localRepositoryExtended.SaveParentsToFile(products);
+            await _localRepository.SaveParentsToFile(products);
         }
 
         public async Task DeleteProduct(string id, ProductType type)
         {
-            var(Products, Parents) = await GetProductsFromPossibleLocations();
+            var (Products, Parents) = await GetProductsFromPossibleLocations();
             if (type == ProductType.Child)
             {
                 await UpdateProducts(Products.Where(item => item.Id != id).ToList());
@@ -104,12 +103,12 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
         {
             if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
-                return (Products: await _localRepositoryExtended.ReadProductsFromFile() ?? _defaultProducts,
-                        Parents: await _localRepositoryExtended.ReadParentsFromFile() ?? _defaultParentProducts);
+                return (Products: await _localRepository.ReadProductsFromFile() ?? _defaultProducts,
+                        Parents: await _localRepository.ReadParentsFromFile() ?? _defaultParentProducts);
             }
 
-            return (Products: await _azureRepositoryExtended.GetProductsFromContainer() ?? _defaultProducts,
-                    Parents: await _azureRepositoryExtended.GetParentProductsFromContainer() ?? _defaultParentProducts);
+            return (Products: await _azureRepository.GetProductsFromContainer() ?? _defaultProducts,
+                    Parents: await _azureRepository.GetParentProductsFromContainer() ?? _defaultParentProducts);
         }
     }
 }

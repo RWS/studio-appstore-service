@@ -1,26 +1,46 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using Microsoft.Azure.Storage.Auth;
+using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
+using Microsoft.Azure.Storage.RetryPolicies;
 using Newtonsoft.Json;
 using System.Text;
 using static AppStoreIntegrationServiceCore.Enums;
+using System.Text.RegularExpressions;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 
-namespace AppStoreIntegrationServiceCore.Repository.V2
+namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class AzureRepositoryExtended<T> : AzureRepositoryBase<T>, IAzureRepositoryExtended<T> where T : PluginDetails<PluginVersion<string>, string>
+    public class AzureRepository<T> : IAzureRepository<T> where T : PluginDetails<PluginVersion<string>, string>
     {
+        private readonly IConfigurationSettings _configurationSettings;
+        private readonly BlobRequestOptions _blobRequestOptions;
         private CloudBlockBlob _pluginsListBlockBlobOptimized;
         private CloudBlockBlob _pluginsBackupBlockBlobOptimized;
         private CloudBlockBlob _nameMappingsBlockBlob;
         private CloudBlockBlob _settingsBlockBlob;
+        private CloudBlobContainer _cloudBlobContainer;
 
-        public AzureRepositoryExtended(IConfigurationSettings configurationSettings) : base(configurationSettings)
+        public AzureRepository(IConfigurationSettings configurationSettings)
         {
-            if (configurationSettings.DeployMode != DeployMode.AzureBlob)
+            _configurationSettings = configurationSettings;
+            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
                 return;
+            }
+
+            _blobRequestOptions = new BlobRequestOptions
+            {
+                MaximumExecutionTime = TimeSpan.FromSeconds(120),
+                RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(3), 3),
+                DisableContentMD5Validation = true,
+                StoreBlobContentMD5 = false
+            };
+
+            var cloudStorageAccount = GetCloudStorageAccount();
+            if (cloudStorageAccount != null)
+            {
+                CreateContainer(cloudStorageAccount);
             }
 
             SetCloudBlockBlobs();
@@ -115,11 +135,11 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
 
         private void SetCloudBlockBlobs()
         {
-            if (!string.IsNullOrEmpty(_configurationSettings.PluginsFileNameV2))
+            if (!string.IsNullOrEmpty(_configurationSettings.PluginsFileName))
             {
-                _pluginsListBlockBlobOptimized = GetBlockBlobReference(_configurationSettings.PluginsFileNameV2);
+                _pluginsListBlockBlobOptimized = GetBlockBlobReference(_configurationSettings.PluginsFileName);
 
-                var backupFileName = $"{Path.GetFileNameWithoutExtension(_configurationSettings.PluginsFileNameV2)}_backupFile.json";
+                var backupFileName = $"{Path.GetFileNameWithoutExtension(_configurationSettings.PluginsFileName)}_backupFile.json";
                 _pluginsBackupBlockBlobOptimized = GetBlockBlobReference(backupFileName);
             }
 
@@ -132,6 +152,74 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
             {
                 _settingsBlockBlob = GetBlockBlobReference(_configurationSettings.SettingsFileName);
             }
+        }
+
+        private void CreateContainer(CloudStorageAccount cloudStorageAccount)
+        {
+            var blobClient = cloudStorageAccount.CreateCloudBlobClient();
+            var blobName = NormalizeBlobName();
+            _cloudBlobContainer = blobClient.GetContainerReference(blobName);
+
+            if (_cloudBlobContainer.CreateIfNotExists())
+            {
+                _cloudBlobContainer.SetPermissionsAsync(new
+                    BlobContainerPermissions
+                {
+                    PublicAccess = BlobContainerPublicAccessType.Blob
+                });
+            }
+        }
+
+        private string NormalizeBlobName()
+        {
+            if (string.IsNullOrEmpty(_configurationSettings.BlobName))
+            {
+                _configurationSettings.BlobName = "defaultblobname";
+            }
+            var regex = new Regex("[A-Za-z0-9]+");
+            var matchCollection = regex.Matches(_configurationSettings.BlobName);
+            var normalizedName = string.Concat(matchCollection.Select(m => m.Value));
+            if (normalizedName.Length < 3)
+            {
+                normalizedName = $"{normalizedName}appstore";
+            }
+
+            return normalizedName.ToLower();
+        }
+
+        private static void CreateEmptyFile(CloudBlockBlob cloudBlockBlob)
+        {
+            if (cloudBlockBlob is null) return;
+            var fileBlobExists = cloudBlockBlob.Exists();
+            if (!fileBlobExists)
+            {
+                cloudBlockBlob.UploadText(string.Empty);
+            }
+        }
+
+        private CloudBlockBlob GetBlockBlobReference(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return null;
+            }
+
+            var cloudBlob = _cloudBlobContainer.GetBlockBlobReference(fileName);
+            cloudBlob.Properties.ContentType = Path.GetExtension(fileName);
+            return cloudBlob;
+        }
+
+        private CloudStorageAccount GetCloudStorageAccount()
+        {
+            if (string.IsNullOrEmpty(_configurationSettings?.StorageAccountName) ||
+                string.IsNullOrEmpty(_configurationSettings?.StorageAccountKey))
+            {
+                return null;
+            }
+
+            var storageCredentils = new StorageCredentials(_configurationSettings?.StorageAccountName, _configurationSettings?.StorageAccountKey);
+            var storageAccount = new CloudStorageAccount(storageCredentils, true);
+            return storageAccount;
         }
 
         public async Task<List<ParentProduct>> GetParentProductsFromContainer()
@@ -177,6 +265,20 @@ namespace AppStoreIntegrationServiceCore.Repository.V2
                 Products = response.Products,
                 ParentProducts = response.ParentProducts,
                 Categories = categories
+            });
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
+        }
+
+        public async Task UpdateAPIVersion(string version)
+        {
+            var response = await ReadFromContainer();
+            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            {
+                APIVersion = version,
+                Value = response.Value,
+                Products = response.Products,
+                ParentProducts = response.ParentProducts,
+                Categories = response.Categories
             });
             await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
         }

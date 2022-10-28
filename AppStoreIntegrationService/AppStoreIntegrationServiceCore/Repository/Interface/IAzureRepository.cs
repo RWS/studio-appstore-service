@@ -1,10 +1,10 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.V1.Interface;
 
-namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
+namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
-    public interface IAzureRepositoryExtended<T> : IAzureRepository<T>
+    public interface IAzureRepository<T>
     {
+        Task<List<T>> GetPluginsFromContainer();
         Task<List<NameMapping>> GetNameMappingsFromContainer();
         Task<List<ParentProduct>> GetParentProductsFromContainer();
         Task<List<ProductDetails>> GetProductsFromContainer();
@@ -17,6 +17,7 @@ namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
         Task UpdateProductsFileBlob(List<ProductDetails> products);
         Task UpdateParentsFileBlob(List<ParentProduct> products);
         Task UpdateCategoriesFileBlob(List<CategoryDetails> products);
+        Task UpdateAPIVersion(string version);
         Task BackupFile(List<T> plugins);
     }
 }
