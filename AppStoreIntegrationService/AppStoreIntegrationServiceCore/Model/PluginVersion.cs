@@ -26,6 +26,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [Required(ErrorMessage = "Version number is required!")]
         [RegularExpression(@"^(\d+\.)?(\d+\.)?(\d+\.)?(\d+)$", ErrorMessage = "Invalid version number!")]
         public string VersionNumber { get; set; }
+        [Required(ErrorMessage = "Checksum is required!")]
         [RegularExpression(@"\b(?:[0-9a-z]-?){40}\b", ErrorMessage = "Invalid checksum!")]
         public string FileHash { get; set; }
         public List<T> SupportedProducts { get; set; }

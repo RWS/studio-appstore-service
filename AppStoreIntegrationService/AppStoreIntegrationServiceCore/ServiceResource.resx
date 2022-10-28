@@ -126,11 +126,8 @@
   <data name="MappingFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_MAPPINGFILENAME</value>
   </data>
-  <data name="PluginsFileNameV1" xml:space="preserve">
-    <value>APPSTOREINTEGRATION_PLUGINSFILENAMEV1</value>
-  </data>
-  <data name="PluginsFileNameV2" xml:space="preserve">
-    <value>APPSTOREINTEGRATION_PLUGINSFILENAMEV2</value>
+  <data name="PluginsFileName" xml:space="preserve">
+    <value>APPSTOREINTEGRATION_PLUGINSFILENAME</value>
   </data>
   <data name="SettingsFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_SETTINGSFILENAME</value>

@@ -1,7 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.V2;
 
-namespace AppStoreIntegrationServiceCore.Repository.V2.Interface
+namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface IProductsRepository
     {

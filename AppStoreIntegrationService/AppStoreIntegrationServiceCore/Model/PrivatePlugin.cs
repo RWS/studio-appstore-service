@@ -8,7 +8,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Plugin name is required!")]
-        [MinLength(5, ErrorMessage = "The field name must contain at least 5 characters!")]
+        [RegularExpression(@"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$", ErrorMessage = "Invalid name!")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Description field is required!")]
@@ -40,7 +40,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [RegularExpression(@"^https?:\/\/\w+([\.\-]\w+)*(:[0-9]+)?(\/.*)?$", ErrorMessage = "Invalid url!")]
         public string IconUrl { get; set; }
 
-        [MinLength(5, ErrorMessage = "The field developer name must contain at least 5 characters!")]
+        [RegularExpression(@"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$", ErrorMessage = "Invalid name!")]
         public string DeveloperName { get; set; }
 
         public bool IsEditMode { get; set; }

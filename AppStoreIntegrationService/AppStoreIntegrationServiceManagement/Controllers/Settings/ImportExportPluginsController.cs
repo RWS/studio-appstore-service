@@ -1,5 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Settings;
 using Microsoft.AspNetCore.Authorization;
@@ -13,20 +13,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Area("Settings")]
     public class ImportExportPluginsController : Controller
     {
-        private readonly IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _pluginRepositoryExtended;
+        private readonly IPluginRepository<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
         private readonly IProductsRepository _productsRepository;
         private readonly IVersionProvider _versionProvider;
         private readonly ICategoriesRepository _categoriesRepository;
 
         public ImportExportPluginsController
         (
-            IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>> pluginRepositoryExtended, 
-            IProductsRepository productsRepository, 
-            IVersionProvider versionProvider, 
+            IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository,
+            IProductsRepository productsRepository,
+            IVersionProvider versionProvider,
             ICategoriesRepository categoriesRepository
         )
         {
-            _pluginRepositoryExtended = pluginRepositoryExtended;
+            _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
             _versionProvider = versionProvider;
             _categoriesRepository = categoriesRepository;
@@ -41,10 +41,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> CreateExport()
         {
-            var response = new PluginResponse<PluginDetails<PluginVersion<string>, string>> 
-            { 
+            var response = new PluginResponse<PluginDetails<PluginVersion<string>, string>>
+            {
                 APIVersion = await _versionProvider.GetAPIVersion(),
-                Value = await _pluginRepositoryExtended.GetAll("asc"),
+                Value = await _pluginRepository.GetAll("asc"),
                 Products = await _productsRepository.GetAllProducts(),
                 ParentProducts = await _productsRepository.GetAllParents(),
                 Categories = await _categoriesRepository.GetAllCategories()
@@ -63,24 +63,60 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> CreateImport(ImportPluginsModel import)
         {
-            var modalDetails = new ModalMessage();
-            var success = await _pluginRepositoryExtended.TryImportPluginsFromFile(import.ImportedFile);
-            
+            var modalDetails = new ModalMessage
+            {
+                Title = "Warning!",
+                Message = "The file is empty or in wrong format!",
+                ModalType = ModalType.WarningMessage
+            };
+
+            var success = TryImportFromFile(import.ImportedFile, out var response);
+
             if (success)
             {
+                await _categoriesRepository.UpdateCategories(response.Categories);
+                await _productsRepository.UpdateProducts(response.Products);
+                await _productsRepository.UpdateProducts(response.ParentProducts);
+                await _versionProvider.UpdateAPIVersion(response.APIVersion);
+                await _pluginRepository.SaveToFile(response.Value);
+
                 modalDetails.RequestPage = "/Plugins";
                 modalDetails.ModalType = ModalType.SuccessMessage;
                 modalDetails.Title = "Success!";
                 modalDetails.Message = $"The file content was imported! Return to plugins list?";
             }
-            else
-            {
-                modalDetails.Title = "Warning!";
-                modalDetails.Message = "The file is empty or in wrong format!";
-                modalDetails.ModalType = ModalType.WarningMessage;
-            }
 
             return PartialView("_ModalPartial", modalDetails);
+        }
+
+        private static bool TryImportFromFile(IFormFile file, out PluginResponse<PluginDetails<PluginVersion<string>, string>> response)
+        {
+            var result = new StringBuilder();
+            using (var reader = new StreamReader(file.OpenReadStream()))
+            {
+                while (reader.Peek() >= 0)
+                {
+                    result.AppendLine(reader.ReadLine());
+                }
+            }
+
+            if (!string.IsNullOrEmpty(result.ToString()))
+            {
+                try
+                {
+                    response = JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(result.ToString());
+                    return true;
+
+                }
+                catch (JsonException)
+                {
+                    response = null;
+                    return false;
+                }
+            }
+
+            response = null;
+            return false;
         }
     }
 }

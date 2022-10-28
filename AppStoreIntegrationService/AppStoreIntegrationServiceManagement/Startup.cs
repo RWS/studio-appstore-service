@@ -4,12 +4,10 @@ using AppStoreIntegrationServiceCore.Model;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.ApplicationInsights.Extensibility;
 using static AppStoreIntegrationServiceCore.Enums;
-using AppStoreIntegrationServiceCore.Repository.V2;
-using AppStoreIntegrationServiceCore.Repository.Common;
 using AppStoreIntegrationServiceCore.Model.Common.Interface;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
+using AppStoreIntegrationServiceCore.Repository;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceManagement
 {
@@ -68,9 +66,9 @@ namespace AppStoreIntegrationServiceManagement
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
             services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
-            services.AddSingleton<IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>>, AzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>>>();
-            services.AddSingleton<IPluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>>, PluginRepositoryExtended<PluginDetails<PluginVersion<string>, string>>>();
-            services.AddSingleton<ILocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>>, LocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<string>, string>>, AzureRepository<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IPluginRepository<PluginDetails<PluginVersion<string>, string>>, PluginRepository<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<ILocalRepository<PluginDetails<PluginVersion<string>, string>>, LocalRepository<PluginDetails<PluginVersion<string>, string>>>();
 
             services.AddAuthorization(options =>
             {

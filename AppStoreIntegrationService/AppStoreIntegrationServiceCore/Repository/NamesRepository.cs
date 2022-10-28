@@ -1,25 +1,24 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Common.Interface;
-using AppStoreIntegrationServiceCore.Repository.V2.Interface;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using static AppStoreIntegrationServiceCore.Enums;
 
-namespace AppStoreIntegrationServiceCore.Repository.Common
+namespace AppStoreIntegrationServiceCore.Repository
 {
     public class NamesRepository : INamesRepository
     {
-        private readonly IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _azureRepositoryExtended;
-        private readonly ILocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>> _localRepositoryExtended;
+        private readonly IAzureRepository<PluginDetails<PluginVersion<string>, string>> _azureRepository;
+        private readonly ILocalRepository<PluginDetails<PluginVersion<string>, string>> _localRepository;
         private readonly IConfigurationSettings _configurationSettings;
 
         public NamesRepository
         (
-            IAzureRepositoryExtended<PluginDetails<PluginVersion<string>, string>> azureRepositoryExtended,
-            ILocalRepositoryExtended<PluginDetails<PluginVersion<string>, string>> localRepositoryExtended,
+            IAzureRepository<PluginDetails<PluginVersion<string>, string>> azureRepository,
+            ILocalRepository<PluginDetails<PluginVersion<string>, string>> localRepository,
             IConfigurationSettings configurationSettings
         )
         {
-            _azureRepositoryExtended = azureRepositoryExtended;
-            _localRepositoryExtended = localRepositoryExtended;
+            _azureRepository = azureRepository;
+            _localRepository = localRepository;
             _configurationSettings = configurationSettings;
         }
 
@@ -40,8 +39,8 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         {
             return _configurationSettings.DeployMode switch
             {
-                DeployMode.AzureBlob => await _azureRepositoryExtended.GetNameMappingsFromContainer(),
-                _ => await _localRepositoryExtended.ReadMappingsFromFile()
+                DeployMode.AzureBlob => await _azureRepository.GetNameMappingsFromContainer(),
+                _ => await _localRepository.ReadMappingsFromFile()
             };
         }
 
@@ -49,11 +48,11 @@ namespace AppStoreIntegrationServiceCore.Repository.Common
         {
             if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
-                await _localRepositoryExtended.SaveMappingsToFile(names);
+                await _localRepository.SaveMappingsToFile(names);
                 return;
             }
 
-            await _azureRepositoryExtended.UpdateMappingsFileBlob(names);
+            await _azureRepository.UpdateMappingsFileBlob(names);
         }
 
         public async Task DeleteMapping(string id)

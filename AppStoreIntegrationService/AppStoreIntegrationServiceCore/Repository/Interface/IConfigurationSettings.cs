@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using static AppStoreIntegrationServiceCore.Enums;
 
-namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
+namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface IConfigurationSettings
     {
@@ -23,9 +23,8 @@ namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
         /// <summary>
         /// Name of the json file with plugin details (file saved locally or on Azure)
         /// </summary>
-        public string PluginsFileNameV1 { get; set; }
 
-        public string PluginsFileNameV2 { get; set; }
+        public string PluginsFileName { get; set; }
         /// <summary>
         /// NAme of the json file from where service reads the plugins name mapping
         /// </summary>
@@ -44,9 +43,8 @@ namespace AppStoreIntegrationServiceCore.Repository.Common.Interface
         public DeployMode DeployMode { get; set; }
         public string NameMappingsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
-        public string LocalPluginsFilePathV1 { get; set; }
-        public string LocalPluginsFilePathV2 { get; set; }
-        public string PluginsFileBackUpPathV2 { get; set; }
+        public string LocalPluginsFilePath { get; set; }
+        public string PluginsFileBackUpPath { get; set; }
         public Task SetFilePathsProperties(IWebHostEnvironment environment);
     }
 }
