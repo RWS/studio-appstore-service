@@ -1,6 +1,8 @@
 ﻿let fileHash;
 
 function AddPlugin() {
+    document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
+
     $("#form").validate();
 
     if ($("#form").valid()) {
@@ -37,3 +39,7 @@ function AddNewVersion() {
         }
     })
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
+})

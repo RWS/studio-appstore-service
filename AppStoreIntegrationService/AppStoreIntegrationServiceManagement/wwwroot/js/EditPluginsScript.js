@@ -19,9 +19,13 @@
             $('#confirmationModal').modal('show');
         })
     })
+
+    document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
 });
 
 function SavePlugin() {
+    document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
+
     $("#form").validate();
 
     if ($("#form").valid()) {

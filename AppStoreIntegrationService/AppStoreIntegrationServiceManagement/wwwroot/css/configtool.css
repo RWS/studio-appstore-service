@@ -24,11 +24,11 @@ body, html {
     color: white;
 }
 
-.pa-admin-success-btn:hover {
-    background-color: var(--pa-admin-color-hover);
-    border: var(--pa-admin-color-hover);
-    color: white;
-}
+    .pa-admin-success-btn:hover {
+        background-color: var(--pa-admin-color-hover);
+        border: var(--pa-admin-color-hover);
+        color: white;
+    }
 
 .border-container {
     border-left: 1px solid #E1E7EB;
@@ -39,10 +39,10 @@ body, html {
     color: var(--pa-admin-color);
 }
 
-.new-version-button:hover {
-    cursor: pointer;    
-    color: var(--pa-admin-color-hover);
-}
+    .new-version-button:hover {
+        cursor: pointer;
+        color: var(--pa-admin-color-hover);
+    }
 
 .card-status {
     color: #4d4d4d;
@@ -64,9 +64,9 @@ body, html {
     width: max-content;
 }
 
-.delete-filter:hover {
-    background: var(--pa-admin-color-hover);
-}
+    .delete-filter:hover {
+        background: var(--pa-admin-color-hover);
+    }
 
 .delete-filter-active {
     display: inline-block;
@@ -94,13 +94,13 @@ body, html {
     padding: 0px;
 }
 
-.filter-search-text:focus {
-    border-color: var(--pa-admin-color);
-}
+    .filter-search-text:focus {
+        border-color: var(--pa-admin-color);
+    }
 
-.filter-search-text:focus::placeholder {
-    color: transparent;
-}
+        .filter-search-text:focus::placeholder {
+            color: transparent;
+        }
 
 .filter-search-submit {
     color: #929292;
@@ -118,6 +118,27 @@ body, html {
     height: 100%;
 }
 
+.text-area-hidden {
+    width: 0px;
+    height: 0px;
+    float: right;
+    margin: 0px;
+    padding: 0px;
+    visibility: hidden;
+}
+
+.rich-text-editor i:hover,
+.active {
+    background-color: lightgray;
+}
+
+.edit-area {
+    height: 200px;
+    outline: 0px solid transparent;
+    word-break: break-all;
+    overflow-y: scroll;
+}
+
 @media (max-width:992px) {
     .border-container {
         border-left: 0px solid #E1E7EB;
@@ -128,7 +149,7 @@ body, html {
 #profile-navbar .nav-link.active,
 .navbar-nav btn:focus,
 .navbar-nav a:focus,
-header{
+header {
     background-color: var(--pa-admin-color);
     border: var(--pa-admin-color);
 }
@@ -158,13 +179,13 @@ tbody tr:nth-child(odd) {
     background-color: #f2f2f2 !important;
 }
 
-@media(max-width: 576px){
+@media(max-width: 576px) {
     #newAppButton .pa-admin-success-btn {
         width: 100%;
     }
 }
 
-@media(max-width: 992px){
+@media(max-width: 992px) {
     td {
         border-bottom: 1px solid #dee2e6 !important;
         border-bottom-color: #dee2e6 !important;

@@ -79,7 +79,22 @@
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="Description">Description <span class="text-danger">*</span></label>
                 <div class="w-100">
-                    <textarea asp-for="Description" class="form-control" rows="7"></textarea>
+                    <div class="rich-text-editor border rounded">
+                        <div class="d-flex justify-content-between border-bottom p-3">
+                            <i id="bold" data-tag-name="B" class="fa fa-bold cursor-pointer option format p-2"></i>
+                            <i id="underline" data-tag-name="U" class="fa fa-underline cursor-pointer option format p-2"></i>
+                            <i id="italic" data-tag-name="I" class="fa fa-italic cursor-pointer option format p-2"></i>
+                            <i id="insertUnorderedList" data-tag-name="UL" class="fa fa-list-ul cursor-pointer option p-2"></i>
+                            <i id="insertOrderedList" data-tag-name="OL" class="fa fa-list-ol cursor-pointer option p-2"></i>
+                            <i id="justifyLeft" class="fa fa-align-left cursor-pointer option align p-2"></i>
+                            <i id="justifyCenter" class="fa fa-align-center cursor-pointer option align p-2"></i>
+                            <i id="justifyRight" class="fa fa-align-right cursor-pointer option align p-2"></i>
+                            <i id="justifyFull" class="fa fa-align-justify cursor-pointer option align p-2"></i>
+                            <i id="createLink" data-bs-toggle="modal" data-bs-target="#linkModal" class="fa fa-link cursor-pointer p-2"></i>
+                        </div>
+                        <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false"></div>
+                    </div>
+                    <textarea asp-for="Description" class="text-area-hidden"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
             </div>
@@ -100,8 +115,10 @@
 </form>
 
 <partial name="_ModalPartial" model="@new ModalMessage()" />
+<partial name="_LinkPartial" />
 
 <script src="~/js/EditPluginsScript.js"></script>
+<script src="~/js/RichTextEditor.js"></script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

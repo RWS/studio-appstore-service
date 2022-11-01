@@ -2,6 +2,7 @@
     var currentPage = controller + '/' + action;
 
     if (currentPage == "Plugins/Edit" || currentPage == "Plugins/New") {
+        document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
         CreateRequest($('main').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage}/${action}`);
         return;
     }
