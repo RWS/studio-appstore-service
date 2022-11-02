@@ -32,6 +32,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
                 await _azureRepository.UpdateAPIVersion(version);
+                return;
             }
 
             await _localRepository.SaveAPIVersionToFile(version);
