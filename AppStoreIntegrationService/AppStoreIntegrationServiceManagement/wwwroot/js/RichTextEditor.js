@@ -1,8 +1,29 @@
 ﻿let optionButtons = document.querySelectorAll('.rich-text-editor .option');
 let alignButtons = document.querySelectorAll('.rich-text-editor .align');
 let formatButtons = document.querySelectorAll('.rich-text-editor .format');
+let selectorCells = document.querySelectorAll('.rich-text-editor .selector-cell');
 let editor = document.querySelector('.rich-text-editor');
 let savedRange;
+
+selectorCells.forEach(selector => {
+    selector.addEventListener('mouseover', () => {
+        document.querySelector('.table-dimension').innerText = selector.id;
+        let [rows, cols] = [parseInt(selector.id.split('x')[0], 10), parseInt(selector.id.split('x')[1], 10)];
+        HighlightSelectionCells(rows, cols);
+    })
+
+    selector.addEventListener('click', () => {
+        let [rows, cols] = [parseInt(selector.id.split('x')[0], 10), parseInt(selector.id.split('x')[1], 10)];
+        InsertTable(rows, cols);
+    })
+})
+
+document.querySelector('.table-dimension-selector').addEventListener('mouseout', () => {
+    document.querySelector('.table-dimension').innerText = "0x0";
+    selectorCells.forEach(selector => {
+        selector.style.backgroundColor = "white";
+    })
+})
 
 optionButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -24,6 +45,35 @@ document.addEventListener('selectionchange', () => {
 
     ParentTagActive(window.getSelection().anchorNode.parentNode);
 })
+
+function HighlightSelectionCells(rows, cols) {
+    selectorCells.forEach(selector => {
+        let [selRow, selCol] = [parseInt(selector.id.split('x')[0], 10), parseInt(selector.id.split('x')[1], 10)];
+        if (selRow <= rows && selCol <= cols) {
+            selector.style.backgroundColor = "lightblue";
+        }
+    })
+}
+
+function InsertTable(rows, cols) {
+    var table = document.createElement('table');
+    for (let i = 0; i < rows; i++) {
+        let row = document.createElement('tr');
+        for (let j = 0; j < cols; j++) {
+            let col = document.createElement('td');
+            col.style.height = "30px";
+            col.style.border = "1px solid black"
+            row.append(col);
+        }
+        table.append(row);
+    }
+
+    RestoreSel();
+    table.style.border = "1px solid black";
+    table.style.tableLayout = "fixed"
+    table.classList.add('table');
+    document.querySelector('.edit-area').appendChild(table);
+}
 
 function Highlighter(buttons, needsRemoval) {
     buttons.forEach(button => {
@@ -81,7 +131,11 @@ function SaveSel() {
 }
 
 function RestoreSel() {
-    $('.edit-area').focus();
+    $('.edit-area').focus((e) => {
+        e.preventDefault();
+        e.target.focus({ preventScroll: true });
+    });
+
     if (savedRange != null) {
         if (window.getSelection)//non IE and there is already a selection
         {
