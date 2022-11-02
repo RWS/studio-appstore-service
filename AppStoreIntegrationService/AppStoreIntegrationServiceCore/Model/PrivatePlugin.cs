@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace AppStoreIntegrationServiceCore.Model
@@ -48,6 +49,8 @@ namespace AppStoreIntegrationServiceCore.Model
         public MultiSelectList CategoryListItems { get; set; }
 
         public string SelectedVersionId { get; set; }
+
+        public ImportManifestModel ManifestFile { get; set; }
 
         public bool IsValid(PluginVersion<string> selectedVersion)
         {

@@ -10,7 +10,6 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
-    [Authorize]
     [Area("Plugins")]
     public class PluginsController : Controller
     {
@@ -107,6 +106,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             await _pluginRepository.RemovePlugin(id);
             TempData["StatusMessage"] = "Success! Plugin was removed!";
+            return Content("");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManifestCompare(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, ImportManifestModel manifest)
+        {
             return Content("");
         }
 

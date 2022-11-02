@@ -1,0 +1,22 @@
+﻿@model ImportManifestModel
+
+<div class="modal" tabindex="-1" id="manifestUpload">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload manifest file</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <input asp-for="ManifestFile" type="file" class="form-control" />
+                    <span asp-validation-for="ManifestFile" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" onclick="javascript: ImportManifest()" class="btn pa-admin-success-btn">Compare</button>
+            </div>
+        </div>
+    </div>
+</div>

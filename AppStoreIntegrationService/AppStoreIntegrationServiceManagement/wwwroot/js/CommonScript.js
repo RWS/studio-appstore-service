@@ -111,6 +111,35 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+function ShowManifestModal() {
+    $("#form").validate();
+
+    if ($("#form").valid()) {
+        $('#manifestUpload').modal('show');
+    }
+}
+
+function ImportManifest() {
+    $("#ManifestFile").validate();
+
+    if ($("#ManifestFile").valid()) {
+        let data = new FormData(document.getElementById("form"));
+
+        $.ajax({
+            data: data,
+            async: true,
+            type: "POST",
+            contentType: false,
+            processData: false,
+            url: "/Plugins/Plugins/ManifestCompare",
+            success: function (actionResult) {
+                $('#modalContainer').html(actionResult);
+                $('#modalContainer').find('.modal').modal('show');
+            }
+        });
+    }
+}
+
 function AjaxSuccessCallback(actionResult) {
     if (!actionResult.includes("div")) {
         window.location.href = actionResult;

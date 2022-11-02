@@ -6,7 +6,7 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div id="statusMessageContainer"></div>
 
-<form method="post" id="form">
+<form method="post" id="form" enctype="multipart/form-data">
     <div class="row px-2">
         <div class="col-12 col-lg-4">
             <div class="d-flex justify-content-center">
@@ -112,15 +112,17 @@
             <button onclick="javascript: SavePlugin()" type="button" class="btn btn-primary pa-admin-success-btn ml-lg-3">Save</button>
         </div>
     </div>
+    <partial name="_ManifestUploadPartial" model="@Model.ManifestFile" />
 </form>
 
 <partial name="_ModalPartial" model="@new ModalMessage()" />
 <partial name="_LinkPartial" />
+
 
 <script src="~/js/EditPluginsScript.js"></script>
 <script src="~/js/RichTextEditor.js"></script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-    
+
 

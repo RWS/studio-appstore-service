@@ -1,4 +1,4 @@
-﻿function ImportFile() {
+﻿function ImportPlugins() {
     $("#importFileForm").validate();
 
     if ($("#importFileForm").valid()) {

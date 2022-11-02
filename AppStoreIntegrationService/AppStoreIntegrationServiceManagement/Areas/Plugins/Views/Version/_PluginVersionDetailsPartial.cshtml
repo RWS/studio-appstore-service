@@ -32,6 +32,13 @@
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
+            <label class="col-4 m-0 align-self-center form-label" asp-for="MaximumRequiredVersionOfStudio">Maximum Studio Version </label>
+            <div class="w-100">
+                <input asp-for="MaximumRequiredVersionOfStudio" class="form-control" />
+                <span asp-validation-for="MaximumRequiredVersionOfStudio" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 align-self-center" asp-for="VersionDownloadUrl">Download URL <span class="text-danger">*</span></label>
             <div class="w-100">
                 <input asp-for="VersionDownloadUrl" class="form-control" oninput="ManageChecksum('@Model.VersionDownloadUrl', '@Model.FileHash')" />
@@ -63,5 +70,10 @@
             <label class="col-4 m-0 align-self-center form-label" asp-for="SelectedProductId">Product</label>
             <select asp-for="SelectedProductId" asp-items="@Model.SupportedProductsListItems" class="form-select"></select>
         </div>
+    </div>
+    <div class="d-flex align-items-center my-3">
+        <span class="w-100 border-bottom"></span>
+        <h6 class="text-nowrap">Compare with manifest</h6>
+        <span class="w-100 border-bottom"></span>
     </div>
 </div>

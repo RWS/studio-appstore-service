@@ -33,6 +33,8 @@ namespace AppStoreIntegrationServiceCore.Model
         public bool AppHasStudioPluginInstaller { get; set; }
         [RegularExpression(@"^(\d{1,2}\.)?(\d{1})$", ErrorMessage = "Invalid version number!")]
         public string MinimumRequiredVersionOfStudio { get; set; }
+        [RegularExpression(@"^(\d{1,2}\.)?(\d{1})$", ErrorMessage = "Invalid version number!")]
+        public string MaximumRequiredVersionOfStudio { get; set; }
         [JsonProperty("SDLHosted")]
         public bool SdlHosted { get; set; }
         public bool IsNavigationLink { get; set; }
