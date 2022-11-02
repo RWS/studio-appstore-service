@@ -24,10 +24,10 @@
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
-                    <tbody class="table-body">
+                    <tbody class="table-body tbody-stripped">
                         <partial name="_CategoriesPartial" model="@Model.Categories" />
                     </tbody>
-                    <tbody id="newRowPartial">
+                    <tbody id="newRowPartial" class="tbody-stripped">
                     </tbody>
                 </table>
                 <button type="button" onclick="table.AddNewRow()" class="btn pa-admin-success-btn d-inline">Add new</button>

@@ -61,8 +61,9 @@ function InsertTable(rows, cols) {
         let row = document.createElement('tr');
         for (let j = 0; j < cols; j++) {
             let col = document.createElement('td');
-            col.style.height = "30px";
+            col.style.height = "40px";
             col.style.border = "1px solid black"
+            col.style.padding = "8px"
             row.append(col);
         }
         table.append(row);
