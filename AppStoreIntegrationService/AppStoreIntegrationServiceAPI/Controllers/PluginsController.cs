@@ -47,7 +47,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             if (!APIVersion.TryParse(text, out APIVersion version) || version.IsVersion(1, 0, 0))
             {
                 converter = new(response);
-                return Ok(converter.CreateOldResponse());
+                return Ok(converter.CreateOldResponse().Value);
             }
 
             if (version.IsVersion(2, 0, 0))
