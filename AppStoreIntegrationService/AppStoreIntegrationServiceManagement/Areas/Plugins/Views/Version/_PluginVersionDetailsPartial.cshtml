@@ -22,6 +22,7 @@
             <div class="w-100">
                 <input asp-for="VersionNumber" class="form-control" />
                 <span asp-validation-for="VersionNumber" class="text-danger"></span>
+                <span hidden id="PluginManifestVersion" class="text-danger">Plugin manifest conflict, invalid plugin version!</span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -29,6 +30,7 @@
             <div class="w-100">
                 <input asp-for="MinimumRequiredVersionOfStudio" class="form-control" />
                 <span asp-validation-for="MinimumRequiredVersionOfStudio" class="text-danger"></span>
+                <span hidden id="PluginManifestMinVersion" class="text-danger">Plugin manifest conflict, invalid plugin minimum version!</span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -36,6 +38,7 @@
             <div class="w-100">
                 <input asp-for="MaximumRequiredVersionOfStudio" class="form-control" />
                 <span asp-validation-for="MaximumRequiredVersionOfStudio" class="text-danger"></span>
+                <span hidden id="PluginManifestMaxVersion" class="text-danger">Plugin manifest conflict, invalid maximum version!</span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -61,7 +64,7 @@
                         <span class="spinner-border spinner-border-sm" hidden role="status" aria-hidden="true"></span>
                         Generate
                     </button>
-                        <input asp-for="FileHash" class="form-control" />
+                    <input asp-for="FileHash" class="form-control" />
                 </div>
                 <span asp-validation-for="FileHash" class="text-danger"></span>
             </div>
@@ -73,7 +76,18 @@
     </div>
     <div class="d-flex align-items-center my-3">
         <span class="w-100 border-bottom"></span>
-        <h6 class="text-nowrap">Compare with manifest</h6>
+        <i class="fa fa-recycle mx-2"></i>
         <span class="w-100 border-bottom"></span>
+    </div>
+    <div>
+        <h6>Compare with manifest</h6>
+        <div class="mb-3">
+            <div class="d-flex">
+                <input asp-for="ManifestFile" type="file" class="form-control me-2" />
+                <button type="button" onclick="javascript: ImportManifest()" class="btn btn-secondary">Compare</button>
+            </div>
+            <span asp-validation-for="ManifestFile" class="text-danger"></span>
+        </div>
+        
     </div>
 </div>

@@ -6,7 +6,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 using static AppStoreIntegrationServiceCore.Enums;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -110,9 +115,60 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> ManifestCompare(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, ImportManifestModel manifest)
+        public IActionResult ManifestCompare(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, ImportManifestModel manifest)
         {
-            return Content("");
+            _ = TryImportFromFile(manifest.ManifestFile, out PluginPackage response);
+
+            if (IsManifestMatch(plugin, response, version, out var match))
+            {
+                return PartialView("_StatusMessage", "Success! Manifest and plugin data matches!");
+            }
+
+            TempData["ManifestComparison"] = match;
+            return PartialView("_StatusMessage", "Error! Manifest and plugin data do not match!");
+        }
+
+        private static bool IsManifestMatch (PrivatePlugin<PluginVersion<string>> plugin, PluginPackage response, ExtendedPluginVersion<string> version, out Tuple<bool, bool, bool, bool> match)
+        {
+            match = Tuple.Create(
+                response.PluginName == plugin.Name,
+                response.Version == version.VersionNumber,
+                response.RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio,
+                response.RequiredProduct.MaximumStudioVersion == version.MinimumRequiredVersionOfStudio
+            );
+
+            return match.Item1 && match.Item2 && match.Item3 && match.Item4;
+        }
+
+        private static bool TryImportFromFile(IFormFile file, out PluginPackage response)
+        {
+            var serializer = new XmlSerializer(typeof(PluginPackage));
+            var result = new StringBuilder();
+            using (var reader = new StreamReader(file.OpenReadStream()))
+            {
+                while (reader.Peek() >= 0)
+                {
+                    result.AppendLine(reader.ReadLine());
+                }
+            }
+
+            if (result.Length > 0)
+            {
+                try
+                {
+                    response = (PluginPackage)serializer.Deserialize(new XmlReaderNamespaceIgnore(new StringReader(result.ToString())));
+                    return true;
+                }
+                catch (XmlException)
+                {
+                    response = null;
+                    return false;
+                }
+
+            }
+
+            response = null;
+            return false;
         }
 
         [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]

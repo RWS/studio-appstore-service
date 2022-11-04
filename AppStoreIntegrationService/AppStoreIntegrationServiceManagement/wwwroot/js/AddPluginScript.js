@@ -1,6 +1,4 @@
-﻿let fileHash;
-
-function AddPlugin() {
+﻿function AddPlugin() {
     document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
 
     $("#form").validate();

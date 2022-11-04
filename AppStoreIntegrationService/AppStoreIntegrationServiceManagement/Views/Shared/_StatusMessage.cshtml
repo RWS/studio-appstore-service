@@ -8,8 +8,18 @@
         <p class="text-break m-0">@Model</p>
     </div>
 
-    <script type="text/javascript" >
+    <script type="text/javascript">
+        @{
+            var tuple = (Tuple<bool, bool, bool, bool>)TempData["ManifestComparison"];
+        }
         fileHash = '@TempData["Filehash"]';
+        manifestCompareResult = 
+        { 
+            IsNameMatch:'@tuple.Item1',
+            IsVersionMatch: '@tuple.Item2',
+            IsMinVersionMatch: '@tuple.Item3',
+            IsMaxVersionMatch: '@tuple.Item4'
+        };
     </script>
 }
 

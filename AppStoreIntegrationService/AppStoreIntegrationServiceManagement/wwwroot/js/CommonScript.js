@@ -1,4 +1,8 @@
-﻿function RedirectTo(goToPage, controller, action) {
+﻿let fileHash;
+let manifestCompareResult;
+
+
+function RedirectTo(goToPage, controller, action) {
     var currentPage = controller + '/' + action;
 
     if (currentPage == "Plugins/Edit" || currentPage == "Plugins/New") {
@@ -111,20 +115,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-function ShowManifestModal() {
-    $("#form").validate();
-
-    if ($("#form").valid()) {
-        $('#manifestUpload').modal('show');
-    }
-}
-
 function ImportManifest() {
-    $("#ManifestFile").validate();
+    let fields = Array('#Name', '#VersionNumber', '#MinimumRequiredVersionOfStudio', '#MaximumRequiredVersionOfStudio', '#ManifestFile')
+    let allValid = true;
 
-    if ($("#ManifestFile").valid()) {
+    fields.forEach(field => {
+        $(field).validate();
+
+        if (!$(field).valid()) {
+            allValid = false;
+        }
+    })
+
+    if (allValid) {
         let data = new FormData(document.getElementById("form"));
-
         $.ajax({
             data: data,
             async: true,
@@ -133,10 +137,23 @@ function ImportManifest() {
             processData: false,
             url: "/Plugins/Plugins/ManifestCompare",
             success: function (actionResult) {
-                $('#modalContainer').html(actionResult);
-                $('#modalContainer').find('.modal').modal('show');
+                AjaxSuccessCallback(actionResult);
+                document.getElementById("PluginManifestName").hidden = ConvertToBool(manifestCompareResult.IsNameMatch);
+                document.getElementById("PluginManifestVersion").hidden = ConvertToBool(manifestCompareResult.IsVersionMatch);
+                document.getElementById("PluginManifestMinVersion").hidden = ConvertToBool(manifestCompareResult.IsMinVersionMatch);
+                document.getElementById("PluginManifestMaxVersion").hidden = ConvertToBool(manifestCompareResult.IsMaxVersionMatch);
             }
         });
+    }
+}
+
+function ConvertToBool(value) {
+    if (value.toLowerCase() === 'true') {
+        return true;
+    }
+
+    if (value.toLowerCase() === 'false') {
+        return false;
     }
 }
 

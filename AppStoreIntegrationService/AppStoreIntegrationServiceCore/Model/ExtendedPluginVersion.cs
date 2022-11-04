@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -28,6 +29,9 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [JsonIgnore]
         public bool IsNewVersion { get; set; }
+
+        [Required(ErrorMessage = "Manifest is required!")]
+        public ImportManifestModel ManifestFile { get; set; }
 
         public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, string defaultProduct)
         {
