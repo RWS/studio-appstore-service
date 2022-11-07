@@ -52,7 +52,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await ReadFromContainer())?.Value;
         }
 
-        private async Task<PluginResponse<T>> ReadFromContainer()
+        public async Task<PluginResponse<T>> ReadFromContainer()
         {
             string containerContent = await _pluginsListBlockBlobOptimized.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
             return JsonConvert.DeserializeObject<PluginResponse<T>>(containerContent) ?? new PluginResponse<T>();

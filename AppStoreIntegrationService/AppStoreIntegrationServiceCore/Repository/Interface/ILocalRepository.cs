@@ -5,6 +5,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
     public interface ILocalRepository<T>
     {
         Task<List<T>> ReadPluginsFromFile();
+        Task<PluginResponse<T>> ReadFromFile();
         Task SavePluginsToFile(List<T> plugins);
         Task SaveProductsToFile(List<ProductDetails> products);
         Task SaveParentsToFile(List<ParentProduct> products);
