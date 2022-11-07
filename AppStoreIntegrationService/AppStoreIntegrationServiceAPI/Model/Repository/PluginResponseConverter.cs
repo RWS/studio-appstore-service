@@ -1,45 +1,38 @@
-﻿using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceAPI.Model.Repository.Interface;
+using AppStoreIntegrationServiceCore.Model;
 
-namespace ResponseConverter.ViewModel
+namespace AppStoreIntegrationServiceAPI.Model.Repository
 {
-    public class PluginResponseConverter<T, U>
+    public class PluginResponseConverter<T, U> : IPluginResponseConverter<T, U>
         where T : PluginDetails<PluginVersion<string>, string>, new()
         where U : PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>, new()
     {
-        private readonly PluginResponse<T> _newResponse;
-        private readonly List<U> _plugins;
-
-        public PluginResponseConverter(PluginResponse<T> oldResponse)
+        public PluginResponse<U> CreateOldResponse(PluginResponse<T> newResponse)
         {
-            _newResponse = oldResponse;
-            _plugins = new ();
-        }
-
-        public PluginResponse<U> CreateOldResponse()
-        {
-            foreach (var plugin in _newResponse.Value)
+            var plugins = new List<U>();
+            foreach (var plugin in newResponse?.Value)
             {
-                ConvertToOldPlugin(plugin);
+                plugins.Add(ConvertToOldPlugin(plugin, newResponse.Categories, newResponse.Products));
             }
 
             return new PluginResponse<U>
             {
-                Value = _plugins,
+                Value = plugins,
             };
         }
 
-        private void ConvertToOldPlugin(T plugin)
+        private static U ConvertToOldPlugin(T plugin, List<CategoryDetails> categories, List<ProductDetails> products)
         {
             var newVersions = new List<PluginVersion<ProductDetails>>();
             foreach (var version in plugin.Versions)
             {
-                ConvertToOldVersion(version, newVersions);
+                ConvertToOldVersion(version, newVersions, products);
             }
 
             var newPlugin = new U
             {
                 Versions = newVersions,
-                Categories = plugin.Categories.SelectMany(category => _newResponse.Categories.Where(c => c.Id == category)).ToList()
+                Categories = plugin.Categories.SelectMany(category => categories.Where(c => c.Id == category)).ToList()
             };
 
             var properties = typeof(PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>).GetProperties().Where(p => !new[] { "Categories", "Versions" }.Any(x => x.Equals(p.Name)));
@@ -48,14 +41,14 @@ namespace ResponseConverter.ViewModel
                 property.SetValue(newPlugin, plugin.GetType().GetProperty(property.Name).GetValue(plugin));
             }
 
-            _plugins.Add(newPlugin);
+            return newPlugin;
         }
 
-        private void ConvertToOldVersion(PluginVersion<string> version, List<PluginVersion<ProductDetails>> newVersions)
+        private static void ConvertToOldVersion(PluginVersion<string> version, List<PluginVersion<ProductDetails>> newVersions, List<ProductDetails> products)
         {
             var oldVersion = new PluginVersion<ProductDetails>
             {
-                SupportedProducts = new List<ProductDetails> { _newResponse.Products.FirstOrDefault(p => p.Id == version.SupportedProducts[0]) }
+                SupportedProducts = new List<ProductDetails> { products.FirstOrDefault(p => p.Id == version.SupportedProducts[0]) }
             };
 
             var properties = typeof(PluginVersion<ProductDetails>).GetProperties().Where(p => !p.Name.Equals("SupportedProducts"));
