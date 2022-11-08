@@ -22,7 +22,6 @@
             <div class="w-100">
                 <input asp-for="VersionNumber" class="form-control" />
                 <span asp-validation-for="VersionNumber" class="text-danger"></span>
-                <span hidden id="PluginManifestVersion" class="text-danger">Plugin manifest conflict, invalid plugin version!</span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -30,7 +29,6 @@
             <div class="w-100">
                 <input asp-for="MinimumRequiredVersionOfStudio" class="form-control" />
                 <span asp-validation-for="MinimumRequiredVersionOfStudio" class="text-danger"></span>
-                <span hidden id="PluginManifestMinVersion" class="text-danger">Plugin manifest conflict, invalid plugin minimum version!</span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -38,7 +36,6 @@
             <div class="w-100">
                 <input asp-for="MaximumRequiredVersionOfStudio" class="form-control" />
                 <span asp-validation-for="MaximumRequiredVersionOfStudio" class="text-danger"></span>
-                <span hidden id="PluginManifestMaxVersion" class="text-danger">Plugin manifest conflict, invalid maximum version!</span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -64,7 +61,7 @@
                         <span class="spinner-border spinner-border-sm" hidden role="status" aria-hidden="true"></span>
                         Generate
                     </button>
-                    <input asp-for="FileHash" class="form-control" />
+                    <input asp-for="FileHash" class="form-control ignore" />
                 </div>
                 <span asp-validation-for="FileHash" class="text-danger"></span>
             </div>
@@ -74,20 +71,28 @@
             <select asp-for="SelectedProductId" asp-items="@Model.SupportedProductsListItems" class="form-select"></select>
         </div>
     </div>
-    <div class="d-flex align-items-center my-3">
-        <span class="w-100 border-bottom"></span>
-        <i class="fa fa-recycle mx-2"></i>
-        <span class="w-100 border-bottom"></span>
-    </div>
-    <div>
-        <h6>Compare with manifest</h6>
-        <div class="mb-3">
-            <div class="d-flex">
-                <input asp-for="ManifestFile" type="file" class="form-control me-2" />
-                <button type="button" onclick="javascript: ImportManifest()" class="btn btn-secondary">Compare</button>
+    <button type="button" onclick="javascript: ShowManifestUploadModal()" class="btn btn-secondary">Compare with manifest</button>
+</div>
+
+<div class="modal fade" id="manifestCompareModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Manifest comparison</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <span asp-validation-for="ManifestFile" class="text-danger"></span>
+            <div class="modal-body">
+                <h5>Upload manifest</h5>
+                <div class="d-flex">
+                    <input asp-for="ManifestFile" type="file" class="form-control me-2" />
+                    <button type="button" onclick="javascript: CompareWithManifest()" class="btn btn-secondary">Compare</button>
+                </div>
+                <span asp-validation-for="ManifestFile" class="text-danger"></span>
+                <div id="manifestComparisonLog" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
         </div>
-        
     </div>
 </div>

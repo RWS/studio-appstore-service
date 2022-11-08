@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Authorization;
 using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceAPI.Model;
 using AppStoreIntegrationServiceAPI.Model.Repository.Interface;
+using AppStoreIntegrationServiceAPI.Model;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {

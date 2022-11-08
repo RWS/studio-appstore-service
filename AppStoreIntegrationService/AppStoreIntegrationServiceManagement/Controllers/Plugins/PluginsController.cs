@@ -6,15 +6,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
-using System;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using static AppStoreIntegrationServiceCore.Enums;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
+    [Authorize]
     [Area("Plugins")]
     public class PluginsController : Controller
     {
@@ -71,9 +70,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
+        public async Task<IActionResult> Create(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version, List<ManifestCompareProperty> compareProperties)
         {
-            return await Save(plugin, versions, version, _pluginRepository.AddPrivatePlugin);
+            return await Save(plugin, versions, version, compareProperties, _pluginRepository.AddPrivatePlugin);
         }
 
         [Route("Plugins/Edit/{id?}")]
@@ -101,9 +100,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
+        public async Task<IActionResult> Update(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version, List<ManifestCompareProperty> compareProperties)
         {
-            return await Save(plugin, versions, version, _pluginRepository.UpdatePrivatePlugin);
+            return await Save(plugin, versions, version, compareProperties, _pluginRepository.UpdatePrivatePlugin);
         }
 
         [HttpPost]
@@ -119,25 +118,63 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             _ = TryImportFromFile(manifest.ManifestFile, out PluginPackage response);
 
-            if (IsManifestMatch(plugin, response, version, out var match))
-            {
-                return PartialView("_StatusMessage", "Success! Manifest and plugin data matches!");
-            }
-
-            TempData["ManifestComparison"] = match;
-            return PartialView("_StatusMessage", "Error! Manifest and plugin data do not match!");
+            return PartialView("_ManifestComparePartial", CreateComparisonLog(plugin, response, version));
         }
 
-        private static bool IsManifestMatch (PrivatePlugin<PluginVersion<string>> plugin, PluginPackage response, ExtendedPluginVersion<string> version, out Tuple<bool, bool, bool, bool> match)
+        [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
+        public async Task<IActionResult> GoToPage(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, string redirectUrl, string currentPage)
         {
-            match = Tuple.Create(
-                response.PluginName == plugin.Name,
-                response.Version == version.VersionNumber,
-                response.RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio,
-                response.RequiredProduct.MaximumStudioVersion == version.MinimumRequiredVersionOfStudio
-            );
+            redirectUrl = redirectUrl.Replace('.', '/');
 
-            return match.Item1 && match.Item2 && match.Item3 && match.Item4;
+            if (currentPage != "New" && await IsSaved(plugin, version))
+            {
+                return Content($"{redirectUrl}");
+            }
+
+            var modalDetails = new ModalMessage
+            {
+                RequestPage = $"{redirectUrl}",
+                ModalType = ModalType.WarningMessage,
+                Title = "Unsaved changes!",
+                Message = string.Format("Discard changes for {0}?", string.IsNullOrEmpty(plugin.Name) ? "plugin" : plugin.Name)
+            };
+
+            return PartialView("_ModalPartial", modalDetails);
+        }
+
+        private static List<ManifestCompareProperty> CreateComparisonLog(PrivatePlugin<PluginVersion<string>> plugin, PluginPackage response, ExtendedPluginVersion<string> version)
+        {
+            return new List<ManifestCompareProperty>
+            {
+                new ManifestCompareProperty
+                {
+                    Name = "Plugin name",
+                    Actual = plugin.Name,
+                    Expected = response.PluginName,
+                    IsMatch = response.PluginName == plugin.Name
+                },
+                new ManifestCompareProperty
+                {
+                    Name = "Plugin version",
+                    Actual = version.VersionNumber,
+                    Expected = response.Version,
+                    IsMatch = response.Version == version.VersionNumber
+                },
+                new ManifestCompareProperty
+                {
+                    Name = "Minimum studio version",
+                    Actual = version.MinimumRequiredVersionOfStudio,
+                    Expected = response.RequiredProduct.MinimumStudioVersion,
+                    IsMatch = response.RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio
+                },
+                new ManifestCompareProperty
+                {
+                    Name = "Maximum studio version",
+                    Actual = version.MaximumRequiredVersionOfStudio,
+                    Expected = response.RequiredProduct.MaximumStudioVersion,
+                    IsMatch = response.RequiredProduct.MaximumStudioVersion == version.MaximumRequiredVersionOfStudio
+                }
+            };
         }
 
         private static bool TryImportFromFile(IFormFile file, out PluginPackage response)
@@ -171,27 +208,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return false;
         }
 
-        [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
-        public async Task<IActionResult> GoToPage(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, string redirectUrl, string currentPage)
-        {
-            redirectUrl = redirectUrl.Replace('.', '/');
-
-            if (currentPage != "New" && await IsSaved(plugin, version))
-            {
-                return Content($"{redirectUrl}");
-            }
-
-            var modalDetails = new ModalMessage
-            {
-                RequestPage = $"{redirectUrl}",
-                ModalType = ModalType.WarningMessage,
-                Title = "Unsaved changes!",
-                Message = string.Format("Discard changes for {0}?", string.IsNullOrEmpty(plugin.Name) ? "plugin" : plugin.Name)
-            };
-
-            return PartialView("_ModalPartial", modalDetails);
-        }
-
         private async Task<bool> IsSaved(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
         {
             var foundPluginDetails = await _pluginRepository.GetPluginById(plugin.Id);
@@ -199,8 +215,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
-        private async Task<IActionResult> Save(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version, Func<PrivatePlugin<PluginVersion<string>>, Task> func)
+        private async Task<IActionResult> Save
+        (
+            PrivatePlugin<PluginVersion<string>> plugin, 
+            List<ExtendedPluginVersion<string>> versions,
+            ExtendedPluginVersion<string> version,
+            List<ManifestCompareProperty> compareProperties,
+            Func<PrivatePlugin<PluginVersion<string>>, Task> func
+        )
         {
+            if (compareProperties.Any() && !compareProperties.All(p => p.IsMatch))
+            {
+                return PartialView("_StatusMessage", "Error! Please solve the manifest conflicts!");
+            }
+
             if (plugin.IsValid(version))
             {
                 plugin.SetVersionList(versions, version);

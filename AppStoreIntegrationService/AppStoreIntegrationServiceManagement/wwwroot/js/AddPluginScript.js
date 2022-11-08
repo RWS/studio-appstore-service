@@ -1,6 +1,7 @@
 ﻿function AddPlugin() {
     document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
-
+    var isNavigationLink = document.getElementById("IsNavigationLink").checked;
+    $("#FileHash").rules(isNavigationLink ? "add" : "remove", "required");
     $("#form").validate();
 
     if ($("#form").valid()) {

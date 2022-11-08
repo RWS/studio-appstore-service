@@ -10,6 +10,7 @@
             <input hidden asp-for="@Model[i].FileHash" />
             <input hidden asp-for="@Model[i].IsNewVersion" />
             <input hidden asp-for="@Model[i].MinimumRequiredVersionOfStudio" />
+            <input hidden asp-for="@Model[i].MaximumRequiredVersionOfStudio" />
             <input hidden asp-for="@Model[i].AppHasStudioPluginInstaller" />
             <input hidden asp-for="@Model[i].TechnicalRequirements" />
             <input hidden asp-for="@Model[i].IsNavigationLink" />
@@ -27,7 +28,7 @@
 
             <input hidden asp-for="@Model[i].VersionName" />
             <div class="d-flex justify-content-between">
-                <label class="cursor-pointer" onclick="ShowVersionDetails('@Model[i].VersionId')">@Model[i].VersionName</label>
+                <label class="cursor-pointer version-name-label" onclick="ShowVersionDetails('@Model[i].VersionId')">@Model[i].VersionName</label>
                 @if (Model.Count > 1)
                 {
                     <i class="far fa-trash-alt text-danger cursor-pointer" id="@Model[i].VersionId"></i>

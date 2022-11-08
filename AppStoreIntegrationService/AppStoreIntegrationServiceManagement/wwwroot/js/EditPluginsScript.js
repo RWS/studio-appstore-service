@@ -25,7 +25,8 @@
 
 function SavePlugin() {
     document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
-
+    var isNavigationLink = document.getElementById("IsNavigationLink").checked;
+    $("#FileHash").rules(isNavigationLink ? "add" : "remove", "required");
     $("#form").validate();
 
     if ($("#form").valid()) {
@@ -53,6 +54,11 @@ function AddNewVersion() {
 }
 
 function ShowVersionDetails(versionId) {
+    document.querySelectorAll(".version-name-label").forEach(label => {
+        label.classList.remove("fw-bold");
+    })
+    event.target.classList.add("fw-bold");
+
     document.getElementById("selectedVersionId").value = versionId;
     var pageValues = $('main').find('select, textarea, input').serialize();
 

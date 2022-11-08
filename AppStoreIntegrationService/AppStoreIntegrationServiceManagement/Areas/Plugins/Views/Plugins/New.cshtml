@@ -86,6 +86,7 @@
                             <i id="justifyRight" class="fa fa-align-right cursor-pointer option align p-2"></i>
                             <i id="justifyFull" class="fa fa-align-justify cursor-pointer option align p-2"></i>
                             <i id="createLink" data-bs-toggle="modal" data-bs-target="#linkModal" class="fa fa-link cursor-pointer p-2"></i>
+                            <i id="createImage" data-bs-toggle="modal" data-bs-target="#imageModal" class="fa fa-image cursor-pointer p-2"></i>
                             <div class="dropdown">
                                 <div class="dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa fa-table cursor-pointer p-2"></i>
@@ -110,16 +111,15 @@
                 <label class="col-4 m-0" asp-for="PaidFor">Paid for</label>
                 <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3" />
             </div>
-
             <div id="pluginVersionContainer"></div>
             <div id="modalContainer"></div>
-            <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary pa-admin-success-btn ml-lg-3">Save</button>
         </div>
     </div>
+    <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary pa-admin-success-btn ml-lg-3">Save</button>
 </form>
 
 <partial name="_LinkPartial" />
-
+<partial name="_ImagePartial" />
 <script src="~/js/AddPluginScript.js"></script>
 <script src="~/js/RichTextEditor.js"></script>
 

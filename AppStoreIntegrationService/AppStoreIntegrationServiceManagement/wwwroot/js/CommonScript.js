@@ -1,5 +1,4 @@
 ﻿let fileHash;
-let manifestCompareResult;
 
 
 function RedirectTo(goToPage, controller, action) {
@@ -115,8 +114,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-function ImportManifest() {
-    let fields = Array('#Name', '#VersionNumber', '#MinimumRequiredVersionOfStudio', '#MaximumRequiredVersionOfStudio', '#ManifestFile')
+function ShowManifestUploadModal() {
+    let fields = Array('#Name', '#VersionNumber', '#MinimumRequiredVersionOfStudio', '#MaximumRequiredVersionOfStudio')
     let allValid = true;
 
     fields.forEach(field => {
@@ -128,7 +127,17 @@ function ImportManifest() {
     })
 
     if (allValid) {
+        $('#manifestCompareModal').modal('show');
+    }
+    
+}
+
+function CompareWithManifest() {
+    $("#ManifestFile").validate()
+
+    if ($("#ManifestFile").valid()) {
         let data = new FormData(document.getElementById("form"));
+
         $.ajax({
             data: data,
             async: true,
@@ -137,23 +146,25 @@ function ImportManifest() {
             processData: false,
             url: "/Plugins/Plugins/ManifestCompare",
             success: function (actionResult) {
-                AjaxSuccessCallback(actionResult);
-                document.getElementById("PluginManifestName").hidden = ConvertToBool(manifestCompareResult.IsNameMatch);
-                document.getElementById("PluginManifestVersion").hidden = ConvertToBool(manifestCompareResult.IsVersionMatch);
-                document.getElementById("PluginManifestMinVersion").hidden = ConvertToBool(manifestCompareResult.IsMinVersionMatch);
-                document.getElementById("PluginManifestMaxVersion").hidden = ConvertToBool(manifestCompareResult.IsMaxVersionMatch);
+                $('#manifestComparisonLog').html(actionResult);
+                document.getElementById("manifestCompareModal").firstElementChild.classList.add("modal-lg");
             }
         });
     }
 }
 
-function ConvertToBool(value) {
-    if (value.toLowerCase() === 'true') {
-        return true;
-    }
+function ApplyExpected(expected) {
+    let inputs = new Array("Name", "VersionNumber", "MinimumRequiredVersionOfStudio", "MaximumRequiredVersionOfStudio")
+    let actual = document.querySelectorAll("#manifestComparisonLog .actual");
+    let matches = document.querySelectorAll("#manifestComparisonLog .match");
 
-    if (value.toLowerCase() === 'false') {
-        return false;
+    for (let i = 0; i < expected.length; i++) {
+        document.getElementById(inputs[i]).value = expected[i];
+        actual[i].lastElementChild.innerText = expected[i];
+        actual[i].firstElementChild.value = expected[i];
+        matches[i].firstElementChild.value = true;
+        matches[i].lastElementChild.classList.remove("fa-times-circle", "text-danger");
+        matches[i].lastElementChild.classList.add("fa-check-circle", "text-success");
     }
 }
 

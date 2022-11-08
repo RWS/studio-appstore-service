@@ -160,9 +160,18 @@ function InsertLink() {
     RestoreSel();
     let placeHolder = document.getElementById('linkPlaceholder').value;
     let linkUrl = document.getElementById('link').value;
-    document.execCommand('insertHTML', false, '<a href="' + linkUrl + '" target="_blank">' + (placeHolder == '' ? linkUrl : placeHolder) + '</a>');
+    document.execCommand('insertHTML', false, '<span contenteditable="false"><a href="' + linkUrl + '" target="_blank">' + (placeHolder == '' ? linkUrl : placeHolder) + '</a></span>');
     document.getElementById('linkPlaceholder').value = '';
     document.getElementById('link').value = ''
+}
+
+function InsertImage() {
+    RestoreSel();
+    var image = document.createElement('img');
+    image.style.width = "200px";
+    image.src = document.getElementById('imageLink').value;
+    document.querySelector('.edit-area').appendChild(image);
+    document.getElementById('imageLink').value = ''
 }
 
 window.onload = Init();
