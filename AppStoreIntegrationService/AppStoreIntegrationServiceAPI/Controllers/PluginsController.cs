@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceAPI.Model.Repository.Interface;
 using AppStoreIntegrationServiceAPI.Model;
+using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {

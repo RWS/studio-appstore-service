@@ -1,8 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using System.Text;
 using System.Text.RegularExpressions;
 using static AppStoreIntegrationServiceCore.Enums;
 
@@ -260,7 +257,7 @@ namespace AppStoreIntegrationServiceCore.Repository
                     if (version != null)
                     {
                         matchingVersions.Add(pluginVersion);
-                        plugin.DownloadUrl = pluginVersion.VersionDownloadUrl;
+                        plugin.DownloadUrl = pluginVersion.DownloadUrl;
                     }
                 }
 

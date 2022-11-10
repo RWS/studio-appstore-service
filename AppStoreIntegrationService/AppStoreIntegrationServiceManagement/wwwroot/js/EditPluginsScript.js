@@ -25,8 +25,12 @@
 
 function SavePlugin() {
     document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
-    var isNavigationLink = document.getElementById("IsNavigationLink").checked;
-    $("#FileHash").rules(isNavigationLink ? "add" : "remove", "required");
+    var isNavigationLink = document.getElementById("IsNavigationLink");
+
+    if (isNavigationLink) {
+        $("#FileHash").rules(isNavigationLink.checked ? "remove" : "add" , "required");
+    }
+    
     $("#form").validate();
 
     if ($("#form").valid()) {

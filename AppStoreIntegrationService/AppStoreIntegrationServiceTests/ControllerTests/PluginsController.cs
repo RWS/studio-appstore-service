@@ -4,9 +4,7 @@ using NSubstitute;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using AppStoreIntegrationServiceTests.Helpers;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Primitives;
 using AppStoreIntegrationServiceCore.Model;
 
 namespace AppStoreIntegrationServiceTests
