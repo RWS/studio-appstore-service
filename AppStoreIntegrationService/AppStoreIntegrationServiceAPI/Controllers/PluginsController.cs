@@ -25,7 +25,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             _responseRepository = responseRepository;
         }
 
-        [ResponseCache(Duration = 540, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "*" })]
+        [ResponseCache(Location = ResponseCacheLocation.Any, NoStore = true, VaryByQueryKeys = new[] { "*" })]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [AllowAnonymous]
         [Route("Plugins")]
