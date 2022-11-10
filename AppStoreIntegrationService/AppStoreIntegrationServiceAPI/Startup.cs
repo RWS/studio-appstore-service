@@ -72,7 +72,13 @@ namespace AppStoreIntegrationServiceAPI
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseResponseCaching();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints => { 
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}"
+                );
+            });
         }
     }
 }

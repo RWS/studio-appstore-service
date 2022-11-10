@@ -9,8 +9,6 @@ using AppStoreIntegrationServiceAPI.Model;
 namespace AppStoreIntegrationServiceAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    [Route("")]
     [Produces(MediaTypeNames.Application.Json)]
     public class PluginsController : Controller
     {
@@ -27,10 +25,12 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             _responseRepository = responseRepository;
         }
 
+        [ResponseCache(Duration = 540, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "*" })]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [AllowAnonymous]
-        [ResponseCache(Duration = 540, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "*" })]
-        public async Task<IActionResult> Get([FromQuery] PluginFilter filter)
+        [Route("Plugins")]
+        [Route("/")]
+        public async Task<IActionResult> Index([FromQuery] PluginFilter filter)
         {
             _ = Request.Headers.TryGetValue("apiversion", out StringValues text);
             filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;

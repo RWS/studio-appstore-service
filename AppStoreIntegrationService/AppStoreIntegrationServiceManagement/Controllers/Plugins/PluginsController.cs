@@ -46,13 +46,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return View(new ConfigToolModel
             {
                 Plugins = InitializePrivatePlugins(_pluginRepository.SearchPlugins(pluginsList, pluginsFilters)).ToList(),
-                ProductsListItems = new SelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName)),
+                ProductsListItems = new SelectList(products ?? new List<ProductDetails>(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName)),
                 StatusExists = Request.Query.TryGetValue("status", out var statusValue),
                 StatusValue = statusValue,
                 SearchExists = Request.Query.TryGetValue("search", out var searchValue),
                 SearchValue = searchValue,
                 ProductExists = Request.Query.TryGetValue("product", out var productValue),
-                ProductName = products.FirstOrDefault(p => p.Id == productValue)?.ProductName
+                ProductName = products?.FirstOrDefault(p => p.Id == productValue)?.ProductName
             });
         }
 
@@ -269,6 +269,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private IEnumerable<PrivatePlugin<PluginVersion<string>>> InitializePrivatePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
         {
+            if (plugins == null)
+            {
+                yield break;
+            }
+
             foreach (var plugin in plugins)
             {
                 yield return new PrivatePlugin<PluginVersion<string>>
@@ -277,7 +282,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                     Description = plugin.Description,
                     Name = plugin.Name,
                     Categories = plugin.Categories,
-                    Versions = plugin.Versions.Select(v => new ExtendedPluginVersion<string>(v)).ToList(),
+                    Versions = plugin.Versions?.Select(v => new ExtendedPluginVersion<string>(v)).ToList(),
                     Inactive = plugin.Inactive,
                     IconUrl = string.IsNullOrEmpty(plugin.Icon.MediaUrl) ? GetDefaultIcon() : plugin.Icon.MediaUrl
                 };

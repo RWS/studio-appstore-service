@@ -38,7 +38,6 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonProperty("SDLHosted")]
         public bool SdlHosted { get; set; }
         public bool IsNavigationLink { get; set; }
-
         [Required(ErrorMessage = "Version download url is required!")]
         [JsonProperty("DownloadUrl")]
         [Url(ErrorMessage = "Invalid url!")]
