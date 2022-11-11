@@ -32,7 +32,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [Url(ErrorMessage = "Invalid url!")]
         public string DownloadUrl { get; set; }
 
-        public List<string> Categories { get; set; }
+        public List<string> Categories { get; set; } = new List<string>();
 
         public List<ExtendedPluginVersion<string>> Versions { get; set; }
 

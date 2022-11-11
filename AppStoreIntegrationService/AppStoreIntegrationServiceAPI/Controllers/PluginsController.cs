@@ -16,17 +16,20 @@ namespace AppStoreIntegrationServiceAPI.Controllers
         private readonly IPluginResponseConverter<PluginDetails<PluginVersion<string>, string>, PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>> _converter;
         private readonly IResponseRepository<PluginDetails<PluginVersion<string>, string>> _responseRepository;
         private readonly IPluginRepository<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
+        private readonly IProductsRepository _productsRepository;
 
         public PluginsController
         (
             IPluginResponseConverter<PluginDetails<PluginVersion<string>, string>, PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>> converter,
             IResponseRepository<PluginDetails<PluginVersion<string>, string>> responseRepository,
-            IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository
+            IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository,
+            IProductsRepository productsRepository
         )
         {
             _converter = converter;
             _responseRepository = responseRepository;
             _pluginRepository = pluginRepository;
+            _productsRepository = productsRepository;
         }
 
         [ResponseCache(Location = ResponseCacheLocation.Any, NoStore = true, VaryByQueryKeys = new[] { "*" })]
@@ -39,7 +42,8 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             _ = Request.Headers.TryGetValue("apiversion", out StringValues text);
             filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;
             var response = await _responseRepository.GetResponse();
-            response.Value = _pluginRepository.SearchPlugins(response.Value, filter);
+            var products = await _productsRepository.GetAllProducts();
+            response.Value = _pluginRepository.SearchPlugins(response.Value, filter, products);
 
             if (!APIVersion.TryParse(text, out APIVersion version) || version.IsVersion(1, 0, 0))
             {

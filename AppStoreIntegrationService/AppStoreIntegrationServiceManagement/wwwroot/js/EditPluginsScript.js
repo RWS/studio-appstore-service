@@ -53,6 +53,7 @@ function AddNewVersion() {
             $('#pluginVersionContainer').html(partialView);
             $('#form').data('validator', null);
             $.validator.unobtrusive.parse('#form');
+            document.getElementById("manifestModalBtn").hidden = false;
         }
     })
 }
@@ -74,6 +75,7 @@ function ShowVersionDetails(versionId) {
             $('#pluginVersionContainer').html(partialView);
             $('#form').data('validator', null);
             $.validator.unobtrusive.parse('#form');
+            document.getElementById("manifestModalBtn").hidden = false;
         }
     })
 }

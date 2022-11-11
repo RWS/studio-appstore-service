@@ -10,14 +10,14 @@ namespace AppStoreIntegrationServiceCore.Model
         private string versionDownloadUrl;
         public ExtendedPluginVersion() { }
 
-        public ExtendedPluginVersion(PluginVersion<T> version) : base(version) 
-        { 
-            VersionDownloadUrl= version.DownloadUrl;
+        public ExtendedPluginVersion(PluginVersion<T> version) : base(version)
+        {
+            VersionDownloadUrl = version.DownloadUrl;
         }
 
         [Required(ErrorMessage = "Version download url is required!")]
-        [JsonProperty("DownloadUrl")]
         [Url(ErrorMessage = "Invalid url!")]
+        [JsonIgnore]
         public string VersionDownloadUrl
         {
             get => versionDownloadUrl;

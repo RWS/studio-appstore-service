@@ -32,7 +32,7 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
             var newPlugin = new U
             {
                 Versions = newVersions,
-                Categories = plugin.Categories.SelectMany(category => categories.Where(c => c.Id == category)).ToList()
+                Categories = plugin.Categories?.SelectMany(category => categories.Where(c => c.Id == category)).ToList()
             };
 
             var properties = typeof(PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>).GetProperties().Where(p => !new[] { "Categories", "Versions" }.Any(x => x.Equals(p.Name)));

@@ -45,7 +45,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var products = await _productsRepository.GetAllProducts();
             return View(new ConfigToolModel
             {
-                Plugins = InitializePrivatePlugins(_pluginRepository.SearchPlugins(pluginsList, pluginsFilters)).ToList(),
+                Plugins = InitializePrivatePlugins(_pluginRepository.SearchPlugins(pluginsList, pluginsFilters, products)).ToList(),
                 ProductsListItems = new SelectList(products ?? new List<ProductDetails>(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName)),
                 StatusExists = Request.Query.TryGetValue("status", out var statusValue),
                 StatusValue = statusValue,

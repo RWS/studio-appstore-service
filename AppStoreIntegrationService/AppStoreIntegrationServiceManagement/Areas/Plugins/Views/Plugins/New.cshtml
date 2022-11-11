@@ -112,9 +112,12 @@
             </div>
             <div id="pluginVersionContainer"></div>
             <div id="modalContainer"></div>
+            <div class="d-flex my-2">
+                <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary pa-admin-success-btn ml-lg-3 me-2">Save</button>
+                <button id="manifestModalBtn" hidden type="button" onclick="javascript: ShowManifestUploadModal()" class="btn btn-secondary">Compare with manifest</button>
+            </div>
         </div>
     </div>
-    <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary pa-admin-success-btn ml-lg-3">Save</button>
 </form>
 
 <partial name="_LinkPartial" />
