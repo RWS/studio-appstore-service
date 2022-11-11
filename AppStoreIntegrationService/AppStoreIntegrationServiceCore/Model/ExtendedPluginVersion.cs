@@ -48,6 +48,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public bool IsNewVersion { get; set; }
 
         [Required(ErrorMessage = "Manifest is required!")]
+        [JsonIgnore]
         public ImportManifestModel ManifestFile { get; set; }
 
         public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, string defaultProduct)

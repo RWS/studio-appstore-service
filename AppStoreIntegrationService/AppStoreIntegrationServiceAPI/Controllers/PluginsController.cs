@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceAPI.Model.Repository.Interface;
 using AppStoreIntegrationServiceAPI.Model;
-using Newtonsoft.Json;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {
@@ -15,15 +15,18 @@ namespace AppStoreIntegrationServiceAPI.Controllers
     {
         private readonly IPluginResponseConverter<PluginDetails<PluginVersion<string>, string>, PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>> _converter;
         private readonly IResponseRepository<PluginDetails<PluginVersion<string>, string>> _responseRepository;
+        private readonly IPluginRepository<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
 
         public PluginsController
         (
             IPluginResponseConverter<PluginDetails<PluginVersion<string>, string>, PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>> converter,
-            IResponseRepository<PluginDetails<PluginVersion<string>, string>> responseRepository
+            IResponseRepository<PluginDetails<PluginVersion<string>, string>> responseRepository,
+            IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository
         )
         {
             _converter = converter;
             _responseRepository = responseRepository;
+            _pluginRepository = pluginRepository;
         }
 
         [ResponseCache(Location = ResponseCacheLocation.Any, NoStore = true, VaryByQueryKeys = new[] { "*" })]
@@ -36,6 +39,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             _ = Request.Headers.TryGetValue("apiversion", out StringValues text);
             filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;
             var response = await _responseRepository.GetResponse();
+            response.Value = _pluginRepository.SearchPlugins(response.Value, filter);
 
             if (!APIVersion.TryParse(text, out APIVersion version) || version.IsVersion(1, 0, 0))
             {

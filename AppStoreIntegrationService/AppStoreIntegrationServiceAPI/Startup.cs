@@ -42,6 +42,8 @@ namespace AppStoreIntegrationServiceAPI
 
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
+            services.AddSingleton<IPluginRepository<PluginDetails<PluginVersion<string>, string>>, PluginRepository<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<string>, string>>, AzureRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<ILocalRepository<PluginDetails<PluginVersion<string>, string>>, LocalRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<IPluginResponseConverter<PluginDetails<PluginVersion<string>, string>, PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>, 
