@@ -30,7 +30,7 @@
 
             if (!downloadResponse.IsSuccessStatusCode)
             {
-                throw new Exception($"Error! {downloadResponse.StatusCode}");
+                throw new Exception($"{downloadResponse.StatusCode}");
             }
 
             return await downloadResponse.Content.ReadAsStreamAsync();

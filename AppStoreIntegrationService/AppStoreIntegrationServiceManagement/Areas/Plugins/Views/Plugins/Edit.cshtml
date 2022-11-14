@@ -37,8 +37,9 @@
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="Name">Plugin Name <span class="text-danger">*</span></label>
                 <div class="w-100">
-                    <input asp-for="Name" class="form-control" />
+                    <input asp-for="Name" class="form-control manifest-field" />
                     <span asp-validation-for="Name" class="text-danger"></span>
+                    <span hidden id="PluginNameManifestConflict" class="text-danger">Plugin manifest conflict! Invalid plugin name!</span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -118,9 +119,12 @@
 
             <div id="pluginVersionContainer"></div>
             <div id="modalContainer"></div>
-            <div class="d-flex my-2">
+            <div class="d-flex mt-5 mb-2">
                 <button onclick="javascript: SavePlugin()" type="button" class="btn btn-primary pa-admin-success-btn ml-lg-3 text-center me-2">Save</button>
-                <button id="manifestModalBtn" hidden type="button" onclick="javascript: ShowManifestUploadModal()" class="btn btn-secondary">Compare with manifest</button>
+                <button id="manifestModalBtn" class="btn btn-secondary" hidden type="button" onclick="CompareWithManifest()">
+                    <span class="spinner-border spinner-border-sm" hidden role="status" aria-hidden="true"></span>
+                    Compare with manifest
+                </button>
             </div>
         </div>
     </div>

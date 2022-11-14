@@ -1,5 +1,5 @@
 ﻿let fileHash;
-
+let manifestComparison;
 
 function RedirectTo(goToPage, controller, action) {
     var currentPage = controller + '/' + action;
@@ -114,58 +114,50 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-function ShowManifestUploadModal() {
-    let fields = Array('#Name', '#VersionNumber', '#MinimumRequiredVersionOfStudio', '#MaximumRequiredVersionOfStudio')
-    let allValid = true;
-
-    fields.forEach(field => {
-        $(field).validate();
-
-        if (!$(field).valid()) {
-            allValid = false;
-        }
-    })
-
-    if (allValid) {
-        $('#manifestCompareModal').modal('show');
-    }
-    
-}
-
 function CompareWithManifest() {
-    $("#ManifestFile").validate()
-
-    if ($("#ManifestFile").valid()) {
-        let data = new FormData(document.getElementById("form"));
-
-        $.ajax({
-            data: data,
-            async: true,
-            type: "POST",
-            contentType: false,
-            processData: false,
-            url: "/Plugins/Plugins/ManifestCompare",
-            success: function (actionResult) {
-                $('#manifestComparisonLog').html(actionResult);
-                document.getElementById("manifestCompareModal").firstElementChild.classList.add("modal-lg");
-            }
-        });
+    $("#VersionDownloadUrl").validate()
+    if ($("#IsNavigationLink").checked || !$("#VersionDownloadUrl").valid()) {
+        return;
     }
+
+    var button = event.target;
+    button.disabled = true;
+    button.firstElementChild.hidden = false;
+    let data = $('main').find('select, textarea, input').serialize();
+
+    $.ajax({
+        data: data,
+        type: "POST",
+        url: "/Plugins/Plugins/ManifestCompare",
+        success: function (actionResult) {
+            AjaxSuccessCallback(actionResult);
+            console.log(manifestComparison);
+            document.getElementById("PluginNameManifestConflict").hidden = ConvertToBool(manifestComparison.IsNameMatch);
+            document.getElementById("VersionNumberManifestConflict").hidden = ConvertToBool(manifestComparison.IsVersionMatch);
+            document.getElementById("MinVersionManifestConflict").hidden = ConvertToBool(manifestComparison.IsMinVersionMatch);
+            document.getElementById("MaxVersionManifestConflict").hidden = ConvertToBool(manifestComparison.IsMaxVersionMatch);
+            button.disabled = false;
+            button.firstElementChild.hidden = true;
+
+            document.querySelectorAll(".manifest-field").forEach(field => {
+                field.addEventListener('input', () => {
+                    field.parentElement.lastElementChild.hidden = true;
+                })
+            })
+        }
+    });
 }
 
-function ApplyExpected(expected) {
-    let inputs = new Array("Name", "VersionNumber", "MinimumRequiredVersionOfStudio", "MaximumRequiredVersionOfStudio")
-    let actual = document.querySelectorAll("#manifestComparisonLog .actual");
-    let matches = document.querySelectorAll("#manifestComparisonLog .match");
-
-    for (let i = 0; i < expected.length; i++) {
-        document.getElementById(inputs[i]).value = expected[i];
-        actual[i].lastElementChild.innerText = expected[i];
-        actual[i].firstElementChild.value = expected[i];
-        matches[i].firstElementChild.value = true;
-        matches[i].lastElementChild.classList.remove("fa-times-circle", "text-danger");
-        matches[i].lastElementChild.classList.add("fa-check-circle", "text-success");
+function ConvertToBool(value) {
+    if (value.toLowerCase() == "true") {
+        return true;
     }
+
+    if (value.toLowerCase() == "false") {
+        return false;
+    }
+
+    return true;
 }
 
 function AjaxSuccessCallback(actionResult) {

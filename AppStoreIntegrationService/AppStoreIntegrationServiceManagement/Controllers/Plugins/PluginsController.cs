@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System.IO.Compression;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -21,19 +23,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IProductsRepository _productsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
         private readonly IHttpContextAccessor _context;
+        private readonly string _pluginDownloadPath;
 
         public PluginsController
         (
             IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository,
             IHttpContextAccessor context,
             IProductsRepository productsRepository,
-            ICategoriesRepository categoriesRepository
+            ICategoriesRepository categoriesRepository,
+            IWebHostEnvironment environment
         )
         {
             _pluginRepository = pluginRepository;
             _context = context;
             _productsRepository = productsRepository;
             _categoriesRepository = categoriesRepository;
+            _pluginDownloadPath = $@"{environment.ContentRootPath}\Temp";
         }
 
         [Route("Plugins")]
@@ -70,9 +75,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version, List<ManifestCompareProperty> compareProperties)
+        public async Task<IActionResult> Create(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
         {
-            return await Save(plugin, versions, version, compareProperties, _pluginRepository.AddPrivatePlugin);
+            return await Save(plugin, versions, version, _pluginRepository.AddPrivatePlugin);
         }
 
         [Route("Plugins/Edit/{id?}")]
@@ -100,9 +105,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version, List<ManifestCompareProperty> compareProperties)
+        public async Task<IActionResult> Update(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
         {
-            return await Save(plugin, versions, version, compareProperties, _pluginRepository.UpdatePrivatePlugin);
+            return await Save(plugin, versions, version, _pluginRepository.UpdatePrivatePlugin);
         }
 
         [HttpPost]
@@ -114,11 +119,52 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public IActionResult ManifestCompare(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, ImportManifestModel manifest)
+        public async Task<IActionResult> ManifestCompare(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
         {
-            _ = TryImportFromFile(manifest.ManifestFile, out PluginPackage response);
+            if (!Directory.Exists(_pluginDownloadPath))
+            {
+                Directory.CreateDirectory(_pluginDownloadPath);
+            }
 
-            return PartialView("_ManifestComparePartial", CreateComparisonLog(plugin, response, version));
+            try
+            {
+                await DownloadPlugin(version.DownloadUrl);
+                ZipFile.ExtractToDirectory($@"{_pluginDownloadPath}\Plugin.sdlplugin", _pluginDownloadPath);
+                var response = ImportFromFile($@"{_pluginDownloadPath}\pluginpackage.manifest.xml");
+
+                TempData["IsNameMatch"] = response.PluginName == plugin.Name;
+                TempData["IsVersionMatch"] = response.Version == version.VersionNumber;
+                TempData["IsMinVersionMatch"] = response.RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
+                TempData["IsMaxVersionMatch"] = response.RequiredProduct.MaximumStudioVersion == version.MaximumRequiredVersionOfStudio;
+
+                Directory.Delete(_pluginDownloadPath, true);
+                return PartialView("_StatusMessage", "Success! Comparison was performed successfully!");
+            }
+            catch (InvalidDataException)
+            {
+                Directory.Delete(_pluginDownloadPath, true);
+                return PartialView("_StatusMessage", "Error! The extract doesn't contain a manifest file!");
+            }
+            catch (Exception e)
+            {
+                Directory.Delete(_pluginDownloadPath, true);
+                return PartialView("_StatusMessage", $"Error! {e.Message}");
+            }
+        }
+
+        private async Task DownloadPlugin(string downloadUrl)
+        {
+            try
+            {
+                var reader = new RemoteStreamReader(new Uri(downloadUrl));
+                var stream = await reader.ReadAsync();
+                using var fileStream = System.IO.File.Create($@"{_pluginDownloadPath}\Plugin.sdlplugin");
+                await stream.CopyToAsync(fileStream);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
@@ -142,46 +188,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return PartialView("_ModalPartial", modalDetails);
         }
 
-        private static List<ManifestCompareProperty> CreateComparisonLog(PrivatePlugin<PluginVersion<string>> plugin, PluginPackage response, ExtendedPluginVersion<string> version)
-        {
-            return new List<ManifestCompareProperty>
-            {
-                new ManifestCompareProperty
-                {
-                    Name = "Plugin name",
-                    Actual = plugin.Name,
-                    Expected = response.PluginName,
-                    IsMatch = response.PluginName == plugin.Name
-                },
-                new ManifestCompareProperty
-                {
-                    Name = "Plugin version",
-                    Actual = version.VersionNumber,
-                    Expected = response.Version,
-                    IsMatch = response.Version == version.VersionNumber
-                },
-                new ManifestCompareProperty
-                {
-                    Name = "Minimum studio version",
-                    Actual = version.MinimumRequiredVersionOfStudio,
-                    Expected = response.RequiredProduct.MinimumStudioVersion,
-                    IsMatch = response.RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio
-                },
-                new ManifestCompareProperty
-                {
-                    Name = "Maximum studio version",
-                    Actual = version.MaximumRequiredVersionOfStudio,
-                    Expected = response.RequiredProduct.MaximumStudioVersion,
-                    IsMatch = response.RequiredProduct.MaximumStudioVersion == version.MaximumRequiredVersionOfStudio
-                }
-            };
-        }
-
-        private static bool TryImportFromFile(IFormFile file, out PluginPackage response)
+        private static PluginPackage ImportFromFile(string file)
         {
             var serializer = new XmlSerializer(typeof(PluginPackage));
             var result = new StringBuilder();
-            using (var reader = new StreamReader(file.OpenReadStream()))
+            using (var reader = new StreamReader(file))
             {
                 while (reader.Peek() >= 0)
                 {
@@ -193,19 +204,16 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             {
                 try
                 {
-                    response = (PluginPackage)serializer.Deserialize(new XmlReaderNamespaceIgnore(new StringReader(result.ToString())));
-                    return true;
+                    return (PluginPackage)serializer.Deserialize(new XmlReaderNamespaceIgnore(new StringReader(result.ToString())));
                 }
                 catch (XmlException)
                 {
-                    response = null;
-                    return false;
+                    return null;
                 }
 
             }
 
-            response = null;
-            return false;
+            return null;
         }
 
         private async Task<bool> IsSaved(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
@@ -217,18 +225,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private async Task<IActionResult> Save
         (
-            PrivatePlugin<PluginVersion<string>> plugin, 
+            PrivatePlugin<PluginVersion<string>> plugin,
             List<ExtendedPluginVersion<string>> versions,
             ExtendedPluginVersion<string> version,
-            List<ManifestCompareProperty> compareProperties,
             Func<PrivatePlugin<PluginVersion<string>>, Task> func
         )
         {
-            if (compareProperties.Any() && !compareProperties.All(p => p.IsMatch))
-            {
-                return PartialView("_StatusMessage", "Error! Please solve the manifest conflicts!");
-            }
-
             if (plugin.IsValid(version))
             {
                 plugin.SetVersionList(versions, version);

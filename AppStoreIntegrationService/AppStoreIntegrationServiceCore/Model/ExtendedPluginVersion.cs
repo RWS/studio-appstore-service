@@ -15,7 +15,7 @@ namespace AppStoreIntegrationServiceCore.Model
             VersionDownloadUrl = version.DownloadUrl;
         }
 
-        [Required(ErrorMessage = "Version download url is required!")]
+        [Required(ErrorMessage = "Download url is required!")]
         [Url(ErrorMessage = "Invalid url!")]
         [JsonIgnore]
         public string VersionDownloadUrl
@@ -46,10 +46,6 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [JsonIgnore]
         public bool IsNewVersion { get; set; }
-
-        [Required(ErrorMessage = "Manifest is required!")]
-        [JsonIgnore]
-        public ImportManifestModel ManifestFile { get; set; }
 
         public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, string defaultProduct)
         {
