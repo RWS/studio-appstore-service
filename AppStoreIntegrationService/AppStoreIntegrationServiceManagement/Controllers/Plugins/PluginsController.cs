@@ -132,13 +132,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 ZipFile.ExtractToDirectory($@"{_pluginDownloadPath}\Plugin.sdlplugin", _pluginDownloadPath);
                 var response = ImportFromFile($@"{_pluginDownloadPath}\pluginpackage.manifest.xml");
 
-                TempData["IsNameMatch"] = response.PluginName == plugin.Name;
-                TempData["IsVersionMatch"] = response.Version == version.VersionNumber;
-                TempData["IsMinVersionMatch"] = response.RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
-                TempData["IsMaxVersionMatch"] = response.RequiredProduct.MaximumStudioVersion == version.MaximumRequiredVersionOfStudio;
-
+                var isNameMatch = response.PluginName == plugin.Name;
+                var isVersionMatch = response.Version == version.VersionNumber;
+                var isMinVersionMatch = response.RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
+                var isMaxVersionMatch = response.RequiredProduct.MaximumStudioVersion == version.MaximumRequiredVersionOfStudio;
+                var isAuthorMatch = response.Author == plugin.DeveloperName;
+                var isProductMatch = (await _productsRepository.GetAllProducts()).FirstOrDefault(p => p.Id == version.SelectedProductId)?.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
+                var isFullMatch = new[] { isNameMatch, isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isAuthorMatch, isProductMatch }.All(match => match);
                 Directory.Delete(_pluginDownloadPath, true);
-                return PartialView("_StatusMessage", "Success! Comparison was performed successfully!");
+
+                TempData["ManifestCompare"] = new { isNameMatch, isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isAuthorMatch, isProductMatch, isFullMatch };
+                if (isFullMatch)
+                {
+                    return PartialView("_StatusMessage", "Success! The comparison finished without conflicts!");
+                }
+
+                return PartialView("_StatusMessage", "Error! The comparison finished with conflicts!");
             }
             catch (InvalidDataException)
             {

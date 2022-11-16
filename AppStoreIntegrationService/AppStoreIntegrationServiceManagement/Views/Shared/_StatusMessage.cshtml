@@ -3,19 +3,15 @@
 @if (!String.IsNullOrEmpty(Model))
 {
     var statusMessageClass = Model.StartsWith("Error") ? "danger" : "success";
-    <div class="alert alert-@statusMessageClass alert-dismissible" role="alert">
+    <div id="alert" class="alert shadow alert-@statusMessageClass alert-dismissible" role="alert">
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         <p class="text-break m-0">@Model</p>
     </div>
 
-    <script type="text/javascript">
+
+    <script>
         fileHash = '@TempData["Filehash"]';
-        manifestComparison = {
-            IsNameMatch : '@TempData["IsNameMatch"]',
-            IsVersionMatch : '@TempData["IsVersionMatch"]',
-            IsMinVersionMatch : '@TempData["IsMinVersionMatch"]',
-            IsMaxVersionMatch : '@TempData["IsMaxVersionMatch"]'
-        }
+        manifestCompare = @Html.Raw(Json.Serialize(TempData["ManifestCompare"]));
     </script>
 }
 

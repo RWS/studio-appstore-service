@@ -7,6 +7,12 @@ body, html {
     overflow-x: hidden;
 }
 
+#alert{
+    position: fixed;
+    top: 50px;
+    right: 20px;
+}
+
 .img-item {
     height: 50px;
     display: block;

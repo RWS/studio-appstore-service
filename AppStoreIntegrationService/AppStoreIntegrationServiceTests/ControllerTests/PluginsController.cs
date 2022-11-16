@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using AppStoreIntegrationServiceCore.Model;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AppStoreIntegrationServiceTests
 {
@@ -19,7 +20,8 @@ namespace AppStoreIntegrationServiceTests
             var mockContextAccesor = Substitute.For<IHttpContextAccessor>();
             var mockCategoriesRepository = Substitute.For<ICategoriesRepository>();
             var mockTempDataProvider = Substitute.For<ITempDataProvider>();
-            var pluginsController = new PluginsController(mockPluginRepository, mockContextAccesor, mockProductsRepository, mockCategoriesRepository)
+            var mockWebHostEnvironment = Substitute.For<IWebHostEnvironment>();
+            var pluginsController = new PluginsController(mockPluginRepository, mockContextAccesor, mockProductsRepository, mockCategoriesRepository, mockWebHostEnvironment)
             {
                 ControllerContext = new ControllerContext
                 {

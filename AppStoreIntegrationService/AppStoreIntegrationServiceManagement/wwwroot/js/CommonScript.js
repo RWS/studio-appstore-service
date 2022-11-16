@@ -1,5 +1,5 @@
 ﻿let fileHash;
-let manifestComparison;
+let manifestCompare;
 
 function RedirectTo(goToPage, controller, action) {
     var currentPage = controller + '/' + action;
@@ -130,12 +130,15 @@ function CompareWithManifest() {
         type: "POST",
         url: "/Plugins/Plugins/ManifestCompare",
         success: function (actionResult) {
-            AjaxSuccessCallback(actionResult);
-            console.log(manifestComparison);
-            document.getElementById("PluginNameManifestConflict").hidden = ConvertToBool(manifestComparison.IsNameMatch);
-            document.getElementById("VersionNumberManifestConflict").hidden = ConvertToBool(manifestComparison.IsVersionMatch);
-            document.getElementById("MinVersionManifestConflict").hidden = ConvertToBool(manifestComparison.IsMinVersionMatch);
-            document.getElementById("MaxVersionManifestConflict").hidden = ConvertToBool(manifestComparison.IsMaxVersionMatch);
+            AjaxSuccessCallback(actionResult)
+            document.getElementById("PluginNameManifestConflict").hidden = manifestCompare.isNameMatch;
+            document.getElementById("DeveloperNameManifestConflict").hidden = manifestCompare.isAuthorMatch;
+            document.getElementById("VersionNumberManifestConflict").hidden = manifestCompare.isVersionMatch;
+            document.getElementById("MinVersionManifestConflict").hidden = manifestCompare.isMinVersionMatch;
+            document.getElementById("MaxVersionManifestConflict").hidden = manifestCompare.isMaxVersionMatch;
+            document.getElementById("ProductManifestConflict").hidden = manifestCompare.isProductMatch;
+            document.getElementById("SuccessManifestCompare").hidden = !manifestCompare.isFullMatch;
+            document.getElementById("FailManifestCompare").hidden = manifestCompare.isFullMatch;
             button.disabled = false;
             button.firstElementChild.hidden = true;
 
@@ -146,18 +149,6 @@ function CompareWithManifest() {
             })
         }
     });
-}
-
-function ConvertToBool(value) {
-    if (value.toLowerCase() == "true") {
-        return true;
-    }
-
-    if (value.toLowerCase() == "false") {
-        return false;
-    }
-
-    return true;
 }
 
 function AjaxSuccessCallback(actionResult) {

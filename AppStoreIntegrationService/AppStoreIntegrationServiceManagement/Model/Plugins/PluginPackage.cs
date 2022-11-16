@@ -8,5 +8,6 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
         public string PluginName { get; set; }
         public string Version { get; set; }
         public RequiredProduct RequiredProduct { get; set; }
+        public string Author { get; set; }
     }
 }
