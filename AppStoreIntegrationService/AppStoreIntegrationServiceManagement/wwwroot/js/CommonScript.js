@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function CompareWithManifest() {
     $("#VersionDownloadUrl").validate()
-    if ($("#IsNavigationLink").checked || !$("#VersionDownloadUrl").valid()) {
+    if ($("#IsNavigationLink")[0].checked || !$("#VersionDownloadUrl").valid()) {
         return;
     }
 
