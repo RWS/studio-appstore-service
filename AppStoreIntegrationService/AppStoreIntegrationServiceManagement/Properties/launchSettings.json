@@ -20,7 +20,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "Plugins",
+      "launchUrl": "Plugins/Edit/149",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

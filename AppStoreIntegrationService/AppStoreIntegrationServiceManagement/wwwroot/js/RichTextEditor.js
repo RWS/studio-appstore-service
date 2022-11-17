@@ -39,7 +39,7 @@ document.querySelector('.edit-area').addEventListener('focusout', () => {
 document.addEventListener('selectionchange', () => {
     HighlighterRemover(optionButtons)
 
-    if (!editor.contains(window.getSelection().anchorNode.parentNode)) {
+    if (window.getSelection().anchorNode.parentNode || !editor.contains(window.getSelection().anchorNode.parentNode)) {
         return false;
     }
 

@@ -39,10 +39,15 @@ function AddNewVersion() {
             $('#form').data('validator', null);
             $.validator.unobtrusive.parse('#form');
             document.getElementById("manifestModalBtn").hidden = false;
+            let dropDown = new DropDown("#dropDownToggle", "#SupportedProducts", ".selection-summary", ".overflow-arrow", "#productsDropdown");
+            dropDown.Init();
         }
     })
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
+
+    let dropDown = new DropDown("#dropDownToggle", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown");
+    dropDown.Init();
 })

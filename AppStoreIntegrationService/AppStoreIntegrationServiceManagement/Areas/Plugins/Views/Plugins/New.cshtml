@@ -106,7 +106,19 @@
             </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="Categories">Plugin categories </label>
-                <select class="form-select" multiple="multiple" asp-for="@Model.Categories" asp-items="Model.CategoryListItems"></select>
+                <div class="dropdown col-8 p-0" id="categoriesDropdown">
+                    <div class="w-100 border rounded p-2 d-flex justify-content-between" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="d-flex align-items-center col-11">
+                            <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none"></i>
+                            <div class="d-flex selection-summary"></div>
+                            <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none"></i>
+                        </div>
+                        <div class="col-1 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-caret-down"></i>
+                        </div>
+                    </div>
+                    <select asp-for="Categories" multiple="multiple" asp-items="@Model.CategoryListItems" class="form-select dropdown-menu px-2 custom-select"></select>
+                </div>
             </div>
             <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0" asp-for="PaidFor">Paid for</label>

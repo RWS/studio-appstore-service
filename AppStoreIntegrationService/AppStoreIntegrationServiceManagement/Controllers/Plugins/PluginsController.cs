@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using System.IO.Compression;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -15,7 +14,6 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
-    [Authorize]
     [Area("Plugins")]
     public class PluginsController : Controller
     {
@@ -137,11 +135,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 var isMinVersionMatch = response.RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
                 var isMaxVersionMatch = response.RequiredProduct.MaximumStudioVersion == version.MaximumRequiredVersionOfStudio;
                 var isAuthorMatch = response.Author == plugin.DeveloperName;
-                var isProductMatch = (await _productsRepository.GetAllProducts()).FirstOrDefault(p => p.Id == version.SelectedProductId)?.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
-                var isFullMatch = new[] { isNameMatch, isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isAuthorMatch, isProductMatch }.All(match => match);
+                //var isProductMatch = (await _productsRepository.GetAllProducts()).FirstOrDefault(p => p.Id == version.SelectedProductId)?.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
+                var isFullMatch = new[] { isNameMatch, isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isAuthorMatch}.All(match => match);
                 Directory.Delete(_pluginDownloadPath, true);
 
-                TempData["ManifestCompare"] = new { isNameMatch, isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isAuthorMatch, isProductMatch, isFullMatch };
+                TempData["ManifestCompare"] = new { isNameMatch, isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isAuthorMatch, isFullMatch };
                 if (isFullMatch)
                 {
                     return PartialView("_StatusMessage", "Success! The comparison finished without conflicts!");
@@ -269,7 +267,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 var lastSupportedProduct = products.FirstOrDefault(p => p.Id == version.SupportedProducts[0]);
                 newVersions.Add(new ExtendedPluginVersion<string>(version)
                 {
-                    SelectedProductId = lastSupportedProduct.Id,
+                    SelectedProductIds = products.Select(p => p.Id).ToList(),
                     SelectedProduct = lastSupportedProduct,
                     VersionName = $"{lastSupportedProduct.ProductName} - {version.VersionNumber}",
                 });

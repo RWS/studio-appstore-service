@@ -80,7 +80,7 @@
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="Description">Description <span class="text-danger">*</span></label>
-                <div class="w-100">
+                <div class="col-8">
                     <div class="rich-text-editor border rounded">
                         <div class="d-flex justify-content-between border-bottom p-3">
                             <i id="bold" data-tag-name="B" class="fa fa-bold cursor-pointer option format p-2"></i>
@@ -110,8 +110,20 @@
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center" asp-for="Categories">Plugin categories </label>
-                <select class="form-select" multiple="multiple" asp-for="@Model.Categories" asp-items="Model.CategoryListItems"></select>
+                <label class="col-4 m-0 align-self-center p-0" asp-for="Categories">Plugin categories </label>
+                <div class="dropdown col-8 p-0" id="categoriesDropdown">
+                    <div class="w-100 border rounded p-2 d-flex justify-content-between" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="d-flex align-items-center col-11">
+                            <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none"></i>
+                            <div class="d-flex selection-summary"></div>
+                            <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none"></i>
+                        </div>
+                        <div class="col-1 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-caret-down"></i>
+                        </div>
+                    </div>
+                    <select asp-for="Categories" multiple="multiple" asp-items="@Model.CategoryListItems" class="form-select dropdown-menu px-2 custom-select"></select>
+                </div>
             </div>
             <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0" asp-for="PaidFor">Paid for</label>
@@ -138,6 +150,7 @@
 
 
 <script src="~/js/EditPluginsScript.js"></script>
+<script src="~/js/DropDown.js"></script>
 <script src="~/js/RichTextEditor.js"></script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

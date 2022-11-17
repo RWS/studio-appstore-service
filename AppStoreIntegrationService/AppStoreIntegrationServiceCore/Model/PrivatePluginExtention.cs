@@ -36,7 +36,7 @@
 
             var newVersionList = new List<PluginVersion<string>>(versions);
             var existingVersion = newVersionList.FirstOrDefault(v => v.VersionId.Equals(selectedVersion.VersionId));
-            selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
+            selectedVersion.SupportedProducts = selectedVersion.SelectedProductIds;
             if (Equals(existingVersion, null))
             {
                 newVersionList.Add(selectedVersion);

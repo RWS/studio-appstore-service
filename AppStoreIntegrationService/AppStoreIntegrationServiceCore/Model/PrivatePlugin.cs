@@ -60,12 +60,10 @@ namespace AppStoreIntegrationServiceCore.Model
             var editedVersion = versions.FirstOrDefault(v => v.VersionId.Equals(selectedVersion.VersionId));
             if (editedVersion != null)
             {
-                selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
                 versions[versions.IndexOf(editedVersion)] = selectedVersion;
             }
             else if (selectedVersion.VersionId != null)
             {
-                selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
                 versions.Add(selectedVersion);
             }
 
