@@ -28,11 +28,6 @@ namespace AppStoreIntegrationServiceCore.Model
             }
         }
 
-        [Required(ErrorMessage = "At least one product is required!")]
-        [MinLength(1)]
-        [JsonIgnore]
-        public List<string> SelectedProductIds { get; set; }
-
         [JsonIgnore]
         [BindProperty]
         public ProductDetails SelectedProduct { get; set; }
@@ -42,21 +37,25 @@ namespace AppStoreIntegrationServiceCore.Model
         public MultiSelectList SupportedProductsListItems { get; set; }
 
         [JsonIgnore]
+        public IEnumerable<ParentProduct> ParentProducts { get; set; }
+
+        [JsonIgnore]
         [BindProperty]
         public string VersionName { get; set; }
 
         [JsonIgnore]
         public bool IsNewVersion { get; set; }
 
-        public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, string defaultProduct)
+        public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, List<ParentProduct> parents)
         {
             SupportedProductsListItems = new MultiSelectList
             (
                 supportedProductDetails,
                 nameof(ProductDetails.Id),
-                nameof(ProductDetails.ProductName),
-                defaultProduct
+                nameof(ProductDetails.ProductName)
             );
+
+            ParentProducts = parents;
         }
     }
 }

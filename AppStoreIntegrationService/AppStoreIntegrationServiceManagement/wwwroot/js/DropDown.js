@@ -4,13 +4,15 @@
     #menu;
     #productsSummary;
     #overflowArrows;
+    #filters
 
-    constructor(toggler, menu, productsSummary, overflowArrows, dropdownContainer) {
+    constructor(toggler, menu, productsSummary, overflowArrows, dropdownContainer, filters) {
         this.#dropdownContainer = dropdownContainer;
         this.#toggler = toggler;
         this.#menu = menu;
         this.#productsSummary = productsSummary;
         this.#overflowArrows = overflowArrows;
+        this.#filters = filters;
     }
 
     Init() {
@@ -59,17 +61,18 @@
 
     #CreateProductBox(product, isCollapsed) {
         var box = document.createElement('span');
-        box.classList.add(isCollapsed ? "border-0" : "border", "rounded", "px-1", "selection-box", "d-flex", "me-2");
         box.id = product.value;
         var cross = document.createElement('i');
         if (isCollapsed) {
+            box.classList.add("border-0", "rounded", "px-1", "selection-box", "d-flex", "me-2");
             cross.classList.add('fa', 'fa-circle', "align-self-center", "ms-2", 'p-1');
             cross.style.fontSize = "8px";
         } else {
             cross.classList.add('fa', 'fa-times', "align-self-center", "ms-2", 'cursor-pointer', 'p-1');
+            box.classList.add("border", "rounded", "px-1", "selection-box", "d-flex", "me-2", "bg-light");
             cross.addEventListener('click', e => this.#EraseMouseClickEventListener(e))
-            cross.addEventListener('mouseenter', () => this.#EraseMouseEnterEventListener());
-            cross.addEventListener('mouseleave', () => this.#EraseMouseLeaveEventListener())
+            cross.addEventListener('mouseenter', e => this.#EraseMouseEnterEventListener(e));
+            cross.addEventListener('mouseleave', e => this.#EraseMouseLeaveEventListener(e))
         }
 
         var text = document.createElement('p');
@@ -97,12 +100,18 @@
         this.#TryToggleOverflowArrows();
     }
 
-    #EraseMouseEnterEventListener() {
+    #EraseMouseEnterEventListener(e) {
         document.querySelector(`${this.#dropdownContainer} ${this.#toggler}`).removeAttribute("data-bs-toggle");
+        if (e) {
+            e.target.classList.add("bg-white")
+        }
     }
 
-    #EraseMouseLeaveEventListener() {
+    #EraseMouseLeaveEventListener(e) {
         document.querySelector(`${this.#dropdownContainer} ${this.#toggler}`).setAttribute("data-bs-toggle", "dropdown");
+        if (e) {
+            e.target.classList.remove("bg-white")
+        }
     }
 
     #OverflowArrowEventListener(e) {
@@ -118,7 +127,7 @@
         if (e.target.hasAttribute("selected")) {
             e.target.removeAttribute("selected");
             e.target.selected = false;
-            this.#UpdateSelectedOptions(e.target.parentElement)
+            this.#UpdateSelectedOptions()
             this.#RemoveProductBox(e.target);
             return;
         }
@@ -126,12 +135,16 @@
         e.target.setAttribute("selected", "selected");
         e.target.selected = true;
         this.#SortOptions(e.target.parentElement, e.target);
-        this.#UpdateSelectedOptions(e.target.parentElement)
+        this.#UpdateSelectedOptions()
         this.#CreateCollapsedSummary(false)
     }
 
-    #RemoveProductBox(product) {
-        document.querySelector(`${this.#dropdownContainer} ${this.#productsSummary}`).removeChild(document.getElementById(product.value));
+    #RemoveProductBox(option) {
+        var product = document.getElementById(option.value)
+        if (product) {
+            document.querySelector(`${this.#dropdownContainer} ${this.#productsSummary}`).removeChild(product);
+        }
+        
         this.#TryToggleOverflowArrows();
         if ($(`${this.#dropdownContainer} ${this.#menu}`).val().length == 0) {
             document.querySelector(`${this.#dropdownContainer} ${this.#productsSummary}`).innerHTML = "Select products...";
@@ -144,44 +157,23 @@
             return;
         }
 
-        
-        let productName = product.innerText;
         select.querySelectorAll("option").forEach(option => {
-            if (productName.includes("Trados")) {
-                if (!option.innerText.includes("Trados")) {
-                    option.disabled = true;
-                    option.removeAttribute("selected")
+            this.#filters.forEach(filter => {
+                if (product.innerText.includes(filter)) {
+                    if (!option.innerText.includes(filter)) {
+                        option.disabled = true;
+                        option.removeAttribute("selected")
+                    }
                 }
-            }
-
-            if (productName.includes("Language")) {
-                if (!option.innerText.includes("Language")) {
-                    option.disabled = true;
-                    option.removeAttribute("selected")
-                }
-            }
-
-            if (productName.includes("Passolo")) {
-                if (!option.innerText.includes("Passolo")) {
-                    option.disabled = true;
-                    option.removeAttribute("selected")
-                }
-            }
-
-            if (productName.includes("Extract")) {
-                if (!option.innerText.includes("Extract")) {
-                    option.disabled = true;
-                    option.removeAttribute("selected")
-                }
-            }
+            })
         })
     }
 
-    #UpdateSelectedOptions(select) {
-        var selected = [...select.options].filter(option => option.hasAttribute("selected")).map(option => option.value);
+    #UpdateSelectedOptions() {
+        var selected = Array.from(document.querySelectorAll(`${this.#menu} option`)).filter(option => option.hasAttribute("selected")).map(option => option.value);
         $(`${this.#dropdownContainer} ${this.#menu}`).val(selected)
         if ($(`${this.#dropdownContainer} ${this.#menu}`).val().length == 0) {
-            select.querySelectorAll("option").forEach(option => {
+            document.querySelectorAll(`${this.#menu} option`).forEach(option => {
                 option.disabled = false;
             });
         }
@@ -190,6 +182,6 @@
     #UpdateOnErase(id) {
         let options = Array.from(document.querySelectorAll(`${this.#dropdownContainer} ${this.#menu} option`));
         options.find(o => o.value == id).removeAttribute("selected");
-        this.#UpdateSelectedOptions(document.querySelector(`${this.#dropdownContainer} ${this.#menu}`))
+        this.#UpdateSelectedOptions()
     }
 }

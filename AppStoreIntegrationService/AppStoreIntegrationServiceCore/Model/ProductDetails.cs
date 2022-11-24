@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
-using System.Reflection;
-using System;
+﻿using System.Reflection;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -20,8 +17,8 @@ namespace AppStoreIntegrationServiceCore.Model
         public string Id { get; set; }
         public string ProductName { get; set; }
         public string MinimumStudioVersion { get; set; }
-        public bool IsDefault { get; set; }
         public string ParentProductID { get; set; }
+        public bool IsLegacy { get; set; }
 
         public bool IsValid()
         {

@@ -28,7 +28,7 @@
 
             <input hidden asp-for="@Model[i].VersionName" />
             <div class="d-flex justify-content-between">
-                <label class="cursor-pointer version-name-label" onclick="ShowVersionDetails('@Model[i].VersionId')">@Model[i].VersionName</label>
+                <label class="cursor-pointer version-name-label" onclick="ShowVersionDetails('@Model[i].VersionId')">@Model[i].VersionNumber</label>
                 @if (Model.Count > 1)
                 {
                     <i class="far fa-trash-alt text-danger cursor-pointer" id="@Model[i].VersionId"></i>

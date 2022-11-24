@@ -1,4 +1,6 @@
-﻿function AddPlugin() {
+﻿let parentProducts;
+
+function AddPlugin() {
     document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
     var isNavigationLink = document.getElementById("IsNavigationLink");
 
@@ -39,7 +41,7 @@ function AddNewVersion() {
             $('#form').data('validator', null);
             $.validator.unobtrusive.parse('#form');
             document.getElementById("manifestModalBtn").hidden = false;
-            let dropDown = new DropDown("#dropDownToggle", "#SupportedProducts", ".selection-summary", ".overflow-arrow", "#productsDropdown");
+            let dropDown = new DropDown("#dropDownToggle", "#SupportedProducts", ".selection-summary", ".overflow-arrow", "#productsDropdown", parentProducts.map(p => p.parentProductName));
             dropDown.Init();
         }
     })
@@ -48,6 +50,6 @@ function AddNewVersion() {
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
 
-    let dropDown = new DropDown("#dropDownToggle", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown");
+    let dropDown = new DropDown("#dropDownToggle", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown", []);
     dropDown.Init();
 })

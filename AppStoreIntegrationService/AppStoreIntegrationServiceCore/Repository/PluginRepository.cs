@@ -8,20 +8,17 @@ namespace AppStoreIntegrationServiceCore.Repository
     public class PluginRepository<T> : IPluginRepository<T> where T : PluginDetails<PluginVersion<string>, string>, new()
     {
         private readonly IAzureRepository<T> _azureRepository;
-        private readonly IProductsRepository _productsRepository;
         private readonly ILocalRepository<T> _localRepository;
         private readonly IConfigurationSettings _configurationSettings;
 
         public PluginRepository
         (
             IAzureRepository<T> azureRepository,
-            IProductsRepository productsRepository,
             IConfigurationSettings configurationSettings,
             ILocalRepository<T> localRepository
         )
         {
             _azureRepository = azureRepository;
-            _productsRepository = productsRepository;
             _localRepository = localRepository;
             _configurationSettings = configurationSettings;
         }
@@ -235,18 +232,19 @@ namespace AppStoreIntegrationServiceCore.Repository
             {
                 var matchingVersions = new List<PluginVersion<string>>();
 
-                foreach (var pluginVersion in plugin.Versions)
+                foreach (var version in plugin.Versions)
                 {
-                    var version = products.Where(p => p.Id == pluginVersion.SupportedProducts[0])
-                                          .FirstOrDefault(s => s.ProductName.Equals(oldTradosName) ||
-                                                               s.ProductName.Equals(rebrandedStudioName) ||
-                                                               s.ProductName.Equals("SDL Trados Studio") ||
-                                                               s.ProductName.Equals("Trados Studio"));
+                    var product = version.SupportedProducts.SelectMany(sp => products
+                                                           .Where(p => p.Id == sp))
+                                                           .FirstOrDefault(s => s.ProductName.Equals(oldTradosName) ||
+                                                                                s.ProductName.Equals(rebrandedStudioName) ||
+                                                                                s.ProductName.Equals("SDL Trados Studio") ||
+                                                                                s.ProductName.Equals("Trados Studio"));
 
-                    if (version != null)
+                    if (product != null)
                     {
-                        matchingVersions.Add(pluginVersion);
-                        plugin.DownloadUrl = pluginVersion.DownloadUrl;
+                        matchingVersions.Add(version);
+                        plugin.DownloadUrl = version.DownloadUrl;
                     }
                 }
 
@@ -315,9 +313,10 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private static List<T> FilterByProduct(List<T> plugins, string product)
         {
-            return plugins.Where(plugin => plugin.Versions
-                          .Any(v => v.SupportedProducts[0] == product))
-                          .ToList();
+            return plugins.Where(p => p.Versions
+                          .Select(v => v.SupportedProducts
+                          .Any(p => p.Equals(product)))
+                          .Any(check => check)).ToList();
         }
     }
 }

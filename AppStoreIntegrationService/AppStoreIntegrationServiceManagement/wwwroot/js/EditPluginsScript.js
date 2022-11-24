@@ -1,14 +1,16 @@
-﻿document.addEventListener('DOMContentLoaded', function () {
+﻿let parentProducts;
+
+document.addEventListener('DOMContentLoaded', function () {
     var deleteBtns = document.querySelectorAll('#selectedVersion .fa-trash-alt');
     deleteBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.getElementById('confirmationBtn').onclick = function () {
-                var pageValues = $('main').find('select, textarea, input').serialize();
+                var pageValues = $('main').find('input').serialize();
 
                 $.ajax({
                     data: pageValues,
                     type: "POST",
-                    url: `/Plugins/Version/Delete/${btn.id}`,
+                    url: `/Version/Delete/${btn.id}`,
                     success: function () {
                         location.reload();
                     }
@@ -21,7 +23,7 @@
     })
 
     document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
-    let dropDown = new DropDown("#dropDownToggle", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown");
+    let dropDown = new DropDown("#dropDownToggle", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown", []);
     dropDown.Init();
 
     $.validator.setDefaults({
@@ -36,8 +38,6 @@ function SavePlugin() {
     if (isNavigationLink) {
         $("#FileHash").rules(isNavigationLink.checked ? "remove" : "add", "required");
     }
-
-    $("#form").validate();
 
     if ($("#form").valid()) {
         var pageValues = $('main').find('select, textarea, input').serialize();
@@ -60,7 +60,15 @@ function AddNewVersion() {
             $('#form').data('validator', null);
             $.validator.unobtrusive.parse('#form');
             document.getElementById("manifestModalBtn").hidden = false;
-            let dropDown = new DropDown("#dropDownToggle", "#SupportedProducts", ".selection-summary", ".overflow-arrow", "#productsDropdown");
+
+            let dropDown = new DropDown(
+                "#dropDownToggle",
+                "#SupportedProducts",
+                ".selection-summary",
+                ".overflow-arrow",
+                "#productsDropdown",
+                parentProducts.map(p => p.parentProductName)
+            );
             dropDown.Init();
         }
     })
@@ -84,7 +92,15 @@ function ShowVersionDetails(versionId) {
             $('#form').data('validator', null);
             $.validator.unobtrusive.parse('#form');
             document.getElementById("manifestModalBtn").hidden = false;
-            let dropDown = new DropDown("#dropDownToggle", "#SupportedProducts", ".selection-summary", ".overflow-arrow", "#productsDropdown");
+
+            let dropDown = new DropDown(
+                "#dropDownToggle",
+                "#SupportedProducts",
+                ".selection-summary",
+                ".overflow-arrow",
+                "#productsDropdown",
+                parentProducts.map(p => p.parentProductName)
+            );
             dropDown.Init();
         }
     })

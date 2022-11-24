@@ -65,15 +65,15 @@
         {
             <div class="col-12 col-md-4 col-lg-3 p-3 d-flex justify-content-center">
                 <div class="card card-item @Html.Raw(@plugin.Inactive ? "card-item-inactive" : "")">
-                    <img class="img-item" src="@plugin.IconUrl" asp-append-version="true">
+                    <img alt="@plugin.Name" class="img-item" src="@plugin.IconUrl" asp-append-version="true">
                     <div class="card-body text-center d-flex flex-column justify-content-center py-0">
                         <label class="text-wrap plugin-name">@plugin.Name</label>
                     </div>
                     <div class="d-flex flex-row p-3">
                         <label class="card-status col-6">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
                         <div class="col-6 d-flex justify-content-end">
-                            <a class="focus-transparent me-3" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
-                            <a class="btn p-0"><i class="far fa-trash-alt text-danger cursor-pointer" onclick="DeletePlugin('@plugin.Id', `@plugin.Name`)"></i></a>
+                            <a class="focus-transparent me-3" title="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
+                            <a class="btn p-0" title="Delete @plugin.Name"><i class="far fa-trash-alt text-danger cursor-pointer" onclick="DeletePlugin('@plugin.Id', `@plugin.Name`)"></i></a>
                         </div>
                     </div>
                 </div>

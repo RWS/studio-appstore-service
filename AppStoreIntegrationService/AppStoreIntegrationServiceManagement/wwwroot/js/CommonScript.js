@@ -131,22 +131,25 @@ function CompareWithManifest() {
         url: "/Plugins/Plugins/ManifestCompare",
         success: function (actionResult) {
             AjaxSuccessCallback(actionResult)
-            document.getElementById("PluginNameManifestConflict").hidden = manifestCompare.isNameMatch;
-            document.getElementById("DeveloperNameManifestConflict").hidden = manifestCompare.isAuthorMatch;
-            document.getElementById("VersionNumberManifestConflict").hidden = manifestCompare.isVersionMatch;
-            document.getElementById("MinVersionManifestConflict").hidden = manifestCompare.isMinVersionMatch;
-            document.getElementById("MaxVersionManifestConflict").hidden = manifestCompare.isMaxVersionMatch;
-            document.getElementById("ProductManifestConflict").hidden = manifestCompare.isProductMatch;
-            document.getElementById("SuccessManifestCompare").hidden = !manifestCompare.isFullMatch;
-            document.getElementById("FailManifestCompare").hidden = manifestCompare.isFullMatch;
-            button.disabled = false;
-            button.firstElementChild.hidden = true;
+            if (manifestCompare) {
+                document.getElementById("PluginNameManifestConflict").hidden = manifestCompare.isNameMatch;
+                document.getElementById("DeveloperNameManifestConflict").hidden = manifestCompare.isAuthorMatch;
+                document.getElementById("VersionNumberManifestConflict").hidden = manifestCompare.isVersionMatch;
+                document.getElementById("MinVersionManifestConflict").hidden = manifestCompare.isMinVersionMatch;
+                document.getElementById("MaxVersionManifestConflict").hidden = manifestCompare.isMaxVersionMatch;
+                document.getElementById("ProductManifestConflict").hidden = manifestCompare.isProductMatch;
+                document.getElementById("SuccessManifestCompare").hidden = !manifestCompare.isFullMatch;
+                document.getElementById("FailManifestCompare").hidden = manifestCompare.isFullMatch;
 
-            document.querySelectorAll(".manifest-field").forEach(field => {
-                field.addEventListener('input', () => {
-                    field.parentElement.lastElementChild.hidden = true;
+                document.querySelectorAll(".manifest-field").forEach(field => {
+                    field.addEventListener('input', () => {
+                        field.parentElement.lastElementChild.hidden = true;
+                    })
                 })
-            })
+            }
+            
+            button.disabled = false;
+            button.firstElementChild.hidden = true; 
         }
     });
 }

@@ -14,6 +14,7 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
+    [Authorize]
     [Area("Plugins")]
     public class PluginsController : Controller
     {
@@ -95,7 +96,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 SupportUrl = pluginDetails.SupportUrl,
                 Categories = pluginDetails.Categories,
                 Inactive = pluginDetails.Inactive,
-                Versions = SetSelectedProducts(pluginDetails.Versions).ToList(),
+                Versions = pluginDetails.Versions.Select(v => new ExtendedPluginVersion<string>(v)).ToList(),
                 IconUrl = string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl) ? GetDefaultIcon() : pluginDetails.Icon.MediaUrl,
                 IsEditMode = true,
                 CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
@@ -129,32 +130,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 await DownloadPlugin(version.DownloadUrl);
                 ZipFile.ExtractToDirectory($@"{_pluginDownloadPath}\Plugin.sdlplugin", _pluginDownloadPath);
                 var response = ImportFromFile($@"{_pluginDownloadPath}\pluginpackage.manifest.xml");
-
-                var isNameMatch = response.PluginName == plugin.Name;
-                var isVersionMatch = response.Version == version.VersionNumber;
-                var isMinVersionMatch = response.RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
-                var isMaxVersionMatch = response.RequiredProduct.MaximumStudioVersion == version.MaximumRequiredVersionOfStudio;
-                var isAuthorMatch = response.Author == plugin.DeveloperName;
-                //var isProductMatch = (await _productsRepository.GetAllProducts()).FirstOrDefault(p => p.Id == version.SelectedProductId)?.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
-                var isFullMatch = new[] { isNameMatch, isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isAuthorMatch}.All(match => match);
                 Directory.Delete(_pluginDownloadPath, true);
-
-                TempData["ManifestCompare"] = new { isNameMatch, isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isAuthorMatch, isFullMatch };
-                if (isFullMatch)
-                {
-                    return PartialView("_StatusMessage", "Success! The comparison finished without conflicts!");
-                }
-
-                return PartialView("_StatusMessage", "Error! The comparison finished with conflicts!");
-            }
-            catch (InvalidDataException)
-            {
-                Directory.Delete(_pluginDownloadPath, true);
-                return PartialView("_StatusMessage", "Error! The extract doesn't contain a manifest file!");
+                TempData["ManifestCompare"] = response.CreateMatchLog(plugin, version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
+                return PartialView("_StatusMessage", string.Format("{0}! The comparison finished with{1} conflicts!", isFullMatch ? "Success" : "Error", isFullMatch ? "out" : ""));
             }
             catch (Exception e)
             {
                 Directory.Delete(_pluginDownloadPath, true);
+                if (e is InvalidDataException || e is FileNotFoundException)
+                {
+                    return PartialView("_StatusMessage", "Error! The extract doesn't contain a manifest file!");
+                }
+                
                 return PartialView("_StatusMessage", $"Error! {e.Message}");
             }
         }
@@ -256,24 +243,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             return PartialView("_StatusMessage", "Error! Please fill all required values!");
-        }
-
-        private IEnumerable<ExtendedPluginVersion<string>> SetSelectedProducts(List<PluginVersion<string>> versions)
-        {
-            var products = _productsRepository.GetAllProducts().Result;
-            var newVersions = new List<ExtendedPluginVersion<string>>();
-            foreach (var version in versions)
-            {
-                var lastSupportedProduct = products.FirstOrDefault(p => p.Id == version.SupportedProducts[0]);
-                newVersions.Add(new ExtendedPluginVersion<string>(version)
-                {
-                    SelectedProductIds = products.Select(p => p.Id).ToList(),
-                    SelectedProduct = lastSupportedProduct,
-                    VersionName = $"{lastSupportedProduct.ProductName} - {version.VersionNumber}",
-                });
-            }
-
-            return newVersions;
         }
 
         private IEnumerable<PrivatePlugin<PluginVersion<string>>> InitializePrivatePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)

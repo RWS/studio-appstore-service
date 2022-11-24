@@ -48,7 +48,7 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
         {
             var oldVersion = new PluginVersion<ProductDetails>
             {
-                SupportedProducts = new List<ProductDetails> { products.FirstOrDefault(p => p.Id == version.SupportedProducts[0]) }
+                SupportedProducts = new List<ProductDetails>(version.SupportedProducts.SelectMany(sp => products.Where(p => p.Id == sp)))
             };
 
             var properties = typeof(PluginVersion<ProductDetails>).GetProperties().Where(p => !p.Name.Equals("SupportedProducts"));

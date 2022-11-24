@@ -30,9 +30,9 @@
         </td>
         <td class="editable-field d-none d-lg-table-cell align-middle">
             <div class="input-group text-center">
-                <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">IsDefault</span>
-                <input class="form-check-input entry entry-nofocus m-auto rounded" hidden="hidden" onfocusout="table.FocusOut()" onchange="table.Change()" asp-for="@Model[i].IsDefault">
-                <p class="m-0 section w-100 align-self-center" ondblclick="table.EditCell()"><i class="fa @(Model[i].IsDefault ? "fa-check-circle text-success" : "fa-times-circle text-danger")"></i></p>
+                <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">IsLegacy</span>
+                <input class="form-check-input entry entry-nofocus m-auto rounded" hidden="hidden" onfocusout="table.FocusOut()" onchange="table.Change()" asp-for="@Model[i].IsLegacy">
+                <p class="m-0 section w-100 align-self-center" ondblclick="table.EditCell()"><i class="fa @(Model[i].IsLegacy ? "fa-check-circle text-success" : "fa-times-circle text-danger")"></i></p>
             </div>
         </td>
         <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
