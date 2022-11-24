@@ -120,6 +120,12 @@ function CompareWithManifest() {
         return;
     }
 
+    $("#SupportedProducts").validate();
+
+    if (!$("#SupportedProducts").valid()) {
+        return;
+    }
+
     var button = event.target;
     button.disabled = true;
     button.firstElementChild.hidden = false;

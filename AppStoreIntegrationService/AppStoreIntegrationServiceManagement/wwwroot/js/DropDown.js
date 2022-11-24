@@ -4,7 +4,7 @@
     #menu;
     #productsSummary;
     #overflowArrows;
-    #filters
+    #filters;
 
     constructor(toggler, menu, productsSummary, overflowArrows, dropdownContainer, filters) {
         this.#dropdownContainer = dropdownContainer;
@@ -45,7 +45,7 @@
 
     #CreateCollapsedSummary(isCollapsed) {
         if ($(`${this.#dropdownContainer} ${this.#menu}`).val().length == 0) {
-            document.querySelector(`${this.#dropdownContainer} ${this.#productsSummary}`).innerHTML = "Select products...";
+            document.querySelector(`${this.#dropdownContainer} ${this.#productsSummary}`).innerHTML = "Select...";
             return;
         }
 
@@ -147,7 +147,7 @@
         
         this.#TryToggleOverflowArrows();
         if ($(`${this.#dropdownContainer} ${this.#menu}`).val().length == 0) {
-            document.querySelector(`${this.#dropdownContainer} ${this.#productsSummary}`).innerHTML = "Select products...";
+            document.querySelector(`${this.#dropdownContainer} ${this.#productsSummary}`).innerHTML = "Select...";
             return;
         }
     }

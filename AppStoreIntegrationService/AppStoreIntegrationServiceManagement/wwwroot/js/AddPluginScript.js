@@ -52,4 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let dropDown = new DropDown("#dropDownToggle", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown", []);
     dropDown.Init();
+
+    $.validator.setDefaults({
+        ignore: []
+    });
 })
