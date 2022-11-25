@@ -1,6 +1,7 @@
 :root {
-    --pa-admin-color: #28b059;
-    --pa-admin-color-hover: #2aa65b;
+    --pa-admin-color: #5ECB3C;
+    --pa-admin-color-hover: #51e026;
+    --pa-admin-foreground: black;
 }
 
 body, html {
@@ -60,13 +61,13 @@ body, html {
 .pa-admin-success-btn {
     background-color: var(--pa-admin-color);
     border: var(--pa-admin-color);
-    color: white;
+    color: var(--pa-admin-foreground);
 }
 
     .pa-admin-success-btn:hover {
         background-color: var(--pa-admin-color-hover);
         border: var(--pa-admin-color-hover);
-        color: white;
+        color: var(--pa-admin-foreground);
     }
 
 .border-container {
@@ -94,7 +95,7 @@ body, html {
 
 .delete-filter {
     background: var(--pa-admin-color);
-    color: white;
+    color: var(--pa-admin-foreground);
     border-radius: 5px;
     font-size: 14px;
     padding: 5px 25px 0px 15px;
@@ -151,7 +152,7 @@ body, html {
     background: var(--pa-admin-color);
     border-radius: 3px;
     border: none;
-    color: white;
+    color: var(--pa-admin-foreground);
     padding: 6px 10px;
     width: 35%;
     height: 100%;
@@ -197,6 +198,7 @@ body, html {
 header {
     background-color: var(--pa-admin-color);
     border: var(--pa-admin-color);
+    color: black;
 }
 
 @media (max-width:768px) {

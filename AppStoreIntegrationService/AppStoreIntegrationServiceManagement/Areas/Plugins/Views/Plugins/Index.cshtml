@@ -72,8 +72,8 @@
                     <div class="d-flex flex-row p-3">
                         <label class="card-status col-6">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
                         <div class="col-6 d-flex justify-content-end">
-                            <a class="focus-transparent me-3" title="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
-                            <a class="btn p-0" title="Delete @plugin.Name"><i class="far fa-trash-alt text-danger cursor-pointer" onclick="DeletePlugin('@plugin.Id', `@plugin.Name`)"></i></a>
+                            <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
+                            <a class="btn p-0"><i class="far fa-trash-alt text-danger cursor-pointer" role="button" aria-label="Delete @plugin.Name" onclick="DeletePlugin('@plugin.Id', `@plugin.Name`)"></i></a>
                         </div>
                     </div>
                 </div>

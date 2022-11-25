@@ -69,6 +69,8 @@
             cross.style.fontSize = "8px";
         } else {
             cross.classList.add('fa', 'fa-times', "align-self-center", "ms-2", 'cursor-pointer', 'p-1');
+            cross.ariaLabel = `Remove ${product.innerText} from selection`;
+            cross.setAttribute("role", "button")
             box.classList.add("border", "rounded", "px-1", "selection-box", "d-flex", "me-2", "bg-light");
             cross.addEventListener('click', e => this.#EraseMouseClickEventListener(e))
             cross.addEventListener('mouseenter', e => this.#EraseMouseEnterEventListener(e));

@@ -3,7 +3,7 @@
 <div id="pluginVersionContainer">
     <input hidden asp-for="IsPrivatePlugin" value="true" />
     <input hidden asp-for="VersionId" />
-    <h6 class="mb-3 ml-lg-3">@(string.IsNullOrEmpty(Model.VersionNumber) ? "New plugin version" : "Version " + Model.VersionNumber)</h6>
+    <p class="fw-bold fs-6 mb-3 ml-lg-3">@(string.IsNullOrEmpty(Model.VersionNumber) ? "New plugin version" : "Version " + Model.VersionNumber)</p>
     <div id="versionDetails" class="m-0 ml-lg-3">
         <input hidden asp-for="TechnicalRequirements" />
         <input hidden asp-for="SelectedProduct.Id" />
@@ -72,7 +72,7 @@
             <label class="col-4 m-0 align-self-center form-label" asp-for="SupportedProducts">Products</label>
             <div class="col-8">
                 <div class="dropdown w-100" id="productsDropdown">
-                    <div class="w-100 border rounded p-2 d-flex justify-content-between" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="w-100 border rounded p-2 d-flex justify-content-between" role="button" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="d-flex align-items-center w-100">
                             <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none"></i>
                             <div class="d-flex selection-summary">

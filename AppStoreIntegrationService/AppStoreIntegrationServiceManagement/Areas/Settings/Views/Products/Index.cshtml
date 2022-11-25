@@ -6,21 +6,21 @@
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div id="statusMessageContainer"></div>
-<h2>Settings</h2>
-<h4>Change site settings</h4>
+<h1>Settings</h1>
+<h2>Change site settings</h2>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
     <partial name="_SettingsNavPartial" />
     <div class="col-12 col-md-9">
         <div class="settings-details">
             <form method="post" id="form" onsubmit="return false">
-                <h4>Parent Products</h4>
+                <p class="fw-bold fs-4 mb-2">Parent Products</p>
                 <table id="parentProductsTable" class="table table-bordered table-collapse">
                     <thead>
                         <tr class="align-middle d-none d-lg-table-row">
                             <th>Id</th>
                             <th>ProductName</th>
-                            <td class="icon-cell text-center"><i onclick="parentTable.AddNewRow()" class="fa fa-plus-circle text-success cursor-pointer"></i></td>
+                            <td class="icon-cell text-center"><i onclick="parentTable.AddNewRow()" title="Add new parent product" class="fa fa-plus-circle text-success cursor-pointer"></i></td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
@@ -32,7 +32,7 @@
                 </table>
                 <button type="button" onclick="parentTable.AddNewRow()" class="btn pa-admin-success-btn d-inline mb-2">Add new</button>
                 <hr class="w-100" />
-                <h4>Products</h4>
+                <p class="fw-bold fs-4 mb-2">Products</p>
                 <table id="productsTable" class="table table-bordered table-collapse">
                     <thead>
                         <tr class="align-middle d-none d-lg-table-row">
@@ -41,15 +41,14 @@
                             <th>ProductVersion</th>
                             <th>ProductParentId</th>
                             <th class="text-center">IsLegacy</th>
-                            <td class="icon-cell text-center"><i onclick="table.AddNewRow()" class="fa fa-plus-circle text-success cursor-pointer"></i></td>
+                            <td class="icon-cell text-center"><i onclick="table.AddNewRow()" title="Add new product" class="fa fa-plus-circle text-success cursor-pointer"></i></td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
                     <tbody class="table-body tbody-stripped">
                         <partial name="_ProductsPartial" model="@Model.Products" />
                     </tbody>
-                    <tbody id="newRowPartial" class="tbody-stripped">
-                    </tbody>
+                    <tbody id="newRowPartial" class="tbody-stripped"></tbody>
                 </table>
                 <button type="button" onclick="table.AddNewRow()" class="btn pa-admin-success-btn d-inline">Add new</button>
             </form>

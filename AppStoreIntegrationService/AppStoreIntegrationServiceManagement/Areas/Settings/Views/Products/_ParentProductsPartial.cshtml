@@ -11,16 +11,16 @@
             </div>
         </td>
         <td class="editable-field order-first">
-            <input class="form-control form-control-sm entry entry-nofocus text-center text-lg-start autofocus" hidden="hidden" onfocusout="parentTable.FocusOut()" asp-for="@Model[i].ParentProductName">
+            <input class="form-control form-control-sm entry entry-nofocus text-center text-lg-start autofocus" aria-label="@Model[i].ParentProductName" hidden="hidden" onfocusout="parentTable.FocusOut()" asp-for="@Model[i].ParentProductName">
             <p class="m-0 section align-self-center text-center text-lg-start" ondblclick="parentTable.EditCell()" onclick="Collapse(this)">@Model[i].ParentProductName</p>
         </td>
         <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-            <i class="fa fa-pen-alt text-secondary cursor-pointer" onclick="parentTable.EditRow()"></i>
-            <i class="fa fa-check-circle text-success cursor-pointer d-none" onclick="parentTable.ApplyChanges()"></i>
+            <i class="fa fa-pen-alt text-secondary cursor-pointer" title="Edit @Model[i].ParentProductName" onclick="parentTable.EditRow()"></i>
+            <i class="fa fa-check-circle text-success cursor-pointer d-none" title="Apply changes for @Model[i].ParentProductName" onclick="parentTable.ApplyChanges()"></i>
         </td>
         <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-            <i id="@Model[i].ParentId" class="fa fa-trash-alt row-eraser text-danger cursor-pointer" onclick="parentTable.DeleteRow()"></i>
-            <i class="fa fa-times-circle text-danger cursor-pointer d-none" onclick="parentTable.DiscardChanges()"></i>
+            <i id="@Model[i].ParentId" class="fa fa-trash-alt row-eraser text-danger cursor-pointer" title="Delete @Model[i].ParentProductName" onclick="parentTable.DeleteRow()"></i>
+            <i class="fa fa-times-circle text-danger cursor-pointer d-none" title="Discard changes for @Model[i].ParentProductName" onclick="parentTable.DiscardChanges()"></i>
         </td>
     </tr>
 }

@@ -10,9 +10,9 @@
     <div class="row px-2">
         <div class="col-12 col-lg-4">
             <div class="d-flex justify-content-center">
-                <img class="img-thumbnail border-0" src="@Model.IconUrl" asp-append-version="true">
+                <img alt="@Model.Name" class="img-thumbnail border-0" src="@Model.IconUrl" asp-append-version="true">
             </div>
-            <h5 class="text-center p-1 text-wrap">@Model.Name</h5>
+            <p class="text-center fw-bold p-1 text-wrap">@Model.Name</p>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <p class="col-4 m-0 align-self-center">Status</p>
                 <select class="form-select form-select-sm" asp-for="Inactive">
@@ -21,8 +21,8 @@
                 </select>
             </div>
             <div class="d-flex justify-content-between">
-                <h6>Versions</h6>
-                <a onclick="javascript: AddNewVersion()" class="new-version-button"> <i class="fas fa-plus"></i></a>
+                <p class="fw-bold">Versions</p>
+                <i role="button" aria-label="Add new version" onclick="AddNewVersion()" class="fas fa-plus new-version-button"></i>
             </div>
             <div>
                 <partial name="_PluginVersionPartial" model="@Model.Versions" />
@@ -83,46 +83,57 @@
                 <div class="col-8">
                     <div class="rich-text-editor border rounded">
                         <div class="d-flex justify-content-between border-bottom p-3">
-                            <i id="bold" data-tag-name="B" class="fa fa-bold cursor-pointer option format p-2"></i>
-                            <i id="underline" data-tag-name="U" class="fa fa-underline cursor-pointer option format p-2"></i>
-                            <i id="italic" data-tag-name="I" class="fa fa-italic cursor-pointer option format p-2"></i>
-                            <i id="insertUnorderedList" data-tag-name="UL" class="fa fa-list-ul cursor-pointer option p-2"></i>
-                            <i id="insertOrderedList" data-tag-name="OL" class="fa fa-list-ol cursor-pointer option p-2"></i>
-                            <i id="justifyLeft" class="fa fa-align-left cursor-pointer option align p-2"></i>
-                            <i id="justifyCenter" class="fa fa-align-center cursor-pointer option align p-2"></i>
-                            <i id="justifyRight" class="fa fa-align-right cursor-pointer option align p-2"></i>
-                            <i id="justifyFull" class="fa fa-align-justify cursor-pointer option align p-2"></i>
-                            <i id="createLink" data-bs-toggle="modal" data-bs-target="#linkModal" class="fa fa-link cursor-pointer p-2"></i>
+                            <i id="bold" role="button" aria-label="Insert bold" data-tag-name="B" class="fa fa-bold cursor-pointer option format p-2"></i>
+                            <i id="underline" role="button" aria-label="Insert underline" data-tag-name="U" class="fa fa-underline cursor-pointer option format p-2"></i>
+                            <i id="italic" role="button" aria-label="Insert italic" data-tag-name="I" class="fa fa-italic cursor-pointer option format p-2"></i>
+                            <i id="insertUnorderedList" role="button" aria-label="Insert unordered list" data-tag-name="UL" class="fa fa-list-ul cursor-pointer option p-2"></i>
+                            <i id="insertOrderedList" role="button" aria-label="Insert ordered list" data-tag-name="OL" class="fa fa-list-ol cursor-pointer option p-2"></i>
+                            <i id="justifyLeft" role="button" aria-label="Justify text left" class="fa fa-align-left cursor-pointer option align p-2"></i>
+                            <i id="justifyCenter" role="button" aria-label="Justify text center" class="fa fa-align-center cursor-pointer option align p-2"></i>
+                            <i id="justifyRight" role="button" aria-label="Justify text right" class="fa fa-align-right cursor-pointer option align p-2"></i>
+                            <i id="justifyFull" role="button" aria-label="Align text justify" class="fa fa-align-justify cursor-pointer option align p-2"></i>
+                            <i id="createLink" role="button" aria-label="Insert link" data-bs-toggle="modal" data-bs-target="#linkModal" class="fa fa-link cursor-pointer p-2"></i>
                             <div class="dropdown">
-                                <div class="dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Select table size">
                                     <i class="fa fa-table cursor-pointer p-2"></i>
                                 </div>
 
                                 <div class="dropdown-menu" style="width:200px;" aria-labelledby="dropdownMenuLink">
-                                    <partial name="_TableSelectorPartial" />
+                                    <div class="p-3 table-dimension-selector">
+                                        <h6 class="table-dimension">0x0</h6>
+                                        @for (var i = 1; i <= 10; i++)
+                                        {
+                                            <div class="d-flex justify-content-between mb-1">
+                                                @for (var j = 1; j <= 10; j++)
+                                                {
+                                                    <div id="@($"{i}x{j}")" role="button" aria-label="Insert @($"{i}x{j}") table" class="selector-cell border cursor-pointer"></div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false"></div>
+                        <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false" tabindex="0"></div>
                     </div>
                     <textarea asp-for="Description" class="text-area-hidden"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center p-0" asp-for="Categories">Plugin categories </label>
+                <label class="col-4 m-0 align-self-center p-0">Plugin categories </label>
                 <div class="dropdown col-8 p-0" id="categoriesDropdown">
-                    <div class="w-100 border rounded p-2 d-flex justify-content-between" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="w-100 border rounded p-2 d-flex justify-content-between" role="button" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="d-flex align-items-center col-11">
-                            <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none"></i>
+                            <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories left"></i>
                             <div class="d-flex selection-summary"></div>
-                            <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none"></i>
+                            <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories right"></i>
                         </div>
                         <div class="col-1 d-flex align-items-center justify-content-center">
                             <i class="fa fa-caret-down"></i>
                         </div>
                     </div>
-                    <select asp-for="Categories" multiple="multiple" asp-items="@Model.CategoryListItems" class="form-select dropdown-menu px-2 custom-select"></select>
+                    <select asp-for="Categories" multiple="multiple" aria-labelledby="dropDownToggle" asp-items="@Model.CategoryListItems" class="form-select dropdown-menu px-2 custom-select"></select>
                 </div>
             </div>
             <div class="form-check d-flex align-content-center col-12 p-0 mb-3">

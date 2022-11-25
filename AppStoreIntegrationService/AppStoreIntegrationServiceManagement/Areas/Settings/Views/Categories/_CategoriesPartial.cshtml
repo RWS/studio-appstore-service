@@ -11,16 +11,16 @@
             </div>
         </td>
         <td class="editable-field order-first">
-            <input class="form-control form-control-sm entry entry-nofocus text-center text-lg-start autofocus" hidden="hidden" onfocusout="table.FocusOut()" asp-for="@Model[i].Name">
+            <input class="form-control form-control-sm entry entry-nofocus text-center text-lg-start autofocus" aria-label="@Model[i].Name" hidden="hidden" onfocusout="table.FocusOut()" asp-for="@Model[i].Name">
             <p class="m-0 section align-self-center text-center text-lg-start" ondblclick="table.EditCell()" onclick="Collapse(this)">@Model[i].Name</p>
         </td>   
         <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-            <i class="fa fa-pen-alt text-secondary cursor-pointer" onclick="table.EditRow()"></i>
-            <i class="fa fa-check-circle text-success cursor-pointer d-none" onclick="table.ApplyChanges()"></i>
+            <i class="fa fa-pen-alt text-secondary cursor-pointer" title="Edit @Model[i].Name" onclick="table.EditRow()"></i>
+            <i class="fa fa-check-circle text-success cursor-pointer d-none" title="Apply changes for @Model[i].Name" onclick="table.ApplyChanges()"></i>
         </td>
         <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-            <i id="@Model[i].Id" class="fa fa-trash-alt row-eraser text-danger cursor-pointer" onclick="table.DeleteRow()"></i>
-            <i class="fa fa-times-circle text-danger cursor-pointer d-none" onclick="table.DiscardChanges()"></i>
+            <i id="@Model[i].Id" class="fa fa-trash-alt row-eraser text-danger cursor-pointer" title="Delete @Model[i].Name" onclick="table.DeleteRow()"></i>
+            <i class="fa fa-times-circle text-danger cursor-pointer d-none" title="Discard changes for @Model[i].Name" onclick="table.DiscardChanges()"></i>
         </td>
     </tr>
 }
