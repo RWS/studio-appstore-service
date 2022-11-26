@@ -41,7 +41,15 @@ function AddNewVersion() {
             $('#form').data('validator', null);
             $.validator.unobtrusive.parse('#form');
             document.getElementById("manifestModalBtn").hidden = false;
-            let dropDown = new DropDown("#dropDownToggle", "#SupportedProducts", ".selection-summary", ".overflow-arrow", "#productsDropdown", parentProducts.map(p => p.parentProductName));
+            let dropDown = new DropDown(
+                "#dropDownToggle",
+                "#ProductsSelect",
+                "#SupportedProducts",
+                ".selection-summary",
+                ".overflow-arrow",
+                "#productsDropdown",
+                parentProducts.map(p => p.parentProductName)
+            );
             dropDown.Init();
         }
     })

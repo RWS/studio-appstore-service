@@ -23,11 +23,11 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
     document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
-    let dropDown = new DropDown("#dropDownToggle", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown", []);
+    let dropDown = new DropDown("#dropDownToggle", "#CategoriesSelect", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown", []);
     dropDown.Init();
 
     $.validator.setDefaults({
-        ignore: []
+        ignore: '.ignore'
     });
 });
 
@@ -38,6 +38,8 @@ function SavePlugin() {
     if (isNavigationLink) {
         $("#FileHash").rules(isNavigationLink.checked ? "remove" : "add", "required");
     }
+
+    $("#form").validate();
 
     if ($("#form").valid()) {
         var pageValues = $('main').find('select, textarea, input').serialize();
@@ -95,6 +97,7 @@ function ShowVersionDetails(versionId) {
 
             let dropDown = new DropDown(
                 "#dropDownToggle",
+                "#ProductsSelect",
                 "#SupportedProducts",
                 ".selection-summary",
                 ".overflow-arrow",

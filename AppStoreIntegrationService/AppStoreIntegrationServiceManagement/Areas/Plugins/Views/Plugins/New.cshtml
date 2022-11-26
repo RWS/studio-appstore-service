@@ -114,20 +114,27 @@
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
             </div>
-            <div class="mb-3 d-flex align-content-center col-12 p-0">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="Categories">Plugin categories </label>
+            <div class="d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 align-self-center p-0">Plugin categories </label>
                 <div class="dropdown col-8 p-0" id="categoriesDropdown">
                     <div class="w-100 border rounded p-2 d-flex justify-content-between" role="button" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="d-flex align-items-center col-11">
-                            <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none"></i>
-                            <div class="d-flex selection-summary"></div>
-                            <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none"></i>
+                            <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories left"></i>
+                            <div class="d-flex selection-summary">Select...</div>
+                            <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories right"></i>
                         </div>
                         <div class="col-1 d-flex align-items-center justify-content-center">
                             <i class="fa fa-caret-down"></i>
                         </div>
                     </div>
-                    <select asp-for="Categories" multiple="multiple" asp-items="@Model.CategoryListItems" class="form-select dropdown-menu px-2 custom-select"></select>
+                    <ul class="dropdown-menu custom-select p-0 w-100" id="CategoriesSelect" aria-labelledby="dropDownToggle">
+                        @foreach (var item in Model.CategoryListItems)
+                        {
+                            var isSelected = Model.Categories.Any(c => c.Equals(item.Value));
+                            <li class="dropdown-item" @(isSelected ? "selected" : "") id="@item.Value">@item.Text</li>
+                        }
+                    </ul>
+                    <select asp-for="Categories" hidden multiple="multiple" asp-items="@Model.CategoryListItems"></select>
                 </div>
             </div>
             <div class="form-check d-flex align-content-center col-12 p-0 mb-3">

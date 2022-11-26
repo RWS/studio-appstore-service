@@ -76,7 +76,7 @@
                         <div class="d-flex align-items-center w-100">
                             <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none"></i>
                             <div class="d-flex selection-summary">
-                                Select products...
+                                Select...
                             </div>
                             <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none"></i>
                         </div>
@@ -84,7 +84,14 @@
                             <i class="fa fa-caret-down"></i>
                         </div>
                     </div>
-                    <select asp-for="SupportedProducts" multiple="multiple" asp-items="@Model.SupportedProductsListItems" class="form-select dropdown-menu custom-select px-2"></select>
+                    <ul class="dropdown-menu custom-select p-0 w-100" id="ProductsSelect" aria-labelledby="dropDownToggle">
+                        @foreach (var item in Model.SupportedProductsListItems)
+                        {
+                            var isSelected = Model.SupportedProducts.Any(p => p.Equals(item.Value));
+                            <li class="dropdown-item" @(isSelected ? "selected" : "") id="@item.Value">@item.Text</li>
+                        }
+                    </ul>
+                    <select asp-for="SupportedProducts" hidden multiple="multiple" asp-items="@Model.SupportedProductsListItems"></select>
                 </div>
                 <span asp-validation-for="SupportedProducts" class="text-danger"></span>
                 <span hidden id="ProductManifestConflict" class="text-danger">Plugin manifest conflict! Invalid product!</span>

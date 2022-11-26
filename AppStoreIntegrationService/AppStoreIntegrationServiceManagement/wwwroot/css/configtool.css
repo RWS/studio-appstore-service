@@ -40,16 +40,22 @@ body, html {
     min-width: fit-content;
 }
 
-.custom-select option:checked,
-.custom-select option[selected],
-.custom-select option:hover {
+.custom-select{
+    height: min-content;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.custom-select li:checked,
+.custom-select li[selected],
+.custom-select li:hover {
     color: black;
     -webkit-text-fill-color: black;
     background-color: lightblue !important;
     background: linear-gradient(#ADD8E6, #ADD8E6) !important;
 }
 
-.custom-select option {
+.custom-select li {
     background: linear-gradient(#FFF, #FFF) !important;
 }
 
