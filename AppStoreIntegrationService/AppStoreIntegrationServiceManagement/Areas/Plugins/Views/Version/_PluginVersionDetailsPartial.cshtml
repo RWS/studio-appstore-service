@@ -1,9 +1,10 @@
 ﻿@model ExtendedPluginVersion<string>
 
+<hr class="w-100" />
 <div id="pluginVersionContainer">
     <input hidden asp-for="IsPrivatePlugin" value="true" />
     <input hidden asp-for="VersionId" />
-    <h6 class="mb-3 ml-lg-3">@(string.IsNullOrEmpty(Model.VersionNumber) ? "New plugin version" : "Version " + Model.VersionNumber)</h6>
+    <p class="mb-3 ml-lg-3 fw-bold fs-5">@(string.IsNullOrEmpty(Model.VersionNumber) ? "New plugin version" : "Version")</p>
     <div id="versionDetails" class="m-0 ml-lg-3">
         <input hidden asp-for="TechnicalRequirements" />
         <input hidden asp-for="SelectedProduct.Id" />
