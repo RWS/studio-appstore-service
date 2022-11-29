@@ -15,7 +15,7 @@
             };
         }
 
-        public async Task<Stream> ReadAsync()
+        public async Task<Stream> ReadAsStreamAsync()
         {
             HttpResponseMessage downloadResponse;
 
@@ -34,6 +34,11 @@
             }
 
             return await downloadResponse.Content.ReadAsStreamAsync();
+        }
+
+        public async Task<string> ReadAsStringAsync()
+        {
+            return await new StreamReader(await ReadAsStreamAsync()).ReadToEndAsync();
         }
     }
 }

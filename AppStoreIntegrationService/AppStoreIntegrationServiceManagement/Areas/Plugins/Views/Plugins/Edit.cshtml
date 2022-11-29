@@ -15,7 +15,7 @@
             <p class="text-center fw-bold p-1 text-wrap">@Model.Name</p>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <p class="col-4 m-0 align-self-center">Status</p>
-                <select class="form-select form-select-sm" asp-for="Inactive">
+                <select class="form-select form-select-sm fs-inherit" asp-for="Inactive">
                     <option value="false">Active</option>
                     <option value="true">Inactive</option>
                 </select>
@@ -37,7 +37,7 @@
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="Name">Plugin Name <span class="text-danger">*</span></label>
                 <div class="w-100 d-flex flex-column">
-                    <input asp-for="Name" class="form-control manifest-field" />
+                    <input asp-for="Name" class="form-control manifest-field fs-inherit" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                     <span hidden id="PluginNameManifestConflict" class="text-danger">Plugin manifest conflict! Invalid plugin name!</span>
                 </div>
@@ -45,14 +45,14 @@
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="IconUrl">Icon url <span class="text-danger">*</span></label>
                 <div class="w-100">
-                    <input asp-for="IconUrl" class="form-control" />
+                    <input asp-for="IconUrl" class="form-control fs-inherit" />
                     <span asp-validation-for="IconUrl" class="text-danger"></span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="DeveloperName">Developer </label>
                 <div class="w-100">
-                    <input asp-for="DeveloperName" class="form-control" />
+                    <input asp-for="DeveloperName" class="form-control fs-inherit" />
                     <span asp-validation-for="DeveloperName" class="text-danger"></span>
                     <span hidden id="DeveloperNameManifestConflict" class="text-danger">Plugin manifest conflict! Invalid developer name!</span>
                 </div>
@@ -60,21 +60,21 @@
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="ChangelogLink">Changelog link </label>
                 <div class="w-100">
-                    <input asp-for="ChangelogLink" class="form-control" />
+                    <input asp-for="ChangelogLink" class="form-control fs-inherit" />
                     <span asp-validation-for="ChangelogLink" class="text-danger"></span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="SupportUrl">Support url </label>
                 <div class="w-100">
-                    <input asp-for="SupportUrl" class="form-control" />
+                    <input asp-for="SupportUrl" class="form-control fs-inherit" />
                     <span asp-validation-for="SupportUrl" class="text-danger"></span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="SupportEmail">Support email </label>
                 <div class="w-100">
-                    <input asp-for="SupportEmail" class="form-control" />
+                    <input asp-for="SupportEmail" class="form-control fs-inherit" />
                     <span asp-validation-for="SupportEmail" class="text-danger"></span>
                 </div>
             </div>
@@ -83,16 +83,16 @@
                 <div class="col-8">
                     <div class="rich-text-editor border rounded">
                         <div class="d-flex justify-content-between border-bottom p-3">
-                            <i id="bold" role="button" aria-label="Insert bold" data-tag-name="B" class="fa fa-bold cursor-pointer option format p-2"></i>
-                            <i id="underline" role="button" aria-label="Insert underline" data-tag-name="U" class="fa fa-underline cursor-pointer option format p-2"></i>
-                            <i id="italic" role="button" aria-label="Insert italic" data-tag-name="I" class="fa fa-italic cursor-pointer option format p-2"></i>
-                            <i id="insertUnorderedList" role="button" aria-label="Insert unordered list" data-tag-name="UL" class="fa fa-list-ul cursor-pointer option p-2"></i>
-                            <i id="insertOrderedList" role="button" aria-label="Insert ordered list" data-tag-name="OL" class="fa fa-list-ol cursor-pointer option p-2"></i>
-                            <i id="justifyLeft" role="button" aria-label="Justify text left" class="fa fa-align-left cursor-pointer option align p-2"></i>
-                            <i id="justifyCenter" role="button" aria-label="Justify text center" class="fa fa-align-center cursor-pointer option align p-2"></i>
-                            <i id="justifyRight" role="button" aria-label="Justify text right" class="fa fa-align-right cursor-pointer option align p-2"></i>
-                            <i id="justifyFull" role="button" aria-label="Align text justify" class="fa fa-align-justify cursor-pointer option align p-2"></i>
-                            <i id="createLink" role="button" aria-label="Insert link" data-bs-toggle="modal" data-bs-target="#linkModal" class="fa fa-link cursor-pointer p-2"></i>
+                            <i id="bold" data-tag-name="B" class="fa fa-bold cursor-pointer option format p-2"></i>
+                            <i id="underline" data-tag-name="U" class="fa fa-underline cursor-pointer option format p-2"></i>
+                            <i id="italic" data-tag-name="I" class="fa fa-italic cursor-pointer option format p-2"></i>
+                            <i id="insertUnorderedList" data-tag-name="UL" class="fa fa-list-ul cursor-pointer option p-2"></i>
+                            <i id="insertOrderedList" data-tag-name="OL" class="fa fa-list-ol cursor-pointer option p-2"></i>
+                            <i id="justifyLeft" class="fa fa-align-left cursor-pointer option align p-2"></i>
+                            <i id="justifyCenter" class="fa fa-align-center cursor-pointer option align p-2"></i>
+                            <i id="justifyRight" class="fa fa-align-right cursor-pointer option align p-2"></i>
+                            <i id="justifyFull" class="fa fa-align-justify cursor-pointer option align p-2"></i>
+                            <i id="createLink" onclick="ShowInsertionModal()" class="fa fa-link cursor-pointer p-2"></i>
                             <div class="dropdown">
                                 <div class="dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Select table size">
                                     <i class="fa fa-table cursor-pointer p-2"></i>
@@ -133,7 +133,7 @@
                             <i class="fa fa-caret-down"></i>
                         </div>
                     </div>
-                    <ul class="dropdown-menu custom-select p-0 w-100" id="CategoriesSelect" aria-labelledby="dropDownToggle">
+                    <ul class="dropdown-menu custom-select p-0 w-100 fs-inherit" id="CategoriesSelect" aria-labelledby="dropDownToggle">
                         @foreach (var item in Model.CategoryListItems)
                         {
                             var isSelected = Model.Categories.Any(c => c == item.Value);
@@ -145,14 +145,14 @@
             </div>
             <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0" asp-for="PaidFor">Paid for</label>
-                <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3" />
+                <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" />
             </div>
 
             <div id="pluginVersionContainer"></div>
             <div id="modalContainer"></div>
             <div class="d-flex mt-5 mb-2">
-                <button onclick="SavePlugin()" type="button" class="btn btn-primary pa-admin-success-btn ml-lg-3 text-center me-2">Save</button>
-                <button id="manifestModalBtn" class="btn btn-secondary me-2" hidden type="button" onclick="CompareWithManifest()">
+                <button onclick="SavePlugin()" type="button" class="btn btn-primary pa-admin-success-btn ml-lg-3 text-center me-2 fs-inherit">Save</button>
+                <button id="manifestModalBtn" class="btn btn-secondary me-2 fs-inherit" hidden type="button" onclick="CompareWithManifest()">
                     <span class="spinner-border spinner-border-sm" hidden role="status" aria-hidden="true"></span>
                     Compare with manifest
                 </button>

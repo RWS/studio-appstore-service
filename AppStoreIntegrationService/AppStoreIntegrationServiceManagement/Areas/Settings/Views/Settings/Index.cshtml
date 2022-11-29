@@ -4,8 +4,8 @@
     ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageSettingsNav.Index;
 }
-<h1>Settings</h1>
-<h2>Change site settings</h2>
+<h1 class="fs1-inherit">Settings</h1>
+<h2 class="fs2-inherit">Change site settings</h2>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
     <partial name="_SettingsNavPartial" />
@@ -13,9 +13,9 @@
         <div class="settings-details">
             <div>
                 <form method="post">
-                    <label class="fw-bold fs-4 mb-2" asp-for="@Model.Name">Site name</label>
-                    <input asp-for="@Model.Name" value="@Model.Name" class="form-control mb-2" />
-                    <button type="submit" asp-controller="Settings" asp-action="Update" class="btn pa-admin-success-btn">Set</button>
+                    <label class="fw-bold fs4-inherit mb-2" asp-for="@Model.Name">Site name</label>
+                    <input asp-for="@Model.Name" value="@Model.Name" class="form-control mb-2 fs-inherit" />
+                    <button type="submit" asp-controller="Settings" asp-action="Update" class="btn pa-admin-success-btn fs-inherit">Set</button>
                 </form>
             </div>
         </div>

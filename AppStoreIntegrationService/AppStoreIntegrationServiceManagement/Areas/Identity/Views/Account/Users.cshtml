@@ -5,14 +5,14 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<h1>@ViewData["Title"]</h1>
-<h2>Manage users</h2>
+<h1 class="fs1-inherit">@ViewData["Title"]</h1>
+<h2 class="fs2-inherit">Manage users</h2>
 <hr class="w-100">
 <div class="row justify-content-center">
     <div id="alertContainer"></div>
     <partial name="_ProfileNav" />
     <div class="col-12 col-md-9">
-        <p class="fw-bold fs-4">Users</p>
+        <p class="fw-bold fs4-inherit">Users</p>
         <table class="table table-bordered" id="usersTable">
             <thead>
                 <tr class="text-center d-none d-lg-table-row">

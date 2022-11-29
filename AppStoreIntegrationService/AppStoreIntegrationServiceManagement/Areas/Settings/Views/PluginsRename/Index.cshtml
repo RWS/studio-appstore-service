@@ -5,14 +5,14 @@
 }
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]"/>
 <div id="statusMessageContainer"></div>
-<h1>Settings</h1>
-<h2>Change site settings</h2>
+<h1 class="fs1-inherit">Settings</h1>
+<h2 class="fs2-inherit">Change site settings</h2>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
     <partial name="_SettingsNavPartial" />
     <div class="col-12 col-md-9" id="namesMapping">
         <div class="settings-details">
-            <p class="fw-bold fs-4">Renamed plugins</p>
+            <p class="fw-bold fs4-inherit">Renamed plugins</p>
             <form method="post" id="form" onsubmit="return false">
                 <table class="table table-bordered table-collapse" id="mappingsTable">
                     <thead>
@@ -30,7 +30,7 @@
                     <tbody id="newRowPartial" class="tbody-stripped">
                     </tbody>
                 </table>
-                <button type="button" onclick="table.AddNewRow()" class="btn pa-admin-success-btn">Add new</button>
+                <button type="button" onclick="table.AddNewRow()" class="btn pa-admin-success-btn fs-inherit">Add new</button>
             </form>
         </div>
     </div>

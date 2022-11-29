@@ -58,7 +58,7 @@ function AddNewVersion() {
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
 
-    let dropDown = new DropDown("#dropDownToggle", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown", []);
+    let dropDown = new DropDown("#dropDownToggle", "#CategoriesSelect", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown", []);
     dropDown.Init();
 
     $.validator.setDefaults({

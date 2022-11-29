@@ -151,7 +151,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             try
             {
                 var reader = new RemoteStreamReader(new Uri(downloadUrl));
-                var stream = await reader.ReadAsync();
+                var stream = await reader.ReadAsStreamAsync();
                 using var fileStream = System.IO.File.Create($@"{_pluginDownloadPath}\Plugin.sdlplugin");
                 await stream.CopyToAsync(fileStream);
             }

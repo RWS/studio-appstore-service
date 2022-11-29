@@ -8,6 +8,7 @@ using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model;
 
 namespace AppStoreIntegrationServiceManagement
 {
@@ -57,6 +58,7 @@ namespace AppStoreIntegrationServiceManagement
 
             services.AddResponseCaching();
             services.AddHttpContextAccessor();
+            services.AddSingleton<FontFamilyRepository>();
             services.AddSingleton<INamesRepository, NamesRepository>();
             services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<IVersionProvider, VersionProvider<PluginDetails<PluginVersion<string>, string>>>();

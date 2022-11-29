@@ -1,40 +1,86 @@
-﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
+﻿@inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
-
+@inject FontFamilyRepository FontFamilyRepository;
 @{
     var controller = ViewContext.RouteData.Values["controller"];
     var action = ViewContext.RouteData.Values["action"];
+    var cookie = Context.Request.Cookies["FontSize"];
 }
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
+         <li class="nav-item btn-group">
+            <a class="nav-link cursor-pointer active" data-bs-toggle="modal" data-bs-target="#preferencesModal">Preferences</a>
+        </li>
+
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('.Plugins', '@controller', '@action')" class="text-black nav-link cursor-pointer">Plugins List</a>
+            <a onclick="RedirectTo('.Plugins', '@controller', '@action')" class="nav-link cursor-pointer active">Plugins List</a>
         </li>
 
         if (User.IsInRole("Administrator"))
         {
             <li class="nav-item">
-                <a onclick="javascript: RedirectTo('.Settings', '@controller', '@action')" class="text-black nav-link cursor-pointer">Settings</a>
+                <a onclick="RedirectTo('.Settings', '@controller', '@action')" class="nav-link active cursor-pointer">Settings</a>
             </li>
         }
 
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('.Identity.Account.Profile', '@controller', '@action')" class="nav-link text-black cursor-pointer">Hello @UserManager.GetUserName(User)!</a>
+            <a onclick="RedirectTo('.Identity.Account.Profile', '@controller', '@action')" class="active nav-link cursor-pointer">Hello @UserManager.GetUserName(User)!</a>
         </li>
 
         <li class="nav-item">
             <form asp-controller="Authentication" asp-action="Logout" asp-area="Identity" method="post">
-                <button type="submit" class="nav-link btn btn-link text-black cursor-pointer">Sign out</button>
+                <button class="nav-link btn btn-link cursor-pointer fs-inherit active" type="submit">Sign out</button>
             </form>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-black" id="login" asp-controller="Authentication" asp-area="Identity" asp-action="Login">Sign in</a>
+            <a class="nav-link active" id="login" asp-controller="Authentication" asp-area="Identity" asp-action="Login">Sign in</a>
         </li>
     }
 </ul>
+
+<div class="modal fade" id="preferencesModal" tabindex="-1" aria-labelledby="preferencesModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-inherit" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 align-items-center d-flex mb-2">
+                        <label class="text-nowrap align-self-center col-4">Font size:</label>
+                        <input onchange="ChangeFontSize()" class="form-control form-control-sm fs-inherit" type="number" min="16" max="36" 
+                               value="@(string.IsNullOrEmpty(Context.Request.Cookies["FontSize"]) ? "16" : Context.Request.Cookies["FontSize"])">
+                    </div>
+                    <div class="col-12 align-items-center d-flex mb-2">
+                        <label class="text-nowrap align-self-center col-4">Font family:</label>
+                        <select onchange="ChangeFontFamily()" class="form-select form-select-sm fs-inherit" asp-items="@FontFamilyRepository.FontFamilies"></select>
+                    </div>
+                    <div class="col-12 align-items-center d-flex mb-2">
+                        <label class="text-nowrap align-self-center col-4">Background:</label>
+                        <input type="color" onchange="ChangeBackground()" class="form-control form-control-sm fs-inherit" style="width: 100px"
+                               value="@(string.IsNullOrEmpty(Context.Request.Cookies["BackgroundColor"]) ? "#28b059" : Context.Request.Cookies["BackgroundColor"])" />
+                    </div>
+                    <div class="col-12 align-items-center d-flex mb-2">
+                        <label class="text-nowrap align-self-center col-4">Foreground:</label>
+                        <input type="color" onchange="ChangeForeground()" class="form-control form-control-sm fs-inherit" style="width: 100px"
+                               value="@(string.IsNullOrEmpty(Context.Request.Cookies["ForegroundColor"]) ? "#FFFFFF" : Context.Request.Cookies["ForegroundColor"])" />
+                    </div>
+                    <div class="col-12 align-items-center d-flex">
+                        <label class="text-nowrap align-self-center col-4">Logo:</label>
+                        <input type="text" onchange="ChangeLogo()" class="form-control form-control-sm fs-inherit" value="@Context.Request.Cookies["LogoImage"]" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fs-inherit" data-bs-dismiss="modal">Close</button>
+                <button type="button" onclick="RestorePreferences()" class="btn pa-admin-success-btn fs-inherit">Restore defaults</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -4,8 +4,8 @@
     ViewData["ActivePage"] = ManageSettingsNav.ImportPlugins;
 }
 
-<h1>Settings</h1>
-<h2>Change site settings</h2>
+<h1 class="fs1-inherit">Settings</h1>
+<h2 class="fs2-inherit">Change site settings</h2>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
     <partial name="_SettingsNavPartial" />
@@ -13,11 +13,11 @@
         <div class="settings-details">
             <form method="post" enctype="multipart/form-data" id="importFileForm">
                 <div class="mb-2">
-                    <label asp-for="ImportedFile" class="fw-bold fs-4 mb-2">Import plugins</label>
-                    <input asp-for="ImportedFile" class="form-control" />
+                    <label asp-for="ImportedFile" class="fw-bold fs4-inherit mb-2">Import plugins</label>
+                    <input asp-for="ImportedFile" class="form-control fs-inherit" />
                     <span asp-validation-for="ImportedFile" class="text-danger"></span>
                 </div>
-                <button onclick="javascript: ImportPlugins()" type="button" class="btn btn-outline-secondary">Import</button>
+                <button onclick="javascript: ImportPlugins()" type="button" class="btn btn-outline-secondary fs-inherit">Import</button>
             </form>
         </div>
     </div>

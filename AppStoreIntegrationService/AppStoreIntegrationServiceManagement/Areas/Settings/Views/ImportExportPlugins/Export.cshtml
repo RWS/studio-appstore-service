@@ -3,8 +3,8 @@
     ViewData["ActivePage"] = ManageSettingsNav.ExportPlugins;
 }
 
-<h1>Settings</h1>
-<h2>Change site settings</h2>
+<h1 class="fs1-inherit">Settings</h1>
+<h2 class="fs2-inherit">Change site settings</h2>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
     <partial name="_SettingsNavPartial" />
@@ -13,9 +13,9 @@
             <div>
                 <form method="post">
                     <div class="mb-2">
-                        <label for="exportPlugins" class="fw-bold fs-4 mb-2">Export plugins</label>
+                        <label for="exportPlugins" class="fw-bold fs4-inherit mb-2">Export plugins</label>
                         <div>
-                            <input id="exportPlugins" type="submit" class="btn btn-outline-secondary" asp-controller="ImportExportPlugins" asp-action="CreateExport" value="Export" />
+                            <input id="exportPlugins" type="submit" class="btn btn-outline-secondary fs-inherit" asp-controller="ImportExportPlugins" asp-action="CreateExport" value="Export" />
                         </div>
                     </div>
                 </form>

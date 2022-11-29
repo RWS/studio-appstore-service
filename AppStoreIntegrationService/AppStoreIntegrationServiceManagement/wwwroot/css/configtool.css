@@ -1,25 +1,32 @@
 :root {
-    --pa-admin-color: #5ECB3C;
-    --pa-admin-color-hover: #51e026;
-    --pa-admin-foreground: black;
+    --pa-admin-color: #28b059;
+    --pa-admin-color-hover: #2aa65b;
+    --pa-admin-foreground: #FFF;
+    --pa-admin-fontsize:16px;
+    --pa-admin-fontfamily: var(--bs-font-sans-serif);
 }
 
 body, html {
     overflow-x: hidden;
+    padding: 0px !important;
+    font-size: var(--pa-admin-fontsize);
+    font-family: var(--pa-admin-fontfamily) !important;
 }
 
+/* Edit plugin */
+
+.fa-plus{
+    color: var(--pa-admin-color);
+}
+
+/* Sticky top-right alert */
 #alert {
     position: fixed;
     top: 50px;
     right: 20px;
 }
 
-.img-item {
-    height: 50px;
-    display: block;
-    margin: 10px auto auto auto;
-}
-
+/* Custom multi select list */
 .overflow-arrow {
     position: absolute;
 }
@@ -59,22 +66,17 @@ body, html {
     background: linear-gradient(#FFF, #FFF) !important;
 }
 
+/* Plugins index page */
+.img-item {
+    height: 50px;
+    display: block;
+    margin: 10px auto auto auto;
+}
+
 .card-item {
-    height: 200px;
+    min-height: 200px;
     width: 100%;
 }
-
-.pa-admin-success-btn {
-    background-color: var(--pa-admin-color);
-    border: var(--pa-admin-color);
-    color: var(--pa-admin-foreground);
-}
-
-    .pa-admin-success-btn:hover {
-        background-color: var(--pa-admin-color-hover);
-        border: var(--pa-admin-color-hover);
-        color: var(--pa-admin-foreground);
-    }
 
 .border-container {
     border-left: 1px solid #E1E7EB;
@@ -85,10 +87,10 @@ body, html {
     color: var(--pa-admin-color);
 }
 
-    .new-version-button:hover {
-        cursor: pointer;
-        color: var(--pa-admin-color-hover);
-    }
+.new-version-button:hover {
+    cursor: pointer;
+    color: var(--pa-admin-color-hover);
+}
 
 .card-status {
     color: #4d4d4d;
@@ -110,9 +112,9 @@ body, html {
     width: max-content;
 }
 
-    .delete-filter:hover {
-        background: var(--pa-admin-color-hover);
-    }
+.delete-filter:hover {
+    background: var(--pa-admin-color-hover);
+}
 
 .delete-filter-active {
     display: inline-block;
@@ -126,8 +128,12 @@ body, html {
 .filter-search {
     border: 2px solid var(--pa-admin-color);
     border-radius: 0.25rem;
-    height: 2.25rem;
+    min-height: 2.25rem;
+    height: fit-content;
     white-space: nowrap;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .filter-search-text {
@@ -140,30 +146,22 @@ body, html {
     padding: 0px;
 }
 
-    .filter-search-text:focus {
-        border-color: var(--pa-admin-color);
-    }
+.filter-search-text:focus {
+    border-color: var(--pa-admin-color);
+}
 
-        .filter-search-text:focus::placeholder {
-            color: transparent;
-        }
+.filter-search-text:focus::placeholder {
+    color: transparent;
+}
 
 .filter-search-submit {
     color: #929292;
     cursor: pointer;
-    font-size: 14px;
+    font-size: inherit;
+    padding: 7px;
 }
 
-.pa-admin-select {
-    background: var(--pa-admin-color);
-    border-radius: 3px;
-    border: none;
-    color: var(--pa-admin-foreground);
-    padding: 6px 10px;
-    width: 35%;
-    height: 100%;
-}
-
+/* Rich text editor */
 .text-area-hidden {
     width: 0px;
     height: 0px;
@@ -191,31 +189,16 @@ body, html {
     height: 15px;
 }
 
-@media (max-width:992px) {
-    .border-container {
-        border-left: 0px solid #E1E7EB;
-    }
+/* Table striped */
+.bg-collapsed {
+    background-color: #f2f2f2 !important;
 }
 
-#settings-navbar .nav-link.active,
-#profile-navbar .nav-link.active,
-.navbar-nav btn:focus,
-.navbar-nav a:focus,
-header {
-    background-color: var(--pa-admin-color);
-    border: var(--pa-admin-color);
-    color: black;
+.tbody-stripped tr:nth-child(odd) {
+    background-color: #f2f2f2 !important;
 }
 
-@media (max-width:768px) {
-    #profile-navbar,
-    #settings-navbar {
-        border-bottom: 1px solid #E1E7EB;
-        margin-bottom: 10px;
-    }
-}
-
-
+/* Generic */
 .focus-transparent:focus {
     background-color: transparent;
 }
@@ -224,12 +207,65 @@ header {
     cursor: pointer;
 }
 
-.bg-collapsed {
-    background-color: #f2f2f2 !important;
+.fs-inherit {
+    font-size: 1em;
 }
 
-.tbody-stripped tr:nth-child(odd) {
-    background-color: #f2f2f2 !important;
+.fs1-inherit{
+    font-size: 2.2em;
+}
+
+.fs2-inherit {
+    font-size: 2em;
+}
+
+.fs4-inherit {
+    font-size: 1.5em;
+}
+
+.pa-admin-select {
+    background: var(--pa-admin-color);
+    border-radius: 3px;
+    border: none;
+    color: var(--pa-admin-foreground);
+    padding: 6px 10px;
+    width: 35%;
+    height: 100%;
+}
+
+.pa-admin-success-btn {
+    background-color: var(--pa-admin-color);
+    border: var(--pa-admin-color);
+    color: var(--pa-admin-foreground);
+}
+
+.pa-admin-success-btn:hover {
+    background-color: var(--pa-admin-color-hover);
+    border: var(--pa-admin-color-hover);
+    color: var(--pa-admin-foreground);
+}
+
+#settings-navbar .nav-link.active,
+#profile-navbar .nav-link.active,
+.navbar-nav btn:focus,
+.navbar-nav a:focus,
+.nav-link.active{
+    background-color: var(--pa-admin-color);
+    border: var(--pa-admin-color);
+    color: var(--pa-admin-foreground) !important;
+}
+
+header,
+header h2{
+    background-color: var(--pa-admin-color);
+    border: var(--pa-admin-color);
+}
+/* Responsive */
+@media (max-width:768px) {
+    #profile-navbar, #settings-navbar {
+        border-bottom: 1px solid #E1E7EB;
+        margin-bottom: 10px;
+    }
 }
 
 @media(max-width: 576px) {
@@ -239,6 +275,10 @@ header {
 }
 
 @media(max-width: 992px) {
+    .border-container {
+        border-left: 0px solid #E1E7EB;
+    }
+
     td {
         border-bottom: 1px solid #dee2e6 !important;
         border-bottom-color: #dee2e6 !important;

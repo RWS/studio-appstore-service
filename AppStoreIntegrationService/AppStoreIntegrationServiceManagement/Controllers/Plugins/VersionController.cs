@@ -52,7 +52,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             try
             {
                 var remoteReader = new RemoteStreamReader(new Uri(version.VersionDownloadUrl));
-                version.FileHash = SHA1Generator.GetHash(await remoteReader.ReadAsync());
+                version.FileHash = SHA1Generator.GetHash(await remoteReader.ReadAsStreamAsync());
             }
             catch (Exception e)
             {

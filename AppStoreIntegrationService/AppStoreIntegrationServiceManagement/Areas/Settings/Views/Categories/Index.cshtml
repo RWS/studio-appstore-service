@@ -6,13 +6,13 @@
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div id="statusMessageContainer"></div>
-<h1>Settings</h1>
-<h2>Change site settings</h2>
+<h1 class="fs1-inherit">Settings</h1>
+<h2 class="fs2-inherit">Change site settings</h2>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
     <partial name="_SettingsNavPartial" />
     <div class="col-12 col-md-9">
-        <p class="fw-bold fs-4 mb-2">Categories</p>
+        <p class="fw-bold fs4-inherit mb-2">Categories</p>
         <div class="settings-details">
             <form method="post" id="form" onsubmit="return false">
                 <table id="categoriesTable" class="table table-bordered table-collapse">
@@ -30,7 +30,7 @@
                     <tbody id="newRowPartial" class="tbody-stripped">
                     </tbody>
                 </table>
-                <button type="button" onclick="table.AddNewRow()" title="Add new category" class="btn pa-admin-success-btn d-inline">Add new</button>
+                <button type="button" onclick="table.AddNewRow()" title="Add new category" class="btn pa-admin-success-btn d-inline fs-inherit">Add new</button>
             </form>
         </div>
     </div>

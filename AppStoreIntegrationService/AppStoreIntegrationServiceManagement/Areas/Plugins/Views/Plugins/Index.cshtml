@@ -32,7 +32,7 @@
     </div>
 
     <div id="newAppButton" class="col-12 col-lg-4 d-flex justify-content-start justify-content-lg-end order-0 order-lg-1 p-0">
-        <a class="btn pa-admin-success-btn" asp-controller="Plugins" asp-action="New">
+        <a class="btn pa-admin-success-btn fs-inherit" asp-controller="Plugins" asp-action="New">
             <i class="fas fa-puzzle-piece"></i>
             New app
         </a>
@@ -73,7 +73,7 @@
                         <label class="card-status col-6">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
                         <div class="col-6 d-flex justify-content-end">
                             <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
-                            <a class="btn p-0"><i class="far fa-trash-alt text-danger cursor-pointer" role="button" aria-label="Delete @plugin.Name" onclick="DeletePlugin('@plugin.Id', `@plugin.Name`)"></i></a>
+                            <a class="btn p-0 fs-inherit"><i class="far fa-trash-alt text-danger cursor-pointer" role="button" aria-label="Delete @plugin.Name" onclick="DeletePlugin('@plugin.Id', `@plugin.Name`)"></i></a>
                         </div>
                     </div>
                 </div>

@@ -11,27 +11,27 @@
             </div>
         </td>
         <td class="editable-field order-first">
-            <input class="form-control form-control-sm entry entry-nofocus text-center text-lg-start autofocus" aria-label="@Model[i].ProductName" hidden="hidden" onfocusout="table.FocusOut()" asp-for="@Model[i].ProductName">
+            <input class="form-control form-control-sm entry entry-nofocus text-center text-lg-start autofocus fs-inherit" aria-label="@Model[i].ProductName" hidden="hidden" onfocusout="table.FocusOut()" asp-for="@Model[i].ProductName">
             <p class="m-0 section align-self-center text-center text-lg-start" ondblclick="table.EditCell()" onclick="Collapse(this)">@Model[i].ProductName</p>
         </td>
         <td class="editable-field d-none d-lg-table-cell">
             <div class="input-group">
                 <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Version</span>
-                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start" aria-label="@Model[i].MinimumStudioVersion" hidden="hidden" onfocusout="table.FocusOut()" asp-for="@Model[i].MinimumStudioVersion">
+                <input class="form-control form-control-sm entry entry-nofocus rounded text-center text-lg-start fs-inherit" aria-label="@Model[i].MinimumStudioVersion" hidden="hidden" onfocusout="table.FocusOut()" asp-for="@Model[i].MinimumStudioVersion">
                 <p class="m-0 section w-100 align-self-center text-center text-lg-start" ondblclick="table.EditCell()">@Model[i].MinimumStudioVersion</p>
             </div>
         </td>
         <td class="editable-field d-none d-lg-table-cell">
             <div class="input-group">
                 <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">ParentId</span>
-                <select hidden="hidden" asp-for="@Model[i].ParentProductID" asp-items="@Model[i].ParentProductsListItems" class="form-select form-select-sm rounded entry" onchange="table.ChangeParentProduct()"></select>
+                <select hidden="hidden" asp-for="@Model[i].ParentProductID" asp-items="@Model[i].ParentProductsListItems" class="form-select form-select-sm rounded entry fs-inherit" onchange="table.ChangeParentProduct()"></select>
                 <p class="m-0 section w-100 align-self-center text-center text-lg-start" ondblclick="table.EditCell()">@Model[i].ParentProductID</p>
             </div>
         </td>
         <td class="editable-field d-none d-lg-table-cell align-middle">
             <div class="input-group text-center">
                 <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">IsLegacy</span>
-                <input class="form-check-input entry entry-nofocus m-auto rounded" hidden="hidden" onfocusout="table.FocusOut()" aria-label="@Model[i].IsLegacy" onchange="table.Change()" asp-for="@Model[i].IsLegacy">
+                <input class="form-check-input entry entry-nofocus m-auto rounded fs-inherit" hidden="hidden" onfocusout="table.FocusOut()" aria-label="@Model[i].IsLegacy" onchange="table.Change()" asp-for="@Model[i].IsLegacy">
                 <p class="m-0 section w-100 align-self-center" ondblclick="table.EditCell()"><i class="fa @(Model[i].IsLegacy ? "fa-check-circle text-success" : "fa-times-circle text-danger")"></i></p>
             </div>
         </td>

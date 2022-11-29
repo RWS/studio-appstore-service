@@ -1,9 +1,10 @@
 ﻿@model ExtendedPluginVersion<string>
 
+<hr class="w-100" />
 <div id="pluginVersionContainer">
     <input hidden asp-for="IsPrivatePlugin" value="true" />
     <input hidden asp-for="VersionId" />
-    <p class="fw-bold fs-6 mb-3 ml-lg-3">@(string.IsNullOrEmpty(Model.VersionNumber) ? "New plugin version" : "Version " + Model.VersionNumber)</p>
+    <p class="mb-3 ml-lg-3 fw-bold fs-inherit">@(string.IsNullOrEmpty(Model.VersionNumber) ? "New plugin version" : "Version")</p>
     <div id="versionDetails" class="m-0 ml-lg-3">
         <input hidden asp-for="TechnicalRequirements" />
         <input hidden asp-for="SelectedProduct.Id" />
@@ -19,7 +20,7 @@
         <div class="d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 align-self-center form-label" asp-for="VersionNumber">Version Number <span class="text-danger">*</span></label>
             <div class="w-100 d-flex flex-column">
-                <input asp-for="VersionNumber" class="form-control manifest-field" />
+                <input asp-for="VersionNumber" class="form-control manifest-field fs-inherit" />
                 <span asp-validation-for="VersionNumber" class="text-danger"></span>
                 <span hidden id="VersionNumberManifestConflict" class="text-danger">Plugin manifest conflict! Invalid version number!</span>
             </div>
@@ -27,7 +28,7 @@
         <div class="d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 align-self-center form-label" asp-for="MinimumRequiredVersionOfStudio">Minimum Studio Version </label>
             <div class="w-100">
-                <input asp-for="MinimumRequiredVersionOfStudio" class="form-control manifest-field" />
+                <input asp-for="MinimumRequiredVersionOfStudio" class="form-control manifest-field fs-inherit" />
                 <span asp-validation-for="MinimumRequiredVersionOfStudio" class="text-danger"></span>
                 <span hidden id="MinVersionManifestConflict" class="text-danger">Plugin manifest conflict! Invalid minimum version!</span>
             </div>
@@ -35,7 +36,7 @@
         <div class="d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 align-self-center form-label" asp-for="MaximumRequiredVersionOfStudio">Maximum Studio Version </label>
             <div class="w-100">
-                <input asp-for="MaximumRequiredVersionOfStudio" class="form-control manifest-field" />
+                <input asp-for="MaximumRequiredVersionOfStudio" class="form-control manifest-field fs-inherit" />
                 <span asp-validation-for="MaximumRequiredVersionOfStudio" class="text-danger"></span>
                 <span hidden id="MaxVersionManifestConflict" class="text-danger">Plugin manifest conflict! Invalid maximum version!</span>
             </div>
@@ -43,17 +44,17 @@
         <div class="d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 align-self-center" asp-for="VersionDownloadUrl">Download URL <span class="text-danger">*</span></label>
             <div class="w-100">
-                <input asp-for="VersionDownloadUrl" class="form-control" oninput="ManageChecksum('@Model.VersionDownloadUrl', '@Model.FileHash')" />
+                <input asp-for="VersionDownloadUrl" class="form-control fs-inherit" oninput="ManageChecksum('@Model.VersionDownloadUrl', '@Model.FileHash')" />
                 <span asp-validation-for="VersionDownloadUrl" class="text-danger"></span>
             </div>
         </div>
         <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 form-check-label" asp-for="IsNavigationLink">Is navigation link</label>
-            <input asp-for="IsNavigationLink" type="checkbox" class="m-0 align-self-center p-3" />
+            <input asp-for="IsNavigationLink" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" />
         </div>
         <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 form-check-label" asp-for="AppHasStudioPluginInstaller">Has plugin extension</label>
-            <input asp-for="AppHasStudioPluginInstaller" type="checkbox" class="m-0 align-self-center p-3" />
+            <input asp-for="AppHasStudioPluginInstaller" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" />
         </div>
         <div class="mb-3 d-flex align-content-center col-12 p-0">
             <label class="col-4 m-0 align-self-center form-label" asp-for="FileHash">Checksum </label>
@@ -63,7 +64,7 @@
                         <span class="spinner-border spinner-border-sm" hidden role="status" aria-hidden="true"></span>
                         Generate
                     </button>
-                    <input asp-for="FileHash" class="form-control ignore" />
+                    <input asp-for="FileHash" class="form-control ignore fs-inherit" />
                 </div>
                 <span asp-validation-for="FileHash" class="text-danger"></span>
             </div>
@@ -84,11 +85,11 @@
                             <i class="fa fa-caret-down"></i>
                         </div>
                     </div>
-                    <ul class="dropdown-menu custom-select p-0 w-100" id="ProductsSelect" aria-labelledby="dropDownToggle">
+                    <ul class="dropdown-menu custom-select p-0 w-100 fs-inherit" id="ProductsSelect" aria-labelledby="dropDownToggle">
                         @foreach (var item in Model.SupportedProductsListItems)
                         {
-                            var isSelected = Model.SupportedProducts.Any(p => p.Equals(item.Value));
-                            <li class="dropdown-item" @(isSelected ? "selected" : "") id="@item.Value">@item.Text</li>
+                            var isSelected = Model.SupportedProducts?.Any(p => p.Equals(item.Value)) ?? false;
+                            <li class="dropdown-item" @((bool)isSelected ? "selected" : "") id="@item.Value">@item.Text</li>
                         }
                     </ul>
                     <select asp-for="SupportedProducts" hidden multiple="multiple" asp-items="@Model.SupportedProductsListItems"></select>

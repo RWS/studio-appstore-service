@@ -38,7 +38,6 @@ document.querySelector('.edit-area').addEventListener('focusout', () => {
 
 document.addEventListener('selectionchange', () => {
     HighlighterRemover(optionButtons)
-
     if (window.getSelection().anchorNode.parentNode || !editor.contains(window.getSelection().anchorNode.parentNode)) {
         return false;
     }
@@ -156,13 +155,37 @@ function RestoreSel() {
     }
 }
 
+function ShowInsertionModal() {
+    $('#linkModal').modal('show');
+    RestoreSel();
+    document.querySelector('#linkModal #linkPlaceholder').value = savedRange.startContainer.data.substring(savedRange.startOffset, savedRange.endOffset);
+}
+
 function InsertLink() {
     RestoreSel();
-    let placeHolder = document.getElementById('linkPlaceholder').value;
-    let linkUrl = document.getElementById('link').value;
-    document.execCommand('insertHTML', false, '<span contenteditable="false"><a href="' + linkUrl + '" target="_blank">' + (placeHolder == '' ? linkUrl : placeHolder) + '</a></span>');
-    document.getElementById('linkPlaceholder').value = '';
-    document.getElementById('link').value = ''
+    let placeHolder = document.querySelector('#linkModal #linkPlaceholder').value;
+    let image = document.querySelector('#linkModal #imageLink').value;
+    let linkUrl = document.querySelector('#linkModal #link').value;
+
+    let tag;
+    switch (true) {
+        case linkUrl == '': return;
+            break;
+        case image == '' && placeHolder == '': tag = '<a href="' + linkUrl + '" target="_blank">' + linkUrl + '</a>';
+            break;
+        case image != '' && placeHolder != '': tag = '<a href="' + linkUrl + '" target="_blank"><img width="200" heigth="200" src="' + image + '" title="' + placeHolder + '" alt="Image for' + placeHolder + ' link"></a>';
+            break;
+        case image == '' && placeHolder != '': tag = '<a href="' + linkUrl + '" target="_blank">' + placeHolder + '</a>';
+            break;
+        default: tag = '<a href="' + linkUrl + '" target="_blank"><img width="200" heigth="200" src="' + image + '"></a>';
+            break;
+    }
+
+    console.log(tag);
+    document.execCommand('insertHTML', true, tag);
+    document.querySelector('#linkModal #linkPlaceholder').value = '';
+    document.querySelector('#linkModal #imageLink').value = '';
+    document.querySelector('#linkModal #link').value = ''
 }
 
 window.onload = Init();
