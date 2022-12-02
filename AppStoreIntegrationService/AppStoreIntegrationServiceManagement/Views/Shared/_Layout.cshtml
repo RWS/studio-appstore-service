@@ -31,21 +31,25 @@
 
 <body class="d-flex flex-column min-vh-100">
     <header class="border-bottom box-shadow mb-3">
-        <div class="row d-flex justify-content-center">
-            <nav class="navbar navbar-expand-lg navbar-light col-11 col-lg-8 px-0">
-                <img id="LogoImage" class="me-2" width="@(string.IsNullOrEmpty(logoImage) ? "0" : "75")" src="@logoImage" />
-                <h2 class="nav-link active m-0 p-0 fs1-inherit">PA Admin @(string.IsNullOrEmpty(siteName) ? "" : $"- {siteName}")</h2>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse d-lg-flex justify-content-lg-end" id="navbarSupportedContent">
-                    @if (engine.Success && new[] { "Login", "PostLogin" }.All(action => action != ViewContext.RouteData.Values["action"].ToString()))
-                    {
-                        <partial name="_LoginPartial" />
-                    }
-                </div>
-            </nav>
+        <div class="container">
+            <div class="row px-1 px-sm-0">
+                <nav class="navbar navbar-expand-lg navbar-light px-2 col-12 col-lg-8 justify-content-between w-100">
+                    <div class="d-flex align-content-center">
+                        <img id="LogoImage" width="@(string.IsNullOrEmpty(logoImage) ? "0" : "75")" src="@logoImage" />
+                        <h2 class="nav-link active m-0 p-0 fs1-inherit">PA Admin @(string.IsNullOrEmpty(siteName) ? "" : $"- {siteName}")</h2>
+                    </div>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse d-lg-flex justify-content-lg-end" id="navbarSupportedContent">
+                        @if (engine.Success && new[] { "Login", "PostLogin" }.All(action => action != ViewContext.RouteData.Values["action"].ToString()))
+                        {
+                            <partial name="_LoginPartial" />
+                        }
+                    </div>
+                </nav>
+            </div>
         </div>
     </header>
     <div class="container px-2">

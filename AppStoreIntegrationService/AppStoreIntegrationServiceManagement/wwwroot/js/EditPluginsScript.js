@@ -65,6 +65,7 @@ function AddNewVersion() {
 
             let dropDown = new DropDown(
                 "#dropDownToggle",
+                "#ProductsSelect",
                 "#SupportedProducts",
                 ".selection-summary",
                 ".overflow-arrow",
