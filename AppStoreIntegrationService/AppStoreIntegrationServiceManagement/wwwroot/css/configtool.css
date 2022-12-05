@@ -1,16 +1,71 @@
 :root {
+/* Basic customization */
     --pa-admin-color: #28b059;
     --pa-admin-color-hover: #2aa65b;
-    --pa-admin-foreground: #FFF;
-    --pa-admin-fontsize:16px;
+    --pa-admin-foreground: #FFFFFF;
+    --pa-admin-fontsize: 16px;
     --pa-admin-fontfamily: var(--bs-font-sans-serif);
+
+/* Advanced customization */
+    --pa-admin-navbar-fontsize: var(--pa-admin-fontsize);
+    --pa-admin-navbar-color: var(--pa-admin-color);
+    --pa-admin-navbar-foreground: var(--pa-admin-foreground);
+    --pa-admin-navbar-fontfamily: var(--pa-admin-fontfamily);
+
+    --pa-admin-modal-fontsize: var(--pa-admin-fontsize);
+    --pa-admin-modal-color: #FFFFFF;
+    --pa-admin-modal-foreground: #000000;
+    --pa-admin-modal-fontfamily: var(--pa-admin-fontfamily);
+
+    --pa-admin-body-color: #FFFFFF;
+    --pa-admin-body-foreground: #000000;
+
+    --pa-admin-select-fontsize: var(--pa-admin-fontsize);
+    --pa-admin-select-color: var(--pa-admin-color);
+    --pa-admin-select-foreground: var(--pa-admin-foreground);
+    --pa-admin-select-fontfamily: var(--pa-admin-fontfamily);
+
+    --pa-admin-card-fontsize: var(--pa-admin-fontsize);
+    --pa-admin-card-color: #FFFFFF;
+    --pa-admin-card-foreground: #000000;
+    --pa-admin-card-fontfamily: var(--pa-admin-fontfamily);
+
+    --pa-admin-table-fontsize: inherit;
+    --pa-admin-table-color: #f2f2f2;
+    --pa-admin-table-foreground: inherit;
+    --pa-admin-table-fontfamily: inherit;
+
+    --pa-admin-input-fontsize: var(--pa-admin-fontsize);
+    --pa-admin-input-color: #FFFFFF;
+    --pa-admin-input-foreground: #000000;
+    --pa-admin-input-fontfamily: var(--pa-admin-fontfamily);
+
+    --pa-admin-success-fontsize: var(--pa-admin-fontsize);
+    --pa-admin-success-color: var(--pa-admin-color);
+    --pa-admin-success-foreground: var(--pa-admin-foreground);
+    --pa-admin-success-fontfamily: var(--pa-admin-fontfamily);
+    --pa-admin-success-color-hover: var(--pa-admin-color-hover);
+
+    --pa-admin-secondary-fontsize: var(--pa-admin-fontsize);
+    --pa-admin-secondary-color: #6c757d;
+    --pa-admin-secondary-foreground: var(--pa-admin-foreground);
+    --pa-admin-secondary-fontfamily: var(--pa-admin-fontfamily);
+    --pa-admin-secondary-color-hover: #60666c;
+
+    --pa-admin-danger-fontsize: var(--pa-admin-fontsize);
+    --pa-admin-danger-color: #dc3545;
+    --pa-admin-danger-foreground: var(--pa-admin-foreground);
+    --pa-admin-danger-fontfamily: var(--pa-admin-fontfamily);
+    --pa-admin-danger-color-hover: #c91d2e;
 }
 
 body, html {
     overflow-x: hidden;
     padding: 0px !important;
     font-size: var(--pa-admin-fontsize);
-    font-family: var(--pa-admin-fontfamily) !important;
+    font-family: var(--pa-admin-fontfamily);
+    color: var(--pa-admin-body-foreground);
+    background: var(--pa-admin-body-color);
 }
 
 /* Edit plugin */
@@ -19,11 +74,24 @@ body, html {
     color: var(--pa-admin-color);
 }
 
-/* Sticky top-right alert */
+/* Sticky alert */
 #alert {
     position: fixed;
     top: 50px;
     right: 20px;
+}
+
+.cookie-consent {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    z-index: 1;
+    padding: 17px;
+    background-color: var(--pa-admin-navbar-color);
+    color: var(--pa-admin-navbar-foreground);
+    font-size: var(--pa-admin-navbar-fontsize);
+    font-family: var(--pa-admin-navbar-fontfamily);
 }
 
 /* Custom multi select list */
@@ -53,17 +121,29 @@ body, html {
     overflow-y: auto;
 }
 
+.dropdown{
+    color: var(--pa-admin-input-foreground);
+    background-color: var(--pa-admin-input-color);
+    font-size: var(--pa-admin-input-fontsize);
+    font-family: var(--pa-admin-input-fontfamily);
+}
+
 .custom-select li:checked,
 .custom-select li[selected],
 .custom-select li:hover {
-    color: black;
-    -webkit-text-fill-color: black;
+    color: var(--pa-admin-input-foreground);
+    -webkit-text-fill-color: var(--pa-admin-input-foreground);
     background-color: lightblue !important;
     background: linear-gradient(#ADD8E6, #ADD8E6) !important;
+    font-size: var(--pa-admin-input-fontsize);
+    font-family: var(--pa-admin-input-fontfamily);
 }
 
 .custom-select li {
-    background: linear-gradient(#FFF, #FFF) !important;
+    background: linear-gradient(var(--pa-admin-input-color), var(--pa-admin-input-color)) !important;
+    color: var(--pa-admin-input-foreground);
+    font-size: var(--pa-admin-input-fontsize);
+    font-family: var(--pa-admin-input-fontfamily);
 }
 
 /* Plugins index page */
@@ -76,20 +156,14 @@ body, html {
 .card-item {
     min-height: 200px;
     width: 100%;
+    background-color: var(--pa-admin-card-color);
+    color: var(--pa-admin-card-foreground);
+    font-size: var(--pa-admin-card-fontsize);
+    font-family: var(--pa-admin-card-fontfamily);
 }
 
 .border-container {
     border-left: 1px solid #E1E7EB;
-}
-
-.new-version-button {
-    cursor: pointer;
-    color: var(--pa-admin-color);
-}
-
-.new-version-button:hover {
-    cursor: pointer;
-    color: var(--pa-admin-color-hover);
 }
 
 .card-status {
@@ -136,29 +210,10 @@ body, html {
     align-items: center;
 }
 
-.filter-search-text {
-    background: transparent;
-    height: 100%;
-    width: 90%;
-    outline: none;
-    border: transparent;
-    text-indent: 5px;
-    padding: 0px;
-}
-
-.filter-search-text:focus {
-    border-color: var(--pa-admin-color);
-}
-
-.filter-search-text:focus::placeholder {
-    color: transparent;
-}
-
 .filter-search-submit {
     color: #929292;
     cursor: pointer;
     font-size: inherit;
-    padding: 7px;
 }
 
 /* Rich text editor */
@@ -169,6 +224,13 @@ body, html {
     margin: 0px;
     padding: 0px;
     visibility: hidden;
+}
+
+.rich-text-editor {
+    color: var(--pa-admin-input-foreground);
+    background-color: var(--pa-admin-input-color);
+    font-size: var(--pa-admin-input-fontsize);
+    font-family: var(--pa-admin-input-fontfamily);
 }
 
 .rich-text-editor i:hover,
@@ -190,15 +252,86 @@ body, html {
 }
 
 /* Table striped */
+
+table {
+    color: var(--pa-admin-table-foreground) !important;
+    font-size: var(--pa-admin-table-fontsize);
+    font-family: var(--pa-admin-table-fontfamily);
+}
+
 .bg-collapsed {
-    background-color: #f2f2f2 !important;
+    background-color: var(--pa-admin-table-color) !important;
 }
 
 .tbody-stripped tr:nth-child(odd) {
-    background-color: #f2f2f2 !important;
+    background-color: var(--pa-admin-table-color) !important;
 }
 
 /* Generic */
+.fa-trash-alt, .fa-times-circle {
+    color: var(--pa-admin-danger-color);
+    font-size: var(--pa-admin-danger-fontsize);
+}
+
+.btn-danger {
+    background-color: var(--pa-admin-danger-color);
+    border: var(--pa-admin-danger-color);
+    color: var(--pa-admin-danger-foreground);
+    font-family: var(--pa-admin-danger-fontfamily);
+    font-size: var(--pa-admin-danger-fontsize)
+}
+
+.btn-danger:hover {
+    background-color: var(--pa-admin-danger-color-hover);
+    border: var(--pa-admin-danger-color-hover);
+    color: var(--pa-admin-danger-foreground);
+    font-family: var(--pa-admin-danger-fontfamily);
+    font-size: var(--pa-admin-danger-fontsize)
+}
+
+.fa-pen-alt{
+    color: var(--pa-admin-secondary-color);
+    font-size: var(--pa-admin-secondary-fontsize);
+}
+
+.btn-secondary {
+    background-color: var(--pa-admin-secondary-color);
+    border: var(--pa-admin-secondary-color);
+    color: var(--pa-admin-secondary-foreground);
+    font-family: var(--pa-admin-secondary-fontfamily);
+    font-size: var(--pa-admin-secondary-fontsize)
+}
+
+.btn-secondary:hover {
+    background-color: var(--pa-admin-secondary-color-hover);
+    border: var(--pa-admin-secondary-color-hover);
+    color: var(--pa-admin-secondary-foreground);
+    font-family: var(--pa-admin-secondary-fontfamily);
+    font-size: var(--pa-admin-secondary-fontsize)
+}
+
+input{
+    color: var(--pa-admin-input-foreground) !important;
+    background-color: var(--pa-admin-input-color) !important;
+    font-size: var(--pa-admin-input-fontsize) !important;
+    font-family: var(--pa-admin-input-fontfamily) !important;
+}
+
+.fa-check-circle {
+    color: var(--pa-admin-success-color);
+    font-size: var(--pa-admin-success-fontsize)
+}
+
+.success-icon {
+    color: var(--pa-admin-success-color);
+    font-size: var(--pa-admin-success-fontsize)
+}
+
+.success-icon:hover {
+    color: var(--pa-admin-success-color-hover);
+    font-size: var(--pa-admin-success-fontsize)
+}
+
 .focus-transparent:focus {
     background-color: transparent;
 }
@@ -224,42 +357,58 @@ body, html {
 }
 
 .pa-admin-select {
-    background: var(--pa-admin-color);
+    background: var(--pa-admin-select-color) !important;
+    font-size: var(--pa-admin-select-fontsize) !important;
+    font-family: var(--pa-admin-select-fontfamily) !important;
+    color: var(--pa-admin-select-foreground) !important;
     border-radius: 3px;
     border: none;
-    color: var(--pa-admin-foreground);
     padding: 6px 10px;
     width: 35%;
     height: 100%;
 }
 
 .pa-admin-success-btn {
-    background-color: var(--pa-admin-color);
-    border: var(--pa-admin-color);
-    color: var(--pa-admin-foreground);
+    background-color: var(--pa-admin-success-color);
+    border: var(--pa-admin-success-color);
+    color: var(--pa-admin-success-foreground);
+    font-family: var(--pa-admin-success-fontfamily);
+    font-size: var(--pa-admin-success-fontsize)
 }
 
 .pa-admin-success-btn:hover {
-    background-color: var(--pa-admin-color-hover);
-    border: var(--pa-admin-color-hover);
-    color: var(--pa-admin-foreground);
+    background-color: var(--pa-admin-success-color-hover);
+    border: var(--pa-admin-success-color-hover);
+    color: var(--pa-admin-success-foreground);
+    font-family: var(--pa-admin-success-fontfamily);
+    font-size: var(--pa-admin-success-fontsize)
 }
 
 #settings-navbar .nav-link.active,
 #profile-navbar .nav-link.active,
 .navbar-nav btn:focus,
 .navbar-nav a:focus,
-.nav-link.active{
-    background-color: var(--pa-admin-color);
-    border: var(--pa-admin-color);
-    color: var(--pa-admin-foreground) !important;
+.nav-link.active,
+header h2 {
+    background-color: var(--pa-admin-navbar-color);
+    border: var(--pa-admin-navbar-color);
+    color: var(--pa-admin-navbar-foreground) !important;
+    font-family: var(--pa-admin-navbar-fontfamily) !important;
 }
 
-header,
-header h2{
-    background-color: var(--pa-admin-color);
-    border: var(--pa-admin-color);
+header {
+    background-color: var(--pa-admin-navbar-color) !important;
+    border: var(--pa-admin-navbar-color) !important;
+    font-size: var(--pa-admin-navbar-fontsize) !important;
 }
+
+.modal-content{
+    font-size: var(--pa-admin-modal-fontsize);
+    font-family: var(--pa-admin-modal-fontfamily);
+    color: var(--pa-admin-modal-foreground);
+    background-color: var(--pa-admin-modal-color);
+}
+
 /* Responsive */
 @media (max-width:768px) {
     #profile-navbar, #settings-navbar {

@@ -8,18 +8,53 @@
 
 @if (showBanner)
 {
-    <div id="cookieConsent" class="alert alert-info alert-dismissible fade show" role="alert">
-        Use this space to summarize your privacy and cookie use policy. <a asp-page="/Privacy">Learn More</a>.
-        <button type="button" class="accept-policy close" data-dismiss="alert" aria-label="Close" data-cookie-string="@cookieString">
-            <span aria-hidden="true">Accept</span>
-        </button>
+    <div class="cookie-consent d-flex justify-content-between align-items-center" role="alert">
+        <p class="m-0 text-nowrap">For providing a better user experience this webiste uses esential cookies. <a href="#privacyModal" data-bs-toggle="modal" role="button">Learn More</a></p>
+        <div class="d-flex justify-content-center">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-cookie-string="@cookieString"></button>
+        </div>
     </div>
     <script>
         (function () {
-            var button = document.querySelector("#cookieConsent button[data-cookie-string]");
+            var button = document.querySelector(".cookie-consent button[data-cookie-string]");
             button.addEventListener("click", function (event) {
                 document.cookie = button.dataset.cookieString;
+                document.querySelector('.cookie-consent').classList.add('d-none');
+                document.querySelector('.cookie-consent').classList.remove('d-flex');
             }, false);
         })();
     </script>
 }
+
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="privacyModal">Cookie declaration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h3>Cookie declaration overview</h3>
+                <p>This website uses cookies. Cookies are small text files stored on your device (computer, tablet, smartphone, or another device) to enhance your experience on the website.</p>
+                <p>Websites use cookies for many different purposes, including but not limited to:</p>
+                <ul>
+                    <li>Provide you with essential functionalities of our website</li>
+                    <li>Remember your preferences for our website</li>
+                    <li>Personalize content</li>
+                    <li>Track your browsing behavior</li>
+                </ul>
+                <p>We use cookies according to applicable national and international laws.</p>
+                <p>This cookie declaration aims to inform you about our use of cookies, what types of cookies we use, and why we use them. We are committed to full transparency regarding your privacy while using our website. In the rest of this cookie declaration, you’ll find all the essential information about it.</p>
+                <p>We use the following types of cookies:</p>
+                <ul>
+                    <li>Esential</li>
+                </ul>
+                <h3>Esential cookies</h3>
+                <p>We always use the essential cookies. They allow us to provide you with the essential features of our website, such as website navigation or logging in the secured areas. Using them is in your best interest, hence all the applicable personal data protection laws allow us to use them freely.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

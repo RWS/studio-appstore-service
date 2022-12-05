@@ -22,9 +22,11 @@
             </div>
 
             <div class="col-12 col-lg-4">
-                <div id="filterSearch" class="filter-search w-100">
-                    <input id="search" class="filter-search-text" autocomplete="off" placeholder="Search plugin" onkeydown="javascript: AddFilterOnEnterKey()">
-                    <i id="applyFilters" class="fas fa-search filter-search-submit" onclick="javascript: AddFilter('search')"></i>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" id="search" autocomplete="off" placeholder="Search plugin" aria-label="Search plugin" onkeydown="javascript: AddFilterOnEnterKey()">
+                    <span class="input-group-text">
+                        <i id="applyFilters" class="fas fa-search filter-search-submit" onclick="javascript: AddFilter('search')"></i>
+                    </span>
                 </div>
             </div>
         </div>
@@ -72,8 +74,8 @@
                     <div class="d-flex flex-row p-3">
                         <label class="card-status col-6">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
                         <div class="col-6 d-flex justify-content-end">
-                            <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt text-secondary"></i></a>
-                            <a class="btn p-0 fs-inherit"><i class="far fa-trash-alt text-danger cursor-pointer" role="button" aria-label="Delete @plugin.Name" onclick="DeletePlugin('@plugin.Id', `@plugin.Name`)"></i></a>
+                            <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-Id="@plugin.Id"><i class="fas fa-pen-alt"></i></a>
+                            <a class="btn p-0 fs-inherit"><i class="far fa-trash-alt cursor-pointer" role="button" aria-label="Delete @plugin.Name" onclick="DeletePlugin('@plugin.Id', `@plugin.Name`)"></i></a>
                         </div>
                     </div>
                 </div>

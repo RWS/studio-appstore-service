@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 
-    $(".alert").fadeTo(3000, 500).slideUp(500, function () {
+    $(".alert-danger, .alert-success").fadeTo(3000, 500).slideUp(500, function () {
         $(this).remove();
     });
 });
@@ -153,60 +153,11 @@ function CompareWithManifest() {
                     })
                 })
             }
-            
+
             button.disabled = false;
-            button.firstElementChild.hidden = true; 
+            button.firstElementChild.hidden = true;
         }
     });
-}
-
-function ChangeFontSize() {
-    document.documentElement.style.setProperty('--pa-admin-fontsize', `${event.target.value}px`);
-    document.cookie = `FontSize=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`;
-}
-
-function RestorePreferences() {
-    document.cookie = "FontSize=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    document.cookie = "FontFamily=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    document.cookie = "HoverColor=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    document.cookie = "BackgroundColor=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    document.cookie = "ForegroundColor=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    document.cookie = "LogoImage=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    window.location.reload();
-}
-
-function ChangeFontFamily() {
-    let container = document.querySelector("head");
-    let link = container.querySelector("#GoogleFont");
-    if (link) {
-        container.removeChild(link);
-    }
-
-    link = document.createElement("link");
-    link.href = `https://fonts.googleapis.com/css2?family=${event.target.value}&display=swap`
-    link.rel = "stylesheet"
-    link.id = "GoogleFont"
-    container.append(link);
-    document.documentElement.style.setProperty('--pa-admin-fontfamily', `${event.target.value}`);
-    document.cookie = `FontFamily=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`
-}
-
-function ChangeBackground() {
-    document.documentElement.style.setProperty('--pa-admin-color', `${event.target.value}`);
-    document.documentElement.style.setProperty('--pa-admin-color-hover', `${event.target.value}`);
-    document.cookie = `BackgroundColor=${event.target.value}; HoverColor=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`;
-}
-
-function ChangeForeground() {
-    document.documentElement.style.setProperty('--pa-admin-foreground', `${event.target.value}`);
-    document.cookie = `ForegroundColor=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`;
-}
-
-function ChangeLogo() {
-    console.log(event.target.value)
-    document.querySelector("#LogoImage").src = event.target.value;
-    document.querySelector("#LogoImage").width = 75;
-    document.cookie = `LogoImage=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`;
 }
 
 function AjaxSuccessCallback(actionResult) {

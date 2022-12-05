@@ -32,13 +32,13 @@
                         {
                             <td class="align-middle px-3 d-none d-lg-table-cell" colspan="@(user.IsCurrentUser ? "2" : "1")">
                                 <a asp-controller="Account" asp-action="Profile" asp-route-id="@user.Id">
-                                    <i class="fa fa-pen-alt text-secondary cursor-pointer"></i>
+                                    <i class="fa fa-pen-alt cursor-pointer"></i>
                                 </a>
                             </td>
 
                             @if (!user.IsCurrentUser)
                             {
-                                <td class="align-middle px-3 d-none d-lg-table-cell"><i id="@user.Id" class="fa fa-trash-alt text-danger cursor-pointer delete-user-btn"></i></td>
+                                <td class="align-middle px-3 d-none d-lg-table-cell"><i id="@user.Id" class="fa fa-trash-alt cursor-pointer delete-user-btn"></i></td>
                             }
                         }
                         else

@@ -3,10 +3,10 @@
 @{
     var siteName = (await repository.GetSettings()).Name;
     var logoImage = Context.Request.Cookies["LogoImage"];
-    var fontFamily = Context.Request.Cookies["FontFamily"];
+    var fontFamilies = Context.Request.Cookies["FontFamilies"];
     var engine = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
-    var googleFontFormat = "https://fonts.googleapis.com/css2?family={0}&display=swap";
-    var fontFamilyLink = string.Format(googleFontFormat, string.IsNullOrEmpty(fontFamily) ? "Roboto" : fontFamily);
+    var googleFontFormat = "https://fonts.googleapis.com/css2?{0}&display=swap";
+    var fontFamilyLink = string.Format(googleFontFormat, string.IsNullOrEmpty(fontFamilies) ? "&family=Roboto" : fontFamilies);
 }
 
 <!DOCTYPE html>
@@ -21,13 +21,7 @@
     <link rel="stylesheet" id="GoogleFont" href="@fontFamilyLink" />
 </head>
 
-<script type="text/javascript">
-    document.documentElement.style.setProperty('--pa-admin-color', '@Context.Request.Cookies["BackgroundColor"]')
-    document.documentElement.style.setProperty('--pa-admin-color-hover', '@Context.Request.Cookies["BackgroundColor"]');
-    document.documentElement.style.setProperty('--pa-admin-foreground', '@Context.Request.Cookies["ForegroundColor"]');
-    document.documentElement.style.setProperty('--pa-admin-fontsize', '@Context.Request.Cookies["FontSize"]px');
-    document.documentElement.style.setProperty('--pa-admin-fontfamily', '@Context.Request.Cookies["FontFamily"]');
-</script>
+<script src="~/js/CustomizationScript.js" asp-append-version="true"></script>
 
 <body class="d-flex flex-column min-vh-100">
     <header class="border-bottom box-shadow mb-3">
@@ -36,7 +30,7 @@
                 <nav class="navbar navbar-expand-lg navbar-light px-2 col-12 col-lg-8 justify-content-between w-100">
                     <div class="d-flex align-content-center">
                         <img id="LogoImage" width="@(string.IsNullOrEmpty(logoImage) ? "0" : "75")" src="@logoImage" />
-                        <h2 class="nav-link active m-0 p-0 fs1-inherit">PA Admin @(string.IsNullOrEmpty(siteName) ? "" : $"- {siteName}")</h2>
+                        <h2 class="nav-link active m-0 p-0 fs1-inherit header-link">PA Admin @(string.IsNullOrEmpty(siteName) ? "" : $"- {siteName}")</h2>
                     </div>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                             aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +61,6 @@
     <script src="~/js/CommonScript.js" asp-append-version="true"></script>
     <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

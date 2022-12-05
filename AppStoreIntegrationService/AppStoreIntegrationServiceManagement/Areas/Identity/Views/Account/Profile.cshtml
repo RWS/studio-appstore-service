@@ -39,7 +39,7 @@
                 @if (Model.IsUserRoleEditable)
                 {
                     <label class="form-label" asp-for="UserRole">Role</label>
-                    <select class="form-select fs-inherit" asp-for="UserRole">
+                    <select class="fs-inherit pa-admin-select w-100" asp-for="UserRole">
                         <option value="StandardUser" selected>Standard</option>
                         <option value="Administrator">Administrator</option>
                     </select>

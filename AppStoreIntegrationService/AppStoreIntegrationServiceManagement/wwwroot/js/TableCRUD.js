@@ -291,8 +291,8 @@ class TableCrud {
         var icon = input.nextElementSibling.firstChild;
         if (icon != null) {
             input.checked = isChecked;
-            icon.classList.remove(`fa-${isChecked ? 'times' : 'check'}-circle`, `text-${isChecked ? 'danger' : 'success'}`);
-            icon.classList.add(`fa-${isChecked ? 'check' : 'times'}-circle`, `text-${isChecked ? 'success' : 'danger'}`);
+            icon.classList.remove(`fa-${isChecked ? 'times' : 'check'}-circle`);
+            icon.classList.add(`fa-${isChecked ? 'check' : 'times'}-circle`);
         }
     }
 }

@@ -40,6 +40,10 @@ namespace AppStoreIntegrationServiceManagement
             {
                 options.Level = CompressionLevel.Optimal;
             });
+            services.Configure<CookiePolicyOptions>(options => {
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.Strict;
+            });
 
             if (!string.IsNullOrEmpty(configurationSettings.InstrumentationKey))
             {
@@ -58,7 +62,7 @@ namespace AppStoreIntegrationServiceManagement
 
             services.AddResponseCaching();
             services.AddHttpContextAccessor();
-            services.AddSingleton<FontFamilyRepository>();
+            services.AddSingleton<CustomizationHelper>();
             services.AddSingleton<INamesRepository, NamesRepository>();
             services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<IVersionProvider, VersionProvider<PluginDetails<PluginVersion<string>, string>>>();
@@ -108,6 +112,7 @@ namespace AppStoreIntegrationServiceManagement
             app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseResponseCaching();
