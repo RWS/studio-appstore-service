@@ -8,7 +8,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Plugin name is required!")]
-        [RegularExpression(@"^(\(?[a-zA-Z]{1,}\)?)( ?(- ?)?\(?[a-zA-Z]{1,}'?[).,]?)*$", ErrorMessage = "Invalid name!")]
+        [RegularExpression(@"^(\(?[a-zA-Z]{1,}\)?)( ?(- ?)?\(?[a-zA-Z0-9]{1,}'?[).,]?)*$", ErrorMessage = "Invalid name!")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Description field is required!")]
