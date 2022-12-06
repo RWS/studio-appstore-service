@@ -16,7 +16,20 @@
                     </div>
                     <div class="col-12 align-items-center d-flex mb-2">
                         <label class="text-nowrap align-self-center col-4">Font family:</label>
-                        <select onchange="ChangeFontFamily('')" class="pa-admin-select w-100" asp-items="@Helper.FontFamilies"></select>
+                        <select onchange="ChangeFontFamily('')" class="pa-admin-select w-100">
+                            @foreach (var font in Helper.FontFamilies)
+                            {
+                                if (Context.Request.Cookies["FontFamily"] == font)
+                                {
+                                    <option selected style="font-family: @font">@font</option>
+                                }
+                                else
+                                {
+                                    <option style="font-family: @font">@font</option>
+                                }
+                                
+                            }
+                        </select>
                     </div>
                     <div class="col-12 align-items-center d-flex mb-2">
                         <label class="text-nowrap align-self-center col-4">Default themes:</label>
@@ -77,16 +90,16 @@
                                        value="@(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontSize"]) ? "16" : Context.Request.Cookies[$"{field.Tag}FontSize"])" />
                                 </td>
                                 <td class="align-middle">
-                                    <select class="pa-admin-select w-100" onchange="ChangeFontFamily('-@field.Tag')" asp-items="@Helper.FontFamilies">
+                                    <select class="pa-admin-select w-100" onchange="ChangeFontFamily('-@field.Tag')">
                                         @foreach (var family in Helper.FontFamilies)
                                         {
-                                            if (Context.Request.Cookies[$"{field.Tag}FontFamily"] == family.Text)
+                                            if (Context.Request.Cookies[$"{field.Tag}FontFamily"] == family)
                                             {
-                                                <option selected>@family.Text</option>
+                                                <option selected style="font-family: @family">@family</option>
                                             }
                                             else
                                             {
-                                                <option>@family.Text</option>
+                                                <option style="font-family: @family">@family</option>
                                             }
                                         }
                                     </select>

@@ -1,21 +1,16 @@
-﻿using AppStoreIntegrationServiceManagement.Model.Plugins;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
+﻿using System.Drawing;
 
 namespace AppStoreIntegrationServiceManagement.Model
 {
     public class CustomizationHelper
     {
-        private readonly IHttpContextAccessor _context;
-
-        public CustomizationHelper(IHttpContextAccessor context)
+        public CustomizationHelper()
         {
-            _context = context;
-            InitFamilies();
+            FontFamilies = FontFamily.Families.Select(f => f.Name);
             InitFields();
         }
 
-        public SelectList FontFamilies { get; set; }
+        public IEnumerable<string> FontFamilies { get; set; }
 
         public List<CustomizableField> Fields { get; set; }
 
@@ -34,21 +29,6 @@ namespace AppStoreIntegrationServiceManagement.Model
                 new CustomizableField{ Name="Secondary button", Tag = "secondary", DefaultBackground = "#6c757d", DefaultForeground = "#FFFFFF" },
                 new CustomizableField{ Name="Danger button", Tag = "danger", DefaultBackground = "#dc3545", DefaultForeground = "#FFFFFF" }
             };
-        }
-
-        private void InitFamilies()
-        {
-            var reader = new RemoteStreamReader(new Uri("https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCD-AbV2jkrj3LOTmLMac6TmILG2EiJciM"));
-            var items = JsonConvert.DeserializeObject<FontFamilyResponse>(reader.ReadAsStringAsync().Result).Items;
-            var savedFont = _context.HttpContext.Request.Cookies["FontFamilies"];
-            FontFamily selectedValue = null;
-
-            if (!string.IsNullOrEmpty(savedFont))
-            {
-                selectedValue = items.FirstOrDefault(f => f.Family.Equals(savedFont));
-            }
-
-            FontFamilies = new SelectList(items, null, nameof(FontFamily.Family), selectedValue);
         }
     }
 }

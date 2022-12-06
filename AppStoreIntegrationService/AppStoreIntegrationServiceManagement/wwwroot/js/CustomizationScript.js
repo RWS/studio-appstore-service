@@ -63,25 +63,8 @@ function ChangeFontSize(target) {
 }
 
 function ChangeFontFamily(target) {
-    let container = document.querySelector("head");
-    let link = container.querySelector('#GoogleFont');
-    container.removeChild(link);
-
-    let old = GetCookie('FontFamilies');
-    link = document.createElement("link");
-    link.href = `https://fonts.googleapis.com/css2?${old}&family=${event.target.value.replace(" ", '+')}&display=swap`
-    link.rel = "stylesheet"
-    link.id = 'GoogleFont'
-    container.append(link);
     document.documentElement.style.setProperty(`--pa-admin${target}-fontfamily`, `${event.target.value}`);
     document.cookie = `${target.replace('-', '')}FontFamily=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`
-
-    let sanitizedCookie = event.target.value.replace(" ", '+');
-    if (!old.includes(sanitizedCookie)) {
-        document.cookie = `FontFamilies=${old}&family=${sanitizedCookie}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`
-    }
-
-    console.log(document.cookie);
 }
 
 function ChangeBackground(target) {

@@ -9,7 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppStoreIntegrationServiceA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppStoreIntegrationServiceManagement", "AppStoreIntegrationServiceManagement\AppStoreIntegrationServiceManagement.csproj", "{B0FEC14E-A1AB-4D6A-8D94-648BCD46ACD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStoreIntegrationServiceTests", "AppStoreIntegrationServiceTests\AppStoreIntegrationServiceTests.csproj", "{31C49948-9DB4-4A66-8BA5-A8E506DA04E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppStoreIntegrationServiceTests", "AppStoreIntegrationServiceTests\AppStoreIntegrationServiceTests.csproj", "{31C49948-9DB4-4A66-8BA5-A8E506DA04E5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8AD3752D-FEF8-48D0-A45B-C60BB7A62A60}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

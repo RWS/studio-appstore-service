@@ -147,6 +147,11 @@ body, html {
 }
 
 /* Plugins index page */
+
+#activeFilters .fa-times-circle{
+    color: var(--pa-admin-foreground);
+}
+
 .img-item {
     height: 50px;
     display: block;
