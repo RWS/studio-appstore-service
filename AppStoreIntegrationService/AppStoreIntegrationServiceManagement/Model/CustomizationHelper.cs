@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using AppStoreIntegrationServiceCore;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace AppStoreIntegrationServiceManagement.Model
 {
@@ -6,11 +8,11 @@ namespace AppStoreIntegrationServiceManagement.Model
     {
         public CustomizationHelper()
         {
-            FontFamilies = FontFamily.Families.Select(f => f.Name);
+            FontFamilies = JsonConvert.DeserializeObject<List<string>>(Encoding.ASCII.GetString(ServiceResource.FontNames));
             InitFields();
         }
 
-        public IEnumerable<string> FontFamilies { get; set; }
+        public List<string> FontFamilies { get; set; } = new ();
 
         public List<CustomizableField> Fields { get; set; }
 

@@ -63,8 +63,9 @@ function ChangeFontSize(target) {
 }
 
 function ChangeFontFamily(target) {
-    document.documentElement.style.setProperty(`--pa-admin${target}-fontfamily`, `${event.target.value}`);
-    document.cookie = `${target.replace('-', '')}FontFamily=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`
+    event.target.parentElement.previousElementSibling.innerText = event.target.innerText;
+    document.documentElement.style.setProperty(`--pa-admin${target}-fontfamily`, `${event.target.innerText}`);
+    document.cookie = `${target.replace('-', '')}FontFamily=${event.target.innerText}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`
 }
 
 function ChangeBackground(target) {
@@ -105,4 +106,23 @@ function GetCookie(name) {
     }
 
     return '';
+}
+
+function ApplyFonts() {
+    if (event.type == "click") {
+        Array.from(event.target.nextElementSibling.querySelectorAll('li')).slice(0, 12).forEach(item => {
+            if (item.fontFamily == undefined) {
+                item.style.fontFamily = item.innerText;
+            }
+        })
+    }
+
+    if (event.type == "scroll") {
+        let position = event.target.scrollTop;
+        Array.from(event.target.querySelectorAll('li')).slice(Math.round((position + 200) / 33), Math.round((position + 400) / 33)).forEach(item => {
+            if (item.fontFamily == undefined) {
+                item.style.fontFamily = item.innerText;
+            }
+        })
+    }
 }

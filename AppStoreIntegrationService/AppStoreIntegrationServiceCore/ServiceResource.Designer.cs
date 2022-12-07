@@ -70,6 +70,16 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] FontNames {
+            get {
+                object obj = ResourceManager.GetObject("FontNames", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to APPSTOREINTEGRATION_LOCAL_FOLDERPATH.
         /// </summary>
         public static string LocalFolderPath {

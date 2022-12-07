@@ -16,20 +16,24 @@
                     </div>
                     <div class="col-12 align-items-center d-flex mb-2">
                         <label class="text-nowrap align-self-center col-4">Font family:</label>
-                        <select onchange="ChangeFontFamily('')" class="pa-admin-select w-100">
-                            @foreach (var font in Helper.FontFamilies)
-                            {
-                                if (Context.Request.Cookies["FontFamily"] == font)
+                        <div class="dropdown col-8">
+                            <div class="border rounded w-100 p-2" role="button" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false" onclick="ApplyFonts()">
+                                @(string.IsNullOrEmpty(Context.Request.Cookies["FontFamily"]) ? "Select font" : Context.Request.Cookies["FontFamily"])
+                            </div>
+                            <ul class="dropdown-menu custom-select p-0 w-100 fs-inherit" onscroll="ApplyFonts()" onclick="ChangeFontFamily('')" aria-labelledby="dropDownToggle">
+                                @foreach (var font in Helper.FontFamilies)
                                 {
-                                    <option selected style="font-family: @font">@font</option>
+                                    if (Context.Request.Cookies["FontFamily"] == font)
+                                    {
+                                        <li class="dropdown-item" selected>@font</li>
+                                    }
+                                    else
+                                    {
+                                        <li class="dropdown-item">@font</li>
+                                    }
                                 }
-                                else
-                                {
-                                    <option style="font-family: @font">@font</option>
-                                }
-                                
-                            }
-                        </select>
+                            </ul>
+                        </div>
                     </div>
                     <div class="col-12 align-items-center d-flex mb-2">
                         <label class="text-nowrap align-self-center col-4">Default themes:</label>
@@ -90,19 +94,24 @@
                                        value="@(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontSize"]) ? "16" : Context.Request.Cookies[$"{field.Tag}FontSize"])" />
                                 </td>
                                 <td class="align-middle">
-                                    <select class="pa-admin-select w-100" onchange="ChangeFontFamily('-@field.Tag')">
-                                        @foreach (var family in Helper.FontFamilies)
-                                        {
-                                            if (Context.Request.Cookies[$"{field.Tag}FontFamily"] == family)
+                                    <div class="dropdown">
+                                        <div class="border rounded p-2" role="button" id="dropDownToggle@(field.Tag)" data-bs-toggle="dropdown" aria-expanded="false" onclick="ApplyFonts()">
+                                            @(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontFamily"]) ? "Select font" : Context.Request.Cookies[$"{field.Tag}FontFamily"])
+                                        </div>
+                                        <ul class="dropdown-menu custom-select p-0 w-100 fs-inherit" onscroll="ApplyFonts()" onclick="ChangeFontFamily('-@field.Tag')" aria-labelledby="dropDownToggle@(field.Tag)">
+                                            @foreach (var font in Helper.FontFamilies)
                                             {
-                                                <option selected style="font-family: @family">@family</option>
+                                                if (Context.Request.Cookies[$"{field.Tag}FontFamily"] == font)
+                                                {
+                                                    <li class="dropdown-item" selected>@font</li>
+                                                }
+                                                else
+                                                {
+                                                    <li class="dropdown-item">@font</li>
+                                                }
                                             }
-                                            else
-                                            {
-                                                <option style="font-family: @family">@family</option>
-                                            }
-                                        }
-                                    </select>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         }
