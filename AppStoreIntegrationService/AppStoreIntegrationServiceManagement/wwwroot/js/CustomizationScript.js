@@ -1,4 +1,6 @@
-﻿//basic customization
+﻿const cookieMaxAge = 60 * 60 * 24 * 180;
+
+//basic customization
 document.documentElement.style.setProperty('--pa-admin-color', GetCookie('BackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-color-hover', GetCookie('BackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-foreground', GetCookie('ForegroundColor'));
@@ -59,31 +61,31 @@ document.documentElement.style.setProperty('--pa-admin-danger-color-hover', GetC
 
 function ChangeFontSize(target) {
     document.documentElement.style.setProperty(`--pa-admin${target}-fontsize`, `${event.target.value}px`);
-    document.cookie = `${target.replace('-', '')}FontSize=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`;
+    document.cookie = `${target.replace('-', '')}FontSize=${event.target.value}; max-age=${cookieMaxAge}; Path=/;`;
 }
 
 function ChangeFontFamily(target) {
     event.target.parentElement.previousElementSibling.innerText = event.target.innerText;
     document.documentElement.style.setProperty(`--pa-admin${target}-fontfamily`, `${event.target.innerText}`);
-    document.cookie = `${target.replace('-', '')}FontFamily=${event.target.innerText}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`
+    document.cookie = `${target.replace('-', '')}FontFamily=${event.target.innerText}; max-age=${cookieMaxAge}; Path=/;`
 }
 
 function ChangeBackground(target) {
     document.documentElement.style.setProperty(`--pa-admin${target}-color`, `${event.target.value}`);
     document.documentElement.style.setProperty(`--pa-admin${target}-color-hover`, `${event.target.value}`);
-    document.cookie = `${target.replace('-', '')}BackgroundColor=${event.target.value}; ${target.replace('-', '')}HoverColor=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`;
+    document.cookie = `${target.replace('-', '')}BackgroundColor=${event.target.value}; ${target.replace('-', '')}HoverColor=${event.target.value}; max-age=${cookieMaxAge}; Path=/;`;
 }
 
 function ChangeForeground(target) {
     document.documentElement.style.setProperty(`--pa-admin${target}-foreground`, `${event.target.value}`);
-    document.cookie = `${target.replace('-', '')}ForegroundColor=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`;
+    document.cookie = `${target.replace('-', '')}ForegroundColor=${event.target.value}; max-age=${cookieMaxAge}; Path=/;`;
 }
 
 function ChangeLogo() {
     console.log(event.target.value)
     document.querySelector("#LogoImage").src = event.target.value;
     document.querySelector("#LogoImage").width = 75;
-    document.cookie = `LogoImage=${event.target.value}; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`;
+    document.cookie = `LogoImage=${event.target.value}; max-age=${cookieMaxAge}; Path=/;`;
 }
 
 function RestorePreferences() {
@@ -94,7 +96,7 @@ function RestorePreferences() {
         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/";
     })
 
-    document.cookie = `.AspNet.Consent=yes; expires=${new Date().setMonth(new Date().getMonth + 6)}; Path=/;`
+    document.cookie = `.AspNet.Consent=yes; Path=/;`
     window.location.reload();
 }
 

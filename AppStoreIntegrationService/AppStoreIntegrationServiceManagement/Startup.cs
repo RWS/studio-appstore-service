@@ -40,7 +40,8 @@ namespace AppStoreIntegrationServiceManagement
             {
                 options.Level = CompressionLevel.Optimal;
             });
-            services.Configure<CookiePolicyOptions>(options => {
+            services.Configure<CookiePolicyOptions>(options =>
+            {
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
