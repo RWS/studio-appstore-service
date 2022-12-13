@@ -5,18 +5,18 @@ document.documentElement.style.setProperty('--pa-admin-color', GetCookie('Backgr
 document.documentElement.style.setProperty('--pa-admin-color-hover', GetCookie('BackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-foreground', GetCookie('ForegroundColor'));
 document.documentElement.style.setProperty('--pa-admin-fontsize', `${GetCookie('FontSize')}px`);
-document.documentElement.style.setProperty('--pa-admin-fontfamily', GetCookie('FontFamily'));
+document.documentElement.style.setProperty('--pa-admin-fontfamily', GetCookie('FontFamily').replace('+', ' '));
 
 //advanced customization
 document.documentElement.style.setProperty('--pa-admin-navbar-fontsize', `${GetCookie('navbarFontSize')}px`);
 document.documentElement.style.setProperty('--pa-admin-navbar-color', GetCookie('navbarBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-navbar-foreground', GetCookie('navbarForegroundColor'));
-document.documentElement.style.setProperty('--pa-admin-navbar-fontfamily', GetCookie('navbarFontFamily'));
+document.documentElement.style.setProperty('--pa-admin-navbar-fontfamily', GetCookie('navbarFontFamily').replace('+', ' '));
 
 document.documentElement.style.setProperty('--pa-admin-modal-fontsize', `${GetCookie('modalFontSize')}px`);
 document.documentElement.style.setProperty('--pa-admin-modal-color', GetCookie('modalBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-modal-foreground', GetCookie('modalForegroundColor'));
-document.documentElement.style.setProperty('--pa-admin-modal-fontfamily', GetCookie('modalFontFamily'));
+document.documentElement.style.setProperty('--pa-admin-modal-fontfamily', GetCookie('modalFontFamily').replace('+', ' '));
 
 document.documentElement.style.setProperty('--pa-admin-body-color', GetCookie('bodyBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-body-foreground', GetCookie('bodyForegroundColor'));
@@ -24,39 +24,39 @@ document.documentElement.style.setProperty('--pa-admin-body-foreground', GetCook
 document.documentElement.style.setProperty('--pa-admin-select-fontsize', `${GetCookie('selectFontSize')}px`);
 document.documentElement.style.setProperty('--pa-admin-select-color', GetCookie('selectBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-select-foreground', GetCookie('selectForegroundColor'));
-document.documentElement.style.setProperty('--pa-admin-select-fontfamily', GetCookie('selectFontFamily'));
+document.documentElement.style.setProperty('--pa-admin-select-fontfamily', GetCookie('selectFontFamily').replace('+', ' '));
 
 document.documentElement.style.setProperty('--pa-admin-card-fontsize', `${GetCookie('cardFontSize')}px`);
 document.documentElement.style.setProperty('--pa-admin-card-color', GetCookie('cardBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-card-foreground', GetCookie('cardForegroundColor'));
-document.documentElement.style.setProperty('--pa-admin-card-fontfamily', GetCookie('cardFontFamily'));
+document.documentElement.style.setProperty('--pa-admin-card-fontfamily', GetCookie('cardFontFamily').replace('+', ' '));
 
 document.documentElement.style.setProperty('--pa-admin-table-fontsize', `${GetCookie('tableFontSize')}px`);
 document.documentElement.style.setProperty('--pa-admin-table-color', GetCookie('tableBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-table-foreground', GetCookie('tableForegroundColor'));
-document.documentElement.style.setProperty('--pa-admin-table-fontfamily', GetCookie('tableFontFamily'));
+document.documentElement.style.setProperty('--pa-admin-table-fontfamily', GetCookie('tableFontFamily').replace('+', ' '));
 
 document.documentElement.style.setProperty('--pa-admin-input-fontsize', `${GetCookie('inputFontSize')}px`);
 document.documentElement.style.setProperty('--pa-admin-input-color', GetCookie('inputBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-input-foreground', GetCookie('inputForegroundColor'));
-document.documentElement.style.setProperty('--pa-admin-input-fontfamily', GetCookie('inputFontFamily'));
+document.documentElement.style.setProperty('--pa-admin-input-fontfamily', GetCookie('inputFontFamily').replace('+', ' '));
 
 document.documentElement.style.setProperty('--pa-admin-success-fontsize', `${GetCookie('successFontSize')}px`);
 document.documentElement.style.setProperty('--pa-admin-success-color', GetCookie('successBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-success-foreground', GetCookie('successForegroundColor'));
-document.documentElement.style.setProperty('--pa-admin-success-fontfamily', GetCookie('successFontFamily'));
+document.documentElement.style.setProperty('--pa-admin-success-fontfamily', GetCookie('successFontFamily').replace('+', ' '));
 document.documentElement.style.setProperty('--pa-admin-success-color-hover', GetCookie('successBackgroundColor'));
 
 document.documentElement.style.setProperty('--pa-admin-secondary-fontsize', `${GetCookie('secondaryFontSize')}px`);
 document.documentElement.style.setProperty('--pa-admin-secondary-color', GetCookie('secondaryBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-secondary-foreground', GetCookie('secondaryForegroundColor'));
-document.documentElement.style.setProperty('--pa-admin-secondary-fontfamily', GetCookie('secondaryFontFamily'));
+document.documentElement.style.setProperty('--pa-admin-secondary-fontfamily', GetCookie('secondaryFontFamily').replace('+', ' '));
 document.documentElement.style.setProperty('--pa-admin-secondary-color-hover', GetCookie('secondaryBackgroundColor'));
 
 document.documentElement.style.setProperty('--pa-admin-danger-fontsize', `${GetCookie('dangerFontSize')}px`);
 document.documentElement.style.setProperty('--pa-admin-danger-color', GetCookie('dangerBackgroundColor'));
 document.documentElement.style.setProperty('--pa-admin-danger-foreground', GetCookie('dangerForegroundColor'));
-document.documentElement.style.setProperty('--pa-admin-danger-fontfamily', GetCookie('dangerFontFamily'));
+document.documentElement.style.setProperty('--pa-admin-danger-fontfamily', GetCookie('dangerFontFamily').replace('+', ' '));
 document.documentElement.style.setProperty('--pa-admin-danger-color-hover', GetCookie('dangerBackgroundColor'));
 
 function ChangeFontSize(target) {
@@ -96,7 +96,7 @@ function ChangeFontFamily(target) {
     event.target.parentElement.previousElementSibling.dataset.override = "false";
     event.target.parentElement.previousElementSibling.innerText = event.target.innerText;
     document.documentElement.style.setProperty(`--pa-admin${target}-fontfamily`, `${event.target.innerText}`);
-    document.cookie = `${target.replace('-', '')}FontFamily=${event.target.innerText}; max-age=${cookieMaxAge}; Path=/;`
+    document.cookie = `${target.replace('-', '')}FontFamily=${event.target.innerText.replace(' ', '+')}; max-age=${cookieMaxAge}; Path=/;`
 }
 
 function ChangeBackground(target) {

@@ -96,14 +96,14 @@
                                 <td class="align-middle">
                                     <div class="dropdown">
                                         <div class="border rounded p-2" role="button" id="dropDownToggle@(field.Tag)" data-bs-toggle="dropdown" aria-expanded="false" onclick="ApplyFonts()" data-override="@string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontFamily"])">
-                                            @(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontFamily"]) ? new[] { "navbar", "success", "select" }.Any(x => x == field.Tag) && !string.IsNullOrEmpty(Context.Request.Cookies["FontFamily"]) ? Context.Request.Cookies["FontFamily"] : "Select font" : Context.Request.Cookies[$"{field.Tag}FontFamily"])
+                                            @(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontFamily"]) ? new[] { "navbar", "success", "select" }.Any(x => x == field.Tag) && !string.IsNullOrEmpty(Context.Request.Cookies["FontFamily"]) ? Context.Request.Cookies["FontFamily"] : "Select font" : Context.Request.Cookies[$"{field.Tag}FontFamily"]?.Replace('+', ' '))
                                         </div>
                                         <ul class="dropdown-menu custom-select p-0 w-100 fs-inherit" onscroll="ApplyFonts()" onclick="ChangeFontFamily('-@field.Tag')" aria-labelledby="dropDownToggle@(field.Tag)">
                                             @foreach (var font in Helper.FontFamilies)
                                             {
-                                                if (Context.Request.Cookies[$"{field.Tag}FontFamily"] == font ||
+                                                if (Context.Request.Cookies[$"{field.Tag}FontFamily"]?.Replace('+', ' ') == font ||
                                                    (new[] { "navbar", "success", "select" }.Any(x => x == field.Tag) && 
-                                                    Context.Request.Cookies["FontFamily"] == font))
+                                                    Context.Request.Cookies["FontFamily"]?.Replace('+', ' ') == font))
                                                 {
                                                     <li class="dropdown-item" selected>@font</li>
                                                 }
