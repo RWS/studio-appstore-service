@@ -82,26 +82,28 @@
                             <tr>
                                 <td class="align-middle">@field.Name</td>
                                 <td class="text-center align-middle">
-                                    <input onchange="ChangeBackground('-@field.Tag')" type="color"
-                                       value="@(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}BackgroundColor"]) ? $"{field.DefaultBackground}" : Context.Request.Cookies[$"{field.Tag}BackgroundColor"])" />
+                                    <input onchange="ChangeBackground('-@field.Tag')" type="color" id="@($"{field.Tag}Background")" data-override="@string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}BackgroundColor"])"
+                                       value="@(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}BackgroundColor"]) ? new[] {"navbar", "success", "select"}.Any(x => x == field.Tag) && !string.IsNullOrEmpty(Context.Request.Cookies["BackgroundColor"]) ? Context.Request.Cookies["BackgroundColor"] : $"{field.DefaultBackground}" : Context.Request.Cookies[$"{field.Tag}BackgroundColor"])" />
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input onchange="ChangeForeground('-@field.Tag')" type="color"
-                                       value="@(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}ForegroundColor"]) ? $"{field.DefaultForeground}" : Context.Request.Cookies[$"{field.Tag}ForegroundColor"])" />
+                                    <input onchange="ChangeForeground('-@field.Tag')" type="color" id="@($"{field.Tag}Foreground")" data-override="@string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}ForegroundColor"])"
+                                       value="@(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}ForegroundColor"]) ? new[] {"navbar", "success", "select"}.Any(x => x == field.Tag) && !string.IsNullOrEmpty(Context.Request.Cookies["ForegroundColor"]) ? Context.Request.Cookies["ForegroundColor"] : $"{field.DefaultForeground}" : Context.Request.Cookies[$"{field.Tag}ForegroundColor"])" />
                                 </td>
                                 <td class="align-middle">
-                                    <input class="form-control form-control-sm" type="number" onchange="ChangeFontSize('-@field.Tag')" min="16" max="36"
-                                       value="@(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontSize"]) ? "16" : Context.Request.Cookies[$"{field.Tag}FontSize"])" />
+                                    <input class="form-control form-control-sm" type="number" onchange="ChangeFontSize('-@field.Tag')" min="16" max="36" id="@($"{field.Tag}Fontsize")" data-override="@string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}Fontsize"])"
+                                       value="@(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontSize"]) ? new[] {"navbar", "success", "select"}.Any(x => x == field.Tag) && !string.IsNullOrEmpty(Context.Request.Cookies["FontSize"]) ? Context.Request.Cookies["FontSize"] : "16" : Context.Request.Cookies[$"{field.Tag}FontSize"])" />
                                 </td>
                                 <td class="align-middle">
                                     <div class="dropdown">
-                                        <div class="border rounded p-2" role="button" id="dropDownToggle@(field.Tag)" data-bs-toggle="dropdown" aria-expanded="false" onclick="ApplyFonts()">
-                                            @(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontFamily"]) ? "Select font" : Context.Request.Cookies[$"{field.Tag}FontFamily"])
+                                        <div class="border rounded p-2" role="button" id="dropDownToggle@(field.Tag)" data-bs-toggle="dropdown" aria-expanded="false" onclick="ApplyFonts()" data-override="@string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontFamily"])">
+                                            @(string.IsNullOrEmpty(Context.Request.Cookies[$"{field.Tag}FontFamily"]) ? new[] { "navbar", "success", "select" }.Any(x => x == field.Tag) && !string.IsNullOrEmpty(Context.Request.Cookies["FontFamily"]) ? Context.Request.Cookies["FontFamily"] : "Select font" : Context.Request.Cookies[$"{field.Tag}FontFamily"])
                                         </div>
                                         <ul class="dropdown-menu custom-select p-0 w-100 fs-inherit" onscroll="ApplyFonts()" onclick="ChangeFontFamily('-@field.Tag')" aria-labelledby="dropDownToggle@(field.Tag)">
                                             @foreach (var font in Helper.FontFamilies)
                                             {
-                                                if (Context.Request.Cookies[$"{field.Tag}FontFamily"] == font)
+                                                if (Context.Request.Cookies[$"{field.Tag}FontFamily"] == font ||
+                                                   (new[] { "navbar", "success", "select" }.Any(x => x == field.Tag) && 
+                                                    Context.Request.Cookies["FontFamily"] == font))
                                                 {
                                                     <li class="dropdown-item" selected>@font</li>
                                                 }
