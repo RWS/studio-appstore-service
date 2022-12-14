@@ -55,11 +55,17 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return result;
             }
 
-            var (newUsername, newRole) = (profileModel.Username, profileModel.UserRole);
+            var (newUsername, newRole, newEmail) = (profileModel.Username, profileModel.UserRole, profileModel.Email);
             if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
             {
-                await _userManager.SetUserNameAsync(currentUser, newUsername);
                 var identityResult = await _userManager.SetUserNameAsync(currentUser, newUsername);
+                if (!identityResult.Succeeded)
+                {
+                    TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
+                    return RedirectToAction("Profile");
+                }
+
+                identityResult = await _userManager.SetEmailAsync(currentUser, newEmail);
                 if (!identityResult.Succeeded)
                 {
                     TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
@@ -74,6 +80,16 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             if (newUsername != wantedUser.UserName)
             {
                 var identityResult = await _userManager.SetUserNameAsync(wantedUser, newUsername);
+                if (!identityResult.Succeeded)
+                {
+                    TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
+                    return RedirectToAction("Profile", new { id });
+                }
+            }
+
+            if (newEmail != wantedUser.Email)
+            {
+                var identityResult = await _userManager.SetEmailAsync(wantedUser, newEmail);
                 if (!identityResult.Succeeded)
                 {
                     TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
@@ -154,6 +170,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 {
                     Id = user.Id,
                     Name = user.UserName,
+                    Email = user.Email,
                     Role = (await _userManager.GetRolesAsync(user))[0],
                     IsCurrentUser = user == (await _userManager.GetUserAsync(User))
                 });
@@ -276,8 +293,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return new ProfileModel
             {
                 Username = username,
+                Email= user.Email,
                 UserRole = role,
-                IsUsernameEditable = !isCurrentUserProfile || username != "Admin" && role == "Administrator",
+                IsUsernameEditable = !isCurrentUserProfile || (username != "Admin" && role == "Administrator"),
                 IsUserRoleEditable = !isCurrentUserProfile,
                 Id = isCurrentUserProfile ? null : user.Id
             };

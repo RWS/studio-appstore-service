@@ -45,7 +45,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index()
         {
             PluginFilter pluginsFilters = ApplyFilters();
-            var pluginsList = await _pluginRepository.GetAll(pluginsFilters.SortOrder);
+            var pluginsList = await _pluginRepository.GetAll(pluginsFilters.SortOrder, User.IsInRole("Developer") ? User.Identity.Name : null);
             var products = await _productsRepository.GetAllProducts();
             return View(new ConfigToolModel
             {
@@ -79,11 +79,17 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return await Save(plugin, versions, version, _pluginRepository.AddPrivatePlugin);
         }
 
-        [Route("Plugins/Edit/{id?}")]
+        [Route("Plugins/Edit/{id:int}")]
         public async Task<IActionResult> Edit(int id)
         {
             var categories = await _categoriesRepository.GetAllCategories();
-            var pluginDetails = await _pluginRepository.GetPluginById(id);
+            var pluginDetails = await _pluginRepository.GetPluginById(id, User.IsInRole("Developer") ? User.Identity.Name : null);
+
+            if (pluginDetails == null)
+            {
+                return NotFound();
+            }
+
             return View(new PrivatePlugin<PluginVersion<string>>
             {
                 Id = pluginDetails.Id,

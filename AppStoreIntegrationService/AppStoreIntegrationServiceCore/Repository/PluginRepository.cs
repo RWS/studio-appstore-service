@@ -113,15 +113,16 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
         }
 
-        public async Task<T> GetPluginById(int id)
+        public async Task<T> GetPluginById(int id, string developerName = null)
         {
             var pluginList = await GetAll("asc");
-            if (pluginList != null)
+
+            if (developerName == null)
             {
-                return pluginList.FirstOrDefault(p => p.Id.Equals(id));
+                return pluginList?.FirstOrDefault(p => p.Id == id);
             }
 
-            return new T();
+            return pluginList?.FirstOrDefault(p => p.Id == id && p.Developer.DeveloperName == developerName);
         }
 
         public async Task RemovePluginVersion(int pluginId, string versionId)
@@ -178,16 +179,20 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _localRepository.SavePluginsToFile(pluginsList);
         }
 
-        public async Task<List<T>> GetAll(string sortOrder)
+        public async Task<List<T>> GetAll(string sortOrder, string developerName = null)
         {
-            var pluginsList = await GetPlugins();
-
-            if (!string.IsNullOrEmpty(sortOrder) && !sortOrder.ToLower().Equals("asc"))
+            var plugins = Equals(developerName, null) switch
             {
-                return pluginsList?.OrderByDescending(p => p.Name).ToList();
+                true => await GetPlugins(),
+                _ => (await GetPlugins()).Where(p => p.Developer.DeveloperName == developerName).ToList(),
+            };
+
+            if (!string.IsNullOrEmpty(sortOrder) && !sortOrder.Equals("asc", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return plugins?.OrderByDescending(p => p.Name).ToList();
             }
 
-            return pluginsList?.OrderBy(p => p.Name).ToList();
+            return plugins?.OrderBy(p => p.Name).ToList();
         }
 
         private static List<T> FilterByStatus(List<T> searchedPluginList, StatusValue status)

@@ -36,12 +36,18 @@
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
             <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control fs-inherit" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
                 @if (Model.IsUserRoleEditable)
                 {
                     <label class="form-label" asp-for="UserRole">Role</label>
                     <select class="fs-inherit pa-admin-select w-100" asp-for="UserRole">
                         <option value="StandardUser" selected>Standard</option>
                         <option value="Administrator">Administrator</option>
+                        <option value="Developer">Developer</option>
                     </select>
                 }
                 else

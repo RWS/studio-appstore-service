@@ -46,7 +46,15 @@
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="DeveloperName">Developer </label>
                 <div class="w-100">
-                    <input asp-for="DeveloperName" class="form-control fs-inherit" />
+                    @if (User.IsInRole("Developer"))
+                    {
+                        <input asp-for="DeveloperName" value="@User.Identity.Name" disabled class="form-control fs-inherit" />
+                    }
+                    else
+                    {
+                        <input asp-for="DeveloperName" class="form-control fs-inherit" />
+                    }
+
                     <span asp-validation-for="DeveloperName" class="text-danger"></span>
                     <span hidden id="DeveloperNameManifestConflict" class="text-danger">Plugin manifest conflict! Invalid developer name!</span>
                 </div>

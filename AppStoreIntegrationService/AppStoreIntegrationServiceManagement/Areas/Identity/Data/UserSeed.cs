@@ -24,16 +24,15 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
 
             if (!_roleManager.Roles.Any())
             {
-                _roleManager.CreateAsync(new IdentityRole
+                var roles = new[] { "Administrator", "StandardUser", "Developer" };
+                for (var i = 0; i < roles.Length; i++)
                 {
-                    Name = "Administrator",
-                    Id = "1"
-                }).Wait();
-                _roleManager.CreateAsync(new IdentityRole
-                {
-                    Name = "StandardUser",
-                    Id = "2"
-                }).Wait();
+                    _roleManager.CreateAsync(new IdentityRole
+                    {
+                        Name = roles[i],
+                        Id = $"{i + 1}"
+                    }).Wait();
+                }
             }
 
             var defaultAdminUser = new IdentityUser { UserName = "Admin", Email = "admin@sdl.com" };

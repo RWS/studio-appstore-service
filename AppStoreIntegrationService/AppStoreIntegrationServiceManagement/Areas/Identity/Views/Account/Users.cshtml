@@ -17,6 +17,7 @@
             <thead>
                 <tr class="text-center d-none d-lg-table-row">
                     <th>Username</th>
+                    <th>Email</th>
                     <th>Role</th>
                     <th></th>
                     <th></th>
@@ -27,6 +28,7 @@
                 {
                     <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
                         <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
+                        <td class="align-middle px-3 d-none d-lg-table-cell">@user.Email</td>
                         <td class="align-middle px-3 d-none d-lg-table-cell">@user.Role</td>
                         @if (user.Name != "Admin")
                         {
@@ -52,7 +54,7 @@
     </div>
 </div>
 
-<partial name="_ModalPartial" model="@new ModalMessage()" />
+<partial name="_ModalPartial" model="@(new ModalMessage())" />
 
 <script src="~/js/ManageUsersScript.js"></script>
 
