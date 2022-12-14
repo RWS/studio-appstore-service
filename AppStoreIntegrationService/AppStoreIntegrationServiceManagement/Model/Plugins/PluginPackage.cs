@@ -27,10 +27,10 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
         {
             var selectedProducts = version.SupportedProducts.SelectMany(sp => products.Where(p => p.Id == sp));
             return new[] {
-                float.TryParse(selectedProducts.MinBy(p => p.MinimumStudioVersion).MinimumStudioVersion, out float minProductVersion),
-                float.TryParse(selectedProducts.MaxBy(p => p.MinimumStudioVersion).MinimumStudioVersion, out float maxProductVersion),
-                float.TryParse(version.MinimumRequiredVersionOfStudio, out float minRequiredVersion),
-                float.TryParse(version.MinimumRequiredVersionOfStudio, out float maxRequiredVersion)
+                System.Version.TryParse(selectedProducts.MinBy(p => p.MinimumStudioVersion).MinimumStudioVersion, out Version minProductVersion),
+                System.Version.TryParse(selectedProducts.MaxBy(p => p.MinimumStudioVersion).MinimumStudioVersion, out Version maxProductVersion),
+                System.Version.TryParse(version.MinimumRequiredVersionOfStudio, out Version minRequiredVersion),
+                System.Version.TryParse(version.MinimumRequiredVersionOfStudio, out Version maxRequiredVersion)
             }.All(match => match) && minProductVersion >= minRequiredVersion && maxProductVersion <= maxRequiredVersion;
         }
     }
