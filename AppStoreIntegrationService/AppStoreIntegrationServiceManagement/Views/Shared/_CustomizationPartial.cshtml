@@ -2,8 +2,8 @@
 
 <div class="modal fade" id="preferencesModal" tabindex="-1" aria-labelledby="preferencesModal" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content resizable draggable">
+            <div class="modal-header cursor-move" onmousedown="BeginDrag()">
                 <h5 class="modal-title fs-inherit" id="preferencesModal">Basic customization</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -60,8 +60,8 @@
 </div>
 <div class="modal fade" id="furtherCustomization" aria-hidden="true" aria-labelledby="furtherCustomization" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content resizable draggable">
+            <div class="modal-header cursor-move" onmousedown="BeginDrag()">
                 <h5 class="modal-title" id="furtherCustomization">Advanced customization</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>

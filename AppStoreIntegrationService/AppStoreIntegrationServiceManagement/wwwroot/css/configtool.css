@@ -233,6 +233,8 @@ body, html {
 }
 
 .rich-text-editor {
+    resize: both;
+    overflow: auto;
     color: var(--pa-admin-input-foreground);
     background-color: var(--pa-admin-input-color);
     font-size: var(--pa-admin-input-fontsize);
@@ -249,7 +251,13 @@ body, html {
     height: 200px;
     outline: 0px solid transparent;
     word-break: normal;
-    overflow-y: scroll;
+}
+
+.editor-toolbar {
+    color: var(--pa-admin-input-foreground);
+    background-color: var(--pa-admin-input-color);
+    font-size: var(--pa-admin-input-fontsize);
+    font-family: var(--pa-admin-input-fontfamily);
 }
 
 .selector-cell {
@@ -413,6 +421,20 @@ header {
     font-family: var(--pa-admin-modal-fontfamily);
     color: var(--pa-admin-modal-foreground);
     background-color: var(--pa-admin-modal-color);
+}
+
+.cursor-move{
+    cursor: move;
+}
+
+.resizable{
+    resize: both;
+    overflow: auto;
+}
+
+.draggable {
+    position: absolute;
+    user-select: none;
 }
 
 /* Responsive */

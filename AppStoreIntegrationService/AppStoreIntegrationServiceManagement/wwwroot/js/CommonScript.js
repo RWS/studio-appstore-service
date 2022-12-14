@@ -1,5 +1,8 @@
 ﻿let fileHash;
 let manifestCompare;
+let x;
+let y;
+let draggable;
 
 function RedirectTo(goToPage, controller, action) {
     var currentPage = controller + '/' + action;
@@ -159,6 +162,30 @@ function CompareWithManifest() {
         }
     });
 }
+
+function BeginDrag() {
+    x = event.clientX;
+    y = event.clientY;
+    draggable = event.currentTarget.parentElement;
+    document.addEventListener('mousemove', Drag);
+    document.addEventListener('mouseup', StopDrag);
+}
+
+function Drag(e) {
+    const dx = e.clientX - x;
+    const dy = e.clientY - y;
+
+    draggable.style.top = `${draggable.offsetTop + dy}px`;
+    draggable.style.left = `${draggable.offsetLeft + dx}px`;
+
+    x = e.clientX;
+    y = e.clientY;
+};
+
+function StopDrag() {
+    document.removeEventListener('mousemove', Drag);
+    document.removeEventListener('mouseup', StopDrag);
+};
 
 function AjaxSuccessCallback(actionResult) {
     if (!actionResult.includes("div")) {
