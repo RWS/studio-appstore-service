@@ -30,7 +30,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
                 System.Version.TryParse(selectedProducts.MinBy(p => p.MinimumStudioVersion).MinimumStudioVersion, out Version minProductVersion),
                 System.Version.TryParse(selectedProducts.MaxBy(p => p.MinimumStudioVersion).MinimumStudioVersion, out Version maxProductVersion),
                 System.Version.TryParse(version.MinimumRequiredVersionOfStudio, out Version minRequiredVersion),
-                System.Version.TryParse(version.MinimumRequiredVersionOfStudio, out Version maxRequiredVersion)
+                System.Version.TryParse(version.MaximumRequiredVersionOfStudio, out Version maxRequiredVersion)
             }.All(match => match) && minProductVersion >= minRequiredVersion && maxProductVersion <= maxRequiredVersion;
         }
     }
