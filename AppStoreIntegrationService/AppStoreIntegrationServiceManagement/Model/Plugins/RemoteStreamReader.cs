@@ -15,7 +15,7 @@
             };
         }
 
-        public async Task<Stream> ReadAsync()
+        public async Task<Stream> ReadAsStreamAsync()
         {
             HttpResponseMessage downloadResponse;
 
@@ -30,10 +30,15 @@
 
             if (!downloadResponse.IsSuccessStatusCode)
             {
-                throw new Exception($"Error! {downloadResponse.StatusCode}");
+                throw new Exception($"{downloadResponse.StatusCode}");
             }
 
             return await downloadResponse.Content.ReadAsStreamAsync();
+        }
+
+        public async Task<string> ReadAsStringAsync()
+        {
+            return await new StreamReader(await ReadAsStreamAsync()).ReadToEndAsync();
         }
     }
 }

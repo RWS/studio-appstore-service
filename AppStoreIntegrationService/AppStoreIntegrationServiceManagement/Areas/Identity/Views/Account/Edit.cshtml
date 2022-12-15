@@ -14,7 +14,7 @@
 <h4>Manage users</h4>
 <hr class="w-100">
 <div class="row justify-content-center">
-    <partial name="_EditNav" model="@Model.Id"/>
+    <partial name="_EditNav" model="@Model.Id" />
     <div class="col-12 col-md-9">
         <h4>@string.Format("Edit {0}", Model.Name)</h4>
         <form asp-controller="Manage" asp-action="Update" asp-route-id="@Model.Id" method="post">
@@ -24,14 +24,10 @@
             </div>
             <div class="mb-3">
                 <label class="form-label" asp-for="Role">Role</label>
-                <div class="form-check p-0">
-                    <input checked type="radio" asp-for="Role" value="StandardUser" />
-                    Standard
-                </div>
-                <div class="form-check p-0">
-                    <input type="radio" asp-for="Role" value="Administrator" />
-                    Administrator
-                </div>
+                <select class="fs-inherit pa-admin-select w-100" asp-for="Role">
+                    <option value="StandardUser" selected>Standard</option>
+                    <option value="Administrator">Administrator</option>
+                </select>
             </div>
             <button type="submit" class="btn pa-admin-success-btn">Save</button>
         </form>

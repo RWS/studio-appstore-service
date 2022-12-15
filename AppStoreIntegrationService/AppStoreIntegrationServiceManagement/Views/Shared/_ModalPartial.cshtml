@@ -4,7 +4,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">@Model.Title</h5>
+                <h5 class="modal-title fs-inherit" id="exampleModalLabel">@Model.Title</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -13,20 +13,20 @@
             <div class="modal-footer">
                 @if (Model.ModalType == ModalType.SuccessMessage)
                 {
-                    <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-secondary" data-bs-dismiss="modal">Redirect</button>
-                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-secondary fs-inherit" data-bs-dismiss="modal">Redirect</button>
+                    <button type="button" class="btn btn-success fs-inherit" data-bs-dismiss="modal">Cancel</button>
                 }
 
                 @if (Model.ModalType == ModalType.WarningMessage)
                 {
-                    <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-danger" data-bs-dismiss="modal">Yes</button>
-                    <button type="button" class="btn pa-admin-success-btn" onclick="javascript: $('#confirmationModal').remove()" data-bs-dismiss="modal">No</button>
+                    <button type="button" onclick="javascript: window.location.href = '@Model.RequestPage'" class="btn btn-danger fs-inherit" data-bs-dismiss="modal">Yes</button>
+                    <button type="button" class="btn pa-admin-success-btn fs-inherit" onclick="javascript: $('#confirmationModal').remove()" data-bs-dismiss="modal">No</button>
                 }
 
                 @if(Model.ModalType == ModalType.ConfirmationMessage)
                 {
-                    <button type="button" id="dismissBtn" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                    <button type="button" id="confirmationBtn" data-bs-dismiss="modal" class="btn pa-admin-success-btn">Yes</button>
+                    <button type="button" id="dismissBtn" class="btn btn-secondary fs-inherit" data-bs-dismiss="modal">No</button>
+                    <button type="button" id="confirmationBtn" data-bs-dismiss="modal" class="btn pa-admin-success-btn fs-inherit">Yes</button>
                 }
             </div>
         </div>

@@ -5,8 +5,8 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<h2>@ViewData["Title"]</h2>
-<h4>Account settings</h4>
+<h1 class="fs1-inherit">@ViewData["Title"]</h1>
+<h2 class="fs2-inherit">Account settings</h2>
 <hr class="w-100">
 <div class="row">
 
@@ -20,18 +20,18 @@
     }
 
     <div class="col-12 col-md-9">
-        <h4 class="text-break">@string.Format("Edit profile {0}", Model.Id != null ? $"for {Model.Username}" : null)</h4>
+        <p class="text-break fw-bold fs4-inherit">@string.Format("Edit profile {0}", Model.Id != null ? $"for {Model.Username}" : null)</p>
         <form asp-controller="Account" asp-action="Update" asp-route-id="@Model.Id" method="post">
             <input hidden asp-for="Id" />
             <div class="mb-3">
                 <label asp-for="Username" class="form-label"></label>
                 @if (Model.IsUsernameEditable)
                 {
-                    <input asp-for="Username" class="form-control" />
+                    <input asp-for="Username" class="form-control fs-inherit" />
                 }
                 else
                 {
-                    <input asp-for="Username" class="form-control" disabled />
+                    <input asp-for="Username" class="form-control fs-inherit" disabled />
                 }
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
@@ -39,23 +39,19 @@
                 @if (Model.IsUserRoleEditable)
                 {
                     <label class="form-label" asp-for="UserRole">Role</label>
-                    <div class="form-check p-0">
-                        <input checked type="radio" asp-for="UserRole" value="StandardUser" />
-                        Standard
-                    </div>
-                    <div class="form-check p-0">
-                        <input type="radio" asp-for="UserRole" value="Administrator" />
-                        Administrator
-                    </div>
+                    <select class="fs-inherit pa-admin-select w-100" asp-for="UserRole">
+                        <option value="StandardUser" selected>Standard</option>
+                        <option value="Administrator">Administrator</option>
+                    </select>
                 }
                 else
                 {
                     <label asp-for="UserRole" class="form-check-label mb-2"></label>
-                    <input disabled asp-for="UserRole" class="form-control" />
+                    <input disabled asp-for="UserRole" class="form-control fs-inherit" />
                 }
 
             </div>
-            <button type="submit" class="btn pa-admin-success-btn">Save</button>
+            <button type="submit" class="btn pa-admin-success-btn fs-inherit">Save</button>
         </form>
     </div>
 </div>

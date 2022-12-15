@@ -4,6 +4,8 @@ using static AppStoreIntegrationServiceCore.Enums;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceAPI.Model.Repository.Interface;
+using AppStoreIntegrationServiceAPI.Model.Repository;
 
 namespace AppStoreIntegrationServiceAPI
 {
@@ -38,13 +40,15 @@ namespace AppStoreIntegrationServiceAPI
                 options.Providers.Add<GzipCompressionProvider>();
             });
 
-            services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
-            services.AddSingleton<IVersionProvider, VersionProvider<PluginDetails<PluginVersion<string>, string>>>();
-            services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<string>, string>>, AzureRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<IPluginRepository<PluginDetails<PluginVersion<string>, string>>, PluginRepository<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<string>, string>>, AzureRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<ILocalRepository<PluginDetails<PluginVersion<string>, string>>, LocalRepository<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IPluginResponseConverter<PluginDetails<PluginVersion<string>, string>, PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>, 
+                                  PluginResponseConverter<PluginDetails<PluginVersion<string>, string>, PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>>();
+            services.AddSingleton<IResponseRepository<PluginDetails<PluginVersion<string>, string>>, ResponseRepository<PluginDetails<PluginVersion<string>, string>>>();
             services.AddSingleton<INamesRepository, NamesRepository>();
         }
 
@@ -70,7 +74,13 @@ namespace AppStoreIntegrationServiceAPI
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseResponseCaching();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints => { 
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}"
+                );
+            });
         }
     }
 }

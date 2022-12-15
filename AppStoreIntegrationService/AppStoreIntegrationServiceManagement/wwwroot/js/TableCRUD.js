@@ -1,8 +1,7 @@
 ﻿let currentParagraphValue;
 let oldData = '';
 let newData = '';
-let oldCheckboxValue;
-let last = -1;
+let oldCheckboxValue = {}
 
 class TableCrud {
     #deleteUrl;
@@ -20,11 +19,11 @@ class TableCrud {
     }
 
     DiscardChanges() {
-        this.#ToggleEditForm(this.#GetCurrentRowElements(event.target, false), () => { this.#RestoreDefaultCheckGroup() }, '#confirmationModal', document.getElementById('confirmationBtn'), null);
+        this.#ToggleEditForm(this.#GetCurrentRowElements(event.target, false), () => { return; }, '#confirmationModal', document.getElementById('confirmationBtn'), null);
     }
 
     ApplyChanges() {
-        this.#ToggleEditForm(this.#GetCurrentRowElements(event.target, false), () => { this.#RestoreDefaultCheckGroup() }, '#confirmationModal', document.getElementById('dismissBtn'), document.getElementById('confirmationBtn'));
+        this.#ToggleEditForm(this.#GetCurrentRowElements(event.target, false), () => { return; }, '#confirmationModal', document.getElementById('dismissBtn'), document.getElementById('confirmationBtn'));
     }
 
     FocusOut() {
@@ -42,7 +41,6 @@ class TableCrud {
 
         this.CloseNewRowForm(() => {
             this.#CloseExistingEditForms(() => {
-                this.#RestoreDefaultCheckGroup();
                 this.#ToggleEditFormInputs(inputs, paragraphs, false, true);
                 this.#UpdateEditPanelIcons(icons);
             });
@@ -53,7 +51,6 @@ class TableCrud {
         var productId = event.target.id;
         this.CloseNewRowForm(() => {
             this.#CloseExistingEditForms(() => {
-                this.#RestoreDefaultCheckGroup()
                 document.getElementById('confirmationBtn').onclick = () => {
                     $.ajax({
                         type: "POST",
@@ -102,7 +99,6 @@ class TableCrud {
         }
 
         var inputs = newNameMappingForm.querySelectorAll('.editable-field input:first-child');
-        console.log(inputs)
         if (this.#GetCurrentRowData(inputs) == '' || this.#GetCurrentRowData(inputs) == 'false') {
             newNameMappingForm.remove();
             confirmationCallback();
@@ -112,8 +108,6 @@ class TableCrud {
         document.getElementById('confirmationBtn').onclick = () => {
             newNameMappingForm.remove();
             confirmationCallback();
-            this.#RestoreDefaultCheckGroup();
-            last = -1;
         }
 
         document.querySelector("#confirmationModal .modal-body").innerHTML = "Discard changes for new item?"
@@ -147,6 +141,10 @@ class TableCrud {
         })
     }
 
+    Change() {
+        this.#ToggleCheckGroup(event.target, event.target.checked);
+    }
+
     #UpdateTable() {
         var pageValues = $('main').find('input, select').serialize();
 
@@ -156,31 +154,6 @@ class TableCrud {
             url: this.#updateUrl,
             success: this.#AjaxSuccessCallback
         })
-    }
-
-    Change() {
-        let inputs = document.querySelectorAll('.editable-field .form-check-input');
-        last = last < 0 ? Array(...inputs).indexOf(Array(...inputs).find(input => input.checked && input != event.target)) : last;
-
-        if (!event.target.checked) {
-            if (last < 0) {
-                this.#ToggleCheckGroup(event.target, false);
-                return;
-            }
-
-            if (event.target != inputs[last]) {
-                this.#ToggleCheckGroup(event.target, false);
-                this.#ToggleCheckGroup(inputs[last], true)
-            }
-        }
-
-        if (last >= 0 && event.target.checked) {
-            inputs.forEach(input => {
-                this.#ToggleCheckGroup(input, false);
-            })
-
-            this.#ToggleCheckGroup(event.target, true);
-        }
     }
 
     #ToggleEditForm(curentRowElements, callback, confirmationModalId, confirmationBtn, dismissBtn) {
@@ -206,7 +179,6 @@ class TableCrud {
             this.#ToggleEditFormInputs(inputs, paragraphs, true, false);
             this.#UpdateEditPanelIcons(icons);
             callback();
-            last = -1;
         }
 
         $(confirmationModalId).modal('show');
@@ -239,8 +211,8 @@ class TableCrud {
         for (let j = 0; j < inputs.length; j++) {
             if (restoreChanges) {
                 if (inputs[j].type == "checkbox") {
-                    this.#ToggleCheckGroup(inputs[j], oldCheckboxValue);
-                    oldCheckboxValue = '';
+                    this.#ToggleCheckGroup(inputs[j], oldCheckboxValue[`input-${j}`]);
+                    delete oldCheckboxValue[`input-${j}`]
                 }
                 inputs[j].value = paragraphs[j].innerHTML;
             }
@@ -256,7 +228,7 @@ class TableCrud {
                 paragraphs[j].classList.add('section-closed');
                 oldData += inputs[j].type == "checkbox" ? inputs[j].checked : inputs[j].value;
                 if (inputs[j].type == "checkbox") {
-                    oldCheckboxValue = inputs[j].checked;
+                    oldCheckboxValue[`input-${j}`] = inputs[j].checked;
                 }
             } else {
                 inputs[j].hidden = true;
@@ -319,20 +291,8 @@ class TableCrud {
         var icon = input.nextElementSibling.firstChild;
         if (icon != null) {
             input.checked = isChecked;
-            icon.classList.remove(`fa-${isChecked ? 'times' : 'check'}-circle`, `text-${isChecked ? 'danger' : 'success'}`);
-            icon.classList.add(`fa-${isChecked ? 'check' : 'times'}-circle`, `text-${isChecked ? 'success' : 'danger'}`);
-        }
-    }
-
-    #RestoreDefaultCheckGroup() {
-        let inputs = document.querySelectorAll('.editable-field .form-check-input');
-
-        if (inputs.length != 0 && last >= 0) {
-            for (let input of inputs) {
-                this.#ToggleCheckGroup(input, false);
-            }
-
-            this.#ToggleCheckGroup(inputs[last], true);
+            icon.classList.remove(`fa-${isChecked ? 'times' : 'check'}-circle`);
+            icon.classList.add(`fa-${isChecked ? 'check' : 'times'}-circle`);
         }
     }
 }

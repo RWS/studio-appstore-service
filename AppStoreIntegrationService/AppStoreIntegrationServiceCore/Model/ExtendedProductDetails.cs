@@ -8,15 +8,14 @@ namespace AppStoreIntegrationServiceCore.Model
         public ExtendedProductDetails() { }
         public ExtendedProductDetails(ProductDetails product) : base(product) { }
         [JsonIgnore]
-        public SelectList ParentProductsListItems { get; set; }
+        public MultiSelectList ParentProductsListItems { get; set; }
         public void SetParentProductsList(List<ParentProduct> parents)
         {
-            ParentProductsListItems = new SelectList
+            ParentProductsListItems = new MultiSelectList
             (
                 parents,
                 nameof(ParentProduct.ParentId),
-                nameof(ParentProduct.ParentProductName),
-                parents.FirstOrDefault(p => p.ParentId.Equals(ParentProductID))?.ParentId
+                nameof(ParentProduct.ParentProductName)
             );
         }
 

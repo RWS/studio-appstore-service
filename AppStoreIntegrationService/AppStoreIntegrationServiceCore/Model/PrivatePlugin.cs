@@ -8,7 +8,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Plugin name is required!")]
-        [RegularExpression(@"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$", ErrorMessage = "Invalid name!")]
+        [RegularExpression(@"^(\(?[a-zA-Z]{1,}\)?)( ?(- ?)?\(?[a-zA-Z0-9]{1,}'?[).,]?)*$", ErrorMessage = "Invalid name!")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Description field is required!")]
@@ -32,7 +32,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [Url(ErrorMessage = "Invalid url!")]
         public string DownloadUrl { get; set; }
 
-        public List<string> Categories { get; set; }
+        public List<string> Categories { get; set; } = new List<string>();
 
         public List<ExtendedPluginVersion<string>> Versions { get; set; }
 
@@ -40,7 +40,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [RegularExpression(@"^https?:\/\/\w+([\.\-]\w+)*(:[0-9]+)?(\/.*)?$", ErrorMessage = "Invalid url!")]
         public string IconUrl { get; set; }
 
-        [RegularExpression(@"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$", ErrorMessage = "Invalid name!")]
+        [RegularExpression(@"^(\(?[a-zA-Z]{1,}\)?)( ?(- ?)?\(?[a-zA-Z]{1,}'?[).,]?)*$", ErrorMessage = "Invalid name!")]
         public string DeveloperName { get; set; }
 
         public bool IsEditMode { get; set; }
@@ -48,6 +48,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public MultiSelectList CategoryListItems { get; set; }
 
         public string SelectedVersionId { get; set; }
+
 
         public bool IsValid(PluginVersion<string> selectedVersion)
         {
@@ -59,12 +60,10 @@ namespace AppStoreIntegrationServiceCore.Model
             var editedVersion = versions.FirstOrDefault(v => v.VersionId.Equals(selectedVersion.VersionId));
             if (editedVersion != null)
             {
-                selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
                 versions[versions.IndexOf(editedVersion)] = selectedVersion;
             }
             else if (selectedVersion.VersionId != null)
             {
-                selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
                 versions.Add(selectedVersion);
             }
 

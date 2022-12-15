@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System.IO.Compression;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -18,19 +22,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IProductsRepository _productsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
         private readonly IHttpContextAccessor _context;
+        private readonly string _pluginDownloadPath;
 
         public PluginsController
         (
             IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository,
             IHttpContextAccessor context,
             IProductsRepository productsRepository,
-            ICategoriesRepository categoriesRepository
+            ICategoriesRepository categoriesRepository,
+            IWebHostEnvironment environment
         )
         {
             _pluginRepository = pluginRepository;
             _context = context;
             _productsRepository = productsRepository;
             _categoriesRepository = categoriesRepository;
+            _pluginDownloadPath = $@"{environment.ContentRootPath}\Temp";
         }
 
         [Route("Plugins")]
@@ -42,14 +49,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var products = await _productsRepository.GetAllProducts();
             return View(new ConfigToolModel
             {
-                Plugins = InitializePrivatePlugins(_pluginRepository.SearchPlugins(pluginsList, pluginsFilters)).ToList(),
-                ProductsListItems = new SelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName)),
+                Plugins = InitializePrivatePlugins(_pluginRepository.SearchPlugins(pluginsList, pluginsFilters, products)).ToList(),
+                ProductsListItems = new SelectList(products ?? new List<ProductDetails>(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName)),
                 StatusExists = Request.Query.TryGetValue("status", out var statusValue),
                 StatusValue = statusValue,
                 SearchExists = Request.Query.TryGetValue("search", out var searchValue),
                 SearchValue = searchValue,
                 ProductExists = Request.Query.TryGetValue("product", out var productValue),
-                ProductName = products.FirstOrDefault(p => p.Id == productValue)?.ProductName
+                ProductName = products?.FirstOrDefault(p => p.Id == productValue)?.ProductName
             });
         }
 
@@ -89,7 +96,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 SupportUrl = pluginDetails.SupportUrl,
                 Categories = pluginDetails.Categories,
                 Inactive = pluginDetails.Inactive,
-                Versions = SetSelectedProducts(pluginDetails.Versions).ToList(),
+                Versions = pluginDetails.Versions.Select(v => new ExtendedPluginVersion<string>(v)).ToList(),
                 IconUrl = string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl) ? GetDefaultIcon() : pluginDetails.Icon.MediaUrl,
                 IsEditMode = true,
                 CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
@@ -108,6 +115,50 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _pluginRepository.RemovePlugin(id);
             TempData["StatusMessage"] = "Success! Plugin was removed!";
             return Content("");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManifestCompare(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
+        {
+            if (!Directory.Exists(_pluginDownloadPath))
+            {
+                Directory.CreateDirectory(_pluginDownloadPath);
+            }
+
+            try
+            {
+                await DownloadPlugin(version.DownloadUrl);
+                ZipFile.ExtractToDirectory($@"{_pluginDownloadPath}\Plugin.sdlplugin", _pluginDownloadPath);
+                var response = ImportFromFile($@"{_pluginDownloadPath}\pluginpackage.manifest.xml");
+                Directory.Delete(_pluginDownloadPath, true);
+                TempData["ManifestCompare"] = response.CreateMatchLog(plugin, version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
+                return PartialView("_StatusMessage", string.Format("{0}! The comparison finished with{1} conflicts!", isFullMatch ? "Success" : "Error", isFullMatch ? "out" : ""));
+            }
+            catch (Exception e)
+            {
+                Directory.Delete(_pluginDownloadPath, true);
+                if (e is InvalidDataException || e is FileNotFoundException)
+                {
+                    return PartialView("_StatusMessage", "Error! The extract doesn't contain a manifest file!");
+                }
+                
+                return PartialView("_StatusMessage", $"Error! {e.Message}");
+            }
+        }
+
+        private async Task DownloadPlugin(string downloadUrl)
+        {
+            try
+            {
+                var reader = new RemoteStreamReader(new Uri(downloadUrl));
+                var stream = await reader.ReadAsStreamAsync();
+                using var fileStream = System.IO.File.Create($@"{_pluginDownloadPath}\Plugin.sdlplugin");
+                await stream.CopyToAsync(fileStream);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
@@ -131,6 +182,34 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return PartialView("_ModalPartial", modalDetails);
         }
 
+        private static PluginPackage ImportFromFile(string file)
+        {
+            var serializer = new XmlSerializer(typeof(PluginPackage));
+            var result = new StringBuilder();
+            using (var reader = new StreamReader(file))
+            {
+                while (reader.Peek() >= 0)
+                {
+                    result.AppendLine(reader.ReadLine());
+                }
+            }
+
+            if (result.Length > 0)
+            {
+                try
+                {
+                    return (PluginPackage)serializer.Deserialize(new XmlReaderNamespaceIgnore(new StringReader(result.ToString())));
+                }
+                catch (XmlException)
+                {
+                    return null;
+                }
+
+            }
+
+            return null;
+        }
+
         private async Task<bool> IsSaved(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
         {
             var foundPluginDetails = await _pluginRepository.GetPluginById(plugin.Id);
@@ -138,7 +217,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
-        private async Task<IActionResult> Save(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version, Func<PrivatePlugin<PluginVersion<string>>, Task> func)
+        private async Task<IActionResult> Save
+        (
+            PrivatePlugin<PluginVersion<string>> plugin,
+            List<ExtendedPluginVersion<string>> versions,
+            ExtendedPluginVersion<string> version,
+            Func<PrivatePlugin<PluginVersion<string>>, Task> func
+        )
         {
             if (plugin.IsValid(version))
             {
@@ -160,26 +245,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return PartialView("_StatusMessage", "Error! Please fill all required values!");
         }
 
-        private IEnumerable<ExtendedPluginVersion<string>> SetSelectedProducts(List<PluginVersion<string>> versions)
-        {
-            var products = _productsRepository.GetAllProducts().Result;
-            var newVersions = new List<ExtendedPluginVersion<string>>();
-            foreach (var version in versions)
-            {
-                var lastSupportedProduct = products.FirstOrDefault(p => p.Id == version.SupportedProducts[0]);
-                newVersions.Add(new ExtendedPluginVersion<string>(version)
-                {
-                    SelectedProductId = lastSupportedProduct.Id,
-                    SelectedProduct = lastSupportedProduct,
-                    VersionName = $"{lastSupportedProduct.ProductName} - {version.VersionNumber}",
-                });
-            }
-
-            return newVersions;
-        }
-
         private IEnumerable<PrivatePlugin<PluginVersion<string>>> InitializePrivatePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
         {
+            if (plugins == null)
+            {
+                yield break;
+            }
+
             foreach (var plugin in plugins)
             {
                 yield return new PrivatePlugin<PluginVersion<string>>
@@ -188,7 +260,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                     Description = plugin.Description,
                     Name = plugin.Name,
                     Categories = plugin.Categories,
-                    Versions = plugin.Versions.Select(v => new ExtendedPluginVersion<string>(v)).ToList(),
+                    Versions = plugin.Versions?.Select(v => new ExtendedPluginVersion<string>(v)).ToList(),
                     Inactive = plugin.Inactive,
                     IconUrl = string.IsNullOrEmpty(plugin.Icon.MediaUrl) ? GetDefaultIcon() : plugin.Icon.MediaUrl
                 };

@@ -13,7 +13,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             _configurationSettings = configurationSettings;
         }
 
-        private async Task<PluginResponse<T>> ReadFromFile()
+        public async Task<PluginResponse<T>> ReadFromFile()
         {
             if (string.IsNullOrEmpty(_configurationSettings.LocalPluginsFilePath))
             {

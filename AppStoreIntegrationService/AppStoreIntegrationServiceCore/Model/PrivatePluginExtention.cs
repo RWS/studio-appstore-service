@@ -29,14 +29,13 @@
 
         private static List<PluginVersion<string>> PrepareVersions(List<PluginVersion<string>> versions, ExtendedPluginVersion<string> selectedVersion)
         {
-            if (selectedVersion.VersionName == null)
+            if (selectedVersion.VersionNumber == null)
             {
                 return versions;
             }
 
             var newVersionList = new List<PluginVersion<string>>(versions);
             var existingVersion = newVersionList.FirstOrDefault(v => v.VersionId.Equals(selectedVersion.VersionId));
-            selectedVersion.SupportedProducts = new List<string> { selectedVersion.SelectedProductId };
             if (Equals(existingVersion, null))
             {
                 newVersionList.Add(selectedVersion);

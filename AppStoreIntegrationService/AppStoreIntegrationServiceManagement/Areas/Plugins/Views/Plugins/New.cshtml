@@ -8,19 +8,18 @@
     <div class="row p-2" id="pluginDetails">
         <div class="col-12 col-lg-4">
             <div class="d-flex justify-content-center">
-                <img class="img-thumbnail border-0" src="@Model.IconUrl" asp-append-version="true">
+                <img alt="Default plugin image" class="img-thumbnail border-0" src="@Model.IconUrl" asp-append-version="true">
             </div>
-            <h5 class="text-center text-wrap p-1">@Model.Name</h5>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <p class="col-4 m-0 align-self-center">Status</p>
-                <select class="form-select form-select-sm" asp-for="Inactive">
+                <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Inactive">
                     <option value="false">Active</option>
                     <option value="true">Inactive</option>
                 </select>
             </div>
             <div class="d-flex justify-content-between">
-                <h6>Versions <span class="text-danger">*</span></h6>
-                <a onclick="javascript: AddNewVersion()" class="new-version-button"> <i class="fas fa-plus"></i></a>
+                <p class="fw-bold">Versions <span class="text-danger">*</span></p>
+                <i role="button" aria-label="Add new version" onclick="AddNewVersion()" class="fa fa-plus success-icon"></i>
             </div>
         </div>
         <div class="col-12 col-lg-8 border-container">
@@ -31,70 +30,134 @@
 
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="Name">Plugin Name <span class="text-danger">*</span></label>
-                <div class="w-100">
-                    <input asp-for="Name" class="form-control" />
+                <div class="w-100 d-flex flex-column">
+                    <input asp-for="Name" class="form-control manifest-field fs-inherit" />
                     <span asp-validation-for="Name" class="text-danger"></span>
+                    <span hidden id="PluginNameManifestConflict" class="text-danger fs-inherit">Plugin manifest conflict! Invalid plugin name!</span>
                 </div>
             </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="IconUrl">Icon url <span class="text-danger">*</span></label>
                 <div class="w-100">
-                    <input asp-for="IconUrl" class="form-control" />
+                    <input asp-for="IconUrl" class="form-control fs-inherit" />
                     <span asp-validation-for="IconUrl" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="DeveloperName">Developer </label>
                 <div class="w-100">
-                    <input asp-for="DeveloperName" class="form-control" />
+                    <input asp-for="DeveloperName" class="form-control fs-inherit" />
                     <span asp-validation-for="DeveloperName" class="text-danger"></span>
+                    <span hidden id="DeveloperNameManifestConflict" class="text-danger">Plugin manifest conflict! Invalid developer name!</span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="ChangelogLink">Changelog link </label>
                 <div class="w-100">
-                    <input asp-for="ChangelogLink" class="form-control" />
+                    <input asp-for="ChangelogLink" class="form-control fs-inherit" />
                     <span asp-validation-for="ChangelogLink" class="text-danger"></span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="SupportUrl">Support url </label>
                 <div class="w-100">
-                    <input asp-for="SupportUrl" class="form-control" />
+                    <input asp-for="SupportUrl" class="form-control fs-inherit" />
                     <span asp-validation-for="SupportUrl" class="text-danger"></span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="SupportEmail">Support email </label>
                 <div class="w-100">
-                    <input asp-for="SupportEmail" class="form-control" />
+                    <input asp-for="SupportEmail" class="form-control fs-inherit" />
                     <span asp-validation-for="SupportEmail" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3 d-flex align-content-center col-12 p-0">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="Description">Description <span class="text-danger">*</span></label>
                 <div class="w-100">
-                    <textarea asp-for="Description" class="form-control"></textarea>
+                    <div class="rich-text-editor border rounded" title="Rick text editor for plugin description" role="textbox" aria-labelledby="Description">
+                        <div class="d-flex justify-content-between border-bottom p-3">
+                            <i id="bold" title="Insert bold" data-tag-name="B" class="fa fa-bold cursor-pointer option format p-2"></i>
+                            <i id="underline" title="Insert underline" data-tag-name="U" class="fa fa-underline cursor-pointer option format p-2"></i>
+                            <i id="italic" title="Insert italic" data-tag-name="I" class="fa fa-italic cursor-pointer option format p-2"></i>
+                            <i id="insertUnorderedList" title="Insert unordered list" data-tag-name="UL" class="fa fa-list-ul cursor-pointer option p-2"></i>
+                            <i id="insertOrderedList" title="Insert ordered list" data-tag-name="OL" class="fa fa-list-ol cursor-pointer option p-2"></i>
+                            <i id="justifyLeft" title="Justify text left" class="fa fa-align-left cursor-pointer option align p-2"></i>
+                            <i id="justifyCenter" title="Justify text center" class="fa fa-align-center cursor-pointer option align p-2"></i>
+                            <i id="justifyRight" title="Justify text right" class="fa fa-align-right cursor-pointer option align p-2"></i>
+                            <i id="justifyFull" title="Align text justify" class="fa fa-align-justify cursor-pointer option align p-2"></i>
+                            <i id="createLink" onclick="ShowInsertionModal()" class="fa fa-link cursor-pointer p-2"></i>
+                            <div class="dropdown" title="Insert table">
+                                <div class="dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" title="Select table size">
+                                    <i class="fa fa-table cursor-pointer p-2"></i>
+                                </div>
+
+                                <div class="dropdown-menu" style="width:200px;" aria-labelledby="dropdownMenuLink">
+                                    <div class="p-3 table-dimension-selector">
+                                        <p class="table-dimension fw-bold fs-6">0x0</p>
+                                        @for (var i = 1; i <= 10; i++)
+                                        {
+                                            <div class="d-flex justify-content-between mb-1">
+                                                @for (var j = 1; j <= 10; j++)
+                                                {
+                                                    <div id="@($"{i}x{j}")" class="selector-cell border cursor-pointer"></div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false" tabindex="0"></div>
+                    </div>
+                    <textarea asp-for="Description" class="text-area-hidden"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
             </div>
-            <div class="mb-3 d-flex align-content-center col-12 p-0">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="Categories">Plugin categories </label>
-                <select class="form-select" multiple="multiple" asp-for="@Model.Categories" asp-items="Model.CategoryListItems"></select>
+            <div class="d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 align-self-center p-0" asp-for="Categories">Plugin categories </label>
+                <div class="dropdown col-8 p-0" id="categoriesDropdown">
+                    <div class="w-100 border rounded p-2 d-flex justify-content-between" role="button" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="d-flex align-items-center col-11">
+                            <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories left"></i>
+                            <div class="d-flex selection-summary">Select...</div>
+                            <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories right"></i>
+                        </div>
+                        <div class="col-1 d-flex align-items-center justify-content-center">
+                            <i class="fa fa-caret-down"></i>
+                        </div>
+                    </div>
+                    <ul class="dropdown-menu custom-select p-0 w-100 fs-inherit" id="CategoriesSelect" aria-labelledby="dropDownToggle">
+                        @foreach (var item in Model.CategoryListItems)
+                        {
+                            var isSelected = Model.Categories.Any(c => c == item.Value);
+                            <li class="dropdown-item" @(isSelected ? "selected" : "") id="@item.Value">@item.Text</li>
+                        }
+                    </ul>
+                    <select asp-for="Categories" hidden asp-items="@Model.CategoryListItems"></select>
+                </div>
             </div>
             <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0" asp-for="PaidFor">Paid for</label>
-                <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3" />
+                <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" />
             </div>
-
             <div id="pluginVersionContainer"></div>
             <div id="modalContainer"></div>
-            <button type="button" onclick="javascript: AddPlugin()" class="btn btn-primary pa-admin-success-btn ml-lg-3">Save</button>
+            <div class="d-flex mt-5 mb-2">
+                <button type="button" onclick="AddPlugin()" class="btn btn-primary pa-admin-success-btn ml-lg-3 me-2 fs-inherit">Save</button>
+                <button id="manifestModalBtn" class="btn btn-secondary fs-inherit" hidden type="button" onclick="CompareWithManifest()">
+                    <span class="spinner-border spinner-border-sm" hidden role="status" aria-hidden="true"></span>
+                    Compare with manifest
+                </button>
+            </div>
         </div>
     </div>
 </form>
 
+<partial name="_LinkPartial" />
 <script src="~/js/AddPluginScript.js"></script>
+<script src="~/js/RichTextEditor.js"></script>
+<script src="~/js/DropDown.js"></script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -22,7 +22,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var version = versions.FirstOrDefault(v => v.VersionId.Equals(plugin.SelectedVersionId));
             var products = (await _productsRepository.GetAllProducts()).ToList();
-            version.SetSupportedProductsList(products, version.SelectedProduct.Id);
+            var parents = (await _productsRepository.GetAllParents()).ToList();
+            version.SetSupportedProductsList(products, parents);
             return PartialView("_PluginVersionDetailsPartial", version);
         }
 
@@ -30,6 +31,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Add()
         {
             var products = (await _productsRepository.GetAllProducts()).ToList();
+            var parents = (await _productsRepository.GetAllParents()).ToList();
             var version = new ExtendedPluginVersion<string>
             {
                 VersionName = "New plugin version",
@@ -39,7 +41,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 VersionId = Guid.NewGuid().ToString()
             };
 
-            version.SetSupportedProductsList(products, products.FirstOrDefault(x => x.IsDefault)?.Id);
+            version.SetSupportedProductsList(products, parents);
 
             return PartialView("_PluginVersionDetailsPartial", version);
         }
@@ -50,7 +52,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             try
             {
                 var remoteReader = new RemoteStreamReader(new Uri(version.VersionDownloadUrl));
-                version.FileHash = SHA1Generator.GetHash(await remoteReader.ReadAsync());
+                version.FileHash = SHA1Generator.GetHash(await remoteReader.ReadAsStreamAsync());
             }
             catch (Exception e)
             {
@@ -62,9 +64,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(PrivatePlugin<PluginVersion<string>> plugin, string id)
+        [Route("[controller]/[action]/{versionId}")]
+        public async Task<IActionResult> Delete(PrivatePlugin<PluginVersion<string>> plugin, string versionId)
         {
-            await _pluginRepository.RemovePluginVersion(plugin.Id, id);
+            await _pluginRepository.RemovePluginVersion(plugin.Id, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";
             return Content($"Plugins/Edit/{plugin.Id}");
         }

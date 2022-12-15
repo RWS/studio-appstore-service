@@ -5,7 +5,7 @@
         <p>@Model.Id</p>
         <input hidden asp-for="@Model.Id" />
     </td>
-    <td class="editable-field order-first"><input class="form-control form-control-sm text-center text-lg-start" asp-for="@Model.Name" placeholder="CategoryName" autofocus /></td>
-    <td class="icon-cell text-center"><i onclick="table.SaveNewRowData()" class="fa fa-check-circle text-success cursor-pointer align-middle"></i></td>
-    <td class="icon-cell text-center"><i onclick="table.CloseNewRowForm(function() { return })" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
+    <td class="editable-field order-first"><input class="form-control form-control-sm text-center text-lg-start fs-inherit" asp-for="@Model.Name" placeholder="CategoryName" autofocus /></td>
+    <td class="icon-cell text-center"><i onclick="table.SaveNewRowData()" title="Save new category" class="fa fa-check-circle success-icon cursor-pointer align-middle"></i></td>
+    <td class="icon-cell text-center"><i onclick="table.CloseNewRowForm(function() { return })" title="Discard new category" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
 </tr>

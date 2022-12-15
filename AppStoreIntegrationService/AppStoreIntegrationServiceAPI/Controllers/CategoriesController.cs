@@ -1,10 +1,11 @@
 ﻿using System.Net.Mime;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {
-    [Route("api/[controller]")]
+    
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     public class CategoriesController : ControllerBase
@@ -16,7 +17,11 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             _categoriesRepository = categoriesRepository;
         }
 
-        public async Task<IActionResult> Get()
+        [ResponseCache(Location = ResponseCacheLocation.Any, NoStore = true, VaryByQueryKeys = new[] { "*" })]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Route("api/[controller]")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Index()
         {
             var categories = await _categoriesRepository.GetAllCategories();
             return Ok(categories);

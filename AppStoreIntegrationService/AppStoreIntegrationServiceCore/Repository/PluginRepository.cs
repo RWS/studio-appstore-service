@@ -1,8 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using System.Text;
 using System.Text.RegularExpressions;
 using static AppStoreIntegrationServiceCore.Enums;
 
@@ -11,20 +8,17 @@ namespace AppStoreIntegrationServiceCore.Repository
     public class PluginRepository<T> : IPluginRepository<T> where T : PluginDetails<PluginVersion<string>, string>, new()
     {
         private readonly IAzureRepository<T> _azureRepository;
-        private readonly IProductsRepository _productsRepository;
         private readonly ILocalRepository<T> _localRepository;
         private readonly IConfigurationSettings _configurationSettings;
 
         public PluginRepository
         (
             IAzureRepository<T> azureRepository,
-            IProductsRepository productsRepository,
             IConfigurationSettings configurationSettings,
             ILocalRepository<T> localRepository
         )
         {
             _azureRepository = azureRepository;
-            _productsRepository = productsRepository;
             _localRepository = localRepository;
             _configurationSettings = configurationSettings;
         }
@@ -208,17 +202,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private static List<T> FilterByQuery(List<T> pluginsList, string query)
         {
-            var searchedPluginsResult = new List<T>();
-            foreach (var plugin in pluginsList)
-            {
-                var matchName = Regex.IsMatch(plugin.Name.ToLower(), query.ToLower());
-                if (matchName)
-                {
-                    searchedPluginsResult.Add(plugin);
-                }
-            }
-            return searchedPluginsResult;
-
+            return pluginsList.Where(p => Regex.IsMatch(p.Name.ToLower(), query.ToLower())).ToList();
         }
 
         private static List<T> FilterByPrice(List<T> pluginsList, string price)
@@ -236,7 +220,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             return pluginsList.Where(p => p.PaidFor.Equals(paidFor)).ToList();
         }
 
-        private List<T> FilterByVersion(List<T> pluginsList, string studioVersion)
+        private static List<T> FilterByVersion(List<T> pluginsList, string studioVersion, List<ProductDetails> products)
         {
             var plugins = new List<T>();
             var expression = new Regex("\\d+", RegexOptions.IgnoreCase);
@@ -248,19 +232,19 @@ namespace AppStoreIntegrationServiceCore.Repository
             {
                 var matchingVersions = new List<PluginVersion<string>>();
 
-                foreach (var pluginVersion in plugin.Versions)
+                foreach (var version in plugin.Versions)
                 {
-                    var products = _productsRepository.GetAllProducts().Result.Where(p => p.Id == pluginVersion.SupportedProducts[0]);
-                    var version = products.FirstOrDefault(s =>
-                                  s.ProductName.Equals(oldTradosName) ||
-                                  s.ProductName.Equals(rebrandedStudioName) ||
-                                  s.ProductName.Equals("SDL Trados Studio") ||
-                                  s.ProductName.Equals("Trados Studio"));
+                    var product = version.SupportedProducts.SelectMany(sp => products
+                                                           .Where(p => p.Id == sp))
+                                                           .FirstOrDefault(s => s.ProductName.Equals(oldTradosName) ||
+                                                                                s.ProductName.Equals(rebrandedStudioName) ||
+                                                                                s.ProductName.Equals("SDL Trados Studio") ||
+                                                                                s.ProductName.Equals("Trados Studio"));
 
-                    if (version != null)
+                    if (product != null)
                     {
-                        matchingVersions.Add(pluginVersion);
-                        plugin.DownloadUrl = pluginVersion.VersionDownloadUrl;
+                        matchingVersions.Add(version);
+                        plugin.DownloadUrl = version.DownloadUrl;
                     }
                 }
 
@@ -276,27 +260,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private static List<T> FilterByCategory(List<T> pluginsList, List<int> categoryIds)
         {
-            var searchedPluginsResult = new List<T>();
-
-            foreach (var categoryId in categoryIds)
-            {
-                foreach (var plugin in pluginsList)
-                {
-                    if (plugin.Categories != null)
-                    {
-                        var containsCategory = plugin.Categories.Any(c => c.Equals(categoryId));
-                        if (containsCategory)
-                        {
-                            var pluginExist = searchedPluginsResult.Any(p => p.Id.Equals(plugin.Id));
-                            if (!pluginExist)
-                            {
-                                searchedPluginsResult.Add(plugin);
-                            }
-                        }
-                    }
-                }
-            }
-            return searchedPluginsResult;
+            return categoryIds.SelectMany(c => pluginsList.Where(p => p.Categories.Any(pc => pc.Equals(c)))).ToList();
         }
 
         private static List<T> ApplySort(List<T> pluginsList, SortType sortType)
@@ -312,7 +276,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             };
         }
 
-        public List<T> SearchPlugins(List<T> pluginsList, PluginFilter filter)
+        public List<T> SearchPlugins(List<T> pluginsList, PluginFilter filter, List<ProductDetails> products)
         {
             pluginsList ??= new List<T>();
 
@@ -335,7 +299,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
             if (!string.IsNullOrEmpty(filter?.StudioVersion))
             {
-                searchedPluginList = FilterByVersion(searchedPluginList, filter.StudioVersion);
+                searchedPluginList = FilterByVersion(searchedPluginList, filter.StudioVersion, products);
             }
 
             if (filter?.CategoryId?.Count > 0)
@@ -349,9 +313,10 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private static List<T> FilterByProduct(List<T> plugins, string product)
         {
-            return plugins.Where(plugin => plugin.Versions
-                          .Any(v => v.SupportedProducts[0] == product))
-                          .ToList();
+            return plugins.Where(p => p.Versions
+                          .Select(v => v.SupportedProducts
+                          .Any(p => p.Equals(product)))
+                          .Any(check => check)).ToList();
         }
     }
 }

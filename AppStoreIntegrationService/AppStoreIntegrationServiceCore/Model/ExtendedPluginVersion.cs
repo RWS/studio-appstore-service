@@ -1,18 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
     public class ExtendedPluginVersion<T> : PluginVersion<T>
     {
+        private string versionDownloadUrl;
         public ExtendedPluginVersion() { }
 
-        public ExtendedPluginVersion(PluginVersion<T> version) : base(version) { }
+        public ExtendedPluginVersion(PluginVersion<T> version) : base(version)
+        {
+            VersionDownloadUrl = version.DownloadUrl;
+        }
 
+        [Required(ErrorMessage = "Download url is required!")]
+        [Url(ErrorMessage = "Invalid url!")]
         [JsonIgnore]
-        [BindProperty]
-        public string SelectedProductId { get; set; }
+        public string VersionDownloadUrl
+        {
+            get => versionDownloadUrl;
+            set
+            {
+                versionDownloadUrl = value;
+                DownloadUrl = value;
+            }
+        }
 
         [JsonIgnore]
         [BindProperty]
@@ -20,7 +34,10 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [JsonIgnore]
         [BindProperty]
-        public SelectList SupportedProductsListItems { get; set; }
+        public MultiSelectList SupportedProductsListItems { get; set; }
+
+        [JsonIgnore]
+        public IEnumerable<ParentProduct> ParentProducts { get; set; }
 
         [JsonIgnore]
         [BindProperty]
@@ -29,15 +46,16 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonIgnore]
         public bool IsNewVersion { get; set; }
 
-        public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, string defaultProduct)
+        public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, List<ParentProduct> parents)
         {
-            SupportedProductsListItems = new SelectList
+            SupportedProductsListItems = new MultiSelectList
             (
                 supportedProductDetails,
                 nameof(ProductDetails.Id),
-                nameof(ProductDetails.ProductName),
-                defaultProduct
+                nameof(ProductDetails.ProductName)
             );
+
+            ParentProducts = parents;
         }
     }
 }

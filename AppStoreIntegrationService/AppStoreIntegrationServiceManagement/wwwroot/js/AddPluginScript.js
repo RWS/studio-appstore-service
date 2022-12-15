@@ -1,6 +1,12 @@
-﻿let fileHash;
+﻿let parentProducts;
 
 function AddPlugin() {
+    document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
+    var isNavigationLink = document.getElementById("IsNavigationLink");
+
+    if (isNavigationLink) {
+        $("#FileHash").rules(isNavigationLink.checked ? "remove" : "add", "required");
+    }
     $("#form").validate();
 
     if ($("#form").valid()) {
@@ -34,6 +40,28 @@ function AddNewVersion() {
             $('#pluginVersionContainer').html(partialView);
             $('#form').data('validator', null);
             $.validator.unobtrusive.parse('#form');
+            document.getElementById("manifestModalBtn").hidden = false;
+            let dropDown = new DropDown(
+                "#dropDownToggle",
+                "#ProductsSelect",
+                "#SupportedProducts",
+                ".selection-summary",
+                ".overflow-arrow",
+                "#productsDropdown",
+                parentProducts.map(p => p.parentProductName)
+            );
+            dropDown.Init();
         }
     })
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
+
+    let dropDown = new DropDown("#dropDownToggle", "#CategoriesSelect", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown", []);
+    dropDown.Init();
+
+    $.validator.setDefaults({
+        ignore: []
+    });
+})

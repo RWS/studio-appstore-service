@@ -1,40 +1,45 @@
-﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
+﻿@inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
-
 @{
     var controller = ViewContext.RouteData.Values["controller"];
     var action = ViewContext.RouteData.Values["action"];
+    var cookie = Context.Request.Cookies["FontSize"];
 }
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('.Plugins', '@controller', '@action')" class="text-white nav-link cursor-pointer">Plugins List</a>
+            <a class="nav-link cursor-pointer active header-link" data-bs-toggle="modal" data-bs-target="#preferencesModal">Preferences</a>
+        </li>
+
+        <li class="nav-item">
+            <a onclick="RedirectTo('.Plugins', '@controller', '@action')" class="nav-link cursor-pointer active header-link">Plugins List</a>
         </li>
 
         if (User.IsInRole("Administrator"))
         {
             <li class="nav-item">
-                <a onclick="javascript: RedirectTo('.Settings', '@controller', '@action')" class="text-white nav-link cursor-pointer">Settings</a>
+                <a onclick="RedirectTo('.Settings', '@controller', '@action')" class="nav-link active cursor-pointer header-link">Settings</a>
             </li>
         }
 
         <li class="nav-item">
-            <a onclick="javascript: RedirectTo('.Identity.Account.Profile', '@controller', '@action')" class="nav-link text-white cursor-pointer">Hello @UserManager.GetUserName(User)!</a>
+            <a onclick="RedirectTo('.Identity.Account.Profile', '@controller', '@action')" class="active nav-link cursor-pointer header-link">Hello @UserManager.GetUserName(User)!</a>
         </li>
 
         <li class="nav-item">
             <form asp-controller="Authentication" asp-action="Logout" asp-area="Identity" method="post">
-                <button type="submit" class="nav-link btn btn-link text-white cursor-pointer">Sign out</button>
+                <button class="nav-link btn btn-link cursor-pointer fs-inherit active header-link" type="submit">Sign out</button>
             </form>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-white" id="login" asp-controller="Authentication" asp-area="Identity" asp-action="Login">Sign in</a>
+            <a class="nav-link active header-link" id="login" asp-controller="Authentication" asp-area="Identity" asp-action="Login">Sign in</a>
         </li>
     }
 </ul>
+
+<partial name="_CustomizationPartial"/>

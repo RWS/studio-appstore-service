@@ -4,7 +4,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Settings
 {
     public class ImportPluginsModel
     {
-        [Required]
+        [Required(ErrorMessage = "Plugins file is required!")]
         public IFormFile ImportedFile { get; set; }
     }
 }

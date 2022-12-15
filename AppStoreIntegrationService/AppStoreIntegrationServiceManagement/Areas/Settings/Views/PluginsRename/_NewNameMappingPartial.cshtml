@@ -4,11 +4,11 @@
     <td>
         <div>
             <input hidden asp-for="@Model.Id" />
-            <p class="m-0 text-center text-lg-start">@Model.Id</p>
+            <p title="Name mapping id @Model.Id" class="m-0 text-center text-lg-start">@Model.Id</p>
         </div>
     </td>
-    <td class="editable-field"><input class="form-control form-control-sm text-center text-lg-start" placeholder="OldName" asp-for="@Model.OldName" autofocus /></td>
-    <td class="editable-field"><input class="form-control form-control-sm text-center text-lg-start" placeholder="NewName" asp-for="@Model.NewName" /></td>
-    <td class="icon-cell text-center"><i onclick="table.SaveNewRowData()" class="fa fa-check-circle text-success cursor-pointer align-middle"></i></td>
-    <td class="icon-cell text-center"><i onclick="table.CloseNewRowForm(function() { return })" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
+    <td class="editable-field"><input class="form-control form-control-sm text-center text-lg-start fs-inherit" placeholder="OldName" asp-for="@Model.OldName" autofocus /></td>
+    <td class="editable-field"><input class="form-control form-control-sm text-center text-lg-start fs-inherit" placeholder="NewName" asp-for="@Model.NewName" /></td>
+    <td class="icon-cell text-center"><i onclick="table.SaveNewRowData()" title="Save new mapping" class="fa fa-check-circle success-icon cursor-pointer align-middle"></i></td>
+    <td class="icon-cell text-center"><i onclick="table.CloseNewRowForm(function() { return })" title="Discard new mapping" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
 </tr>

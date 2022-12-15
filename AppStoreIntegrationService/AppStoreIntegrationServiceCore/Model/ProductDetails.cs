@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
-using System.Reflection;
-using System;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
     public class ProductDetails
     {
+        private string _minimumStudioVersion;
+
         public ProductDetails() { }
         public ProductDetails(ProductDetails other)
         {
@@ -19,9 +19,24 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public string Id { get; set; }
         public string ProductName { get; set; }
-        public string MinimumStudioVersion { get; set; }
-        public bool IsDefault { get; set; }
+        public string MinimumStudioVersion
+        {
+            get 
+            {
+                if (_minimumStudioVersion != null && Regex.IsMatch(_minimumStudioVersion, @"^(\d{1,2}\.)?(\d{1})$"))
+                {
+                    return $"{_minimumStudioVersion}.0";
+                }
+
+                return _minimumStudioVersion;
+            }
+            set 
+            { 
+                _minimumStudioVersion = value;
+            }
+        }
         public string ParentProductID { get; set; }
+        public bool IsLegacy { get; set; }
 
         public bool IsValid()
         {
