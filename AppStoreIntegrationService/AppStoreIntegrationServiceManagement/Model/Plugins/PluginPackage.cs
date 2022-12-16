@@ -12,7 +12,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
         public RequiredProduct RequiredProduct { get; set; }
         public string Author { get; set; }
 
-        public object CreateMatchLog(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, List<ProductDetails> products, out bool isFullMatch)
+        public object CreateMatchLog(ExtendedPluginDetails<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, List<ProductDetails> products, out bool isFullMatch)
         {
             var isNameMatch = PluginName == plugin.Name;
             var isVersionMatch = Version == version.VersionNumber;

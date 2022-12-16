@@ -44,7 +44,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [HttpPost]
-        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Update(ProfileModel profileModel, string id)
         {
             var currentUser = await _userManager.GetUserAsync(User);

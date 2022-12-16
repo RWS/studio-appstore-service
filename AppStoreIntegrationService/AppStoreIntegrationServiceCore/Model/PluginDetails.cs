@@ -1,4 +1,6 @@
-﻿namespace AppStoreIntegrationServiceCore.Model
+﻿using static AppStoreIntegrationServiceCore.Enums;
+
+namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginDetails<T, U>
     {
@@ -14,7 +16,7 @@
         public int CommentCount { get; set; }
         public string SupportText { get; set; }
         public bool PaidFor { get; set; }
-        public bool Inactive { get; set; }
+        public Status Status { get; set; }
         public string Pricing { get; set; }
         public RatingDetails RatingSummary { get; set; }
         public DeveloperDetails Developer { get; set; }

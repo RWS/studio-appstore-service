@@ -3,6 +3,7 @@ using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -22,6 +23,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IProductsRepository _productsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
         private readonly IHttpContextAccessor _context;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly string _pluginDownloadPath;
 
         public PluginsController
@@ -30,13 +32,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             IHttpContextAccessor context,
             IProductsRepository productsRepository,
             ICategoriesRepository categoriesRepository,
-            IWebHostEnvironment environment
+            IWebHostEnvironment environment,
+            UserManager<IdentityUser> userManager
         )
         {
             _pluginRepository = pluginRepository;
             _context = context;
             _productsRepository = productsRepository;
             _categoriesRepository = categoriesRepository;
+            _userManager = userManager;
             _pluginDownloadPath = $@"{environment.ContentRootPath}\Temp";
         }
 
@@ -44,19 +48,45 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Route("/")]
         public async Task<IActionResult> Index()
         {
-            PluginFilter pluginsFilters = ApplyFilters();
-            var pluginsList = await _pluginRepository.GetAll(pluginsFilters.SortOrder, User.IsInRole("Developer") ? User.Identity.Name : null);
+            PluginFilter filter = ApplyFilters();
+            var pluginsList = await _pluginRepository.GetAll(filter.SortOrder, User.IsInRole("Developer") ? User.Identity.Name : null);
             var products = await _productsRepository.GetAllProducts();
+            var statusFilters = new List<string> { "Active", "Inactive" };
+
+            if (User.IsInRole("Developer"))
+            {
+                statusFilters.Add("Draft");
+                statusFilters.Add("InReview");
+            }
+
+            if (User.IsInRole("Administrator"))
+            {
+                statusFilters.Add("InReview");
+            }
+
+            var status = statusFilters.Select(x => new KeyValuePair<FilterType, FilterItem>(FilterType.Status, new FilterItem
+            {
+                Id = $"{(int)Enum.Parse(typeof(Status), x)}",
+                Name = x,
+                IsSelected = Request.Query["Status"].Any(y => y == $"{(int)Enum.Parse(typeof(Status), x)}")
+            }));
+
             return View(new ConfigToolModel
             {
-                Plugins = InitializePrivatePlugins(_pluginRepository.SearchPlugins(pluginsList, pluginsFilters, products)).ToList(),
-                ProductsListItems = new SelectList(products ?? new List<ProductDetails>(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName)),
-                StatusExists = Request.Query.TryGetValue("status", out var statusValue),
-                StatusValue = statusValue,
-                SearchExists = Request.Query.TryGetValue("search", out var searchValue),
-                SearchValue = searchValue,
-                ProductExists = Request.Query.TryGetValue("product", out var productValue),
-                ProductName = products?.FirstOrDefault(p => p.Id == productValue)?.ProductName
+                Plugins = InitializePrivatePlugins(_pluginRepository.SearchPlugins(pluginsList, filter, products)).ToList(),
+                StatusListItems = new SelectList(status.Select(x => x.Value), nameof(FilterItem.Id), nameof(FilterItem.Name), Request.Query["Status"].FirstOrDefault()),
+                ProductsListItems = new SelectList(products ?? new List<ProductDetails>(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName), Request.Query["Product"].FirstOrDefault()),
+                Filters = status.Concat(products.Select(x => new KeyValuePair<FilterType, FilterItem>(FilterType.Status, new FilterItem
+                {
+                    Id = x.Id,
+                    Name = x.ProductName,
+                    IsSelected = Request.Query["Product"].Any(y => y == x.Id)
+                }))).Append(new KeyValuePair<FilterType, FilterItem>(FilterType.Query, new FilterItem
+                {
+                    Id = "0",
+                    Name = Request.Query["q"].FirstOrDefault(),
+                    IsSelected = Request.Query["q"].FirstOrDefault(x => !string.IsNullOrEmpty(x)) != null
+                }))
             });
         }
 
@@ -64,7 +94,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> New()
         {
             var categories = await _categoriesRepository.GetAllCategories();
-            return View(new PrivatePlugin<PluginVersion<string>>
+            return View(new ExtendedPluginDetails<PluginVersion<string>>
             {
                 IconUrl = GetDefaultIcon(),
                 IsEditMode = false,
@@ -74,8 +104,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
+        public async Task<IActionResult> Create(ExtendedPluginDetails<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
         {
+            if (plugin.Status == Status.InReview)
+            {
+                var sender = _userManager.Users.FirstOrDefault(x => x.Id == _userManager.GetUserId(User)).Email;
+                var receivers = _userManager.Users.Select(x => x.Email);
+                var message = new MessageCenter(sender, receivers);
+                
+                if (!message.TryBroadcast(plugin))
+                {
+                    return PartialView("_StatusMessage", "E-mail couldn't be sent!");
+                }
+            }
+
             return await Save(plugin, versions, version, _pluginRepository.AddPrivatePlugin);
         }
 
@@ -90,7 +132,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 return NotFound();
             }
 
-            return View(new PrivatePlugin<PluginVersion<string>>
+            return View(new ExtendedPluginDetails<PluginVersion<string>>
             {
                 Id = pluginDetails.Id,
                 PaidFor = pluginDetails.PaidFor,
@@ -101,7 +143,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 SupportEmail = pluginDetails.SupportEmail,
                 SupportUrl = pluginDetails.SupportUrl,
                 Categories = pluginDetails.Categories,
-                Inactive = pluginDetails.Inactive,
+                Status = pluginDetails.Status,
                 Versions = pluginDetails.Versions.Select(v => new ExtendedPluginVersion<string>(v)).ToList(),
                 IconUrl = string.IsNullOrEmpty(pluginDetails.Icon.MediaUrl) ? GetDefaultIcon() : pluginDetails.Icon.MediaUrl,
                 IsEditMode = true,
@@ -110,8 +152,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(PrivatePlugin<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
+        public async Task<IActionResult> Update(ExtendedPluginDetails<PluginVersion<string>> plugin, List<ExtendedPluginVersion<string>> versions, ExtendedPluginVersion<string> version)
         {
+            if (plugin.Status == Status.InReview)
+            {
+                var sender = "tot_catalin@yahoo.com"/*_userManager.Users.FirstOrDefault(x => x.Id == _userManager.GetUserId(User)).Email*/;
+                var receivers = _userManager.Users.Select(x => x.Email).Where(x => x != sender);
+                var message = new MessageCenter(sender, receivers);
+
+                if (!message.TryBroadcast(plugin))
+                {
+                    return PartialView("_StatusMessage", "Error! E-mail couldn't be sent!");
+                }
+            }
+
             return await Save(plugin, versions, version, _pluginRepository.UpdatePrivatePlugin);
         }
 
@@ -124,7 +178,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> ManifestCompare(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
+        public async Task<IActionResult> ManifestCompare(ExtendedPluginDetails<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
         {
             if (!Directory.Exists(_pluginDownloadPath))
             {
@@ -147,7 +201,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 {
                     return PartialView("_StatusMessage", "Error! The extract doesn't contain a manifest file!");
                 }
-                
+
                 return PartialView("_StatusMessage", $"Error! {e.Message}");
             }
         }
@@ -168,7 +222,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
-        public async Task<IActionResult> GoToPage(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, string redirectUrl, string currentPage)
+        public async Task<IActionResult> GoToPage(ExtendedPluginDetails<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version, string redirectUrl, string currentPage)
         {
             redirectUrl = redirectUrl.Replace('.', '/');
 
@@ -216,7 +270,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return null;
         }
 
-        private async Task<bool> IsSaved(PrivatePlugin<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
+        private async Task<bool> IsSaved(ExtendedPluginDetails<PluginVersion<string>> plugin, ExtendedPluginVersion<string> version)
         {
             var foundPluginDetails = await _pluginRepository.GetPluginById(plugin.Id);
             var newPluginDetails = plugin.ConvertToPluginDetails(foundPluginDetails, version);
@@ -225,10 +279,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private async Task<IActionResult> Save
         (
-            PrivatePlugin<PluginVersion<string>> plugin,
+            ExtendedPluginDetails<PluginVersion<string>> plugin,
             List<ExtendedPluginVersion<string>> versions,
             ExtendedPluginVersion<string> version,
-            Func<PrivatePlugin<PluginVersion<string>>, Task> func
+            Func<ExtendedPluginDetails<PluginVersion<string>>, Task> func
         )
         {
             if (plugin.IsValid(version))
@@ -251,7 +305,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return PartialView("_StatusMessage", "Error! Please fill all required values!");
         }
 
-        private IEnumerable<PrivatePlugin<PluginVersion<string>>> InitializePrivatePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
+        private IEnumerable<ExtendedPluginDetails<PluginVersion<string>>> InitializePrivatePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
         {
             if (plugins == null)
             {
@@ -260,14 +314,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             foreach (var plugin in plugins)
             {
-                yield return new PrivatePlugin<PluginVersion<string>>
+                yield return new ExtendedPluginDetails<PluginVersion<string>>
                 {
                     Id = plugin.Id,
                     Description = plugin.Description,
                     Name = plugin.Name,
                     Categories = plugin.Categories,
                     Versions = plugin.Versions?.Select(v => new ExtendedPluginVersion<string>(v)).ToList(),
-                    Inactive = plugin.Inactive,
+                    Status = plugin.Status,
                     IconUrl = string.IsNullOrEmpty(plugin.Icon.MediaUrl) ? GetDefaultIcon() : plugin.Icon.MediaUrl
                 };
             }
@@ -275,14 +329,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private PluginFilter ApplyFilters()
         {
-            const string statusFilter = "status";
-            const string searchFilter = "search";
-            const string productFilter = "product";
+            const string statusFilter = "Status";
+            const string searchFilter = "q";
+            const string productFilter = "Product";
             var query = Request.Query;
             var filters = new PluginFilter()
             {
                 SortOrder = "asc",
-                Status = StatusValue.All,
+                Status = Status.All,
                 SupportedProduct = query.ContainsKey(productFilter) ? query[productFilter] : default,
                 Query = query.ContainsKey(searchFilter) ? query[searchFilter] : default
             };
@@ -290,9 +344,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             if (query.ContainsKey(statusFilter))
             {
                 bool isValidType = int.TryParse(query[statusFilter], out int statusValueIndex);
-                if (isValidType && Enum.IsDefined(typeof(StatusValue), statusValueIndex))
+                if (isValidType && Enum.IsDefined(typeof(Status), statusValueIndex))
                 {
-                    filters.Status = (StatusValue)statusValueIndex;
+                    filters.Status = (Status)statusValueIndex;
                 }
             }
 

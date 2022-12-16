@@ -18,7 +18,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Show(List<ExtendedPluginVersion<string>> versions, PrivatePlugin<PluginVersion<string>> plugin)
+        public async Task<IActionResult> Show(List<ExtendedPluginVersion<string>> versions, ExtendedPluginDetails<PluginVersion<string>> plugin)
         {
             var version = versions.FirstOrDefault(v => v.VersionId.Equals(plugin.SelectedVersionId));
             var products = (await _productsRepository.GetAllProducts()).ToList();
@@ -65,7 +65,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost]
         [Route("[controller]/[action]/{versionId}")]
-        public async Task<IActionResult> Delete(PrivatePlugin<PluginVersion<string>> plugin, string versionId)
+        public async Task<IActionResult> Delete(ExtendedPluginDetails<PluginVersion<string>> plugin, string versionId)
         {
             await _pluginRepository.RemovePluginVersion(plugin.Id, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";

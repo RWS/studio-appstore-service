@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class PrivatePlugin<T> where T : PluginVersion<string>
+    public class ExtendedPluginDetails<T> where T : PluginVersion<string>
     {
         public int Id { get; set; }
 
@@ -26,7 +27,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [EmailAddress(ErrorMessage = "Invalid email address!")]
         public string SupportEmail { get; set; }
 
-        public bool Inactive { get; set; }
+        public Status Status { get; set; }
 
         [Required(ErrorMessage = "Plugin downoad url is required!")]
         [Url(ErrorMessage = "Invalid url!")]
@@ -48,7 +49,6 @@ namespace AppStoreIntegrationServiceCore.Model
         public MultiSelectList CategoryListItems { get; set; }
 
         public string SelectedVersionId { get; set; }
-
 
         public bool IsValid(PluginVersion<string> selectedVersion)
         {

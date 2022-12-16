@@ -1,4 +1,4 @@
-﻿@model PrivatePlugin<PluginVersion<string>>
+﻿@model ExtendedPluginDetails<PluginVersion<string>>
 @{
     ViewData["Title"] = "Edit";
 }
@@ -13,11 +13,22 @@
                 <img alt="@Model.Name" class="img-thumbnail border-0" src="@Model.IconUrl" asp-append-version="true">
             </div>
             <p class="text-center fw-bold p-1 text-wrap">@Model.Name</p>
+            @if (!User.IsInRole("Developer"))
+            {
+                <div class="d-flex align-content-center col-12 p-0 mb-3">
+                    <p class="col-4 m-0 align-self-center">Status</p>
+                    <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+            }
+
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <p class="col-4 m-0 align-self-center">Status</p>
-                <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Inactive">
-                    <option value="false">Active</option>
-                    <option value="true">Inactive</option>
+                <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
+                    <option value="Draft">Draft</option>
+                    <option value="InReview">InReview</option>
                 </select>
             </div>
             <div class="d-flex justify-content-between">
@@ -27,6 +38,7 @@
             <div>
                 <partial name="_PluginVersionPartial" model="@Model.Versions" />
             </div>
+            <div></div>
         </div>
 
         <div class="col-12 col-lg-8 border-container">

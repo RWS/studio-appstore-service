@@ -4,7 +4,7 @@
     {
         public static PluginDetails<PluginVersion<string>, string> ConvertToPluginDetails
         (
-            this PrivatePlugin<PluginVersion<string>> privateDetails,
+            this ExtendedPluginDetails<PluginVersion<string>> privateDetails,
             PluginDetails<PluginVersion<string>,  string> foundDetails,
             ExtendedPluginVersion<string> selectedVersionDetails
         )
@@ -20,7 +20,7 @@
                 SupportUrl = privateDetails.SupportUrl,
                 Description = privateDetails.Description,
                 PaidFor = privateDetails.PaidFor,
-                Inactive = privateDetails.Inactive,
+                Status = privateDetails.Status,
                 Categories = privateDetails.Categories,
                 DownloadUrl = foundDetails.DownloadUrl,
                 Versions = PrepareVersions(foundDetails.Versions, selectedVersionDetails)

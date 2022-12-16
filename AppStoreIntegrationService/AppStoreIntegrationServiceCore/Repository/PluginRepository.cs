@@ -23,7 +23,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             _configurationSettings = configurationSettings;
         }
 
-        public async Task UpdatePrivatePlugin(PrivatePlugin<PluginVersion<string>> privatePlugin)
+        public async Task UpdatePrivatePlugin(ExtendedPluginDetails<PluginVersion<string>> privatePlugin)
         {
             var pluginsList = await GetPlugins();
 
@@ -52,14 +52,14 @@ namespace AppStoreIntegrationServiceCore.Repository
                     pluginToBeUpdated.Categories = privatePlugin.Categories;
                     pluginToBeUpdated.Versions = privatePlugin.Versions.Cast<PluginVersion<string>>().ToList();
                     pluginToBeUpdated.DownloadUrl = privatePlugin.DownloadUrl;
-                    pluginToBeUpdated.Inactive = privatePlugin.Inactive;
+                    pluginToBeUpdated.Status = privatePlugin.Status;
                 }
 
                 await SaveToFile(pluginsList);
             }
         }
 
-        public async Task AddPrivatePlugin(PrivatePlugin<PluginVersion<string>> privatePlugin)
+        public async Task AddPrivatePlugin(ExtendedPluginDetails<PluginVersion<string>> privatePlugin)
         {
             if (privatePlugin != null)
             {
@@ -77,7 +77,7 @@ namespace AppStoreIntegrationServiceCore.Repository
                     DownloadUrl = privatePlugin.DownloadUrl,
                     Id = privatePlugin.Id,
                     Icon = new IconDetails { MediaUrl = privatePlugin.IconUrl },
-                    Inactive = privatePlugin.Inactive
+                    Status = privatePlugin.Status
                 };
 
                 var pluginsList = await GetPlugins();
@@ -115,7 +115,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<T> GetPluginById(int id, string developerName = null)
         {
-            var pluginList = await GetAll("asc");
+            var pluginList = await GetAll("asc", developerName);
 
             if (developerName == null)
             {
@@ -183,7 +183,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         {
             var plugins = Equals(developerName, null) switch
             {
-                true => await GetPlugins(),
+                true => (await GetPlugins()).Where(p => p.Status != Status.Draft),
                 _ => (await GetPlugins()).Where(p => p.Developer.DeveloperName == developerName).ToList(),
             };
 
@@ -195,19 +195,21 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugins?.OrderBy(p => p.Name).ToList();
         }
 
-        private static List<T> FilterByStatus(List<T> searchedPluginList, StatusValue status)
+        private static List<T> FilterByStatus(List<T> plugins, Status status)
         {
             return status switch
             {
-                StatusValue.Active => searchedPluginList.Where(x => !x.Inactive).ToList(),
-                StatusValue.Inactive => searchedPluginList.Where(x => x.Inactive).ToList(),
-                _ => searchedPluginList
+                Status.Active => plugins.Where(x => x.Status == Status.Active).ToList(),
+                Status.Inactive => plugins.Where(x => x.Status == Status.Inactive).ToList(),
+                Status.Draft => plugins.Where(x => x.Status == Status.Draft).ToList(),
+                Status.InReview => plugins.Where(x => x.Status == Status.InReview).ToList(),
+                _ => plugins
             };
         }
 
         private static List<T> FilterByQuery(List<T> pluginsList, string query)
         {
-            return pluginsList.Where(p => Regex.IsMatch(p.Name.ToLower(), query.ToLower())).ToList();
+            return pluginsList.Where(p => Regex.IsMatch(p.Name, query, RegexOptions.IgnoreCase)).ToList();
         }
 
         private static List<T> FilterByPrice(List<T> pluginsList, string price)

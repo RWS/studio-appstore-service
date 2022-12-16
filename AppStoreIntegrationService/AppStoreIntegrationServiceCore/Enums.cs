@@ -8,6 +8,7 @@
             ServerFilePath,
             NetworkFilePath
         }
+
         public enum SortType
         {
             None,
@@ -17,12 +18,21 @@
             LastUpdated,
             NewlyAdded
         }
-        public enum StatusValue
+
+        public enum Status
         {
-            Active,
+            Active = 0,
             Inactive,
+            Draft,
+            InReview,
             All
         }
 
+        public enum FilterType
+        {
+            Status = 0,
+            Product,
+            Query
+        }
     }
 }

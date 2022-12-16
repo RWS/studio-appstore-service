@@ -10,7 +10,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public SortType SortBy { get; set; }
         public string Price { get; set; }
         public List<int> CategoryId { get; set; }
-        public StatusValue Status { get; set; }
+        public Status Status { get; set; }
         public string SupportedProduct { get; set; }
     }
 }

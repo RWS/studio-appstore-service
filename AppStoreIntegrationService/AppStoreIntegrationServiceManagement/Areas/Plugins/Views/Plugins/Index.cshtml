@@ -6,30 +6,28 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row flex-column justify-content-center flex-lg-row justify-content-between px-3">
     <div class="container-fluid col-12 col-lg-8 m-0 order-1 order-lg-0 p-0">
-        <div class="row flex-column flex-lg-row">
+        <form class="row flex-column flex-lg-row" method="get" asp-action="Index">
             <div class="col-12 col-lg-8 d-flex justify-content-between my-3 m-lg-0">
                 <div class="d-flex align-items-center me-2">
                     <p class="m-0 text-nowrap">Quick filters:</p>
                 </div>
-                <select id="status" class="pa-admin-select" onchange="AddFilter('status')">
-                    <option value="2" hidden selected>Status</option>
-                    <option value="0">Active</option>
-                    <option value="1">Inactive</option>
+                <select name="Status" asp-items="@Model.StatusListItems" class="pa-admin-select" onchange="this.form.submit()">
+                    <option disabled hidden selected>Status</option>
                 </select>
-                <select id="product" class="pa-admin-select" asp-items="@Model.ProductsListItems" onchange="AddFilter('product')">
-                    <option hidden selected>Products</option>
+                <select name="Product" class="pa-admin-select" asp-items="@Model.ProductsListItems" onchange="this.form.submit()">
+                    <option disabled hidden selected>Products</option>
                 </select>
             </div>
 
             <div class="col-12 col-lg-4">
                 <div class="input-group">
-                    <input type="text" class="form-control form-control-sm" id="search" autocomplete="off" placeholder="Search plugin" aria-label="Search plugin" onkeydown="AddFilterOnEnterKey()">
-                    <span class="input-group-text">
-                        <i id="applyFilters" aria-label="Submit search" class="fas fa-search filter-search-submit" onclick="AddFilter('search')"></i>
+                    <input type="text" class="form-control form-control-sm" name="q" autocomplete="off" placeholder="Search plugin" aria-label="Search plugin" onkeydown="AddFilterOnEnterKey()">
+                    <span class="input-group-text p-1 bg-light">
+                        <button onclick="this.form.submit()" class="border-0 bg-light"><i aria-label="Submit search" class="fa fa-search filter-search-submit"></i></button>
                     </span>
                 </div>
             </div>
-        </div>
+        </form>
 
     </div>
 
@@ -42,37 +40,51 @@
 
 </div>
 
-<div id="activeFilters" class="row px-3 pt-3">
-    <div class="delete-filter me-1 @(Model.ClearAllExists ? "delete-filter-active" : "")">
-        <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear all filters" onclick="RedirectTo('/Plugins','/plugins')"></i>
-        <label class="filter-current-label">Clear all</label>
-    </div>
-    <div class="delete-filter me-1 @(Model.StatusExists ? "delete-filter-active" : "")">
-        <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear status filter" onclick="DeleteFilter('status')"></i>
-        <label class="filter-current-label">@Html.Raw(Model.StatusValue == "0" ? "Active" : Model.StatusValue == "1" ? "Inactive" : "All")</label>
-    </div>
-    <div class="delete-filter me-1 @(Model.SearchExists ? "delete-filter-active" : "")">
-        <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear query filter" onclick="DeleteFilter('search')"></i>
-        <label class="filter-current-label">@Model.SearchValue</label>
-    </div>
-    <div class="delete-filter me-1 @(Model.ProductExists ? "delete-filter-active" : "")">
-        <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear product filter" onclick="DeleteFilter('product')"></i>
-        <label class="filter-current-label">@Model.ProductName</label>
-    </div>
-</div>
+
+<form id="activeFilters" class="m-0 px-1 py-3 d-flex">
+    <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white @(Model.Filters.Any(x => x.Value.IsSelected) ? "" : "d-none")" href="@Url.Action("Index")">
+        <i class="fa fa-times-circle"></i>
+        Clear all
+    </a>
+    @foreach (var item in Model.Filters)
+    {
+        if (item.Value.IsSelected)
+        {
+            <label for="@item.Key.ToString()" class="delete-filter me-1 delete-filter-active">
+                <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear @item.Key.ToString() filter"></i>
+                @item.Value.Name
+                <input hidden type="checkbox" name="@item.Key.ToString()" value="@item.Value.Id" onchange="this.form.submit()" checked />
+            </label>
+        }
+    }
+</form>
 
 <div id="configToolPage">
     <div class="row justify-content-center">
         @foreach (var plugin in Model.Plugins)
         {
             <div class="col-12 col-md-4 col-lg-3 p-3 d-flex justify-content-center">
-                <div class="card card-item @(plugin.Inactive ? "card-item-inactive" : "")">
+                <div class="card card-item @(plugin.Status == Status.Inactive ? "card-item-inactive" : "")">
                     <img alt="@plugin.Name" class="img-item" src="@plugin.IconUrl" asp-append-version="true">
                     <div class="card-body text-center d-flex flex-column justify-content-center py-0">
                         <label class="text-wrap plugin-name">@plugin.Name</label>
                     </div>
-                    <div class="d-flex flex-row p-3">
-                        <label class="card-status col-6">@Html.Raw(@plugin.Inactive ? "Inactive" : "")</label>
+                    <div class="d-flex flex-row p-3 @(plugin.Status == Status.Active ? "justify-content-end" : null)">
+                        @if (plugin.Status == Status.Inactive)
+                        {
+                            <label class="col-6"><i class="fa fa-lock"></i> Inactive</label>
+                        }
+
+                        @if (plugin.Status == Status.Draft)
+                        {
+                            <label class="col-6"><i class="fa fa-drafting-compass"></i> Draft</label>
+                        }
+
+                        @if (plugin.Status == Status.InReview)
+                        {
+                            <label class="col-6"><i class="fas fa-eye"></i> In review</label>
+                        }
+
                         <div class="col-6 d-flex justify-content-end">
                             <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-pen-alt"></i></a>
                             <a class="btn p-0 fs-inherit"><i class="far fa-trash-alt cursor-pointer" role="button" aria-label="Delete @plugin.Name" onclick="DeletePlugin('@plugin.Id', `@plugin.Name`)"></i></a>
