@@ -5,17 +5,17 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class PluginRepository<T> : IPluginRepository<T> where T : PluginDetails<PluginVersion<string>, string>, new()
+    public class PluginRepository : IPluginRepository
     {
-        private readonly IAzureRepository<T> _azureRepository;
-        private readonly ILocalRepository<T> _localRepository;
+        private readonly IAzureRepository _azureRepository;
+        private readonly ILocalRepository _localRepository;
         private readonly IConfigurationSettings _configurationSettings;
 
         public PluginRepository
         (
-            IAzureRepository<T> azureRepository,
+            IAzureRepository azureRepository,
             IConfigurationSettings configurationSettings,
-            ILocalRepository<T> localRepository
+            ILocalRepository localRepository
         )
         {
             _azureRepository = azureRepository;
@@ -23,75 +23,39 @@ namespace AppStoreIntegrationServiceCore.Repository
             _configurationSettings = configurationSettings;
         }
 
-        public async Task UpdatePrivatePlugin(ExtendedPluginDetails<PluginVersion<string>> privatePlugin)
+        public async Task UpdatePlugin(PluginDetails<PluginVersion<string>, string> plugin)
         {
             var pluginsList = await GetPlugins();
 
-            if (pluginsList != null)
+            if (pluginsList == null)
             {
-                var pluginExists = pluginsList.Where(p => p.Name.Equals(privatePlugin.Name)).Count() > 1;
-                if (pluginExists)
-                {
-                    throw new Exception($"Another plugin with the name {privatePlugin.Name} already exists");
-                }
-
-                await BackupFile(pluginsList);
-
-                var pluginToBeUpdated = pluginsList.FirstOrDefault(p => p.Id.Equals(privatePlugin.Id));
-
-                if (pluginToBeUpdated != null)
-                {
-                    pluginToBeUpdated.Name = privatePlugin.Name;
-                    pluginToBeUpdated.Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName };
-                    pluginToBeUpdated.ChangelogLink = privatePlugin.ChangelogLink;
-                    pluginToBeUpdated.SupportUrl = privatePlugin.SupportUrl;
-                    pluginToBeUpdated.SupportEmail = privatePlugin.SupportEmail;
-                    pluginToBeUpdated.Description = privatePlugin.Description;
-                    pluginToBeUpdated.Icon.MediaUrl = privatePlugin.IconUrl;
-                    pluginToBeUpdated.PaidFor = privatePlugin.PaidFor;
-                    pluginToBeUpdated.Categories = privatePlugin.Categories;
-                    pluginToBeUpdated.Versions = privatePlugin.Versions.Cast<PluginVersion<string>>().ToList();
-                    pluginToBeUpdated.DownloadUrl = privatePlugin.DownloadUrl;
-                    pluginToBeUpdated.Status = privatePlugin.Status;
-                }
-
-                await SaveToFile(pluginsList);
+                return;
             }
+
+            var pluginExists = pluginsList.Where(p => p.Name == plugin.Name).Count() > 1;
+            if (pluginExists)
+            {
+                throw new Exception($"Another plugin with the name {plugin.Name} already exists");
+            }
+
+            await BackupFile(pluginsList);
+            pluginsList[pluginsList.IndexOf(pluginsList.FirstOrDefault(p => p.Id == plugin.Id))] = plugin;
+            await SaveToFile(pluginsList);
         }
 
-        public async Task AddPrivatePlugin(ExtendedPluginDetails<PluginVersion<string>> privatePlugin)
+        public async Task AddPlugin(PluginDetails<PluginVersion<string>, string> plugin)
         {
-            if (privatePlugin != null)
+            if (plugin != null)
             {
-                var newPlugin = new T
-                {
-                    Name = privatePlugin.Name.Trim(),
-                    Developer = string.IsNullOrEmpty(privatePlugin.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privatePlugin.DeveloperName },
-                    Description = privatePlugin.Description,
-                    ChangelogLink = privatePlugin.ChangelogLink,
-                    SupportEmail = privatePlugin.SupportEmail,
-                    SupportUrl = privatePlugin.SupportUrl,
-                    PaidFor = privatePlugin.PaidFor,
-                    Categories = privatePlugin.Categories,
-                    Versions = privatePlugin.Versions.Cast<PluginVersion<string>>().ToList(),
-                    DownloadUrl = privatePlugin.DownloadUrl,
-                    Id = privatePlugin.Id,
-                    Icon = new IconDetails { MediaUrl = privatePlugin.IconUrl },
-                    Status = privatePlugin.Status
-                };
-
                 var pluginsList = await GetPlugins();
 
                 if (pluginsList is null)
                 {
-                    pluginsList = new List<T>
-                    {
-                        newPlugin
-                    };
+                    pluginsList = new List<PluginDetails<PluginVersion<string>, string>> { plugin };
                 }
                 else
                 {
-                    var pluginExists = pluginsList.Any(p => p.Name.Equals(privatePlugin.Name));
+                    var pluginExists = pluginsList.Any(p => p.Name == plugin.Name);
                     if (!pluginExists)
                     {
                         await BackupFile(pluginsList);
@@ -99,21 +63,21 @@ namespace AppStoreIntegrationServiceCore.Repository
                         var lastPlugin = pluginsList.OrderBy(p => p.Id).ToList().LastOrDefault();
                         if (lastPlugin != null)
                         {
-                            newPlugin.Id = lastPlugin.Id++;
-                            privatePlugin.Id = newPlugin.Id;
+                            plugin.Id = lastPlugin.Id++;
+                            plugin.Id = plugin.Id;
                         }
-                        pluginsList.Add(newPlugin);
+                        pluginsList.Add(plugin);
                     }
                     else
                     {
-                        throw new Exception($"Another plugin with the name {privatePlugin.Name} already exists");
+                        throw new Exception($"Another plugin with the name {plugin.Name} already exists");
                     }
                 }
                 await SaveToFile(pluginsList);
             }
         }
 
-        public async Task<T> GetPluginById(int id, string developerName = null)
+        public async Task<PluginDetails<PluginVersion<string>, string>> GetPluginById(int id, string developerName = null)
         {
             var pluginList = await GetAll("asc", developerName);
 
@@ -147,7 +111,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
         }
 
-        private async Task<List<T>> GetPlugins()
+        private async Task<List<PluginDetails<PluginVersion<string>, string>>> GetPlugins()
         {
             if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
             {
@@ -157,7 +121,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             return await _azureRepository.GetPluginsFromContainer();
         }
 
-        private async Task BackupFile(List<T> plugins)
+        private async Task BackupFile(List<PluginDetails<PluginVersion<string>, string>> plugins)
         {
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
@@ -168,7 +132,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _localRepository.SavePluginsToFile(plugins);
         }
 
-        public async Task SaveToFile(List<T> pluginsList)
+        public async Task SaveToFile(List<PluginDetails<PluginVersion<string>, string>> pluginsList)
         {
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {
@@ -179,12 +143,12 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _localRepository.SavePluginsToFile(pluginsList);
         }
 
-        public async Task<List<T>> GetAll(string sortOrder, string developerName = null)
+        public async Task<List<PluginDetails<PluginVersion<string>, string>>> GetAll(string sortOrder, string developerName = null)
         {
             var plugins = Equals(developerName, null) switch
             {
-                true => (await GetPlugins()).Where(p => p.Status != Status.Draft),
-                _ => (await GetPlugins()).Where(p => p.Developer.DeveloperName == developerName).ToList(),
+                true => (await GetPlugins())?.Where(p => p.Status != Status.Draft),
+                _ => (await GetPlugins())?.Where(p => p.Developer.DeveloperName == developerName).ToList(),
             };
 
             if (!string.IsNullOrEmpty(sortOrder) && !sortOrder.Equals("asc", StringComparison.CurrentCultureIgnoreCase))
@@ -195,7 +159,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugins?.OrderBy(p => p.Name).ToList();
         }
 
-        private static List<T> FilterByStatus(List<T> plugins, Status status)
+        private static List<PluginDetails<PluginVersion<string>, string>> FilterByStatus(List<PluginDetails<PluginVersion<string>, string>> plugins, Status status)
         {
             return status switch
             {
@@ -207,29 +171,19 @@ namespace AppStoreIntegrationServiceCore.Repository
             };
         }
 
-        private static List<T> FilterByQuery(List<T> pluginsList, string query)
+        private static List<PluginDetails<PluginVersion<string>, string>> FilterByQuery(List<PluginDetails<PluginVersion<string>, string>> pluginsList, string query)
         {
             return pluginsList.Where(p => Regex.IsMatch(p.Name, query, RegexOptions.IgnoreCase)).ToList();
         }
 
-        private static List<T> FilterByPrice(List<T> pluginsList, string price)
+        private static List<PluginDetails<PluginVersion<string>, string>> FilterByPrice(List<PluginDetails<PluginVersion<string>, string>> pluginsList, string price)
         {
-            var paidFor = false;
-
-            if (!string.IsNullOrEmpty(price))
-            {
-                if (price.ToLower().Equals("paid"))
-                {
-                    paidFor = true;
-                }
-            }
-
-            return pluginsList.Where(p => p.PaidFor.Equals(paidFor)).ToList();
+            return pluginsList.Where(p => p.PaidFor == (!string.IsNullOrEmpty(price) && price.Equals("paid", StringComparison.CurrentCultureIgnoreCase))).ToList();
         }
 
-        private static List<T> FilterByVersion(List<T> pluginsList, string studioVersion, List<ProductDetails> products)
+        private static List<PluginDetails<PluginVersion<string>, string>> FilterByVersion(List<PluginDetails<PluginVersion<string>, string>> pluginsList, string studioVersion, List<ProductDetails> products)
         {
-            var plugins = new List<T>();
+            var plugins = new List<PluginDetails<PluginVersion<string>, string>>();
             var expression = new Regex("\\d+", RegexOptions.IgnoreCase);
             var versionNumber = expression.Match(studioVersion);
             var oldTradosName = $"SDL Trados Studio {versionNumber.Value}";
@@ -265,12 +219,12 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugins;
         }
 
-        private static List<T> FilterByCategory(List<T> pluginsList, List<int> categoryIds)
+        private static List<PluginDetails<PluginVersion<string>, string>> FilterByCategory(List<PluginDetails<PluginVersion<string>, string>> pluginsList, List<int> categoryIds)
         {
             return categoryIds.SelectMany(c => pluginsList.Where(p => p.Categories.Any(pc => pc.Equals(c)))).ToList();
         }
 
-        private static List<T> ApplySort(List<T> pluginsList, SortType sortType)
+        private static List<PluginDetails<PluginVersion<string>, string>> ApplySort(List<PluginDetails<PluginVersion<string>, string>> pluginsList, SortType sortType)
         {
             return sortType switch
             {
@@ -283,9 +237,9 @@ namespace AppStoreIntegrationServiceCore.Repository
             };
         }
 
-        public List<T> SearchPlugins(List<T> pluginsList, PluginFilter filter, List<ProductDetails> products)
+        public List<PluginDetails<PluginVersion<string>, string>> SearchPlugins(List<PluginDetails<PluginVersion<string>, string>> pluginsList, PluginFilter filter, List<ProductDetails> products)
         {
-            pluginsList ??= new List<T>();
+            pluginsList ??= new List<PluginDetails<PluginVersion<string>, string>>();
 
             var searchedPluginList = FilterByStatus(pluginsList, filter.Status);
             if (!string.IsNullOrEmpty(filter?.SupportedProduct))
@@ -301,7 +255,6 @@ namespace AppStoreIntegrationServiceCore.Repository
             if (!string.IsNullOrEmpty(filter?.Price))
             {
                 searchedPluginList = FilterByPrice(searchedPluginList, filter.Price);
-
             }
 
             if (!string.IsNullOrEmpty(filter?.StudioVersion))
@@ -318,12 +271,9 @@ namespace AppStoreIntegrationServiceCore.Repository
             return searchedPluginList;
         }
 
-        private static List<T> FilterByProduct(List<T> plugins, string product)
+        private static List<PluginDetails<PluginVersion<string>, string>> FilterByProduct(List<PluginDetails<PluginVersion<string>, string>> plugins, string product)
         {
-            return plugins.Where(p => p.Versions
-                          .Select(v => v.SupportedProducts
-                          .Any(p => p.Equals(product)))
-                          .Any(check => check)).ToList();
+            return plugins.Where(p => p.Versions.Select(v => v.SupportedProducts.Any(p => p.Equals(product))).Any(check => check)).ToList();
         }
     }
 }

@@ -34,5 +34,11 @@
             Product,
             Query
         }
+
+        public enum ProductType
+        {
+            Child,
+            Parent
+        }
     }
 }

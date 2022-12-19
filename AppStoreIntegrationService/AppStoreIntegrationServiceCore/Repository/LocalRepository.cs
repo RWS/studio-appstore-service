@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class LocalRepository<T> : ILocalRepository<T> where T : PluginDetails<PluginVersion<string>, string>, new()
+    public class LocalRepository : ILocalRepository
     {
         private readonly IConfigurationSettings _configurationSettings;
 
@@ -13,15 +13,15 @@ namespace AppStoreIntegrationServiceCore.Repository
             _configurationSettings = configurationSettings;
         }
 
-        public async Task<PluginResponse<T>> ReadFromFile()
+        public async Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> ReadFromFile()
         {
             if (string.IsNullOrEmpty(_configurationSettings.LocalPluginsFilePath))
             {
-                return new PluginResponse<T>();
+                return new PluginResponse<PluginDetails<PluginVersion<string>, string>>();
             }
 
             var content = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePath);
-            return JsonConvert.DeserializeObject<PluginResponse<T>>(content) ?? new PluginResponse<T>();
+            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(content);
         }
 
         public async Task<List<NameMapping>> ReadMappingsFromFile()
@@ -40,7 +40,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await ReadFromFile())?.ParentProducts;
         }
 
-        public async Task<List<T>> ReadPluginsFromFile()
+        public async Task<List<PluginDetails<PluginVersion<string>, string>>> ReadPluginsFromFile()
         {
             return (await ReadFromFile())?.Value;
         }
@@ -58,7 +58,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task SaveParentsToFile(List<ParentProduct> products)
         {
             var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<T>
+            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = response.Value,
@@ -69,10 +69,10 @@ namespace AppStoreIntegrationServiceCore.Repository
             await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
         }
 
-        public async Task SavePluginsToFile(List<T> plugins)
+        public async Task SavePluginsToFile(List<PluginDetails<PluginVersion<string>, string>> plugins)
         {
             var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<T>
+            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = plugins,
@@ -86,7 +86,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task SaveProductsToFile(List<ProductDetails> products)
         {
             var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<T>
+            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = response.Value,
@@ -105,7 +105,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task SaveCategoriesToFile(List<CategoryDetails> categories)
         {
             var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<T>
+            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = response.Value,
@@ -124,7 +124,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task SaveAPIVersionToFile(string version)
         {
             var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<T>
+            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = version,
                 Value = response.Value,

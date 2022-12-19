@@ -5,20 +5,25 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceAPI.Model.Repository
 {
-    public class ResponseRepository<T> : IResponseRepository<T>
+    public class ResponseRepository : IResponseRepository
     {
         private readonly IConfigurationSettings _configurationSettings;
-        private readonly IAzureRepository<T> _azureRepository;
-        private readonly ILocalRepository<T> _localRepository;
+        private readonly IAzureRepository _azureRepository;
+        private readonly ILocalRepository _localRepository;
 
-        public ResponseRepository(IConfigurationSettings configurationSettings, IAzureRepository<T> azureRepository, ILocalRepository<T> localRepository)
+        public ResponseRepository
+        (
+            IConfigurationSettings configurationSettings, 
+            IAzureRepository azureRepository, 
+            ILocalRepository localRepository
+        )
         {
             _configurationSettings = configurationSettings;
             _azureRepository = azureRepository;
             _localRepository = localRepository;
         }
 
-        public async Task<PluginResponse<T>> GetResponse()
+        public async Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> GetResponse()
         {
             if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
             {

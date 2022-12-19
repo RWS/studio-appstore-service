@@ -2,35 +2,34 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class ExtendedPluginVersion<T> : PluginVersion<T>
+    public class ExtendedPluginVersion : PluginVersion<string>
     {
-        private string versionDownloadUrl;
         public ExtendedPluginVersion() { }
 
-        public ExtendedPluginVersion(PluginVersion<T> version) : base(version)
+        public ExtendedPluginVersion(PluginVersion<string> version)
         {
-            VersionDownloadUrl = version.DownloadUrl;
+            PropertyInfo[] properties = typeof(PluginVersion<string>).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                property.SetValue(this, property.GetValue(version));
+            }
         }
 
         [Required(ErrorMessage = "Download url is required!")]
         [Url(ErrorMessage = "Invalid url!")]
         [JsonIgnore]
-        public string VersionDownloadUrl
-        {
-            get => versionDownloadUrl;
+        public string VersionDownloadUrl 
+        { 
+            get => DownloadUrl; 
             set
             {
-                versionDownloadUrl = value;
                 DownloadUrl = value;
             }
         }
-
-        [JsonIgnore]
-        [BindProperty]
-        public ProductDetails SelectedProduct { get; set; }
 
         [JsonIgnore]
         [BindProperty]

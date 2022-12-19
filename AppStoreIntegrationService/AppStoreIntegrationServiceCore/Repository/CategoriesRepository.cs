@@ -6,15 +6,15 @@ namespace AppStoreIntegrationServiceCore.Repository
 {
     public class CategoriesRepository : ICategoriesRepository
     {
-        private readonly ILocalRepository<PluginDetails<PluginVersion<string>, string>> _localRepository;
-        private readonly IAzureRepository<PluginDetails<PluginVersion<string>, string>> _azureRepository;
+        private readonly ILocalRepository _localRepository;
+        private readonly IAzureRepository _azureRepository;
         private readonly IConfigurationSettings _configurationSettings;
         private readonly List<CategoryDetails> _defaultCategories;
 
         public CategoriesRepository
         (
-            ILocalRepository<PluginDetails<PluginVersion<string>, string>> localRepository,
-            IAzureRepository<PluginDetails<PluginVersion<string>, string>> azureRepository,
+            ILocalRepository localRepository,
+            IAzureRepository azureRepository,
             IConfigurationSettings configurationSettings
         )
         {

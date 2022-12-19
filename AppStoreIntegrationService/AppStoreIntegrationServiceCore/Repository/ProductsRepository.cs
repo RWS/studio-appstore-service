@@ -4,21 +4,15 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public enum ProductType
+    public class ProductsRepository : IProductsRepository
     {
-        Child,
-        Parent
-    }
-
-    public class ProductsRepository<T> : IProductsRepository where T : PluginDetails<PluginVersion<string>, string>, new()
-    {
-        protected readonly IAzureRepository<T> _azureRepository;
+        protected readonly IAzureRepository _azureRepository;
         protected readonly IConfigurationSettings _configurationSettings;
-        private readonly ILocalRepository<T> _localRepository;
+        private readonly ILocalRepository _localRepository;
         protected List<ProductDetails> _defaultProducts;
         protected List<ParentProduct> _defaultParentProducts;
 
-        public ProductsRepository(IAzureRepository<T> azureRepository, IConfigurationSettings configurationSettings, ILocalRepository<T> localRepository)
+        public ProductsRepository(IAzureRepository azureRepository, IConfigurationSettings configurationSettings, ILocalRepository localRepository)
         {
             _azureRepository = azureRepository;
             _configurationSettings = configurationSettings;

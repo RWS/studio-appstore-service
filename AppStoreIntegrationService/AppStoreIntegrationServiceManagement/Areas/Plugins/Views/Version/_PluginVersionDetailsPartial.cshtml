@@ -1,4 +1,4 @@
-﻿@model ExtendedPluginVersion<string>
+﻿@model ExtendedPluginVersion
 
 <hr class="w-100" />
 <div id="pluginVersionContainer">
@@ -7,10 +7,6 @@
     <p class="mb-3 ml-lg-3 fw-bold fs-inherit">@(string.IsNullOrEmpty(Model.VersionNumber) ? "New plugin version" : "Version")</p>
     <div id="versionDetails" class="m-0 ml-lg-3">
         <input hidden asp-for="TechnicalRequirements" />
-        <input hidden asp-for="SelectedProduct.Id" />
-        <input hidden asp-for="SelectedProduct.ProductName" />
-        <input hidden asp-for="SelectedProduct.ParentProductID" />
-        <input hidden asp-for="SelectedProduct.MinimumStudioVersion" />
 
         @for (int i = 0; i < Model.SupportedProducts?.Count; i++)
         {
@@ -73,7 +69,7 @@
             <label class="col-4 m-0 align-self-center form-label" asp-for="SupportedProducts">Products</label>
             <div class="col-8">
                 <div class="dropdown w-100" id="productsDropdown">
-                    <div class="w-100 border rounded p-2 d-flex justify-content-between" role="button" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="w-100 border rounded p-2 d-flex justify-content-between" role="button" id="dropDownToggle" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="d-flex align-items-center w-100">
                             <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none"></i>
                             <div class="d-flex selection-summary">

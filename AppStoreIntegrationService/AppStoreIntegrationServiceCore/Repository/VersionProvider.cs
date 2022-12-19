@@ -1,20 +1,19 @@
-﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Interface;
+﻿using AppStoreIntegrationServiceCore.Repository.Interface;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class VersionProvider<T> : IVersionProvider where T : PluginDetails<PluginVersion<string>, string>, new()
+    public class VersionProvider : IVersionProvider
     {
         private readonly IConfigurationSettings _configurationSettings;
-        private readonly IAzureRepository<T> _azureRepository;
-        private readonly ILocalRepository<T> _localRepository;
+        private readonly IAzureRepository _azureRepository;
+        private readonly ILocalRepository _localRepository;
 
         public VersionProvider(IConfigurationSettings configurationSettings)
         {
             _configurationSettings = configurationSettings;
-            _azureRepository = new AzureRepository<T>(configurationSettings);
-            _localRepository = new LocalRepository<T>(configurationSettings);
+            _azureRepository = new AzureRepository(configurationSettings);
+            _localRepository = new LocalRepository(configurationSettings);
         }
 
         public async Task<string> GetAPIVersion()

@@ -4,30 +4,18 @@
     {
         public static PluginDetails<PluginVersion<string>, string> ConvertToPluginDetails
         (
-            this ExtendedPluginDetails<PluginVersion<string>> privateDetails,
+            this ExtendedPluginDetails privateDetails,
             PluginDetails<PluginVersion<string>,  string> foundDetails,
-            ExtendedPluginVersion<string> selectedVersionDetails
+            ExtendedPluginVersion selectedVersionDetails
         )
         {
             return new PluginDetails<PluginVersion<string>, string>
             {
-                Id = privateDetails.Id,
-                Name = privateDetails.Name,
-                Icon = new IconDetails { MediaUrl = privateDetails.IconUrl },
-                Developer = string.IsNullOrEmpty(privateDetails.DeveloperName) ? null : new DeveloperDetails { DeveloperName = privateDetails.DeveloperName },
-                ChangelogLink = privateDetails.ChangelogLink,
-                SupportEmail = privateDetails.SupportEmail,
-                SupportUrl = privateDetails.SupportUrl,
-                Description = privateDetails.Description,
-                PaidFor = privateDetails.PaidFor,
-                Status = privateDetails.Status,
-                Categories = privateDetails.Categories,
-                DownloadUrl = foundDetails.DownloadUrl,
                 Versions = PrepareVersions(foundDetails.Versions, selectedVersionDetails)
             };
         }
 
-        private static List<PluginVersion<string>> PrepareVersions(List<PluginVersion<string>> versions, ExtendedPluginVersion<string> selectedVersion)
+        private static List<PluginVersion<string>> PrepareVersions(List<PluginVersion<string>> versions, ExtendedPluginVersion selectedVersion)
         {
             if (selectedVersion.VersionNumber == null)
             {

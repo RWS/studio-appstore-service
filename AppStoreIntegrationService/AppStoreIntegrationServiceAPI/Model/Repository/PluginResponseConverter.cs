@@ -3,25 +3,23 @@ using AppStoreIntegrationServiceCore.Model;
 
 namespace AppStoreIntegrationServiceAPI.Model.Repository
 {
-    public class PluginResponseConverter<T, U> : IPluginResponseConverter<T, U>
-        where T : PluginDetails<PluginVersion<string>, string>, new()
-        where U : PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>, new()
+    public class PluginResponseConverter : IPluginResponseConverter
     {
-        public PluginResponse<U> CreateOldResponse(PluginResponse<T> newResponse)
+        public PluginResponse<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>> CreateOldResponse(PluginResponse<PluginDetails<PluginVersion<string>, string>> newResponse)
         {
-            var plugins = new List<U>();
+            var plugins = new List<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>();
             foreach (var plugin in newResponse?.Value)
             {
                 plugins.Add(ConvertToOldPlugin(plugin, newResponse.Categories, newResponse.Products));
             }
 
-            return new PluginResponse<U>
+            return new PluginResponse<PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>>
             {
                 Value = plugins,
             };
         }
 
-        private static U ConvertToOldPlugin(T plugin, List<CategoryDetails> categories, List<ProductDetails> products)
+        private static PluginDetails<PluginVersion<ProductDetails>, CategoryDetails> ConvertToOldPlugin(PluginDetails<PluginVersion<string>, string> plugin, List<CategoryDetails> categories, List<ProductDetails> products)
         {
             var newVersions = new List<PluginVersion<ProductDetails>>();
             foreach (var version in plugin.Versions)
@@ -29,10 +27,10 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
                 ConvertToOldVersion(version, newVersions, products);
             }
 
-            var newPlugin = new U
+            var newPlugin = new PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>
             {
                 Versions = newVersions,
-                Categories = plugin.Categories?.SelectMany(category => categories.Where(c => c.Id == category)).ToList()
+                Categories = plugin.Categories?.SelectMany(category => categories?.Where(c => c.Id == category) ?? new List<CategoryDetails>()).ToList()
             };
 
             var properties = typeof(PluginDetails<PluginVersion<ProductDetails>, CategoryDetails>).GetProperties().Where(p => !new[] { "Categories", "Versions" }.Any(x => x.Equals(p.Name)));
@@ -48,7 +46,7 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
         {
             var oldVersion = new PluginVersion<ProductDetails>
             {
-                SupportedProducts = new List<ProductDetails>(version.SupportedProducts.SelectMany(sp => products.Where(p => p.Id == sp)))
+                SupportedProducts = version.SupportedProducts.SelectMany(sp => products?.Where(p => p.Id == sp) ?? new List<ProductDetails>())?.ToList()
             };
 
             var properties = typeof(PluginVersion<ProductDetails>).GetProperties().Where(p => !p.Name.Equals("SupportedProducts"));

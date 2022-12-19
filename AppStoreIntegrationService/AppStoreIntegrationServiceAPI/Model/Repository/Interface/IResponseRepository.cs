@@ -2,8 +2,8 @@
 
 namespace AppStoreIntegrationServiceAPI.Model.Repository.Interface
 {
-    public interface IResponseRepository<T>
+    public interface IResponseRepository
     {
-        Task<PluginResponse<T>> GetResponse();
+        Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> GetResponse();
     }
 }

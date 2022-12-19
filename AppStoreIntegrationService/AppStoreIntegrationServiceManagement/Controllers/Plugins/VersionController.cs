@@ -8,17 +8,17 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     [Area("Plugins")]
     public class VersionController : Controller
     {
-        private readonly IPluginRepository<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
+        private readonly IPluginRepository _pluginRepository;
         private readonly IProductsRepository _productsRepository;
 
-        public VersionController(IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository, IProductsRepository productsRepository)
+        public VersionController(IPluginRepository pluginRepository, IProductsRepository productsRepository)
         {
             _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Show(List<ExtendedPluginVersion<string>> versions, ExtendedPluginDetails<PluginVersion<string>> plugin)
+        public async Task<IActionResult> Show(List<ExtendedPluginVersion> versions, ExtendedPluginDetails plugin)
         {
             var version = versions.FirstOrDefault(v => v.VersionId.Equals(plugin.SelectedVersionId));
             var products = (await _productsRepository.GetAllProducts()).ToList();
@@ -32,7 +32,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var products = (await _productsRepository.GetAllProducts()).ToList();
             var parents = (await _productsRepository.GetAllParents()).ToList();
-            var version = new ExtendedPluginVersion<string>
+            var version = new ExtendedPluginVersion
             {
                 VersionName = "New plugin version",
                 VersionNumber = string.Empty,
@@ -47,7 +47,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> GenerateChecksum(ExtendedPluginVersion<string> version)
+        public async Task<IActionResult> GenerateChecksum(ExtendedPluginVersion version)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost]
         [Route("[controller]/[action]/{versionId}")]
-        public async Task<IActionResult> Delete(ExtendedPluginDetails<PluginVersion<string>> plugin, string versionId)
+        public async Task<IActionResult> Delete(ExtendedPluginDetails plugin, string versionId)
         {
             await _pluginRepository.RemovePluginVersion(plugin.Id, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";

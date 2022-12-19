@@ -65,17 +65,17 @@ namespace AppStoreIntegrationServiceManagement
             services.AddHttpContextAccessor();
             services.AddSingleton<CustomizationHelper>();
             services.AddSingleton<INamesRepository, NamesRepository>();
-            services.AddSingleton<IProductsRepository, ProductsRepository<PluginDetails<PluginVersion<string>, string>>>();
-            services.AddSingleton<IVersionProvider, VersionProvider<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IProductsRepository, ProductsRepository>();
+            services.AddSingleton<IVersionProvider, VersionProvider>();
             services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
             services.AddSingleton<ISettingsRepository, SettingsRepository>();
             services.AddSingleton<IProductsSynchronizer, ProductsSynchronizer>();
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
             services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
-            services.AddSingleton<IAzureRepository<PluginDetails<PluginVersion<string>, string>>, AzureRepository<PluginDetails<PluginVersion<string>, string>>>();
-            services.AddSingleton<IPluginRepository<PluginDetails<PluginVersion<string>, string>>, PluginRepository<PluginDetails<PluginVersion<string>, string>>>();
-            services.AddSingleton<ILocalRepository<PluginDetails<PluginVersion<string>, string>>, LocalRepository<PluginDetails<PluginVersion<string>, string>>>();
+            services.AddSingleton<IAzureRepository, AzureRepository>();
+            services.AddSingleton<IPluginRepository, PluginRepository>();
+            services.AddSingleton<ILocalRepository, LocalRepository>();
 
             services.AddAuthorization(options =>
             {

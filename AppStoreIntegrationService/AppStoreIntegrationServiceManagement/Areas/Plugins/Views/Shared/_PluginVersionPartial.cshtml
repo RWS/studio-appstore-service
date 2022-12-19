@@ -1,32 +1,28 @@
-﻿@model List<ExtendedPluginVersion<string>>
+﻿@model List<ExtendedPluginVersion>
 
 <div id="selectedVersion">
     @if (Model != null)
     {
         @for (int i = 0; i < @Model.Count; i++)
         {
-            <input hidden asp-for="@Model[i].VersionId" />
-            <input hidden asp-for="@Model[i].VersionNumber" />
+            <input class="ignore" hidden asp-for="@Model[i].VersionId" />
+            <input class="ignore" hidden asp-for="@Model[i].VersionNumber" />
             <input class="ignore" hidden asp-for="@Model[i].FileHash" />
-            <input hidden asp-for="@Model[i].IsNewVersion" />
-            <input hidden asp-for="@Model[i].MinimumRequiredVersionOfStudio" />
-            <input hidden asp-for="@Model[i].MaximumRequiredVersionOfStudio" />
-            <input hidden asp-for="@Model[i].AppHasStudioPluginInstaller" />
-            <input hidden asp-for="@Model[i].TechnicalRequirements" />
-            <input hidden asp-for="@Model[i].IsNavigationLink" />
-            <input hidden asp-for="@Model[i].SelectedProduct.Id" />
-            <input hidden asp-for="@Model[i].SelectedProduct.ProductName" />
-            <input hidden asp-for="@Model[i].SelectedProduct.ParentProductID" />
-            <input hidden asp-for="@Model[i].SelectedProduct.MinimumStudioVersion" />
-            <input hidden asp-for="@Model[i].VersionDownloadUrl" />
-            <input hidden asp-for="@Model[i].IsPrivatePlugin" />
+            <input class="ignore" hidden asp-for="@Model[i].IsNewVersion" />
+            <input class="ignore" hidden asp-for="@Model[i].MinimumRequiredVersionOfStudio" />
+            <input class="ignore" hidden asp-for="@Model[i].MaximumRequiredVersionOfStudio" />
+            <input class="ignore" hidden asp-for="@Model[i].AppHasStudioPluginInstaller" />
+            <input class="ignore" hidden asp-for="@Model[i].TechnicalRequirements" />
+            <input class="ignore" hidden asp-for="@Model[i].IsNavigationLink" />
+            <input class="ignore" hidden asp-for="@Model[i].VersionDownloadUrl" />
+            <input class="ignore" hidden asp-for="@Model[i].IsPrivatePlugin" />
 
             for (int j = 0; j < Model[i].SupportedProducts.Count; j++)
             {
-                <input hidden asp-for="@Model[i].SupportedProducts[j]" />
+                <input class="ignore" hidden asp-for="@Model[i].SupportedProducts[j]" />
             }
 
-            <input hidden asp-for="@Model[i].VersionName" />
+            <input class="ignore" hidden asp-for="@Model[i].VersionName" />
             <div class="d-flex justify-content-between">
                 <label class="cursor-pointer version-name-label" onclick="ShowVersionDetails('@Model[i].VersionId')">@Model[i].VersionNumber</label>
                 @if (Model.Count > 1)

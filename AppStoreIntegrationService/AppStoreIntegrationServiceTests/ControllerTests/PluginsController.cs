@@ -5,8 +5,8 @@ using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using AppStoreIntegrationServiceCore.Model;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 
 namespace AppStoreIntegrationServiceTests
 {
@@ -15,7 +15,7 @@ namespace AppStoreIntegrationServiceTests
         [Fact]
         public async void PluginsController_OnIndexInvoke_ReturnsTheCorrespongingView()
         {
-            var mockPluginRepository = Substitute.For<IPluginRepository<PluginDetails<PluginVersion<string>, string>>>();
+            var mockPluginRepository = Substitute.For<IPluginRepository>();
             var mockProductsRepository = Substitute.For<IProductsRepository>();
             var mockContextAccesor = Substitute.For<IHttpContextAccessor>();
             var mockCategoriesRepository = Substitute.For<ICategoriesRepository>();

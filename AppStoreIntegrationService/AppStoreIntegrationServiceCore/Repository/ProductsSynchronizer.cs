@@ -1,14 +1,15 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
     public class ProductsSynchronizer : IProductsSynchronizer
     {
-        private readonly IPluginRepository<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
+        private readonly IPluginRepository _pluginRepository;
         private readonly IProductsRepository _productsRepository;
 
-        public ProductsSynchronizer(IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository, IProductsRepository productsRepository)
+        public ProductsSynchronizer(IPluginRepository pluginRepository, IProductsRepository productsRepository)
         {
             _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;

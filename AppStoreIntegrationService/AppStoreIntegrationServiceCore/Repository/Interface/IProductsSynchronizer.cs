@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.Interface
 {

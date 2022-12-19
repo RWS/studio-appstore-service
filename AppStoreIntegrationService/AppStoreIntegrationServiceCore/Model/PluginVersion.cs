@@ -1,22 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginVersion<T>
     {
-        public PluginVersion() { }
-
-        public PluginVersion(PluginVersion<T> version)
-        {
-            PropertyInfo[] properties = typeof(PluginVersion<T>).GetProperties();
-            foreach (PropertyInfo property in properties)
-            {
-                property.SetValue(this, property.GetValue(version));
-            }
-        }
-
         public DateTime? CreatedDate { get; set; }
         public int DownloadCount { get; set; }
         [JsonProperty("Id")]

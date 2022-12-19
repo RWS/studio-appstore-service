@@ -13,14 +13,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Area("Settings")]
     public class ImportExportPluginsController : Controller
     {
-        private readonly IPluginRepository<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
+        private readonly IPluginRepository _pluginRepository;
         private readonly IProductsRepository _productsRepository;
         private readonly IVersionProvider _versionProvider;
         private readonly ICategoriesRepository _categoriesRepository;
 
         public ImportExportPluginsController
         (
-            IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository,
+            IPluginRepository pluginRepository,
             IProductsRepository productsRepository,
             IVersionProvider versionProvider,
             ICategoriesRepository categoriesRepository

@@ -13,9 +13,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Categories
     public class CategoriesController : Controller
     {
         public readonly ICategoriesRepository _categoriesRepository;
-        private readonly IPluginRepository<PluginDetails<PluginVersion<string>, string>> _pluginRepository;
+        private readonly IPluginRepository _pluginRepository;
 
-        public CategoriesController(ICategoriesRepository categoriesRepository, IPluginRepository<PluginDetails<PluginVersion<string>, string>> pluginRepository)
+        public CategoriesController(ICategoriesRepository categoriesRepository, IPluginRepository pluginRepository)
         {
             _categoriesRepository = categoriesRepository;
             _pluginRepository = pluginRepository;

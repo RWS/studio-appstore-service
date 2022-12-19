@@ -1,4 +1,4 @@
-﻿@model ExtendedPluginDetails<PluginVersion<string>>
+﻿@model ExtendedPluginDetails
 @{
     ViewData["Title"] = "Edit";
 }
@@ -10,9 +10,20 @@
     <div class="row px-2">
         <div class="col-12 col-lg-4">
             <div class="d-flex justify-content-center">
-                <img alt="@Model.Name" class="img-thumbnail border-0" src="@Model.IconUrl" asp-append-version="true">
+                <img alt="@Model.Name" class="img-thumbnail border-0" src="@Model.Icon.MediaUrl" asp-append-version="true">
             </div>
             <p class="text-center fw-bold p-1 text-wrap">@Model.Name</p>
+            @if (User.IsInRole("Developer"))
+            {
+                <div class="d-flex align-content-center col-12 p-0 mb-3">
+                    <p class="col-4 m-0 align-self-center">Status</p>
+                    <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
+                        <option value="Draft">Draft</option>
+                        <option value="InReview">InReview</option>
+                    </select>
+                </div>
+            }
+
             @if (!User.IsInRole("Developer"))
             {
                 <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -24,13 +35,6 @@
                 </div>
             }
 
-            <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <p class="col-4 m-0 align-self-center">Status</p>
-                <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
-                    <option value="Draft">Draft</option>
-                    <option value="InReview">InReview</option>
-                </select>
-            </div>
             <div class="d-flex justify-content-between">
                 <p class="fw-bold">Versions</p>
                 <i role="button" aria-label="Add new version" onclick="AddNewVersion()" class="fas fa-plus success-icon"></i>
@@ -55,17 +59,17 @@
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="IconUrl">Icon url <span class="text-danger">*</span></label>
+                <label class="col-4 m-0 align-self-center form-label" asp-for="@Model.Icon.MediaUrl">Icon url <span class="text-danger">*</span></label>
                 <div class="w-100">
-                    <input asp-for="IconUrl" class="form-control fs-inherit" />
-                    <span asp-validation-for="IconUrl" class="text-danger"></span>
+                    <input asp-for="@Model.Icon.MediaUrl" class="form-control fs-inherit" />
+                    <span asp-validation-for="@Model.Icon.MediaUrl" class="text-danger"></span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
-                <label class="col-4 m-0 align-self-center form-label" asp-for="DeveloperName">Developer </label>
+                <label class="col-4 m-0 align-self-center form-label" asp-for="@Model.Developer.DeveloperName">Developer </label>
                 <div class="w-100">
-                    <input asp-for="DeveloperName" class="form-control fs-inherit" />
-                    <span asp-validation-for="DeveloperName" class="text-danger"></span>
+                    <input asp-for="@Model.Developer.DeveloperName" class="form-control fs-inherit" />
+                    <span asp-validation-for="@Model.Developer.DeveloperName" class="text-danger"></span>
                     <span hidden id="DeveloperNameManifestConflict" class="text-danger">Plugin manifest conflict! Invalid developer name!</span>
                 </div>
             </div>
@@ -135,7 +139,7 @@
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center p-0" asp-for="Categories">Plugin categories </label>
                 <div class="dropdown col-8 p-0" id="categoriesDropdown">
-                    <div class="w-100 border rounded p-2 d-flex justify-content-between" role="button" id="dropDownToggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="w-100 border rounded p-2 d-flex justify-content-between" role="button" id="dropDownToggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         <div class="d-flex align-items-center col-11">
                             <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories left"></i>
                             <div class="d-flex selection-summary">Select...</div>

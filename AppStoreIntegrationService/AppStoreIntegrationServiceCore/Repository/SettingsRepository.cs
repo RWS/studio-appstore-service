@@ -8,13 +8,13 @@ namespace AppStoreIntegrationServiceCore.Repository
     public class SettingsRepository : ISettingsRepository
     {
         private readonly IWritableOptions<SiteSettings> _options;
-        private readonly IAzureRepository<PluginDetails<PluginVersion<string>, string>> _azureRepository;
+        private readonly IAzureRepository _azureRepository;
         private readonly IConfigurationSettings _configurationSettings;
 
         public SettingsRepository
         (
             IWritableOptions<SiteSettings> options,
-            IAzureRepository<PluginDetails<PluginVersion<string>, string>> azureRepository,
+            IAzureRepository azureRepository,
             IConfigurationSettings configurationSettings
         )
         {

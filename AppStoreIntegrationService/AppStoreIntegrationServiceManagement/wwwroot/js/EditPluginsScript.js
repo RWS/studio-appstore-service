@@ -23,7 +23,14 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
     document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
-    let dropDown = new DropDown("#dropDownToggle", "#CategoriesSelect", "#Categories", ".selection-summary", ".overflow-arrow", "#categoriesDropdown", []);
+    let dropDown = new DropDown(
+        document.querySelector("#categoriesDropdown #dropDownToggle"),
+        document.querySelector("#categoriesDropdown #CategoriesSelect"),
+        $("#categoriesDropdown #Categories"),
+        document.querySelector("#categoriesDropdown .selection-summary"),
+        document.querySelectorAll("#categoriesDropdown .overflow-arrow"),
+        []
+    );
     dropDown.Init();
 
     $.validator.setDefaults({
@@ -39,7 +46,8 @@ function SavePlugin() {
         $("#FileHash").rules(isNavigationLink.checked ? "remove" : "add", "required");
     }
 
-    $("#form").validate();
+    let validation = $("#form").validate();
+    console.log(validation);
 
     if ($("#form").valid()) {
         var pageValues = $('main').find('select, textarea, input').serialize();
@@ -64,12 +72,11 @@ function AddNewVersion() {
             document.getElementById("manifestModalBtn").hidden = false;
 
             let dropDown = new DropDown(
-                "#dropDownToggle",
-                "#ProductsSelect",
-                "#SupportedProducts",
-                ".selection-summary",
-                ".overflow-arrow",
-                "#productsDropdown",
+                document.querySelector("#productsDropdown #dropDownToggle"),
+                document.querySelector("#productsDropdown #ProductsSelect"),
+                $("#productsDropdown #SupportedProducts"),
+                document.querySelector("#productsDropdown .selection-summary"),
+                document.querySelectorAll("#productsDropdown .overflow-arrow"),
                 parentProducts.map(p => p.parentProductName)
             );
             dropDown.Init();
@@ -97,12 +104,11 @@ function ShowVersionDetails(versionId) {
             document.getElementById("manifestModalBtn").hidden = false;
 
             let dropDown = new DropDown(
-                "#dropDownToggle",
-                "#ProductsSelect",
-                "#SupportedProducts",
-                ".selection-summary",
-                ".overflow-arrow",
-                "#productsDropdown",
+                document.querySelector("#productsDropdown #dropDownToggle"),
+                document.querySelector("#productsDropdown #ProductsSelect"),
+                $("#productsDropdown #SupportedProducts"),
+                document.querySelector("#productsDropdown .selection-summary"),
+                document.querySelectorAll("#productsDropdown .overflow-arrow"),
                 parentProducts.map(p => p.parentProductName)
             );
             dropDown.Init();

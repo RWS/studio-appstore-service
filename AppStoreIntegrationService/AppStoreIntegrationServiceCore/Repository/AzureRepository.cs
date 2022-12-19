@@ -11,7 +11,7 @@ using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class AzureRepository<T> : IAzureRepository<T> where T : PluginDetails<PluginVersion<string>, string>
+    public class AzureRepository : IAzureRepository
     {
         private readonly IConfigurationSettings _configurationSettings;
         private readonly BlobRequestOptions _blobRequestOptions;
@@ -47,15 +47,15 @@ namespace AppStoreIntegrationServiceCore.Repository
             InitializeBlockBlobs();
         }
 
-        public async Task<List<T>> GetPluginsFromContainer()
+        public async Task<List<PluginDetails<PluginVersion<string>, string>>> GetPluginsFromContainer()
         {
             return (await ReadFromContainer())?.Value;
         }
 
-        public async Task<PluginResponse<T>> ReadFromContainer()
+        public async Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> ReadFromContainer()
         {
             string containerContent = await _pluginsListBlockBlobOptimized.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<PluginResponse<T>>(containerContent) ?? new PluginResponse<T>();
+            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(containerContent);
         }
 
         public async Task<List<ProductDetails>> GetProductsFromContainer()
@@ -63,10 +63,10 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await ReadFromContainer())?.Products;
         }
 
-        public async Task UpdatePluginsFileBlob(List<T> plugins)
+        public async Task UpdatePluginsFileBlob(List<PluginDetails<PluginVersion<string>, string>> plugins)
         {
             var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = plugins,
@@ -77,10 +77,10 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
         }
 
-        public async Task BackupFile(List<T> plugins)
+        public async Task BackupFile(List<PluginDetails<PluginVersion<string>, string>> plugins)
         {
             var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = plugins,
@@ -94,7 +94,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task UpdateProductsFileBlob(List<ProductDetails> products)
         {
             var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = response.Value,
@@ -108,7 +108,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task UpdateParentsFileBlob(List<ParentProduct> products)
         {
             var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = response.Value,
@@ -247,7 +247,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<string> GetAPIVersionFromContainer()
         {
-            return (await ReadFromContainer())?.APIVersion ?? "1.0.0";
+            return (await ReadFromContainer())?.APIVersion;
         }
 
         public async Task<List<CategoryDetails>> GetCategoriesFromContainer()
@@ -258,7 +258,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task UpdateCategoriesFileBlob(List<CategoryDetails> categories)
         {
             var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<T>
+            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = response.Value,
@@ -272,8 +272,8 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task UpdateAPIVersion(string version)
         {
             var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<T>
-            {
+            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
+            {   
                 APIVersion = version,
                 Value = response.Value,
                 Products = response.Products,
