@@ -199,9 +199,9 @@ namespace AppStoreIntegrationServiceCore.Repository
                                                            .Where(p => p.Id == sp))
                                                            .FirstOrDefault(s => s.ProductName.Equals(oldTradosName) ||
                                                                                 s.ProductName.Equals(rebrandedStudioName) ||
-                                                                                s.ProductName.Equals("SDL Trados Studio") ||
-                                                                                s.ProductName.Equals("Trados Studio"));
-
+                                                                                s.ProductName.Equals(rebrandedStudioName + "(CU5)") ||
+                                                                                s.ProductName.Equals(rebrandedStudioName + "(CU4)") ||
+                                                                                s.ProductName.Equals(rebrandedStudioName + "(SR2)"));
                     if (product != null)
                     {
                         matchingVersions.Add(version);
