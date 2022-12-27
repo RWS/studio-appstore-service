@@ -13,23 +13,23 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Area("Settings")]
     public class ImportExportPluginsController : Controller
     {
-        private readonly IPluginRepository _pluginRepository;
+        private readonly IPluginManager _pluginManager;
         private readonly IProductsRepository _productsRepository;
-        private readonly IVersionProvider _versionProvider;
+        private readonly IVersionManager _versionManager;
         private readonly ICategoriesRepository _categoriesRepository;
 
         public ImportExportPluginsController
         (
-            IPluginRepository pluginRepository,
             IProductsRepository productsRepository,
-            IVersionProvider versionProvider,
-            ICategoriesRepository categoriesRepository
+            IVersionManager versionManager,
+            ICategoriesRepository categoriesRepository,
+            IPluginManager pluginManager
         )
         {
-            _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
-            _versionProvider = versionProvider;
+            _versionManager = versionManager;
             _categoriesRepository = categoriesRepository;
+            _pluginManager = pluginManager;
         }
 
         [Route("Settings/ExportPlugins")]
@@ -43,8 +43,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         {
             var response = new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
-                APIVersion = await _versionProvider.GetAPIVersion(),
-                Value = await _pluginRepository.GetAll("asc"),
+                APIVersion = await _versionManager.GetVersion(),
+                Value = await _pluginManager.GetPlugins(),
                 Products = await _productsRepository.GetAllProducts(),
                 ParentProducts = await _productsRepository.GetAllParents(),
                 Categories = await _categoriesRepository.GetAllCategories()
@@ -77,8 +77,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 await _categoriesRepository.UpdateCategories(response.Categories);
                 await _productsRepository.UpdateProducts(response.Products);
                 await _productsRepository.UpdateProducts(response.ParentProducts);
-                await _versionProvider.UpdateAPIVersion(response.APIVersion);
-                await _pluginRepository.SaveToFile(response.Value);
+                await _versionManager.SaveVersion(response.APIVersion);
+                await _pluginManager.SavePlugins(response.Value);
 
                 modalDetails.RequestPage = "/Plugins";
                 modalDetails.ModalType = ModalType.SuccessMessage;

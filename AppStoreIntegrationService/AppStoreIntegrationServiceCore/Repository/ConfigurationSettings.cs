@@ -15,10 +15,12 @@ namespace AppStoreIntegrationServiceCore.Repository
         public string InstrumentationKey { get; set; }
         public DeployMode DeployMode { get; set; }
         public string NameMappingsFilePath { get; set; }
+        public string CommentsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsFilePath { get; set; }
         public string PluginsFileBackUpPath { get; set; }
         public string SettingsFileName { get; set; }
+        public string CommentsFileName { get; set; }
 
         public ConfigurationSettings(DeployMode deployMode)
         {
@@ -42,6 +44,11 @@ namespace AppStoreIntegrationServiceCore.Repository
             if (!string.IsNullOrEmpty(MappingFileName))
             {
                 NameMappingsFilePath = Path.Combine(ConfigFolderPath, MappingFileName);
+            }
+
+            if (!string.IsNullOrEmpty(CommentsFileName))
+            {
+                CommentsFilePath = Path.Combine(ConfigFolderPath, CommentsFileName);
             }
 
             if (!string.IsNullOrEmpty(PluginsFileName))
@@ -68,6 +75,11 @@ namespace AppStoreIntegrationServiceCore.Repository
                     await File.Create(NameMappingsFilePath).DisposeAsync();
                 }
 
+                if (!string.IsNullOrEmpty(CommentsFilePath) && !File.Exists(CommentsFilePath))
+                {
+                    await File.Create(CommentsFilePath).DisposeAsync();
+                }
+
                 if (!string.IsNullOrEmpty(PluginsFileBackUpPath) && !File.Exists(PluginsFileBackUpPath))
                 {
                     await File.Create(PluginsFileBackUpPath).DisposeAsync();
@@ -85,6 +97,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             InstrumentationKey = GetVariable(ServiceResource.TelemetryInstrumentationKey);
             MappingFileName = GetVariable(ServiceResource.MappingFileName);
             SettingsFileName = GetVariable(ServiceResource.SettingsFileName);
+            CommentsFileName = GetVariable(ServiceResource.CommentsFileName);
         }
 
         private static string GetVariable(string key)

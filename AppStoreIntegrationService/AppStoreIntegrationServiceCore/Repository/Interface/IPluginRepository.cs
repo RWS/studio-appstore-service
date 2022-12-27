@@ -9,7 +9,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         Task<PluginDetails<PluginVersion<string>, string>> GetPluginById(int id, string developerName = null);
         Task UpdatePlugin(PluginDetails<PluginVersion<string>, string> plugin);
         Task AddPlugin(PluginDetails<PluginVersion<string>, string> plugin);
-        Task SaveToFile(List<PluginDetails<PluginVersion<string>, string>> pluginsList);
         List<PluginDetails<PluginVersion<string>, string>> SearchPlugins(List<PluginDetails<PluginVersion<string>, string>> pluginsList, PluginFilter filter, List<ProductDetails> products);
         Task<List<PluginDetails<PluginVersion<string>, string>>> GetAll(string sortOrder, string developerName = null);
     }

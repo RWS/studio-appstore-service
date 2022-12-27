@@ -14,7 +14,6 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
-    [Authorize]
     [Area("Plugins")]
     public class PluginsController : Controller
     {

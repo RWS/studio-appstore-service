@@ -70,6 +70,15 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_COMMENTSFILENAME.
+        /// </summary>
+        public static string CommentsFileName {
+            get {
+                return ResourceManager.GetString("CommentsFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         public static byte[] FontNames {

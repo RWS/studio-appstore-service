@@ -39,14 +39,32 @@ namespace AppStoreIntegrationServiceAPI
                 options.Providers.Add<GzipCompressionProvider>();
             });
 
+            if (deployMode == DeployMode.AzureBlob)
+            {
+                services.AddSingleton<IResponseManager, AzureRepository>();
+                services.AddSingleton<IPluginManager, AzureRepository>();
+                services.AddSingleton<IProductsManager, AzureRepository>();
+                services.AddSingleton<IVersionManager, AzureRepository>();
+                services.AddSingleton<INamesManager, AzureRepository>();
+                services.AddSingleton<ICategoriesManager, AzureRepository>();
+                services.AddSingleton<ISettingsManager, AzureRepository>();
+            }
+            else
+            {
+                services.AddSingleton<IResponseManager, LocalRepository>();
+                services.AddSingleton<IPluginManager, LocalRepository>();
+                services.AddSingleton<IProductsManager, LocalRepository>();
+                services.AddSingleton<IVersionManager, LocalRepository>();
+                services.AddSingleton<INamesManager, LocalRepository>();
+                services.AddSingleton<ICategoriesManager, LocalRepository>();
+                services.AddSingleton<ISettingsManager, LocalRepository>();
+            }
+
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
             services.AddSingleton<IPluginRepository, PluginRepository>();
             services.AddSingleton<IProductsRepository, ProductsRepository>();
-            services.AddSingleton<IAzureRepository, AzureRepository>();
-            services.AddSingleton<ILocalRepository, LocalRepository>();
             services.AddSingleton<IPluginResponseConverter, PluginResponseConverter>();
-            services.AddSingleton<IResponseRepository, ResponseRepository>();
             services.AddSingleton<INamesRepository, NamesRepository>();
         }
 
@@ -72,7 +90,8 @@ namespace AppStoreIntegrationServiceAPI
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseResponseCaching();
-            app.UseEndpoints(endpoints => { 
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapControllers();
                 endpoints.MapControllerRoute(
                     name: "default",

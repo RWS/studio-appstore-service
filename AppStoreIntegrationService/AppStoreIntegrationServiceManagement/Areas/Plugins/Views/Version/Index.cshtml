@@ -1,0 +1,39 @@
+﻿@model KeyValuePair<ExtendedPluginDetails, IEnumerable<(string versionId, string versionNumber)>>
+@{
+    ViewData["Title"] = "Versions";
+    ViewData["ActivePage"] = ManagePluginsNav.Versions;
+}
+
+<form class="row p-2" method="post" onsubmit="return false">
+    <div class="col-12 col-lg-4">
+        <partial name="_PluginsNavPartial" model="@Model.Key" />
+    </div>
+
+    <div class="col-12 col-lg-8 border-container">
+        @foreach (var version in Model.Value)
+        {
+            <div class="d-flex justify-content-between p-3 border-bottom">
+                <div class="d-flex cursor-pointer w-100" onclick="ShowVersion('@Model.Key.Id', '@version.versionId')">
+                    <i class="fa fa-caret-down align-self-center me-2"></i>
+                    <p class="m-0 fw-bold">@version.versionNumber</p>
+                </div>
+                @if(version.versionNumber != "New version")
+                {
+                    <i class="fa fa-trash-alt align-self-center cursor-pointer"></i>
+                }
+                
+            </div>
+
+            <div class="version-details" aria-expanded="false"></div>
+        }
+    </div>
+</form>
+
+<script src="~/js/VersionsScript.js" asp-append-version="true"></script>
+<script src="~/js/DropDown.js" asp-append-version="true"></script>
+<script asp-append-version="true">
+    parentProducts = @Html.Raw(Json.Serialize(Model.Key.Parents));
+</script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

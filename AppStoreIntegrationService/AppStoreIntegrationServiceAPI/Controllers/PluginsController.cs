@@ -13,19 +13,19 @@ namespace AppStoreIntegrationServiceAPI.Controllers
     public class PluginsController : Controller
     {
         private readonly IPluginResponseConverter _converter;
-        private readonly IResponseRepository _responseRepository;
         private readonly IPluginRepository _pluginRepository;
+        private readonly IResponseManager _manager;
 
         public PluginsController
         (
             IPluginResponseConverter converter,
-            IResponseRepository responseRepository,
-            IPluginRepository pluginRepository
+            IPluginRepository pluginRepository,
+            IResponseManager manager
         )
         {
             _converter = converter;
-            _responseRepository = responseRepository;
             _pluginRepository = pluginRepository;
+            _manager = manager;
         }
 
         [ResponseCache(Location = ResponseCacheLocation.Any, NoStore = true, VaryByQueryKeys = new[] { "*" })]
@@ -37,7 +37,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
         {
             _ = Request.Headers.TryGetValue("apiversion", out StringValues text);
             filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;
-            var response = await _responseRepository.GetResponse();
+            var response = await _manager.GetResponse();
             response.Value = _pluginRepository.SearchPlugins(response.Value, filter, response.Products);
 
             if (!Version.TryParse(text, out Version version) || version == new Version(1, 0, 0))

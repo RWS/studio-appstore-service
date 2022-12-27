@@ -1,26 +1,16 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
     public class CategoriesRepository : ICategoriesRepository
     {
-        private readonly ILocalRepository _localRepository;
-        private readonly IAzureRepository _azureRepository;
-        private readonly IConfigurationSettings _configurationSettings;
+        private readonly ICategoriesManager _categoriesManager;
         private readonly List<CategoryDetails> _defaultCategories;
 
-        public CategoriesRepository
-        (
-            ILocalRepository localRepository,
-            IAzureRepository azureRepository,
-            IConfigurationSettings configurationSettings
-        )
+        public CategoriesRepository(ICategoriesManager categoriesManager)
         {
-            _localRepository = localRepository;
-            _azureRepository = azureRepository;
-            _configurationSettings = configurationSettings;
+            _categoriesManager = categoriesManager;
             _defaultCategories = new List<CategoryDetails>
             {
                 new CategoryDetails
@@ -58,34 +48,18 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task DeleteCategory(string id)
         {
-            var categories = await GetCategoriesFromPossibleLocation();
+            var categories = await _categoriesManager.ReadCategories() ?? _defaultCategories;
             await UpdateCategories(categories.Where(item => item.Id != id).ToList());
         }
 
         public async Task<List<CategoryDetails>> GetAllCategories()
         {
-            return await GetCategoriesFromPossibleLocation();
+            return await _categoriesManager.ReadCategories() ?? _defaultCategories;
         }
 
         public async Task UpdateCategories(List<CategoryDetails> categories)
         {
-            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
-            {
-                await _localRepository.SaveCategoriesToFile(categories);
-                return;
-            }
-
-            await _azureRepository.UpdateCategoriesFileBlob(categories);
-        }
-
-        private async Task<List<CategoryDetails>> GetCategoriesFromPossibleLocation()
-        {
-            if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
-            {
-                return await _azureRepository.GetCategoriesFromContainer() ?? _defaultCategories;
-            }
-
-            return await _localRepository.ReadCategoriesFromFile() ?? _defaultCategories;
+            await _categoriesManager.SaveCategories(categories);
         }
     }
 }

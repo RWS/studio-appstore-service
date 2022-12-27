@@ -17,10 +17,24 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             _productsRepository = productsRepository;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Show(List<ExtendedPluginVersion> versions, ExtendedPluginDetails plugin)
+        [HttpGet("/Plugins/Edit/{id}/Versions")]
+        public async Task<IActionResult> Index(int id)
         {
-            var version = versions.FirstOrDefault(v => v.VersionId.Equals(plugin.SelectedVersionId));
+            var plugin = new ExtendedPluginDetails(await _pluginRepository.GetPluginById(id))
+            {
+                Parents = await _productsRepository.GetAllParents()
+            };
+
+            var versions = plugin.Versions?.Select(v => (v.VersionId, v.VersionNumber)).ToList();
+            versions.Add((Guid.NewGuid().ToString(), "New version"));
+            return View(new KeyValuePair<ExtendedPluginDetails, IEnumerable<(string, string)>>(plugin, versions));
+        }
+
+        [HttpPost("/Plugins/Edit/{pluginId}/Versions/{versionId}")]
+        public async Task<IActionResult> Show(int pluginId, string versionId)
+        {
+            var plugin = await _pluginRepository.GetPluginById(pluginId);
+            var version = new ExtendedPluginVersion(plugin.Versions.FirstOrDefault(v => v.VersionId.Equals(versionId)));
             var products = (await _productsRepository.GetAllProducts()).ToList();
             var parents = (await _productsRepository.GetAllParents()).ToList();
             version.SetSupportedProductsList(products, parents);

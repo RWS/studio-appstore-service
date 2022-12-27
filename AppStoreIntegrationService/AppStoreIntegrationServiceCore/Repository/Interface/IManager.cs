@@ -1,8 +1,8 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 
-namespace AppStoreIntegrationServiceAPI.Model.Repository.Interface
+namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
-    public interface IResponseRepository
+    public interface IResponseManager
     {
         Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> GetResponse();
     }

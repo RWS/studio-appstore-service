@@ -9,7 +9,10 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public ExtendedPluginDetails(PluginDetails<PluginVersion<string>, string> other)
         {
-            PluginDetails<ExtendedPluginVersion, string> test = new ExtendedPluginDetails();
+            if (other == null)
+            {
+                return;
+            }
 
             var thisProperties = typeof(PluginDetails<ExtendedPluginVersion, string>).GetProperties();
             var otherProperties = typeof(PluginDetails<PluginVersion<string>, string>).GetProperties();
@@ -22,7 +25,7 @@ namespace AppStoreIntegrationServiceCore.Model
                 }
             }
 
-            Versions = other.Versions.Select(v => new ExtendedPluginVersion(v)).ToList();
+            Versions = other.Versions?.Select(v => new ExtendedPluginVersion(v)).ToList();
         }
 
         [JsonIgnore]
@@ -31,6 +34,10 @@ namespace AppStoreIntegrationServiceCore.Model
         public MultiSelectList CategoryListItems { get; set; }
         [JsonIgnore]
         public string SelectedVersionId { get; set; }
+        [JsonIgnore]
+        public IEnumerable<Comment> Comments { get; set; }
+        [JsonIgnore]
+        public IEnumerable<ParentProduct> Parents { get; set; }
 
         public bool IsValid(PluginVersion<string> selectedVersion)
         {

@@ -1,7 +1,7 @@
 ﻿@inject ICompositeViewEngine Engine
-@inject ISettingsRepository repository;
+@inject ISettingsManager manager
 @{
-    var siteName = (await repository.GetSettings()).Name;
+    var siteName = (await manager.ReadSettings()).Name;
     var logoImage = Context.Request.Cookies["LogoImage"];
     var engine = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
 }

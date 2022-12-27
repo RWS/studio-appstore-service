@@ -9,23 +9,23 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Area("Settings")]
     public class SettingsController : Controller
     {
-        private readonly ISettingsRepository _settingsRepository;
+        private readonly ISettingsManager _settingsManager;
 
-        public SettingsController(ISettingsRepository settingsRepository)
+        public SettingsController(ISettingsManager settingsManager)
         {
-            _settingsRepository = settingsRepository;
+            _settingsManager = settingsManager;
         }
 
         [Route("Settings")]
         public async Task<IActionResult> Index()
         {
-            return View(await _settingsRepository.GetSettings());
+            return View(await _settingsManager.ReadSettings());
         }
 
         [HttpPost]
         public async Task<IActionResult> Update(SiteSettings settings)
         {
-            await _settingsRepository.SaveSettings(settings);
+            await _settingsManager.SaveSettings(settings);
             return RedirectToAction("Index");
         }
     }

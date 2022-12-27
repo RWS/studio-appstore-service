@@ -1,19 +1,22 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class LocalRepository : ILocalRepository
+    public class LocalRepository : IResponseManager, IPluginManager, IProductsManager, IVersionManager, INamesManager, ICategoriesManager, ISettingsManager, ICommentsManager
     {
         private readonly IConfigurationSettings _configurationSettings;
+        private readonly IWritableOptions<SiteSettings> _options;
 
-        public LocalRepository(IConfigurationSettings configurationSettings)
+        public LocalRepository(IConfigurationSettings configurationSettings, IWritableOptions<SiteSettings> options = null)
         {
             _configurationSettings = configurationSettings;
+            _options = options;
         }
 
-        public async Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> ReadFromFile()
+        public async Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> GetResponse()
         {
             if (string.IsNullOrEmpty(_configurationSettings.LocalPluginsFilePath))
             {
@@ -21,10 +24,10 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
 
             var content = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePath);
-            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(content);
+            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(content) ?? new PluginResponse<PluginDetails<PluginVersion<string>, string>>();
         }
 
-        public async Task<List<NameMapping>> ReadMappingsFromFile()
+        public async Task<List<NameMapping>> ReadNames()
         {
             if (_configurationSettings.NameMappingsFilePath == null)
             {
@@ -35,104 +38,103 @@ namespace AppStoreIntegrationServiceCore.Repository
             return JsonConvert.DeserializeObject<List<NameMapping>>(content) ?? new List<NameMapping>();
         }
 
-        public async Task<List<ParentProduct>> ReadParentsFromFile()
+        public async Task<List<ParentProduct>> ReadParents()
         {
-            return (await ReadFromFile())?.ParentProducts;
+            return (await GetResponse())?.ParentProducts;
         }
 
-        public async Task<List<PluginDetails<PluginVersion<string>, string>>> ReadPluginsFromFile()
+        public async Task<List<PluginDetails<PluginVersion<string>, string>>> GetPlugins()
         {
-            return (await ReadFromFile())?.Value;
+            return (await GetResponse())?.Value;
         }
 
-        public async Task<List<ProductDetails>> ReadProductsFromFile()
+        public async Task<List<ProductDetails>> ReadProducts()
         {
-            return (await ReadFromFile())?.Products;
+            return (await GetResponse())?.Products;
         }
 
-        public async Task SaveMappingsToFile(List<NameMapping> names)
+        public async Task<string> GetVersion()
+        {
+            return (await GetResponse())?.APIVersion ?? "1.0.0";
+        }
+
+        public async Task<List<CategoryDetails>> ReadCategories()
+        {
+            return (await GetResponse())?.Categories;
+        }
+
+        public async Task SaveNames(List<NameMapping> names)
         {
             await File.WriteAllTextAsync(_configurationSettings.NameMappingsFilePath, JsonConvert.SerializeObject(names));
         }
 
-        public async Task SaveParentsToFile(List<ParentProduct> products)
+        public async Task SaveProducts(List<ParentProduct> products)
         {
-            var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
+            var response = await GetResponse();
+            response.ParentProducts = products;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
+        }
+
+        public async Task SavePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
+        {
+            var response = await GetResponse();
+            response.Value = plugins;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
+        }
+
+        public async Task SaveProducts(List<ProductDetails> products)
+        {
+            var response = await GetResponse();
+            response.Products = products;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
+        }
+
+        public async Task SaveCategories(List<CategoryDetails> categories)
+        {
+            var response = await GetResponse();
+            response.Categories = categories;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
+        }
+
+        public async Task SaveVersion(string version)
+        {
+            var response = await GetResponse();
+            response.APIVersion = version;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
+        }
+
+        public async Task BackupPlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
+        {
+            var response = await GetResponse();
+            response.Value = plugins;
+            await File.WriteAllTextAsync(_configurationSettings.PluginsFileBackUpPath, JsonConvert.SerializeObject(response));
+        }
+
+        public async Task<SiteSettings> ReadSettings()
+        {
+            return new SiteSettings { Name = _options.Value.Name };
+        }
+
+        public async Task SaveSettings(SiteSettings settings)
+        {
+            _options.SaveOption(settings);
+            _options.Value.Name = settings.Name;
+        }
+
+        public async Task<IDictionary<string, IEnumerable<Comment>>> ReadComments()
+        {
+            if (_configurationSettings.CommentsFilePath == null)
             {
-                APIVersion = response.APIVersion,
-                Value = response.Value,
-                Products = response.Products,
-                ParentProducts = products,
-                Categories = response.Categories
-            });
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
+                return new Dictionary<string, IEnumerable<Comment>>();
+            }
+
+            var content = await File.ReadAllTextAsync(_configurationSettings.CommentsFilePath);
+            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<Comment>>>(content) ?? new Dictionary<string, IEnumerable<Comment>>();
         }
 
-        public async Task SavePluginsToFile(List<PluginDetails<PluginVersion<string>, string>> plugins)
+        public async Task UpdateComments(IDictionary<string, IEnumerable<Comment>> comments)
         {
-            var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {
-                APIVersion = response.APIVersion,
-                Value = plugins,
-                Products = response.Products,
-                ParentProducts = response.ParentProducts,
-                Categories = response.Categories
-            });
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
-        }
-
-        public async Task SaveProductsToFile(List<ProductDetails> products)
-        {
-            var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {
-                APIVersion = response.APIVersion,
-                Value = response.Value,
-                Products = products,
-                ParentProducts = response.ParentProducts,
-                Categories = response.Categories
-            });
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
-        }
-
-        public async Task<string> GetAPIVersionFromFile()
-        {
-            return (await ReadFromFile())?.APIVersion ?? "1.0.0";
-        }
-
-        public async Task SaveCategoriesToFile(List<CategoryDetails> categories)
-        {
-            var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {
-                APIVersion = response.APIVersion,
-                Value = response.Value,
-                Products = response.Products,
-                ParentProducts = response.ParentProducts,
-                Categories = categories
-            });
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
-        }
-
-        public async Task<List<CategoryDetails>> ReadCategoriesFromFile()
-        {
-            return (await ReadFromFile())?.Categories;
-        }
-
-        public async Task SaveAPIVersionToFile(string version)
-        {
-            var response = await ReadFromFile();
-            var text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {
-                APIVersion = version,
-                Value = response.Value,
-                Products = response.Products,
-                ParentProducts = response.ParentProducts,
-                Categories = response.Categories
-            });
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, text);
+            await File.WriteAllTextAsync(_configurationSettings.CommentsFilePath, JsonConvert.SerializeObject(comments));
         }
     }
 }

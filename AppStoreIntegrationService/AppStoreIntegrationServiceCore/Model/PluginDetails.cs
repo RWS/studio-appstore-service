@@ -20,7 +20,7 @@ namespace AppStoreIntegrationServiceCore.Model
                 }
             }
 
-            Versions = other.Versions.Cast<T>().ToList();
+            Versions = other.Versions?.Cast<T>().ToList();
         }
 
         public int Id { get; set; }
@@ -52,7 +52,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public RatingDetails RatingSummary { get; set; }
         public DeveloperDetails Developer { get; set; }
         public List<IconDetails> Media { get; set; }
-        public List<T> Versions { get; set; }
+        public List<T> Versions { get; set; } = new List<T>();
         public List<U> Categories { get; set; } = new List<U>();
 
         [Required(ErrorMessage = "Plugin downoad url is required!")]

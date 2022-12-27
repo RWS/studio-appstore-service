@@ -1,13 +1,11 @@
 using System.IO.Compression;
-using Microsoft.ApplicationInsights;
-using AppStoreIntegrationServiceCore.Model;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.ApplicationInsights.Extensibility;
 using static AppStoreIntegrationServiceCore.Enums;
-using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceCore.Model.Common.Interface;
+using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Model;
 
 namespace AppStoreIntegrationServiceManagement
@@ -23,37 +21,19 @@ namespace AppStoreIntegrationServiceManagement
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var settingsDeployMode = Configuration.GetValue<string>("DeployMode");
-            _ = Enum.TryParse(settingsDeployMode, out DeployMode deployMode);
+            _ = Enum.TryParse(Configuration.GetValue<string>("DeployMode"), out DeployMode deployMode);
+            GetServiceProvider(services).GetRequiredService<AppStoreIntegrationServiceContext>().Database.EnsureCreated();
 
-            var serviceProvider = services.BuildServiceProvider();
-            var env = serviceProvider.GetService<IWebHostEnvironment>();
-
-            var context = serviceProvider.GetRequiredService<AppStoreIntegrationServiceContext>();
-            context.Database.EnsureCreated();
-
-            var configurationSettings = GetConfigurationSettings(env, deployMode).Result;
-
-            services.AddMvc();
-            services.AddHttpContextAccessor();
             services.Configure<GzipCompressionProviderOptions>(options =>
             {
                 options.Level = CompressionLevel.Optimal;
             });
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
-
-            if (!string.IsNullOrEmpty(configurationSettings.InstrumentationKey))
-            {
-                services.AddApplicationInsightsTelemetry();
-                new TelemetryClient(new TelemetryConfiguration
-                {
-                    ConnectionString = configurationSettings.InstrumentationKey
-                }).TrackEvent("Application started");
-            }
 
             services.AddResponseCompression(options =>
             {
@@ -61,29 +41,53 @@ namespace AppStoreIntegrationServiceManagement
                 options.Providers.Add<GzipCompressionProvider>();
             });
 
+            services.AddMvc();
+            services.AddHttpContextAccessor();
             services.AddResponseCaching();
             services.AddHttpContextAccessor();
-            services.AddSingleton<CustomizationHelper>();
-            services.AddSingleton<INamesRepository, NamesRepository>();
-            services.AddSingleton<IProductsRepository, ProductsRepository>();
-            services.AddSingleton<IVersionProvider, VersionProvider>();
+
+            if (deployMode == DeployMode.AzureBlob)
+            {
+                services.AddSingleton<IResponseManager, AzureRepository>();
+                services.AddSingleton<IPluginManager, AzureRepository>();
+                services.AddSingleton<IProductsManager, AzureRepository>();
+                services.AddSingleton<IVersionManager, AzureRepository>();
+                services.AddSingleton<INamesManager, AzureRepository>();
+                services.AddSingleton<ICategoriesManager, AzureRepository>();
+                services.AddSingleton<ISettingsManager, AzureRepository>();
+            }
+            else
+            {
+                
+                services.AddSingleton<IResponseManager, LocalRepository>();
+                services.AddSingleton<IPluginManager, LocalRepository>();
+                services.AddSingleton<IProductsManager, LocalRepository>();
+                services.AddSingleton<IVersionManager, LocalRepository>();
+                services.AddSingleton<INamesManager, LocalRepository>();
+                services.AddSingleton<ICategoriesManager, LocalRepository>();
+                services.AddSingleton<ISettingsManager, LocalRepository>();
+                services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
+                services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
+            }
+
+            services.AddSingleton<IConfigurationSettings>(GetConfigurationSettings(GetServiceProvider(services).GetService<IWebHostEnvironment>(), deployMode).Result);
             services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
-            services.AddSingleton<ISettingsRepository, SettingsRepository>();
-            services.AddSingleton<IProductsSynchronizer, ProductsSynchronizer>();
-            services.AddSingleton<IConfigurationSettings>(configurationSettings);
-            services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
-            services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
-            services.AddSingleton<IAzureRepository, AzureRepository>();
             services.AddSingleton<IPluginRepository, PluginRepository>();
-            services.AddSingleton<ILocalRepository, LocalRepository>();
+            services.AddSingleton<IProductsRepository, ProductsRepository>();
+            services.AddSingleton<INamesRepository, NamesRepository>();
+            services.AddSingleton<CustomizationHelper>();
 
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("IsAdmin", policy => policy.RequireRole("Administrator"));
             });
 
-            services.AddRazorPages()
-                .AddRazorPagesOptions(options => { options.Conventions.AddPageRoute("/Edit", "edit"); });
+            services.AddRazorPages().AddRazorPagesOptions(options => { options.Conventions.AddPageRoute("/Edit", "edit"); });
+        }
+
+        private static ServiceProvider GetServiceProvider(IServiceCollection services)
+        {
+            return services.BuildServiceProvider();
         }
 
         private async Task<ConfigurationSettings> GetConfigurationSettings(IWebHostEnvironment env, DeployMode deployMode)

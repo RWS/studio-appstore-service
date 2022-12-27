@@ -1,0 +1,12 @@
+﻿@model (string detailsWidth, string commentsWidth)
+
+<div class="d-flex border-bottom py-3">
+    <div class="border-end border-start">
+        <p class="m-0 p-3 fw-bold vertical-menu" style="writing-mode: vertical-rl">Details</p>
+    </div>
+    <form class="version-details @Model.detailsWidth"></form>
+    <div class="border-end">
+        <p class="m-0 p-3 fw-bold vertical-menu" style="writing-mode: vertical-rl">Comments</p>
+    </div>
+    <form class="comments-details @Model.commentsWidth"></form>
+</div>

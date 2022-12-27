@@ -32,6 +32,9 @@ namespace AppStoreIntegrationServiceCore.Model
         }
 
         [JsonIgnore]
+        public int PluginId { get; set; }
+
+        [JsonIgnore]
         [BindProperty]
         public MultiSelectList SupportedProductsListItems { get; set; }
 

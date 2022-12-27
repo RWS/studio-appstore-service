@@ -6,17 +6,13 @@ namespace AppStoreIntegrationServiceCore.Repository
 {
     public class ProductsRepository : IProductsRepository
     {
-        protected readonly IAzureRepository _azureRepository;
-        protected readonly IConfigurationSettings _configurationSettings;
-        private readonly ILocalRepository _localRepository;
-        protected List<ProductDetails> _defaultProducts;
-        protected List<ParentProduct> _defaultParentProducts;
+        private readonly IProductsManager _productsManager;
+        private readonly List<ProductDetails> _defaultProducts;
+        private readonly List<ParentProduct> _defaultParentProducts;
 
-        public ProductsRepository(IAzureRepository azureRepository, IConfigurationSettings configurationSettings, ILocalRepository localRepository)
+        public ProductsRepository(IProductsManager productsManager)
         {
-            _azureRepository = azureRepository;
-            _configurationSettings = configurationSettings;
-            _localRepository = localRepository;
+            _productsManager = productsManager;
             _defaultProducts = new List<ProductDetails>
             {
                 new ProductDetails
@@ -48,24 +44,12 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task UpdateProducts(List<ProductDetails> products)
         {
-            if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
-            {
-                await _azureRepository.UpdateProductsFileBlob(products);
-                return;
-            }
-
-            await _localRepository.SaveProductsToFile(products);
+            await _productsManager.SaveProducts(products);
         }
 
         public async Task UpdateProducts(List<ParentProduct> products)
         {
-            if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
-            {
-                await _azureRepository.UpdateParentsFileBlob(products);
-                return;
-            }
-
-            await _localRepository.SaveParentsToFile(products);
+            await _productsManager.SaveProducts(products);
         }
 
         public async Task DeleteProduct(string id, ProductType type)
@@ -95,14 +79,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private async Task<(List<ProductDetails> Products, List<ParentProduct> Parents)> GetProductsFromPossibleLocations()
         {
-            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
-            {
-                return (Products: await _localRepository.ReadProductsFromFile() ?? _defaultProducts,
-                        Parents: await _localRepository.ReadParentsFromFile() ?? _defaultParentProducts);
-            }
-
-            return (Products: await _azureRepository.GetProductsFromContainer() ?? _defaultProducts,
-                    Parents: await _azureRepository.GetParentProductsFromContainer() ?? _defaultParentProducts);
+            return (Products: await _productsManager.ReadProducts() ?? _defaultProducts, Parents: await _productsManager.ReadParents() ?? _defaultParentProducts);
         }
     }
 }

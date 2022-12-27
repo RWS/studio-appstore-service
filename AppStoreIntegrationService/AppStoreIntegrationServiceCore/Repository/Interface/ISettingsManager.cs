@@ -2,10 +2,9 @@
 
 namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
-    public interface ISettingsRepository
+    public interface ISettingsManager
     {
-        Task<SiteSettings> GetSettings();
-
+        Task<SiteSettings> ReadSettings();
         Task SaveSettings(SiteSettings settings);
     }
 }

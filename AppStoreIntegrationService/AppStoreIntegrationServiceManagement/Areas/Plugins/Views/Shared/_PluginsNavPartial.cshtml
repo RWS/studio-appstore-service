@@ -1,0 +1,20 @@
+﻿@model ExtendedPluginDetails
+
+<div class="d-flex flex-column align-items-center border-bottom py-3">
+    <img alt="@Model.Name" class="img-thumbnail border-0" src="@Model.Icon.MediaUrl" asp-append-version="true" width="250" height="250">
+    <p class="text-center fw-bold p-1 text-wrap">@Model.Name</p>
+
+    <div class="d-flex align-content-center col-12 p-0">
+        <p class="col-4 m-0 align-self-center">Status</p>
+        <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+    </div>
+</div>
+
+<ul class="nav nav-pills flex-column py-3" id="settings-navbar">
+    <li class="nav-item"><a class="nav-link option @ManagePluginsNav.DetailsNavClass(ViewContext)" href="/Plugins/Edit/@Model.Id">Plugin details</a></li>
+    <li class="nav-item"><a class="nav-link option @ManagePluginsNav.VersionsNavClass(ViewContext)" href="/Plugins/Edit/@Model.Id/Versions">Plugin versions</a></li>
+    <li class="nav-item"><a class="nav-link option @ManagePluginsNav.CommentsNavClass(ViewContext)" href="#">Plugin comments</a></li>
+</ul>

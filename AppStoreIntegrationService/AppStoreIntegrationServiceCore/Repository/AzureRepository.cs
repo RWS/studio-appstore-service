@@ -5,13 +5,12 @@ using Microsoft.Azure.Storage.Blob;
 using Microsoft.Azure.Storage.RetryPolicies;
 using Newtonsoft.Json;
 using System.Text;
-using static AppStoreIntegrationServiceCore.Enums;
 using System.Text.RegularExpressions;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class AzureRepository : IAzureRepository
+    public class AzureRepository : IResponseManager, IPluginManager, IProductsManager, IVersionManager, INamesManager, ICategoriesManager, ISettingsManager, ICommentsManager
     {
         private readonly IConfigurationSettings _configurationSettings;
         private readonly BlobRequestOptions _blobRequestOptions;
@@ -19,16 +18,12 @@ namespace AppStoreIntegrationServiceCore.Repository
         private CloudBlockBlob _pluginsBackupBlockBlobOptimized;
         private CloudBlockBlob _nameMappingsBlockBlob;
         private CloudBlockBlob _settingsBlockBlob;
+        private CloudBlockBlob _commentsBlockBlob;
         private CloudBlobContainer _cloudBlobContainer;
 
         public AzureRepository(IConfigurationSettings configurationSettings)
         {
             _configurationSettings = configurationSettings;
-            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
-            {
-                return;
-            }
-
             _blobRequestOptions = new BlobRequestOptions
             {
                 MaximumExecutionTime = TimeSpan.FromSeconds(120),
@@ -47,82 +42,155 @@ namespace AppStoreIntegrationServiceCore.Repository
             InitializeBlockBlobs();
         }
 
-        public async Task<List<PluginDetails<PluginVersion<string>, string>>> GetPluginsFromContainer()
-        {
-            return (await ReadFromContainer())?.Value;
-        }
-
-        public async Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> ReadFromContainer()
+        public async Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> GetResponse()
         {
             string containerContent = await _pluginsListBlockBlobOptimized.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(containerContent);
+            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(containerContent) ?? new PluginResponse<PluginDetails<PluginVersion<string>, string>>();
         }
 
-        public async Task<List<ProductDetails>> GetProductsFromContainer()
-        {
-            return (await ReadFromContainer())?.Products;
-        }
-
-        public async Task UpdatePluginsFileBlob(List<PluginDetails<PluginVersion<string>, string>> plugins)
-        {
-            var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {
-                APIVersion = response.APIVersion,
-                Value = plugins,
-                Products = response.Products,
-                ParentProducts = response.ParentProducts,
-                Categories = response.Categories
-            });
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
-        }
-
-        public async Task BackupFile(List<PluginDetails<PluginVersion<string>, string>> plugins)
-        {
-            var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {
-                APIVersion = response.APIVersion,
-                Value = plugins,
-                Products = response.Products,
-                ParentProducts = response.ParentProducts,
-                Categories = response.Categories
-            });
-            await _pluginsBackupBlockBlobOptimized.UploadTextAsync(text);
-        }
-
-        public async Task UpdateProductsFileBlob(List<ProductDetails> products)
-        {
-            var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {
-                APIVersion = response.APIVersion,
-                Value = response.Value,
-                Products = products,
-                ParentProducts = response.ParentProducts,
-                Categories = response.Categories
-            });
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
-        }
-
-        public async Task UpdateParentsFileBlob(List<ParentProduct> products)
-        {
-            var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {
-                APIVersion = response.APIVersion,
-                Value = response.Value,
-                Products = response.Products,
-                ParentProducts = products,
-                Categories = response.Categories
-            });
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
-        }
-
-        public async Task<List<NameMapping>> GetNameMappingsFromContainer()
+        public async Task<List<NameMapping>> ReadNames()
         {
             var containterContent = await _nameMappingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
             return JsonConvert.DeserializeObject<List<NameMapping>>(containterContent) ?? new List<NameMapping>();
+        }
+
+        public async Task SaveNames(List<NameMapping> mappings)
+        {
+            var text = JsonConvert.SerializeObject(mappings);
+            await _nameMappingsBlockBlob.UploadTextAsync(text);
+        }
+
+        public async Task<SiteSettings> ReadSettings()
+        {
+            var containterContent = await _settingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+            return JsonConvert.DeserializeObject<SiteSettings>(containterContent) ?? new SiteSettings();
+        }
+
+        public async Task SaveSettings(SiteSettings settings)
+        {
+            var text = JsonConvert.SerializeObject(settings);
+            await _settingsBlockBlob.UploadTextAsync(text);
+        }
+
+        public async Task<string> GetVersion()
+        {
+            return (await GetResponse())?.APIVersion;
+        }
+
+        public async Task<List<CategoryDetails>> ReadCategories()
+        {
+            return (await GetResponse())?.Categories;
+        }
+
+        public async Task<List<PluginDetails<PluginVersion<string>, string>>> GetPlugins()
+        {
+            return (await GetResponse())?.Value;
+        }
+
+        public async Task<List<ProductDetails>> ReadProducts()
+        {
+            return (await GetResponse())?.Products;
+        }
+
+        public async Task<List<ParentProduct>> ReadParents()
+        {
+            return (await GetResponse())?.ParentProducts;
+        }
+
+        public async Task SavePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
+        {
+            var response = await GetResponse();
+            response.Value = plugins;
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+        }
+
+        public async Task BackupPlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
+        {
+            var response = await GetResponse();
+            response.Value = plugins;
+            await _pluginsBackupBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+        }
+
+        public async Task SaveProducts(List<ProductDetails> products)
+        {
+            var response = await GetResponse();
+            response.Products = products;
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+        }
+
+        public async Task SaveProducts(List<ParentProduct> products)
+        {
+            var response = await GetResponse();
+            response.ParentProducts = products;
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+        }
+
+        public async Task SaveCategories(List<CategoryDetails> categories)
+        {
+            var response = await GetResponse();
+            response.Categories = categories;
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+        }
+
+        public async Task SaveVersion(string version)
+        {
+            var response = await GetResponse();
+            response.APIVersion = version;
+            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+        }
+
+        private CloudStorageAccount GetCloudStorageAccount()
+        {
+            if (string.IsNullOrEmpty(_configurationSettings?.StorageAccountName) || string.IsNullOrEmpty(_configurationSettings?.StorageAccountKey))
+            {
+                return null;
+            }
+
+            var storageCredentils = new StorageCredentials(_configurationSettings?.StorageAccountName, _configurationSettings?.StorageAccountKey);
+            return new CloudStorageAccount(storageCredentils, true);
+        }
+
+        private string NormalizeBlobName()
+        {
+            if (string.IsNullOrEmpty(_configurationSettings.BlobName))
+            {
+                _configurationSettings.BlobName = "defaultblobname";
+            }
+
+            var regex = new Regex("[A-Za-z0-9]+");
+            var matchCollection = regex.Matches(_configurationSettings.BlobName);
+            var normalizedName = string.Concat(matchCollection.Select(m => m.Value));
+            if (normalizedName.Length < 3)
+            {
+                normalizedName = $"{normalizedName}appstore";
+            }
+
+            return normalizedName.ToLower();
+        }
+
+        private static void CreateEmptyFile(CloudBlockBlob cloudBlockBlob)
+        {
+            if (cloudBlockBlob is null)
+            {
+                return;
+            }
+
+            if (!cloudBlockBlob.Exists())
+            {
+                cloudBlockBlob.UploadText(string.Empty);
+            }
+        }
+
+        private CloudBlockBlob GetBlockBlobReference(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return null;
+            }
+
+            var cloudBlob = _cloudBlobContainer.GetBlockBlobReference(fileName);
+            cloudBlob.Properties.ContentType = Path.GetExtension(fileName);
+            return cloudBlob;
         }
 
         private void InitializeBlockBlobs()
@@ -131,6 +199,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             CreateEmptyFile(_pluginsBackupBlockBlobOptimized);
             CreateEmptyFile(_nameMappingsBlockBlob);
             CreateEmptyFile(_settingsBlockBlob);
+            CreateEmptyFile(_commentsBlockBlob);
         }
 
         private void SetCloudBlockBlobs()
@@ -152,135 +221,37 @@ namespace AppStoreIntegrationServiceCore.Repository
             {
                 _settingsBlockBlob = GetBlockBlobReference(_configurationSettings.SettingsFileName);
             }
+
+            if (!string.IsNullOrEmpty(_configurationSettings.CommentsFileName))
+            {
+                _commentsBlockBlob = GetBlockBlobReference(_configurationSettings.CommentsFileName);
+            }
         }
 
         private void CreateContainer(CloudStorageAccount cloudStorageAccount)
         {
-            var blobClient = cloudStorageAccount.CreateCloudBlobClient();
             var blobName = NormalizeBlobName();
-            _cloudBlobContainer = blobClient.GetContainerReference(blobName);
+            _cloudBlobContainer = cloudStorageAccount.CreateCloudBlobClient().GetContainerReference(blobName);
 
             if (_cloudBlobContainer.CreateIfNotExists())
             {
-                _cloudBlobContainer.SetPermissionsAsync(new
-                    BlobContainerPermissions
+                _cloudBlobContainer.SetPermissionsAsync(new BlobContainerPermissions
                 {
                     PublicAccess = BlobContainerPublicAccessType.Blob
                 });
             }
         }
 
-        private string NormalizeBlobName()
+        public async Task<IDictionary<string, IEnumerable<Comment>>> ReadComments()
         {
-            if (string.IsNullOrEmpty(_configurationSettings.BlobName))
-            {
-                _configurationSettings.BlobName = "defaultblobname";
-            }
-            var regex = new Regex("[A-Za-z0-9]+");
-            var matchCollection = regex.Matches(_configurationSettings.BlobName);
-            var normalizedName = string.Concat(matchCollection.Select(m => m.Value));
-            if (normalizedName.Length < 3)
-            {
-                normalizedName = $"{normalizedName}appstore";
-            }
-
-            return normalizedName.ToLower();
+            var containterContent = await _commentsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<Comment>>>(containterContent) ?? new Dictionary<string, IEnumerable<Comment>>();
         }
 
-        private static void CreateEmptyFile(CloudBlockBlob cloudBlockBlob)
+        public async Task UpdateComments(IDictionary<string, IEnumerable<Comment>> comments)
         {
-            if (cloudBlockBlob is null) return;
-            var fileBlobExists = cloudBlockBlob.Exists();
-            if (!fileBlobExists)
-            {
-                cloudBlockBlob.UploadText(string.Empty);
-            }
-        }
-
-        private CloudBlockBlob GetBlockBlobReference(string fileName)
-        {
-            if (string.IsNullOrEmpty(fileName))
-            {
-                return null;
-            }
-
-            var cloudBlob = _cloudBlobContainer.GetBlockBlobReference(fileName);
-            cloudBlob.Properties.ContentType = Path.GetExtension(fileName);
-            return cloudBlob;
-        }
-
-        private CloudStorageAccount GetCloudStorageAccount()
-        {
-            if (string.IsNullOrEmpty(_configurationSettings?.StorageAccountName) ||
-                string.IsNullOrEmpty(_configurationSettings?.StorageAccountKey))
-            {
-                return null;
-            }
-
-            var storageCredentils = new StorageCredentials(_configurationSettings?.StorageAccountName, _configurationSettings?.StorageAccountKey);
-            var storageAccount = new CloudStorageAccount(storageCredentils, true);
-            return storageAccount;
-        }
-
-        public async Task<List<ParentProduct>> GetParentProductsFromContainer()
-        {
-            return (await ReadFromContainer())?.ParentProducts;
-        }
-
-        public async Task UpdateMappingsFileBlob(List<NameMapping> mappings)
-        {
-            var text = JsonConvert.SerializeObject(mappings);
-            await _nameMappingsBlockBlob.UploadTextAsync(text);
-        }
-
-        public async Task<SiteSettings> GetSettingsFromContainer()
-        {
-            var containterContent = await _settingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<SiteSettings>(containterContent) ?? new SiteSettings();
-        }
-
-        public async Task UpdateSettingsFileBlob(SiteSettings settings)
-        {
-            var text = JsonConvert.SerializeObject(settings);
-            await _settingsBlockBlob.UploadTextAsync(text);
-        }
-
-        public async Task<string> GetAPIVersionFromContainer()
-        {
-            return (await ReadFromContainer())?.APIVersion;
-        }
-
-        public async Task<List<CategoryDetails>> GetCategoriesFromContainer()
-        {
-            return (await ReadFromContainer())?.Categories;
-        }
-
-        public async Task UpdateCategoriesFileBlob(List<CategoryDetails> categories)
-        {
-            var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {
-                APIVersion = response.APIVersion,
-                Value = response.Value,
-                Products = response.Products,
-                ParentProducts = response.ParentProducts,
-                Categories = categories
-            });
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
-        }
-
-        public async Task UpdateAPIVersion(string version)
-        {
-            var response = await ReadFromContainer();
-            string text = JsonConvert.SerializeObject(new PluginResponse<PluginDetails<PluginVersion<string>, string>>
-            {   
-                APIVersion = version,
-                Value = response.Value,
-                Products = response.Products,
-                ParentProducts = response.ParentProducts,
-                Categories = response.Categories
-            });
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(text);
+            var text = JsonConvert.SerializeObject(comments);
+            await _commentsBlockBlob.UploadTextAsync(text);
         }
     }
 }

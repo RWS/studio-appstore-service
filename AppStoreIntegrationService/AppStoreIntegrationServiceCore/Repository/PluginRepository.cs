@@ -7,25 +7,16 @@ namespace AppStoreIntegrationServiceCore.Repository
 {
     public class PluginRepository : IPluginRepository
     {
-        private readonly IAzureRepository _azureRepository;
-        private readonly ILocalRepository _localRepository;
-        private readonly IConfigurationSettings _configurationSettings;
+        private readonly IPluginManager _pluginManager;
 
-        public PluginRepository
-        (
-            IAzureRepository azureRepository,
-            IConfigurationSettings configurationSettings,
-            ILocalRepository localRepository
-        )
-        {
-            _azureRepository = azureRepository;
-            _localRepository = localRepository;
-            _configurationSettings = configurationSettings;
+        public PluginRepository(IPluginManager pluginManager) 
+        { 
+            _pluginManager = pluginManager; 
         }
 
         public async Task UpdatePlugin(PluginDetails<PluginVersion<string>, string> plugin)
         {
-            var pluginsList = await GetPlugins();
+            var pluginsList = await _pluginManager.GetPlugins();
 
             if (pluginsList == null)
             {
@@ -38,43 +29,33 @@ namespace AppStoreIntegrationServiceCore.Repository
                 throw new Exception($"Another plugin with the name {plugin.Name} already exists");
             }
 
-            await BackupFile(pluginsList);
-            pluginsList[pluginsList.IndexOf(pluginsList.FirstOrDefault(p => p.Id == plugin.Id))] = plugin;
-            await SaveToFile(pluginsList);
+            await _pluginManager.BackupPlugins(pluginsList);
+            var old = pluginsList.FirstOrDefault(p => p.Id == plugin.Id);
+            plugin.Versions = old.Versions;
+            pluginsList[pluginsList.IndexOf(old)] = plugin;
+            await _pluginManager.SavePlugins(pluginsList);
         }
 
         public async Task AddPlugin(PluginDetails<PluginVersion<string>, string> plugin)
         {
-            if (plugin != null)
+            var plugins = await _pluginManager.GetPlugins();
+            if (plugins is null)
             {
-                var pluginsList = await GetPlugins();
-
-                if (pluginsList is null)
+                plugins = new List<PluginDetails<PluginVersion<string>, string>> { plugin };
+            }
+            else
+            {
+                if (!plugins.Any(p => p.Name == plugin.Name))
                 {
-                    pluginsList = new List<PluginDetails<PluginVersion<string>, string>> { plugin };
+                    await _pluginManager.BackupPlugins(plugins);
+                    plugins.Add(plugin);
                 }
                 else
                 {
-                    var pluginExists = pluginsList.Any(p => p.Name == plugin.Name);
-                    if (!pluginExists)
-                    {
-                        await BackupFile(pluginsList);
-
-                        var lastPlugin = pluginsList.OrderBy(p => p.Id).ToList().LastOrDefault();
-                        if (lastPlugin != null)
-                        {
-                            plugin.Id = lastPlugin.Id++;
-                            plugin.Id = plugin.Id;
-                        }
-                        pluginsList.Add(plugin);
-                    }
-                    else
-                    {
-                        throw new Exception($"Another plugin with the name {plugin.Name} already exists");
-                    }
+                    throw new Exception($"Another plugin with the name {plugin.Name} already exists");
                 }
-                await SaveToFile(pluginsList);
             }
+            await _pluginManager.SavePlugins(plugins);
         }
 
         public async Task<PluginDetails<PluginVersion<string>, string>> GetPluginById(int id, string developerName = null)
@@ -91,64 +72,32 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task RemovePluginVersion(int pluginId, string versionId)
         {
-            var pluginList = await GetPlugins();
+            var pluginList = await _pluginManager.GetPlugins();
             var pluginToBeUpdated = pluginList.FirstOrDefault(plugin => plugin.Id.Equals(pluginId));
             var versionToBeRemoved = pluginToBeUpdated.Versions.FirstOrDefault(version => version.VersionId.Equals(versionId));
-            await BackupFile(pluginList);
+            await _pluginManager.BackupPlugins(pluginList);
             pluginToBeUpdated.Versions.Remove(versionToBeRemoved);
-            await SaveToFile(pluginList);
+            await _pluginManager.SavePlugins(pluginList);
         }
 
         public async Task RemovePlugin(int id)
         {
-            var pluginsList = await GetPlugins();
-            var pluginToBeDeleted = pluginsList.FirstOrDefault(p => p.Id.Equals(id));
-            if (pluginToBeDeleted != null)
+            var plugins = await _pluginManager.GetPlugins();
+            var plugin = plugins.FirstOrDefault(p => p.Id.Equals(id));
+            if (plugin != null)
             {
-                await BackupFile(pluginsList);
-                pluginsList.Remove(pluginToBeDeleted);
-                await SaveToFile(pluginsList);
+                await _pluginManager.BackupPlugins(plugins);
+                plugins.Remove(plugin);
+                await _pluginManager.SavePlugins(plugins);
             }
-        }
-
-        private async Task<List<PluginDetails<PluginVersion<string>, string>>> GetPlugins()
-        {
-            if (_configurationSettings.DeployMode != DeployMode.AzureBlob)
-            {
-                return await _localRepository.ReadPluginsFromFile();
-            }
-
-            return await _azureRepository.GetPluginsFromContainer();
-        }
-
-        private async Task BackupFile(List<PluginDetails<PluginVersion<string>, string>> plugins)
-        {
-            if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
-            {
-                await _azureRepository.BackupFile(plugins);
-                return;
-            }
-
-            await _localRepository.SavePluginsToFile(plugins);
-        }
-
-        public async Task SaveToFile(List<PluginDetails<PluginVersion<string>, string>> pluginsList)
-        {
-            if (_configurationSettings.DeployMode == DeployMode.AzureBlob)
-            {
-                await _azureRepository.UpdatePluginsFileBlob(pluginsList);
-                return;
-            }
-
-            await _localRepository.SavePluginsToFile(pluginsList);
         }
 
         public async Task<List<PluginDetails<PluginVersion<string>, string>>> GetAll(string sortOrder, string developerName = null)
         {
             var plugins = Equals(developerName, null) switch
             {
-                true => (await GetPlugins())?.Where(p => p.Status != Status.Draft),
-                _ => (await GetPlugins())?.Where(p => p.Developer.DeveloperName == developerName).ToList(),
+                true => (await _pluginManager.GetPlugins())?.Where(p => p.Status != Status.Draft),
+                _ => (await _pluginManager.GetPlugins())?.Where(p => p.Developer.DeveloperName == developerName).ToList(),
             };
 
             if (!string.IsNullOrEmpty(sortOrder) && !sortOrder.Equals("asc", StringComparison.CurrentCultureIgnoreCase))
