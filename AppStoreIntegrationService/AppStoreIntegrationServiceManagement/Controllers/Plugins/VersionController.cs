@@ -49,20 +49,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Save")]
         public async Task<IActionResult> Save(ExtendedPluginVersion version, int pluginId)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var old = plugin.Versions?.FirstOrDefault(v => v.VersionId == version.VersionId);
-
-            if (old == null)
+            try
             {
-                plugin.Versions.Add(version);
+                await _pluginRepository.UpdatePluginVersion(pluginId, version);
+                var response = await PluginPackage.DownloadPlugin(version.VersionDownloadUrl);
+                TempData["ManifestVersionCompare"] =  response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
+
+                if (!isFullMatch)
+                {
+                    return PartialView("_StatusMessage", "Warning! Version was saved but there are manifest conflicts!");
+                }
             }
-            else
+            catch (Exception e)
             {
-                var index = plugin.Versions.IndexOf(old);
-                plugin.Versions[index] = version;
+                TempData["StatusMessage"] = $"Error! {e.Message}.";
             }
 
-            await _pluginRepository.UpdatePlugin(plugin);
             TempData["StatusMessage"] = string.Format("Success! Version was {0}!", version.IsNewVersion ? "added" : "updated");
             return Content(null);
         }

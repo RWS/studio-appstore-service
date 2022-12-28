@@ -59,4 +59,7 @@
 <partial name="_ModalPartial" model="@(new ModalMessage())" />
 
 <script src="~/js/TableCrud.js"></script>
-<script src="~/js/ProductsScript.js"></script>
+<script asp-append-version="true">
+    const table = new TableCrud("Products/Delete/", "Products/Add", 'Products/Update', "Products/AddNew", "#productsTable");
+    const parentTable = new TableCrud("ParentProducts/Delete/", "ParentProducts/Add", 'ParentProducts/Update', "ParentProducts/AddNew", "#parentProductsTable");
+</script>

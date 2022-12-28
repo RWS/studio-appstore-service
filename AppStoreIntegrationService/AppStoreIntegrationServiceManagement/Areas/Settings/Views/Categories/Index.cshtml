@@ -7,7 +7,7 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div id="statusMessageContainer"></div>
 <h1 class="fs1-inherit">Settings</h1>
-<h2 class="fs2-inherit">Change site settings</h2>
+<h2 class="fs2-inherit">Manage categories</h2>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
     <partial name="_SettingsNavPartial" />
@@ -38,6 +38,8 @@
 <div id="modalContainer"></div>
 <partial name="_ModalPartial" model="@(new ModalMessage())" />
 
-<script src="~/js/TableCrud.js"></script>
-<script src="~/js/CategoriesScript.js"></script>
+<script src="~/js/TableCrud.js" asp-append-version="true"></script>
+<script asp-append-version="true">
+    const table = new TableCrud("Categories/Delete/", "Categories/Add", 'Categories/Update', "Categories/AddNew", "#categoriesTable");
+</script>
 

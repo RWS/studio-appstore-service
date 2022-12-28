@@ -40,7 +40,9 @@
 
                             @if (!user.IsCurrentUser)
                             {
-                                <td class="align-middle px-3 d-none d-lg-table-cell"><i id="@user.Id" class="fa fa-trash-alt cursor-pointer delete-user-btn"></i></td>
+                                <td class="align-middle px-3 d-none d-lg-table-cell">
+                                    <i class="fa fa-trash-alt cursor-pointer delete-user-btn" data-bs-toggle="modal" data-bs-target="confirmationModal" onclick="DeleteUser('@user.Id')"></i>
+                                </td>
                             }
                         }
                         else
@@ -53,11 +55,9 @@
         </table>
     </div>
 </div>
-
-<partial name="_ModalPartial" model="@(new ModalMessage())" />
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this user?" })" />
 
 <script src="~/js/ManageUsersScript.js"></script>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

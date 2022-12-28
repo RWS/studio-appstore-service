@@ -49,7 +49,7 @@ function GenerateChecksum() {
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
             AjaxSuccessCallback(request.responseText);
-            document.getElementById("FileHash").value = document.getElementById("generatedFileHash").value;
+            document.getElementById("FileHash").value = document.getElementById("GeneratedFileHash").value;
             spinner.hidden = true;
         }
     }
@@ -65,6 +65,11 @@ function SaveVersion(pluginId) {
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
             AjaxSuccessCallback(request.responseText);
+            let compare = JSON.parse(document.getElementById("ManifestVersionComparison").value)
+            document.getElementById("VersionNumberManifestConflict").hidden = compare.isVersionMatch;
+            document.getElementById("MinVersionManifestConflict").hidden = compare.isMinVersionMatch;
+            document.getElementById("MaxVersionManifestConflict").hidden = compare.isMaxVersionMatch;
+            document.getElementById("ProductManifestConflict").hidden = compare.isProductMatch;
         }
     }
 

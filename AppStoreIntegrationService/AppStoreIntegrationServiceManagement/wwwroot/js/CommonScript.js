@@ -1,6 +1,4 @@
-﻿let fileHash;
-let manifestCompare;
-let x;
+﻿let x;
 let y;
 let draggable;
 
@@ -38,7 +36,6 @@ function RedirectTo(goToPage, controller, action) {
 }
 
 function CreateRequest(pageValues, url) {
-
     $.ajax({
         data: pageValues,
         type: "POST",
@@ -81,52 +78,6 @@ document.addEventListener('DOMContentLoaded', function () {
         $(this).remove();
     });
 });
-
-function CompareWithManifest() {
-    $("#VersionDownloadUrl").validate()
-    if ($("#IsNavigationLink")[0].checked || !$("#VersionDownloadUrl").valid()) {
-        return;
-    }
-
-    $("#SupportedProducts").validate();
-
-    if (!$("#SupportedProducts").valid()) {
-        return;
-    }
-
-    var button = event.target;
-    button.disabled = true;
-    button.firstElementChild.hidden = false;
-    let data = $('main').find('select, textarea, input').serialize();
-
-    $.ajax({
-        data: data,
-        type: "POST",
-        url: "/Plugins/Plugins/ManifestCompare",
-        success: function (actionResult) {
-            AjaxSuccessCallback(actionResult)
-            if (manifestCompare) {
-                document.getElementById("PluginNameManifestConflict").hidden = manifestCompare.isNameMatch;
-                document.getElementById("DeveloperNameManifestConflict").hidden = manifestCompare.isAuthorMatch;
-                document.getElementById("VersionNumberManifestConflict").hidden = manifestCompare.isVersionMatch;
-                document.getElementById("MinVersionManifestConflict").hidden = manifestCompare.isMinVersionMatch;
-                document.getElementById("MaxVersionManifestConflict").hidden = manifestCompare.isMaxVersionMatch;
-                document.getElementById("ProductManifestConflict").hidden = manifestCompare.isProductMatch;
-                document.getElementById("SuccessManifestCompare").hidden = !manifestCompare.isFullMatch;
-                document.getElementById("FailManifestCompare").hidden = manifestCompare.isFullMatch;
-
-                document.querySelectorAll(".manifest-field").forEach(field => {
-                    field.addEventListener('input', () => {
-                        field.parentElement.lastElementChild.hidden = true;
-                    })
-                })
-            }
-
-            button.disabled = false;
-            button.firstElementChild.hidden = true;
-        }
-    });
-}
 
 function BeginDrag() {
     x = event.clientX;

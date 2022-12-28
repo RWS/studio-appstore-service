@@ -22,7 +22,7 @@ namespace AppStoreIntegrationServiceTests
             var mockTempDataProvider = Substitute.For<ITempDataProvider>();
             var mockCommentsRepository = Substitute.For<ICommentsRepository>();
             var mockWebHostEnvironment = Substitute.For<IWebHostEnvironment>();
-            var pluginsController = new PluginsController(mockPluginRepository, mockContextAccesor, mockProductsRepository, mockCategoriesRepository, mockWebHostEnvironment)
+            var pluginsController = new PluginsController(mockPluginRepository, mockContextAccesor, mockProductsRepository, mockCategoriesRepository)
             {
                 ControllerContext = new ControllerContext
                 {

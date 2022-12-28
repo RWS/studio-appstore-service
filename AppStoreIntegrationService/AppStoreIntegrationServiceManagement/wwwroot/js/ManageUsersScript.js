@@ -1,21 +1,16 @@
-﻿document.addEventListener('DOMContentLoaded', function () {
-    const deleteBtns = document.querySelectorAll(".delete-user-btn");
+﻿function DeleteUser(userId) {
+    document.getElementById('confirmationBtn').onclick = function () {
+        let request = new XMLHttpRequest();
 
-    deleteBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.getElementById('confirmationBtn').onclick = function () {
-                $.ajax({
-                    type: "POST",
-                    url: `/Identity/Account/Delete/${btn.id}`,
-                    success: function () {
-                        location.reload();
-                    }
-                })
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                AjaxSuccessCallback(request.responseText);
+                document.getElementById("modalContainer").innerHTML = request.responseText;
+                $('#modalContainer').find('.modal').modal('show');
             }
-            
-            document.querySelector("#confirmationModal .modal-body").innerHTML = "Are you sure you want to delete this user?";
-            $('#confirmationModal').modal('show');
-            e.stopImmediatePropagation();
-        })
-    })
-});
+        }
+
+        request.open("POST", `/Identity/Account/Delete/${userId}`);
+        request.send();
+    }
+}

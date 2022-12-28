@@ -3,7 +3,7 @@
     ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageSettingsNav.PluginsRename;
 }
-<partial name="_StatusMessage" model="@TempData["StatusMessage"]"/>
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div id="statusMessageContainer"></div>
 <h1 class="fs1-inherit">Settings</h1>
 <h2 class="fs2-inherit">Change site settings</h2>
@@ -36,8 +36,10 @@
     </div>
 </div>
 <div id="modalContainer"></div>
-<partial name="_ModalPartial" model="@(new ModalMessage())"/>
+<partial name="_ModalPartial" model="@(new ModalMessage())" />
 
 <script src="~/js/TableCrud.js"></script>
-<script src="~/js/PluginsRenameScript.js"></script>
+<script asp-append-version="true">
+    const table = new TableCrud("PluginsRename/Delete/", "PluginsRename/Add", 'PluginsRename/Update', "PluginsRename/AddNew", "#mappingsTable")
+</script>
 

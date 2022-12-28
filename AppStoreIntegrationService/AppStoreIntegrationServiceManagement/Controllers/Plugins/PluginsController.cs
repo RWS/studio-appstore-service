@@ -6,10 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
-using System.IO.Compression;
-using System.Text;
-using System.Xml;
-using System.Xml.Serialization;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -21,22 +17,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IProductsRepository _productsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
         private readonly IHttpContextAccessor _context;
-        private readonly string _pluginDownloadPath;
 
         public PluginsController
         (
             IPluginRepository pluginRepository,
             IHttpContextAccessor context,
             IProductsRepository productsRepository,
-            ICategoriesRepository categoriesRepository,
-            IWebHostEnvironment environment
+            ICategoriesRepository categoriesRepository
         )
         {
             _pluginRepository = pluginRepository;
             _context = context;
             _productsRepository = productsRepository;
             _categoriesRepository = categoriesRepository;
-            _pluginDownloadPath = $@"{environment.ContentRootPath}\Temp";
         }
 
         [Route("Plugins")]
@@ -99,12 +92,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(ExtendedPluginDetails plugin, Status status)
-        {
-            return await Save(plugin, status, _pluginRepository.AddPlugin);
-        }
-
         [Route("Plugins/Edit/{id:int}")]
         public async Task<IActionResult> Edit(int id)
         {
@@ -124,61 +111,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(ExtendedPluginDetails plugin, Status status)
-        {
-            return await Save(plugin, status, _pluginRepository.UpdatePlugin);
-        }
-
-        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             await _pluginRepository.RemovePlugin(id);
             TempData["StatusMessage"] = "Success! Plugin was removed!";
             return Content("");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ManifestCompare(ExtendedPluginDetails plugin, ExtendedPluginVersion version)
-        {
-            if (!Directory.Exists(_pluginDownloadPath))
-            {
-                Directory.CreateDirectory(_pluginDownloadPath);
-            }
-
-            try
-            {
-                await DownloadPlugin(version.DownloadUrl);
-                ZipFile.ExtractToDirectory($@"{_pluginDownloadPath}\Plugin.sdlplugin", _pluginDownloadPath);
-                var response = ImportFromFile($@"{_pluginDownloadPath}\pluginpackage.manifest.xml");
-                Directory.Delete(_pluginDownloadPath, true);
-                TempData["ManifestCompare"] = response.CreateMatchLog(plugin, version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
-                return PartialView("_StatusMessage", string.Format("{0}! The comparison finished with{1} conflicts!", isFullMatch ? "Success" : "Error", isFullMatch ? "out" : ""));
-            }
-            catch (Exception e)
-            {
-                Directory.Delete(_pluginDownloadPath, true);
-                if (e is InvalidDataException || e is FileNotFoundException)
-                {
-                    return PartialView("_StatusMessage", "Error! The extract doesn't contain a manifest file!");
-                }
-
-                return PartialView("_StatusMessage", $"Error! {e.Message}");
-            }
-        }
-
-        private async Task DownloadPlugin(string downloadUrl)
-        {
-            try
-            {
-                var reader = new RemoteStreamReader(new Uri(downloadUrl));
-                var stream = await reader.ReadAsStreamAsync();
-                using var fileStream = System.IO.File.Create($@"{_pluginDownloadPath}\Plugin.sdlplugin");
-                await stream.CopyToAsync(fileStream);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
         }
 
         [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
@@ -202,34 +139,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return PartialView("_ModalPartial", modalDetails);
         }
 
-        private static PluginPackage ImportFromFile(string file)
-        {
-            var serializer = new XmlSerializer(typeof(PluginPackage));
-            var result = new StringBuilder();
-            using (var reader = new StreamReader(file))
-            {
-                while (reader.Peek() >= 0)
-                {
-                    result.AppendLine(reader.ReadLine());
-                }
-            }
-
-            if (result.Length > 0)
-            {
-                try
-                {
-                    return (PluginPackage)serializer.Deserialize(new XmlReaderNamespaceIgnore(new StringReader(result.ToString())));
-                }
-                catch (XmlException)
-                {
-                    return null;
-                }
-
-            }
-
-            return null;
-        }
-
         private async Task<bool> IsSaved(ExtendedPluginDetails plugin, ExtendedPluginVersion version)
         {
             var foundPluginDetails = await _pluginRepository.GetPluginById(plugin.Id);
@@ -237,13 +146,33 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
-        private async Task<IActionResult> Save(ExtendedPluginDetails plugin, Status status, Func<PluginDetails<PluginVersion<string>, string>, Task> func)
+        [HttpPost]
+        public async Task<IActionResult> Save(ExtendedPluginDetails plugin, Status status)
         {
             try
             {
                 plugin.Status = status;
-                await func(new PluginDetails<PluginVersion<string>, string>(plugin));
-                TempData["StatusMessage"] = string.Format("Success! {0} was {1}!", plugin.Name, plugin.IsEditMode ? "updated" : "saved");
+                if (plugin.IsEditMode)
+                {
+                    await _pluginRepository.UpdatePlugin(new PluginDetails<PluginVersion<string>, string>(plugin));
+
+                    if (plugin.DownloadUrl != null)
+                    {
+                        var response = await PluginPackage.DownloadPlugin(plugin.DownloadUrl);
+                        TempData["ManifestPluginCompare"] = response.CreatePluginMatchLog(plugin, out bool isFullMatch);
+
+                        if (!isFullMatch)
+                        {
+                            return PartialView("_StatusMessage", "Warning! Plugin was saved but there are manifest conflicts!");
+                        }
+                    }
+                }
+                else
+                {
+                    await _pluginRepository.AddPlugin(new PluginDetails<PluginVersion<string>, string>(plugin));
+                }
+
+                TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
                 return Content($"/Plugins/Edit/{plugin.Id}");
             }
             catch (Exception e)

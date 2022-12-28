@@ -9,9 +9,9 @@ namespace AppStoreIntegrationServiceCore.Repository
     {
         private readonly IPluginManager _pluginManager;
 
-        public PluginRepository(IPluginManager pluginManager) 
-        { 
-            _pluginManager = pluginManager; 
+        public PluginRepository(IPluginManager pluginManager)
+        {
+            _pluginManager = pluginManager;
         }
 
         public async Task UpdatePlugin(PluginDetails<PluginVersion<string>, string> plugin)
@@ -31,6 +31,12 @@ namespace AppStoreIntegrationServiceCore.Repository
 
             await _pluginManager.BackupPlugins(pluginsList);
             var old = pluginsList.FirstOrDefault(p => p.Id == plugin.Id);
+
+            if (plugin.Versions.Count == 0)
+            {
+                plugin.Versions = old.Versions;
+            }
+            
             pluginsList[pluginsList.IndexOf(old)] = plugin;
             await _pluginManager.SavePlugins(pluginsList);
         }
@@ -78,6 +84,26 @@ namespace AppStoreIntegrationServiceCore.Repository
             pluginToBeUpdated.Versions.Remove(versionToBeRemoved);
             await _pluginManager.SavePlugins(pluginList);
         }
+
+        public async Task UpdatePluginVersion(int pluginId, PluginVersion<string> version)
+        {
+            var plugin = await GetPluginById(pluginId);
+            var old = plugin.Versions?.FirstOrDefault(v => v.VersionId == version.VersionId);
+
+            if (old == null)
+            {
+                plugin.Versions.Add(version);
+            }
+            else
+            {
+                var index = plugin.Versions.IndexOf(old);
+                plugin.Versions[index] = version;
+            }
+
+            plugin.DownloadUrl = version.DownloadUrl;
+            await UpdatePlugin(plugin);
+        }
+
 
         public async Task RemovePlugin(int id)
         {

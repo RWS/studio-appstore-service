@@ -2,15 +2,20 @@
 
 @if (!String.IsNullOrEmpty(Model))
 {
-    var statusMessageClass = Model.StartsWith("Error") ? "danger" : "success";
+    var statusMessageClass = Model.Split('!')[0] switch
+    {
+        "Success" => "success",
+        "Error" => "danger",
+        _ => "warning"
+    };
+
     <div id="alert" class="alert shadow alert-@statusMessageClass alert-dismissible" role="alert">
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         <p class="text-break m-0">@Model</p>
     </div>
-    <input value="@TempData["Filehash"]" id="generatedFileHash" hidden />
 
-    <script>
-        manifestCompare = @Html.Raw(Json.Serialize(TempData["ManifestCompare"]));
-    </script>
+    <input value="@TempData["Filehash"]" id="GeneratedFileHash" hidden />
+    <input value="@Html.Raw(Json.Serialize(TempData["ManifestPluginCompare"])).ToString()" id="ManifestPluginComparison" hidden />
+    <input value="@Html.Raw(Json.Serialize(TempData["ManifestVersionCompare"])).ToString()" id="ManifestVersionComparison" hidden />
 }
 

@@ -1,20 +1,19 @@
 ﻿function ImportPlugins() {
-    $("#importFileForm").validate();
+    $("#form").validate();
 
-    if ($("#importFileForm").valid()) {
-        var formData = new FormData(document.getElementById("importFileForm"));
+    if ($("#form").valid()) {
+        let request = new XMLHttpRequest();
+        let data = new FormData(document.getElementById("form"));
 
-        $.ajax({
-            data: formData,
-            async: true,
-            type: "POST",
-            contentType: false,
-            processData: false,
-            url: "ImportExportPlugins/CreateImport",
-            success: function (actionResult) {
-                $('#modalContainer').html(actionResult);
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                AjaxSuccessCallback(request.responseText);
+                document.getElementById("modalContainer").innerHTML = request.responseText;
                 $('#modalContainer').find('.modal').modal('show');
             }
-        });
+        }
+
+        request.open("POST", `ImportExportPlugins/CreateImport`);
+        request.send(data);
     }
 }

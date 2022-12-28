@@ -38,31 +38,6 @@ namespace AppStoreIntegrationServiceCore.Model
         public IEnumerable<Comment> Comments { get; set; }
         [JsonIgnore]
         public IEnumerable<ParentProduct> Parents { get; set; }
-
-        public bool IsValid(PluginVersion<string> selectedVersion)
-        {
-            return selectedVersion.VersionId != null || IsEditMode;
-        }
-
-        public void SetVersionList(List<ExtendedPluginVersion> versions, ExtendedPluginVersion selectedVersion)
-        {
-            var editedVersion = versions.FirstOrDefault(v => v.VersionId.Equals(selectedVersion.VersionId));
-            if (editedVersion != null)
-            {
-                versions[versions.IndexOf(editedVersion)] = selectedVersion;
-            }
-            else if (selectedVersion.VersionId != null)
-            {
-                versions.Add(selectedVersion);
-            }
-
-            Versions = versions;
-        }
-
-        public void SetDownalodUrl()
-        {
-            DownloadUrl = Versions.LastOrDefault()?.DownloadUrl;
-        }
     }
 }
 

@@ -1,14 +1,16 @@
-﻿function DeletePlugin(id, pluginName) {
+﻿function DeletePlugin(id) {
     document.getElementById('confirmationBtn').onclick = function () {
-        $.ajax({
-            type: "POST",
-            url: `Plugins/Plugins/Delete/${id}`,
-            success: function () {
-                location.reload();
-            }
-        })
-    }
+        let request = new XMLHttpRequest();
 
-    document.querySelector("#confirmationModal .modal-body").innerHTML = `Are you sure you want to delete ${pluginName}?`;
-    $('#confirmationModal').modal('show');
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                AjaxSuccessCallback(request.responseText);
+                document.getElementById("modalContainer").innerHTML = request.responseText;
+                $('#modalContainer').find('.modal').modal('show');
+            }
+        }
+
+        request.open("POST", `Plugins/Plugins/Delete/${id}`);
+        request.send();
+    }
 }
