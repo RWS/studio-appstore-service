@@ -89,9 +89,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> New()
         {
             var categories = await _categoriesRepository.GetAllCategories();
-            return View(new ExtendedPluginDetails
+            return View("Details", new ExtendedPluginDetails
             {
                 Icon = new IconDetails { MediaUrl = GetDefaultIcon() },
+                Developer = new DeveloperDetails { DeveloperName = User.IsInRole("Administrator") ? "" : User.Identity.Name },
                 IsEditMode = false,
                 SelectedVersionId = Guid.NewGuid().ToString(),
                 CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
@@ -99,9 +100,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ExtendedPluginDetails plugin, List<ExtendedPluginVersion> versions, ExtendedPluginVersion version)
+        public async Task<IActionResult> Create(ExtendedPluginDetails plugin, Status status)
         {
-            return await Save(plugin, versions, version, _pluginRepository.AddPlugin);
+            return await Save(plugin, status, _pluginRepository.AddPlugin);
         }
 
         [Route("Plugins/Edit/{id:int}")]
@@ -115,7 +116,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 return NotFound();
             }
 
-            return View(new ExtendedPluginDetails(plugin)
+            return View("Details", new ExtendedPluginDetails(plugin)
             {
                 IsEditMode = true,
                 CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
@@ -123,9 +124,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(ExtendedPluginDetails plugin, List<ExtendedPluginVersion> versions, ExtendedPluginVersion version)
+        public async Task<IActionResult> Update(ExtendedPluginDetails plugin, Status status)
         {
-            return await Save(plugin, versions, version, _pluginRepository.UpdatePlugin);
+            return await Save(plugin, status, _pluginRepository.UpdatePlugin);
         }
 
         [HttpPost]
@@ -236,32 +237,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
-        private async Task<IActionResult> Save
-        (
-            ExtendedPluginDetails plugin, 
-            List<ExtendedPluginVersion> versions, 
-            ExtendedPluginVersion version, 
-            Func<PluginDetails<PluginVersion<string>, string>, Task> func
-        )
+        private async Task<IActionResult> Save(ExtendedPluginDetails plugin, Status status, Func<PluginDetails<PluginVersion<string>, string>, Task> func)
         {
-            if (plugin.IsValid(version))
+            try
             {
-                plugin.SetVersionList(versions, version);
-                plugin.SetDownalodUrl();
-
-                try
-                {
-                    await func(new PluginDetails<PluginVersion<string>, string>(plugin));
-                    TempData["StatusMessage"] = string.Format("Success! {0} was {1}!", plugin.Name, plugin.IsEditMode ? "updated" : "saved");
-                    return Content($"/Plugins/Edit/{plugin.Id}");
-                }
-                catch (Exception e)
-                {
-                    return PartialView("_StatusMessage", string.Format("Error! {0}!", e.Message));
-                }
+                plugin.Status = status;
+                await func(new PluginDetails<PluginVersion<string>, string>(plugin));
+                TempData["StatusMessage"] = string.Format("Success! {0} was {1}!", plugin.Name, plugin.IsEditMode ? "updated" : "saved");
+                return Content($"/Plugins/Edit/{plugin.Id}");
             }
-
-            return PartialView("_StatusMessage", "Error! Please fill all required values!");
+            catch (Exception e)
+            {
+                return PartialView("_StatusMessage", string.Format("Error! {0}!", e.Message));
+            }
         }
 
         private PluginFilter ApplyFilters()

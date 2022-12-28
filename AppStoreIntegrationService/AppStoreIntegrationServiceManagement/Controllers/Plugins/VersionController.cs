@@ -22,7 +22,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = new ExtendedPluginDetails(await _pluginRepository.GetPluginById(id))
             {
-                Parents = await _productsRepository.GetAllParents()
+                Parents = await _productsRepository.GetAllParents(),
+                IsEditMode = true
             };
 
             var versions = plugin.Versions?.Select(v => (v.VersionId, v.VersionNumber)).ToList();
@@ -34,56 +35,60 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Show(int pluginId, string versionId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var version = new ExtendedPluginVersion(plugin.Versions.FirstOrDefault(v => v.VersionId.Equals(versionId)));
-            var products = (await _productsRepository.GetAllProducts()).ToList();
-            var parents = (await _productsRepository.GetAllParents()).ToList();
-            version.SetSupportedProductsList(products, parents);
-            return PartialView("_PluginVersionDetailsPartial", version);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Add()
-        {
-            var products = (await _productsRepository.GetAllProducts()).ToList();
-            var parents = (await _productsRepository.GetAllParents()).ToList();
-            var version = new ExtendedPluginVersion
+            var version = plugin.Versions.FirstOrDefault(v => v.VersionId.Equals(versionId));
+            var extended = version != null ? new ExtendedPluginVersion(version) : new ExtendedPluginVersion()
             {
-                VersionName = "New plugin version",
-                VersionNumber = string.Empty,
-                IsPrivatePlugin = true,
-                IsNewVersion = true,
-                VersionId = Guid.NewGuid().ToString()
+                IsNewVersion = true
             };
+            var products = (await _productsRepository.GetAllProducts()).ToList();
+            var parents = (await _productsRepository.GetAllParents()).ToList();
+            extended.SetSupportedProductsList(products, parents);
+            return PartialView("_PluginVersionDetailsPartial", extended);
+        }
 
-            version.SetSupportedProductsList(products, parents);
+        [HttpPost("/Plugins/Edit/{pluginId}/Versions/Save")]
+        public async Task<IActionResult> Save(ExtendedPluginVersion version, int pluginId)
+        {
+            var plugin = await _pluginRepository.GetPluginById(pluginId);
+            var old = plugin.Versions?.FirstOrDefault(v => v.VersionId == version.VersionId);
 
-            return PartialView("_PluginVersionDetailsPartial", version);
+            if (old == null)
+            {
+                plugin.Versions.Add(version);
+            }
+            else
+            {
+                var index = plugin.Versions.IndexOf(old);
+                plugin.Versions[index] = version;
+            }
+
+            await _pluginRepository.UpdatePlugin(plugin);
+            TempData["StatusMessage"] = string.Format("Success! Version was {0}!", version.IsNewVersion ? "added" : "updated");
+            return Content(null);
         }
 
         [HttpPost]
-        public async Task<IActionResult> GenerateChecksum(ExtendedPluginVersion version)
+        public async Task<IActionResult> GenerateChecksum(string versionDownloadUrl)
         {
             try
             {
-                var remoteReader = new RemoteStreamReader(new Uri(version.VersionDownloadUrl));
-                version.FileHash = SHA1Generator.GetHash(await remoteReader.ReadAsStreamAsync());
+                var remoteReader = new RemoteStreamReader(new Uri(versionDownloadUrl));
+                var filehash = SHA1Generator.GetHash(await remoteReader.ReadAsStreamAsync());
+                TempData["Filehash"] = filehash;
+                return PartialView("_StatusMessage", "Success! Checksum was generated!");
             }
             catch (Exception e)
             {
                 return PartialView("_StatusMessage", $"Error! {e.Message}");
             }
-
-            TempData["Filehash"] = version.FileHash;
-            return PartialView("_StatusMessage", "Success! Checksum was computed!");
         }
 
-        [HttpPost]
-        [Route("[controller]/[action]/{versionId}")]
-        public async Task<IActionResult> Delete(ExtendedPluginDetails plugin, string versionId)
+        [HttpPost("/Plugins/Edit/{pluginId}/Versions/Delete/{versionId}")]
+        public async Task<IActionResult> Delete(int pluginId, string versionId)
         {
-            await _pluginRepository.RemovePluginVersion(plugin.Id, versionId);
+            await _pluginRepository.RemovePluginVersion(pluginId, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";
-            return Content($"Plugins/Edit/{plugin.Id}");
+            return Content(null);
         }
     }
 }

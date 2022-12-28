@@ -13,8 +13,11 @@
     </div>
 </div>
 
-<ul class="nav nav-pills flex-column py-3" id="settings-navbar">
-    <li class="nav-item"><a class="nav-link option @ManagePluginsNav.DetailsNavClass(ViewContext)" href="/Plugins/Edit/@Model.Id">Plugin details</a></li>
-    <li class="nav-item"><a class="nav-link option @ManagePluginsNav.VersionsNavClass(ViewContext)" href="/Plugins/Edit/@Model.Id/Versions">Plugin versions</a></li>
-    <li class="nav-item"><a class="nav-link option @ManagePluginsNav.CommentsNavClass(ViewContext)" href="#">Plugin comments</a></li>
-</ul>
+@if (Model.IsEditMode)
+{
+    <ul class="nav nav-pills flex-column py-3" id="settings-navbar">
+        <li class="nav-item"><a class="nav-link option @ManagePluginsNav.DetailsNavClass(ViewContext)" href="/Plugins/Edit/@Model.Id">Plugin details</a></li>
+        <li class="nav-item"><a class="nav-link option @ManagePluginsNav.VersionsNavClass(ViewContext)" href="/Plugins/Edit/@Model.Id/Versions">Plugin versions</a></li>
+        <li class="nav-item"><a class="nav-link option @ManagePluginsNav.CommentsNavClass(ViewContext)" href="#">Plugin comments</a></li>
+    </ul>
+}

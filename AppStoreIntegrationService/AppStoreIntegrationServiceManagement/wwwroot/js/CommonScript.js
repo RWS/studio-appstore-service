@@ -71,41 +71,6 @@ function Collapse(element) {
     }
 }
 
-function GenerateChecksum() {
-    var pageValues = $('main').find('select, textarea, input').serialize();
-    var button = event.target;
-    $("#VersionDownloadUrl").validate();
-
-    if ($("#VersionDownloadUrl").valid()) {
-        button.disabled = true;
-        button.firstElementChild.hidden = false;
-
-        $.ajax({
-            data: pageValues,
-            type: "POST",
-            url: "/Plugins/Version/GenerateChecksum",
-            success: function (result) {
-                button.disabled = false;
-                button.firstElementChild.hidden = true;
-                AjaxSuccessCallback(result);
-                document.getElementById("FileHash").value = fileHash;
-            }
-        })
-    }
-}
-
-function ManageChecksum(url, checksum) {
-    var currentInput = event.target.value;
-
-    if (url != currentInput) {
-        document.getElementById("FileHash").value = "";
-        return;
-
-    }
-
-    document.getElementById("FileHash").value = checksum;
-}
-
 document.addEventListener('DOMContentLoaded', function () {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {

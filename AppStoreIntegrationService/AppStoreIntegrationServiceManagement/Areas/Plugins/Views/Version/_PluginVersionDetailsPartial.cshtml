@@ -3,6 +3,7 @@
 <div class="p-3 border-bottom">
     <input hidden asp-for="IsPrivatePlugin" value="true" />
     <input hidden asp-for="VersionId" />
+    <input hidden asp-for="IsNewVersion"/>
 
     <div id="versionDetails" class="m-0 ml-lg-3">
         @for (int i = 0; i < Model.SupportedProducts?.Count; i++)
@@ -13,7 +14,7 @@
         <div class="d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 align-self-center form-label" asp-for="VersionNumber">Version Number <span class="text-danger">*</span></label>
             <div class="w-100 d-flex flex-column">
-                <input asp-for="VersionNumber" class="form-control manifest-field fs-inherit" />
+                <input asp-for="VersionNumber" class="form-control manifest-field fs-inherit" oninput="UpdatePlaceholder()" />
                 <span asp-validation-for="VersionNumber" class="text-danger"></span>
                 <span hidden id="VersionNumberManifestConflict" class="text-danger">Plugin manifest conflict! Invalid version number!</span>
             </div>
@@ -37,7 +38,7 @@
         <div class="d-flex align-content-center col-12 p-0 mb-3">
             <label class="col-4 m-0 align-self-center" asp-for="VersionDownloadUrl">Download URL <span class="text-danger">*</span></label>
             <div class="w-100">
-                <input asp-for="VersionDownloadUrl" class="form-control fs-inherit" oninput="ManageChecksum('@Model.VersionDownloadUrl', '@Model.FileHash')" />
+                <input asp-for="VersionDownloadUrl" class="form-control fs-inherit" onchange="GenerateChecksum()" />
                 <span asp-validation-for="VersionDownloadUrl" class="text-danger"></span>
             </div>
         </div>
@@ -53,11 +54,10 @@
             <label class="col-4 m-0 align-self-center form-label" asp-for="FileHash">Checksum </label>
             <div class="d-flex flex-column w-100">
                 <div class="input-group">
-                    <button class="btn btn-secondary" type="button" onclick="GenerateChecksum()">
-                        <span class="spinner-border spinner-border-sm" hidden role="status" aria-hidden="true"></span>
-                        Generate
-                    </button>
-                    <input asp-for="FileHash" class="form-control ignore fs-inherit" />
+                    <input asp-for="FileHash" class="form-control ignore fs-inherit border-end-0" />
+                    <span class="input-group-text bg-white">
+                        <span class="spinner-border spinner-border-sm" hidden role="status" aria-hidden="true" />
+                    </span>
                 </div>
                 <span asp-validation-for="FileHash" class="text-danger"></span>
             </div>
@@ -92,7 +92,10 @@
             </div>
         </div>
 
-        <button class="btn pa-admin-success-btn">Save</button>
-        <button class="btn btn-danger">Delete</button>
+        <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId')">Save</button>
+        @if (!Model.IsNewVersion)
+        {
+            <button class="btn btn-danger" onclick="DeleteVersion('@Model.PluginId', '@Model.VersionId')">Delete</button>
+        }
     </div>
 </div>

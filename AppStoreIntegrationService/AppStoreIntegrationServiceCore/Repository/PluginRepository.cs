@@ -31,7 +31,6 @@ namespace AppStoreIntegrationServiceCore.Repository
 
             await _pluginManager.BackupPlugins(pluginsList);
             var old = pluginsList.FirstOrDefault(p => p.Id == plugin.Id);
-            plugin.Versions = old.Versions;
             pluginsList[pluginsList.IndexOf(old)] = plugin;
             await _pluginManager.SavePlugins(pluginsList);
         }

@@ -10,7 +10,7 @@
 <form method="post" id="form" enctype="multipart/form-data">
     <div class="row px-2">
         <div class="col-12 col-lg-4">
-            <partial name="_PluginsNavPartial" model="@Model"/>
+            <partial name="_PluginsNavPartial" model="@Model" />
         </div>
 
         <div class="col-12 col-lg-8 border-container">
@@ -36,7 +36,15 @@
             <div class="d-flex align-content-center col-12 p-0 mb-3">
                 <label class="col-4 m-0 align-self-center form-label" asp-for="@Model.Developer.DeveloperName">Developer </label>
                 <div class="w-100">
-                    <input asp-for="@Model.Developer.DeveloperName" class="form-control fs-inherit" />
+                    @if (User.IsInRole("Developer"))
+                    {
+                        <input asp-for="@Model.Developer.DeveloperName" readonly class="form-control fs-inherit" />
+                    }
+                    else
+                    {
+                        <input asp-for="@Model.Developer.DeveloperName" class="form-control fs-inherit" />
+                    }
+
                     <span asp-validation-for="@Model.Developer.DeveloperName" class="text-danger"></span>
                     <span hidden id="DeveloperNameManifestConflict" class="text-danger">Plugin manifest conflict! Invalid developer name!</span>
                 </div>

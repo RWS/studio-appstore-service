@@ -7,10 +7,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         <p class="text-break m-0">@Model</p>
     </div>
-
+    <input value="@TempData["Filehash"]" id="generatedFileHash" hidden />
 
     <script>
-        fileHash = '@TempData["Filehash"]';
         manifestCompare = @Html.Raw(Json.Serialize(TempData["ManifestCompare"]));
     </script>
 }

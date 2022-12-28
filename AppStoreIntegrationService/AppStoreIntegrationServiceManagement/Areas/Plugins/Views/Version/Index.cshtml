@@ -4,7 +4,11 @@
     ViewData["ActivePage"] = ManagePluginsNav.Versions;
 }
 
-<form class="row p-2" method="post" onsubmit="return false">
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]"/>
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this version?" })"/>
+<div id="statusMessageContainer"></div>
+
+<form class="row p-2" method="post" id="form" onsubmit="return false">
     <div class="col-12 col-lg-4">
         <partial name="_PluginsNavPartial" model="@Model.Key" />
     </div>
@@ -15,11 +19,11 @@
             <div class="d-flex justify-content-between p-3 border-bottom">
                 <div class="d-flex cursor-pointer w-100" onclick="ShowVersion('@Model.Key.Id', '@version.versionId')">
                     <i class="fa fa-caret-down align-self-center me-2"></i>
-                    <p class="m-0 fw-bold">@version.versionNumber</p>
+                    <p class="m-0 fw-bold version-number-placeholder">@version.versionNumber</p>
                 </div>
                 @if(version.versionNumber != "New version")
                 {
-                    <i class="fa fa-trash-alt align-self-center cursor-pointer"></i>
+                    <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.Key.Id', '@version.versionId')"></i>
                 }
                 
             </div>
