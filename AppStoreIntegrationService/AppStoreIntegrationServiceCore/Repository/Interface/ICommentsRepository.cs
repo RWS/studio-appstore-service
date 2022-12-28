@@ -4,9 +4,9 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface ICommentsRepository
     {
-        Task<IEnumerable<Comment>> GetCommentsForPlugin(string pluginName);
-        Task DeleteComment(int id, string pluginName);
-        Task SaveComment(Comment comment, string pluginName);
-        Task<Comment> GetPluginComment(string pluginName, int id);
+        Task<IEnumerable<Comment>> GetCommentsForVersion(string pluginName, string versionId);
+        Task DeleteVersionComment(int id, string pluginName, string versionId);
+        Task SaveComment(Comment comment, string pluginName, string versionId);
+        Task<Comment> GetVersionComment(string pluginName, int id, string versionId);
     }
 }

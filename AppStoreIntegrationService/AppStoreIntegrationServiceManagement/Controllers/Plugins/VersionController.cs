@@ -36,9 +36,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
             var version = plugin.Versions.FirstOrDefault(v => v.VersionId.Equals(versionId));
-            var extended = version != null ? new ExtendedPluginVersion(version) : new ExtendedPluginVersion()
+            var extended = version != null ? new ExtendedPluginVersion(version)
             {
-                IsNewVersion = true
+                PluginId = pluginId,
+            } : new ExtendedPluginVersion()
+            {
+                IsNewVersion = true,
+                VersionId = versionId,
+                PluginId = pluginId
             };
             var products = (await _productsRepository.GetAllProducts()).ToList();
             var parents = (await _productsRepository.GetAllParents()).ToList();
@@ -53,7 +58,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             {
                 await _pluginRepository.UpdatePluginVersion(pluginId, version);
                 var response = await PluginPackage.DownloadPlugin(version.VersionDownloadUrl);
-                TempData["ManifestVersionCompare"] =  response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
+                TempData["ManifestVersionCompare"] = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
 
                 if (!isFullMatch)
                 {

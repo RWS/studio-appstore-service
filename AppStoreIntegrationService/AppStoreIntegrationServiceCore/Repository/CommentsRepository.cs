@@ -1,6 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using System.Xml.Linq;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
@@ -13,41 +12,54 @@ namespace AppStoreIntegrationServiceCore.Repository
             _commentsManager = commentsManager;
         }
 
-        public async Task SaveComment(Comment comment, string pluginName)
+        public Task DeleteVersionComment(int id, string pluginName, string versionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<Comment>> GetCommentsForVersion(string pluginName, string versionId)
         {
             var comments = await _commentsManager.ReadComments();
-            if (!comments.TryAdd(pluginName, new List<Comment> { comment }))
-            {
-                _ = comments.TryGetValue(pluginName, out IEnumerable<Comment> pluginComments);
-                if (pluginComments.Any(c => c.CommentId == comment.CommentId))
-                {
-                    pluginComments = pluginComments.Where(c => c.CommentId != comment.CommentId);
-                }
 
-                comments[pluginName] = pluginComments.Append(comment);
+            if (comments.TryGetValue(pluginName, out var pluginComments))
+            {
+                if (pluginComments.TryGetValue(versionId, out var versionComments))
+                {
+                    return versionComments;
+                }
+            }
+
+            return new List<Comment>();
+        }
+
+        public Task<Comment> GetVersionComment(string pluginName, int id, string versionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task SaveComment(Comment comment, string pluginName, string versionId)
+        {
+            var comments = await _commentsManager.ReadComments();
+
+            if (comments.TryGetValue(pluginName, out var pluginComments))
+            {
+                if (pluginComments.TryGetValue(versionId, out var versionComments))
+                {
+                    pluginComments[versionId] = versionComments.Append(comment);
+                    comments[pluginName][versionId] = versionComments;
+                }
+                else
+                {
+                    pluginComments.Add(versionId, new[] { comment });
+                    comments[pluginName] = pluginComments;
+                }
+            }
+            else
+            {
+                comments.Add(pluginName, new Dictionary<string, IEnumerable<Comment>> { [versionId] = new[] { comment } });
             }
             
             await _commentsManager.UpdateComments(comments);
-        }
-
-        public async Task DeleteComment(int id, string pluginName)
-        {
-            var comments = await _commentsManager.ReadComments();
-            _ = comments.TryGetValue(pluginName, out IEnumerable<Comment> pluginComments);
-            comments[pluginName] = pluginComments.Where(c => c.CommentId != id);
-            await _commentsManager.UpdateComments(comments);
-        }
-
-        public async Task<IEnumerable<Comment>> GetCommentsForPlugin(string pluginName)
-        {
-            _ = (await _commentsManager.ReadComments()).TryGetValue(pluginName, out IEnumerable<Comment> comments);
-            return comments ?? new List<Comment>();
-        }
-
-        public async Task<Comment> GetPluginComment(string pluginName, int id)
-        {
-            var comments = await _commentsManager.ReadComments();
-            return comments[pluginName].FirstOrDefault(c => c.CommentId == id);
         }
     }
 }

@@ -282,6 +282,15 @@ table {
 }
 
 /* Generic */
+
+.active-tab{
+    border: 1px solid var(--pa-admin-color) !important;
+    border-bottom: 0;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: var(--pa-admin-color) !important;
+    color: white !important;
+}
 .fa-trash-alt, .fa-times-circle {
     color: var(--pa-admin-danger-color);
     font-size: var(--pa-admin-danger-fontsize);

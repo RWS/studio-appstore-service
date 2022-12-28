@@ -1,0 +1,33 @@
+﻿@model (int pluginId, string versionId, IEnumerable<Comment> comments)
+
+<div class="p-3 border-bottom">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="#" onclick="ShowDetails('@Model.pluginId', '@Model.versionId')">Details</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active-tab" href="#">Comments</a>
+        </li>
+    </ul>
+    @if (!Model.comments.Any())
+    {
+        <p class="m-0">No comments yet for this version.</p>
+    }
+    else
+    {
+        @foreach (var comment in Model.comments)
+        {
+            <div class="p-3 border-bottom border-top">
+                <div class="d-flex">
+                    <i class="fa fa-user-alt me-2 align-self-center"></i>
+                    <p class="m-0">@comment.CommentAuthor commented - @comment.CommentDate</p>
+                </div>
+                <p class="m-0 py-3">@comment.CommentDescription</p>
+                <div class="d-flex">
+                    <p class="m-0 me-2 cursor-pointer text-secondary">Edit</p>
+                    <p class="m-0 cursor-pointer text-secondary">Delete</p>
+                </div>
+            </div>
+        }
+    }
+</div>

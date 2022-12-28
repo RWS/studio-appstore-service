@@ -242,13 +242,13 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
         }
 
-        public async Task<IDictionary<string, IEnumerable<Comment>>> ReadComments()
+        public async Task<IDictionary<string, IDictionary<string, IEnumerable<Comment>>>> ReadComments()
         {
             var containterContent = await _commentsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<Comment>>>(containterContent) ?? new Dictionary<string, IEnumerable<Comment>>();
+            return JsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, IEnumerable<Comment>>>>(containterContent) ?? new Dictionary<string, IDictionary<string, IEnumerable<Comment>>>();
         }
 
-        public async Task UpdateComments(IDictionary<string, IEnumerable<Comment>> comments)
+        public async Task UpdateComments(IDictionary<string, IDictionary<string, IEnumerable<Comment>>> comments)
         {
             var text = JsonConvert.SerializeObject(comments);
             await _commentsBlockBlob.UploadTextAsync(text);

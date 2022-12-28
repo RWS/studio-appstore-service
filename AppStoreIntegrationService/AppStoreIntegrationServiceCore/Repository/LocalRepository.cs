@@ -121,18 +121,18 @@ namespace AppStoreIntegrationServiceCore.Repository
             _options.Value.Name = settings.Name;
         }
 
-        public async Task<IDictionary<string, IEnumerable<Comment>>> ReadComments()
+        public async Task<IDictionary<string, IDictionary<string, IEnumerable<Comment>>>> ReadComments()
         {
             if (_configurationSettings.CommentsFilePath == null)
             {
-                return new Dictionary<string, IEnumerable<Comment>>();
+                return new Dictionary<string, IDictionary<string, IEnumerable<Comment>>>();
             }
 
             var content = await File.ReadAllTextAsync(_configurationSettings.CommentsFilePath);
-            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<Comment>>>(content) ?? new Dictionary<string, IEnumerable<Comment>>();
+            return JsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, IEnumerable<Comment>>>>(content) ?? new Dictionary<string, IDictionary<string, IEnumerable<Comment>>>();
         }
 
-        public async Task UpdateComments(IDictionary<string, IEnumerable<Comment>> comments)
+        public async Task UpdateComments(IDictionary<string, IDictionary<string, IEnumerable<Comment>>> comments)
         {
             await File.WriteAllTextAsync(_configurationSettings.CommentsFilePath, JsonConvert.SerializeObject(comments));
         }

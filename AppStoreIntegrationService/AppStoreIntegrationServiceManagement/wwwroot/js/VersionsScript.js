@@ -1,6 +1,6 @@
 ﻿let parentProducts;
 
-function ShowVersion(pluginId, versionId) {
+function Show(pluginId, versionId) {
     let content = event.currentTarget.parentElement.nextElementSibling;
     let caret = event.currentTarget.firstElementChild;
     let request = new XMLHttpRequest();
@@ -22,21 +22,40 @@ function ShowVersion(pluginId, versionId) {
             content.innerHTML = request.responseText;
             content.ariaExpanded = true;
             ToggleCaret(caret);
-            $("#form").data('validator', null);
-            $.validator.unobtrusive.parse("#form");
-
-            new DropDown(
-                document.querySelector("#productsDropdown #dropDownToggle"),
-                document.querySelector("#productsDropdown #ProductsSelect"),
-                $("#productsDropdown #SupportedProducts"),
-                document.querySelector("#productsDropdown .selection-summary"),
-                document.querySelectorAll("#productsDropdown .overflow-arrow"),
-                parentProducts.map(p => p.parentProductName)
-            ).Init()
+            PrepareForm();
         }
     }
 
     request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${versionId}`);
+    request.send();
+}
+
+function ShowDetails(pluginId, versionId) {
+    let content = event.currentTarget.closest('.version-details');
+    let request = new XMLHttpRequest();
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            content.innerHTML = request.responseText;
+            PrepareForm();
+        }
+    }
+
+    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${versionId}`);
+    request.send();
+}
+
+function ShowComments(pluginId, versionId) {
+    let content = event.currentTarget.closest('.version-details');
+    let request = new XMLHttpRequest();
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            content.innerHTML = request.responseText;
+        }
+    }
+
+    request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}`);
     request.send();
 }
 
@@ -106,6 +125,20 @@ function UpdatePlaceholder() {
 function ToggleCaret(caret) {
     caret.classList.toggle("fa-caret-down");
     caret.classList.toggle("fa-caret-up");
+}
+
+function PrepareForm() {
+    $("#form").data('validator', null);
+    $.validator.unobtrusive.parse("#form");
+
+    new DropDown(
+        document.querySelector("#productsDropdown #dropDownToggle"),
+        document.querySelector("#productsDropdown #ProductsSelect"),
+        $("#productsDropdown #SupportedProducts"),
+        document.querySelector("#productsDropdown .selection-summary"),
+        document.querySelectorAll("#productsDropdown .overflow-arrow"),
+        parentProducts.map(p => p.parentProductName)
+    ).Init()
 }
 
 function AjaxSuccessCallback(actionResult) {

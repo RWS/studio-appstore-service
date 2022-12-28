@@ -17,7 +17,7 @@
         @foreach (var version in Model.Value)
         {
             <div class="d-flex justify-content-between p-3 border-bottom">
-                <div class="d-flex cursor-pointer w-100" onclick="ShowVersion('@Model.Key.Id', '@version.versionId')">
+                <div class="d-flex cursor-pointer w-100" onclick="Show('@Model.Key.Id', '@version.versionId')">
                     <i class="fa fa-caret-down align-self-center me-2"></i>
                     <p class="m-0 fw-bold version-number-placeholder">@version.versionNumber</p>
                 </div>
