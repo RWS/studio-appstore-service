@@ -1,18 +1,21 @@
 ﻿@model ExtendedPluginVersion
 
 <div class="p-3 border-bottom">
-    <ul class="nav nav-tabs mb-3">
-        <li class="nav-item">
-            <a class="nav-link active-tab" href="#">Details</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#" onclick="ShowComments('@Model.PluginId', '@Model.VersionId')">Comments</a>
-        </li>
-    </ul>
+    @if (!Model.IsNewVersion)
+    {
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link active-tab" href="#">Details</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="Show('@Model.VersionId', 'Comments')">Comments</a>
+            </li>
+        </ul>
+    }
 
     <input hidden asp-for="IsPrivatePlugin" value="true" />
     <input hidden asp-for="VersionId" />
-    <input hidden asp-for="IsNewVersion"/>
+    <input hidden asp-for="IsNewVersion" />
 
     <div id="versionDetails" class="m-0 ml-lg-3">
         @for (int i = 0; i < Model.SupportedProducts?.Count; i++)

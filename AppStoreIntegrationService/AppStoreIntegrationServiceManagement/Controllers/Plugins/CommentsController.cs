@@ -16,21 +16,37 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             _pluginRepository = pluginRepository;
         }
 
-        [HttpPost("/Plugins/Edit/{pluginId}/Comments/{versionId}")]
-        public async Task<IActionResult> Show(int pluginId, string versionId)
+        [HttpPost("/Plugins/Edit/{pluginId}/Comments/{versionId}/New")]
+        public async Task<IActionResult> New(int pluginId, string versionId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-
-            await _commentsRepository.SaveComment(new Comment
-            {
-                CommentAuthor = "Catalin",
-                CommentId = 0,
-                CommentDate = DateTime.Now,
-                CommentDescription = "Just a simple test"
-            }, plugin.Name, versionId);
-            
             var comments = await _commentsRepository.GetCommentsForVersion(plugin.Name, versionId);
-            return PartialView("_CommentsPartial", (pluginId, versionId, comments));
+            return PartialView("_NewCommentPartial", new Comment
+            {
+                CommentId = comments.LastOrDefault()?.CommentId + 1 ?? 0,
+                CommentAuthor = User.Identity.Name,
+                CommentDate = DateTime.Now,
+                PluginId = pluginId,
+                VersionId = versionId
+            });
+        }
+
+        [HttpPost("/Plugins/Edit/{pluginId}/Comments/{versionId}/Update")]
+        public async Task<IActionResult> Update(Comment comment, int pluginId, string versionId)
+        {
+            var plugin = await _pluginRepository.GetPluginById(pluginId);
+            await _commentsRepository.SaveComment(comment, plugin.Name, versionId);
+            TempData["StatusMessage"] = "Success! Comment was added!";
+            return Content(null);
+        }
+
+        [HttpPost("/Plugins/Edit/{pluginId}/Comments/{versionId}/Delete/{commentId}")]
+        public async Task<IActionResult> Delete(int commentId, int pluginId, string versionId)
+        {
+            var plugin = await _pluginRepository.GetPluginById(pluginId);
+            await _commentsRepository.DeleteVersionComment(commentId, plugin.Name, versionId);
+            TempData["StatusMessage"] = "Success! Comment was added!";
+            return Content(null);
         }
     }
 }

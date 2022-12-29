@@ -1,49 +1,9 @@
-﻿let optionButtons = document.querySelectorAll('.rich-text-editor .option');
-let alignButtons = document.querySelectorAll('.rich-text-editor .align');
-let formatButtons = document.querySelectorAll('.rich-text-editor .format');
-let selectorCells = document.querySelectorAll('.rich-text-editor .selector-cell');
-let editor = document.querySelector('.rich-text-editor');
+﻿let optionButtons;
+let alignButtons;
+let formatButtons;
+let selectorCells;
+let editor;
 let savedRange;
-
-selectorCells.forEach(selector => {
-    selector.addEventListener('mouseover', () => {
-        document.querySelector('.table-dimension').innerText = selector.id;
-        let [rows, cols] = [parseInt(selector.id.split('x')[0], 10), parseInt(selector.id.split('x')[1], 10)];
-        HighlightSelectionCells(rows, cols);
-    })
-
-    selector.addEventListener('click', () => {
-        let [rows, cols] = [parseInt(selector.id.split('x')[0], 10), parseInt(selector.id.split('x')[1], 10)];
-        InsertTable(rows, cols);
-    })
-})
-
-document.querySelector('.table-dimension-selector').addEventListener('mouseout', () => {
-    document.querySelector('.table-dimension').innerText = "0x0";
-    selectorCells.forEach(selector => {
-        selector.style.backgroundColor = "white";
-    })
-})
-
-optionButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        RestoreSel();
-        document.execCommand(button.id, false, null);
-    })
-})
-
-document.querySelector('.edit-area').addEventListener('focusout', () => {
-    SaveSel();
-});
-
-document.addEventListener('selectionchange', () => {
-    HighlighterRemover(optionButtons)
-    if (window.getSelection().anchorNode.parentNode || !editor.contains(window.getSelection().anchorNode.parentNode)) {
-        return false;
-    }
-
-    ParentTagActive(window.getSelection().anchorNode.parentNode);
-})
 
 function HighlightSelectionCells(rows, cols) {
     selectorCells.forEach(selector => {
@@ -95,6 +55,55 @@ function Highlighter(buttons, needsRemoval) {
 }
 
 function Init() {
+    optionButtons = document.querySelectorAll('.rich-text-editor .option');
+    alignButtons = document.querySelectorAll('.rich-text-editor .align');
+    formatButtons = document.querySelectorAll('.rich-text-editor .format');
+    selectorCells = document.querySelectorAll('.rich-text-editor .selector-cell');
+    editor = document.querySelector('.rich-text-editor');
+
+    selectorCells.forEach(selector => {
+        selector.addEventListener('mouseover', () => {
+            document.querySelector('.table-dimension').innerText = selector.id;
+            let [rows, cols] = [parseInt(selector.id.split('x')[0], 10), parseInt(selector.id.split('x')[1], 10)];
+            HighlightSelectionCells(rows, cols);
+        })
+
+        selector.addEventListener('click', () => {
+            let [rows, cols] = [parseInt(selector.id.split('x')[0], 10), parseInt(selector.id.split('x')[1], 10)];
+            InsertTable(rows, cols);
+        })
+    })
+
+    let tableSelector = document.querySelector('.table-dimension-selector')
+    if (tableSelector) {
+        tableSelector.addEventListener('mouseout', () => {
+            document.querySelector('.table-dimension').innerText = "0x0";
+            selectorCells.forEach(selector => {
+                selector.style.backgroundColor = "white";
+            })
+        })
+    }
+
+    optionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            RestoreSel();
+            document.execCommand(button.id, false, null);
+        })
+    })
+
+    document.querySelector('.edit-area').addEventListener('focusout', () => {
+        SaveSel();
+    });
+
+    document.addEventListener('selectionchange', () => {
+        HighlighterRemover(optionButtons)
+        if (window.getSelection().anchorNode.parentNode || !editor.contains(window.getSelection().anchorNode.parentNode)) {
+            return false;
+        }
+
+        ParentTagActive(window.getSelection().anchorNode.parentNode);
+    })
+
     Highlighter(alignButtons, true);
     Highlighter(formatButtons, false);
 }

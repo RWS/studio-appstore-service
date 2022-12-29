@@ -1,0 +1,28 @@
+﻿@model Comment
+
+<input hidden asp-for="CommentId" />
+<input hidden asp-for="CommentDate" />
+<input hidden asp-for="CommentAuthor" />
+
+<div class="rich-text-editor border rounded">
+    <div class="editor-toolbar d-flex justify-content-between border-bottom p-3 sticky-top">
+        <i id="bold" data-tag-name="B" class="fa fa-bold cursor-pointer option format p-2"></i>
+        <i id="underline" data-tag-name="U" class="fa fa-underline cursor-pointer option format p-2"></i>
+        <i id="italic" data-tag-name="I" class="fa fa-italic cursor-pointer option format p-2"></i>
+        <i id="insertUnorderedList" data-tag-name="UL" class="fa fa-list-ul cursor-pointer option p-2"></i>
+        <i id="insertOrderedList" data-tag-name="OL" class="fa fa-list-ol cursor-pointer option p-2"></i>
+        <i id="justifyLeft" class="fa fa-align-left cursor-pointer option align p-2"></i>
+        <i id="justifyCenter" class="fa fa-align-center cursor-pointer option align p-2"></i>
+        <i id="justifyRight" class="fa fa-align-right cursor-pointer option align p-2"></i>
+        <i id="justifyFull" class="fa fa-align-justify cursor-pointer option align p-2"></i>
+        <i id="createLink" onclick="ShowInsertionModal()" class="fa fa-link cursor-pointer p-2"></i>
+    </div>
+    <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false" tabindex="0"></div>
+</div>
+<textarea asp-for="CommentDescription" class="text-area-hidden"></textarea>
+<span asp-validation-for="CommentDescription" class="text-danger"></span>
+
+<button class="btn pa-admin-success-btn mt-2" onclick="SaveComment('@Model.PluginId', '@Model.VersionId')">Save</button>
+<button class="btn btn-secondary mt-2" onclick="window.location.reload()">Cancel</button>
+
+

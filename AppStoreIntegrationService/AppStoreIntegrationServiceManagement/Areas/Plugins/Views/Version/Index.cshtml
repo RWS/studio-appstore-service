@@ -1,7 +1,9 @@
-﻿@model KeyValuePair<ExtendedPluginDetails, IEnumerable<(string versionId, string versionNumber)>>
+﻿@model (ExtendedPluginDetails plugin, List<ExtendedPluginVersion> versions)
 @{
     ViewData["Title"] = "Versions";
     ViewData["ActivePage"] = ManagePluginsNav.Versions;
+    var selectedView = Context.Request.Query["selectedView"];
+    var selectedVersion = Context.Request.Query["selectedVersion"];
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]"/>
@@ -10,33 +12,44 @@
 
 <form class="row p-2" method="post" id="form" onsubmit="return false">
     <div class="col-12 col-lg-4">
-        <partial name="_PluginsNavPartial" model="@Model.Key" />
+        <partial name="_PluginsNavPartial" model="@Model.plugin" />
     </div>
 
     <div class="col-12 col-lg-8 border-container">
-        @foreach (var version in Model.Value)
+        @foreach (var version in Model.versions)
         {
             <div class="d-flex justify-content-between p-3 border-bottom">
-                <div class="d-flex cursor-pointer w-100" onclick="Show('@Model.Key.Id', '@version.versionId')">
+                <div class="d-flex cursor-pointer w-100" onclick="Show('@version.VersionId', 'Details')">
                     <i class="fa fa-caret-down align-self-center me-2"></i>
-                    <p class="m-0 fw-bold version-number-placeholder">@version.versionNumber</p>
+                    <p class="m-0 fw-bold version-number-placeholder">@(version.IsNewVersion ? "New Version" : version.VersionNumber)</p>
                 </div>
-                @if(version.versionNumber != "New version")
+                @if(!version.IsNewVersion)
                 {
-                    <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.Key.Id', '@version.versionId')"></i>
+                    <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId')"></i>
                 }
                 
             </div>
 
-            <div class="version-details" aria-expanded="false"></div>
+            <div class="version-details" aria-expanded="false">
+                @if(selectedVersion == version.VersionId && selectedView == "Comments")
+                {
+                    <partial name="_CommentsPartial" model="@(Model.plugin.Id, version.VersionId, version.VersionComments)" />
+                }
+
+                @if(selectedVersion == version.VersionId && selectedView == "Details")
+                {
+                    <partial name="_PluginVersionDetailsPartial" model="@version" />
+                }
+            </div>
         }
     </div>
 </form>
 
 <script src="~/js/VersionsScript.js" asp-append-version="true"></script>
 <script src="~/js/DropDown.js" asp-append-version="true"></script>
+<script src="~/js/RichTextEditor.js" asp-append-version="true"></script>
 <script asp-append-version="true">
-    parentProducts = @Html.Raw(Json.Serialize(Model.Key.Parents));
+    parentProducts = @Html.Raw(Json.Serialize(Model.plugin.Parents));
 </script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

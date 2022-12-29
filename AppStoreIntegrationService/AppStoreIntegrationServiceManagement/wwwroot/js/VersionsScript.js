@@ -1,62 +1,72 @@
 ﻿let parentProducts;
 
-function Show(pluginId, versionId) {
-    let content = event.currentTarget.parentElement.nextElementSibling;
-    let caret = event.currentTarget.firstElementChild;
-    let request = new XMLHttpRequest();
-    let openVersion = document.querySelector('.version-details[aria-expanded="true"]');
-    let caretUp = document.querySelector('.fa-caret-up');
+document.addEventListener("DOMContentLoaded", () => {
+    $("#form").data('validator', null);
+    $.validator.unobtrusive.parse("#form");
 
-    if (openVersion) {
-        openVersion.innerHTML = "";
-        openVersion.ariaExpanded = false;
-        ToggleCaret(caretUp);
-
-        if (openVersion == content) {
-            return;
-        }
+    if (new URL(window.location.href).searchParams.get("selectedView") == "Details") {
+        new DropDown(
+            document.querySelector("#productsDropdown #dropDownToggle"),
+            document.querySelector("#productsDropdown #ProductsSelect"),
+            $("#productsDropdown #SupportedProducts"),
+            document.querySelector("#productsDropdown .selection-summary"),
+            document.querySelectorAll("#productsDropdown .overflow-arrow"),
+            parentProducts.map(p => p.parentProductName)
+        ).Init()
     }
+})
 
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            content.innerHTML = request.responseText;
-            content.ariaExpanded = true;
-            ToggleCaret(caret);
-            PrepareForm();
-        }
-    }
+function Show(versionId, view) {
+    let url = new URL(window.location.href);
 
-    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${versionId}`);
-    request.send();
+    url.searchParams.set("selectedVersion", versionId);
+    url.searchParams.set("selectedView", view);
+    window.location.href = url.href;
 }
 
-function ShowDetails(pluginId, versionId) {
-    let content = event.currentTarget.closest('.version-details');
-    let request = new XMLHttpRequest();
+function AddComment(pluginId, versionId) {
+    let content = event.currentTarget.parentElement;
 
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            content.innerHTML = request.responseText;
-            PrepareForm();
+    $.ajax({
+        type: "POST",
+        url: `/Plugins/Edit/${pluginId}/Comments/${versionId}/New`,
+        success: function (response) {
+            content.innerHTML = response;
+            Init();
         }
-    }
-
-    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${versionId}`);
-    request.send();
+    });
 }
 
-function ShowComments(pluginId, versionId) {
-    let content = event.currentTarget.closest('.version-details');
+function SaveComment(pluginId, versionId) {
+    document.getElementById("CommentDescription").value = document.querySelector('.edit-area').innerHTML
     let request = new XMLHttpRequest();
+    let data = new FormData(document.getElementById("form"));
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            content.innerHTML = request.responseText;
+            window.location.reload();
         }
     }
 
-    request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}`);
-    request.send();
+    request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}/Update`);
+    request.send(data);
+}
+
+function DeleteComment(pluginId, versionId, commentId) {
+    document.getElementById("confirmationBtn").addEventListener('click', () => {
+        let request = new XMLHttpRequest();
+        let data = new FormData(document.getElementById("form"));
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                window.location.reload();
+            }
+        }
+
+        request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}/Delete/${commentId}`);
+        request.send(data);
+    })
+    
 }
 
 function GenerateChecksum() {
@@ -102,7 +112,7 @@ function DeleteVersion(pluginId, versionId) {
 
         request.onreadystatechange = function () {
             if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                AjaxSuccessCallback(request.responseText);
+                window.location.reload();
             }
         }
 
@@ -120,25 +130,6 @@ function UpdatePlaceholder() {
     }
 
     placeholder.innerText = text;
-}
-
-function ToggleCaret(caret) {
-    caret.classList.toggle("fa-caret-down");
-    caret.classList.toggle("fa-caret-up");
-}
-
-function PrepareForm() {
-    $("#form").data('validator', null);
-    $.validator.unobtrusive.parse("#form");
-
-    new DropDown(
-        document.querySelector("#productsDropdown #dropDownToggle"),
-        document.querySelector("#productsDropdown #ProductsSelect"),
-        $("#productsDropdown #SupportedProducts"),
-        document.querySelector("#productsDropdown .selection-summary"),
-        document.querySelectorAll("#productsDropdown .overflow-arrow"),
-        parentProducts.map(p => p.parentProductName)
-    ).Init()
 }
 
 function AjaxSuccessCallback(actionResult) {

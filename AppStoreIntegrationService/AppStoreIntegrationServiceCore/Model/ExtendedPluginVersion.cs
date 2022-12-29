@@ -48,6 +48,9 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonIgnore]
         public bool IsNewVersion { get; set; }
 
+        [JsonIgnore]
+        public IEnumerable<Comment> VersionComments { get; set; }
+
         public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, List<ParentProduct> parents)
         {
             SupportedProductsListItems = new MultiSelectList

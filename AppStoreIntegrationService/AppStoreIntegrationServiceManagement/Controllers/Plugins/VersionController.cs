@@ -2,6 +2,7 @@
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -10,45 +11,39 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     {
         private readonly IPluginRepository _pluginRepository;
         private readonly IProductsRepository _productsRepository;
+        private readonly ICommentsRepository _commentsRepository;
 
-        public VersionController(IPluginRepository pluginRepository, IProductsRepository productsRepository)
+        public VersionController(IPluginRepository pluginRepository, IProductsRepository productsRepository, ICommentsRepository commentsRepository)
         {
             _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
+            _commentsRepository = commentsRepository;
         }
 
         [HttpGet("/Plugins/Edit/{id}/Versions")]
         public async Task<IActionResult> Index(int id)
         {
+            var selectedVersion = Request.Query["selectedVersion"];
             var plugin = new ExtendedPluginDetails(await _pluginRepository.GetPluginById(id))
             {
                 Parents = await _productsRepository.GetAllParents(),
                 IsEditMode = true
             };
 
-            var versions = plugin.Versions?.Select(v => (v.VersionId, v.VersionNumber)).ToList();
-            versions.Add((Guid.NewGuid().ToString(), "New version"));
-            return View(new KeyValuePair<ExtendedPluginDetails, IEnumerable<(string, string)>>(plugin, versions));
-        }
+            var products = new MultiSelectList(await _productsRepository.GetAllProducts(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
+            var versions = (await Task.WhenAll(plugin.Versions?.Select(async v => new ExtendedPluginVersion(v) 
+            { 
+                VersionComments = await _commentsRepository.GetCommentsForVersion(plugin.Name, v.VersionId),
+                SupportedProductsListItems = products
+            }))).ToList();
 
-        [HttpPost("/Plugins/Edit/{pluginId}/Versions/{versionId}")]
-        public async Task<IActionResult> Show(int pluginId, string versionId)
-        {
-            var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var version = plugin.Versions.FirstOrDefault(v => v.VersionId.Equals(versionId));
-            var extended = version != null ? new ExtendedPluginVersion(version)
-            {
-                PluginId = pluginId,
-            } : new ExtendedPluginVersion()
-            {
-                IsNewVersion = true,
-                VersionId = versionId,
-                PluginId = pluginId
-            };
-            var products = (await _productsRepository.GetAllProducts()).ToList();
-            var parents = (await _productsRepository.GetAllParents()).ToList();
-            extended.SetSupportedProductsList(products, parents);
-            return PartialView("_PluginVersionDetailsPartial", extended);
+            versions.Add(new ExtendedPluginVersion 
+            { 
+                VersionId = versions.Any(v => v.VersionId == selectedVersion) ? Guid.NewGuid().ToString() : selectedVersion,
+                SupportedProductsListItems = products,
+                IsNewVersion = true
+            });
+            return View((plugin, versions));
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Save")]

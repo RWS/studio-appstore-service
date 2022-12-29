@@ -1,5 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using System.Xml.Linq;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
@@ -12,9 +13,19 @@ namespace AppStoreIntegrationServiceCore.Repository
             _commentsManager = commentsManager;
         }
 
-        public Task DeleteVersionComment(int id, string pluginName, string versionId)
+        public async Task DeleteVersionComment(int id, string pluginName, string versionId)
         {
-            throw new NotImplementedException();
+            var comments = await _commentsManager.ReadComments();
+
+            if (comments.TryGetValue(pluginName, out var pluginComments))
+            {
+                if (pluginComments.TryGetValue(versionId, out var versionComments))
+                {
+                    versionComments = versionComments.Where(c => c.CommentId != id);
+                    comments[pluginName][versionId] = versionComments;
+                    await _commentsManager.UpdateComments(comments);
+                }
+            }
         }
 
         public async Task<IEnumerable<Comment>> GetCommentsForVersion(string pluginName, string versionId)
@@ -45,7 +56,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             {
                 if (pluginComments.TryGetValue(versionId, out var versionComments))
                 {
-                    pluginComments[versionId] = versionComments.Append(comment);
+                    versionComments = versionComments.Append(comment);
                     comments[pluginName][versionId] = versionComments;
                 }
                 else
