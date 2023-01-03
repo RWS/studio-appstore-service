@@ -46,7 +46,8 @@
             None = 0,
             Plugin,
             Version,
-            Comment
+            Comment,
+            Categories
         }
     }
 }

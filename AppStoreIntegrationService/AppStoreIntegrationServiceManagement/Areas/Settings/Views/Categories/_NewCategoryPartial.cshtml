@@ -1,11 +1,16 @@
 ﻿@model CategoryDetails
 
-<tr class="table-row d-flex flex-column d-lg-table-row" id="newDataRow">
-    <td>
-        <p>@Model.Id</p>
+<input name="Page" value="@Page.Categories" hidden />
+
+<tr class="table-row d-flex flex-column d-lg-table-row">
+    <td class="align-middle">
+        <p class="m-0">@Model.Id</p>
         <input hidden asp-for="@Model.Id" />
     </td>
-    <td class="editable-field order-first"><input class="form-control form-control-sm text-center text-lg-start fs-inherit" asp-for="@Model.Name" placeholder="CategoryName" autofocus /></td>
-    <td class="icon-cell text-center"><i onclick="table.SaveNewRowData()" title="Save new category" class="fa fa-check-circle success-icon cursor-pointer align-middle"></i></td>
-    <td class="icon-cell text-center"><i onclick="table.CloseNewRowForm(function() { return })" title="Discard new category" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
+    <td class="editable-field order-first">
+        <input class="form-control form-control-sm text-center text-lg-start fs-inherit" asp-for="@Model.Name" placeholder="CategoryName" autofocus />
+        <span asp-validation-for="Name" class="text-danger"></span>
+        </td>
+    <td class="align-middle text-center"><i onclick="table.Save()" title="Save new category" class="fa fa-check-circle cursor-pointer align-middle"></i></td>
+    <td class="align-middle text-center"><i onclick="EnsurePreserved(() => table.Discard())" title="Discard new category" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
 </tr>

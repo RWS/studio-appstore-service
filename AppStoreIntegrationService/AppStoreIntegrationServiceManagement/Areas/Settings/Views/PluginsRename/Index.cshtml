@@ -1,10 +1,13 @@
-﻿@model PluginsRenameModel
+﻿@model IEnumerable<NameMapping>
 @{
     ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageSettingsNav.PluginsRename;
+    var selectedMapping = Context.Request.Query["selectedMapping"];
 }
+
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div id="statusMessageContainer"></div>
+
 <h1 class="fs1-inherit">Settings</h1>
 <h2 class="fs2-inherit">Change site settings</h2>
 <hr class="w-100">
@@ -20,26 +23,68 @@
                             <th>Id</th>
                             <th>Old Name</th>
                             <th>New Name</th>
-                            <td class="icon-cell text-center"><i onclick="table.AddNewRow()" title="Add new mapping" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
+                            <td class="icon-cell text-center"><i onclick="table.Add()" title="Add new mapping" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
                     <tbody class="table-body tbody-stripped">
-                        <partial name="_NamesMappingPartial" model="@Model.NamesMapping" />
+                        @foreach (var mapping in Model)
+                        {
+                            if (selectedMapping == mapping.Id)
+                            {
+                                <partial name="_NewNameMappingPartial" model="@mapping" />
+                            }
+                            else
+                            {
+                                <tr class="d-flex flex-column d-lg-table-row">
+                                    <td class="d-table-cell d-lg-none">
+                                        <p class="m-0 fw-bold text-center" onclick="Collapse(this)">@mapping.NewName</p>
+                                    </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        <div class="input-group">
+                                            <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Id</span>
+                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@mapping.Id</p>
+                                        </div>
+                                    </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        <div class="input-group">
+                                            <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">OldName</span>
+                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@mapping.OldName</p>
+                                        </div>
+                                    </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        <div class="input-group">
+                                            <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">NewName</span>
+                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@mapping.NewName</p>
+                                        </div>
+                                    </td>
+                                    <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
+                                        <i class="fa fa-pen-alt cursor-pointer" title="Edit @mapping.NewName" onclick="table.Edit('@mapping.Id')"></i>
+                                    </td>
+                                    <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
+                                        <i class="fa fa-trash-alt row-eraser cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" title="Delete @mapping.NewName" onclick="table.Delete('@mapping.Id')"></i>
+                                    </td>
+                                </tr>
+                            }
+                        }
+
                     </tbody>
                     <tbody id="newRowPartial" class="tbody-stripped">
                     </tbody>
                 </table>
-                <button type="button" onclick="table.AddNewRow()" class="btn pa-admin-success-btn fs-inherit">Add new</button>
+                <button type="button" onclick="table.Add()" class="btn pa-admin-success-btn fs-inherit">Add new</button>
             </form>
         </div>
     </div>
 </div>
 <div id="modalContainer"></div>
-<partial name="_ModalPartial" model="@(new ModalMessage())" />
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this name mapping?" })" />
 
 <script src="~/js/TableCrud.js"></script>
 <script asp-append-version="true">
-    const table = new TableCrud("PluginsRename/Delete/", "PluginsRename/Add", 'PluginsRename/Update', "PluginsRename/AddNew", "#mappingsTable")
+    const table = new TableCrud("Mapping", "PluginsRename/Update", "PluginsRename/Add", "PluginsRename/Delete")
 </script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
 

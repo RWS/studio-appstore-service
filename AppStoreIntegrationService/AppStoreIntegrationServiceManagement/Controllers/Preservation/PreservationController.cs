@@ -10,11 +10,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
     {
         private readonly IPluginRepository _pluginRepository;
         private readonly ICommentsRepository _commentsRepository;
+        private readonly ICategoriesRepository _categoriesRepository;
 
-        public PreservationController(IPluginRepository pluginRepository, ICommentsRepository commentsRepository)
+        public PreservationController(IPluginRepository pluginRepository, ICommentsRepository commentsRepository, ICategoriesRepository categoriesRepository)
         {
             _pluginRepository = pluginRepository;
             _commentsRepository = commentsRepository;
+            _categoriesRepository = categoriesRepository;
         }
 
         [HttpPost("/Preservation/Check")]
@@ -23,6 +25,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             ExtendedPluginVersion version,
             ExtendedPluginDetails plugin,
             Comment comment,
+            CategoryDetails category,
             Status status,
             Page page
         )
@@ -32,6 +35,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
                 Page.Plugin => await Check(plugin, status),
                 Page.Version => await Check(version),
                 Page.Comment => await Check(comment),
+                Page.Categories => await Check(category),
                 _ => Content(null)
             };
         }
@@ -80,6 +84,21 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             return PartialView("_ModalPartial", new ModalMessage
             {
                 Message = "Discard changes for this comment?"
+            });
+        }
+
+        public async Task<IActionResult> Check(CategoryDetails category)
+        {
+            var saved = await _categoriesRepository.GetCategoryById(category.Id);
+
+            if (saved?.Equals(category) ?? true)
+            {
+                return Content(null);
+            }
+
+            return PartialView("_ModalPartial", new ModalMessage
+            {
+                Message = "Discard changes for this category?"
             });
         }
     }

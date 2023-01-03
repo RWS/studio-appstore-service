@@ -49,7 +49,8 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task DeleteCategory(string id)
         {
             var categories = await _categoriesManager.ReadCategories() ?? _defaultCategories;
-            await UpdateCategories(categories.Where(item => item.Id != id).ToList());
+            categories.Remove(categories.FirstOrDefault(c => c.Id == id));
+            await _categoriesManager.SaveCategories(categories);
         }
 
         public async Task<List<CategoryDetails>> GetAllCategories()
@@ -57,9 +58,32 @@ namespace AppStoreIntegrationServiceCore.Repository
             return await _categoriesManager.ReadCategories() ?? _defaultCategories;
         }
 
-        public async Task UpdateCategories(List<CategoryDetails> categories)
+        public async Task<CategoryDetails> GetCategoryById(string id)
         {
+            var categories = await _categoriesManager.ReadCategories();
+            return categories.FirstOrDefault(c => c.Id == id);
+        }
+
+        public async Task<bool> TryUpdateCategory(CategoryDetails category)
+        {
+            var categories = await _categoriesManager.ReadCategories();
+            if (categories.Any(c => c.Name == category.Name && c.Id != category.Id))
+            {
+                return false;
+            }
+
+            var index = categories.IndexOf(categories.FirstOrDefault(c => c.Id == category.Id));
+            if (index >= 0)
+            {
+                categories[index] = category;
+            }
+            else
+            {
+                categories.Add(category);
+            }
+
             await _categoriesManager.SaveCategories(categories);
+            return true;
         }
     }
 }

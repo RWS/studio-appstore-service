@@ -6,7 +6,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
     {
         Task<IEnumerable<NameMapping>> GetAllNameMappings(List<string> pluginsNames);
         Task<IEnumerable<NameMapping>> GetAllNameMappings();
-        Task UpdateMappings(List<NameMapping> namesMapping);
+        Task<bool> TryUpdateMapping(NameMapping mapping);
         Task DeleteMapping(string id);
     }
 }

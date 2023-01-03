@@ -25,15 +25,40 @@ namespace AppStoreIntegrationServiceCore.Repository
                                .Where(mapping => mapping != null);
         }
 
-        public async Task UpdateMappings(List<NameMapping> names)
+        public async Task<bool> TryUpdateMapping(NameMapping mapping)
         {
-            await _namesManager.SaveNames(names);
+            var mappings = await _namesManager.ReadNames();
+            if (Exists(mappings, mapping))
+            {
+                return false;
+            }
+
+            var index = mappings.IndexOf(mappings.FirstOrDefault(c => c.Id.Equals(mapping.Id)));
+            if (index >= 0)
+            {
+                mappings[index] = mapping;
+            }
+            else
+            {
+                mappings.Add(mapping);
+            }
+
+            await _namesManager.SaveNames(mappings);
+            return true;
+            
         }
 
         public async Task DeleteMapping(string id)
         {
             var newNames = (await _namesManager.ReadNames()).Where(item => item.Id != id).ToList();
-            await UpdateMappings(newNames);
+            await _namesManager.SaveNames(newNames);
+        }
+
+        private static bool Exists(List<NameMapping> names, NameMapping mapping)
+        {
+            return names.Any(n => n.NewName == mapping.NewName &&
+                             n.OldName == mapping.OldName &&
+                             n.Id != mapping.Id);
         }
     }
 }

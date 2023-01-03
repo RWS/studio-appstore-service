@@ -1,14 +1,10 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model;
-using AppStoreIntegrationServiceManagement.Model.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
-    [Authorize(Policy = "IsAdmin")]
     [Area("Settings")]
     public class PluginsRenameController : Controller
     {
@@ -22,15 +18,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [Route("Settings/PluginsRename")]
         public async Task<IActionResult> Index()
         {
-            return View(new PluginsRenameModel
-            {
-                NamesMapping = await _namesRepository.GetAllNameMappings()
-            });
+            return View(await _namesRepository.GetAllNameMappings());
         }
 
         [HttpPost]
-        public IActionResult AddNew(IEnumerable<NameMapping> mappings) 
+        public async Task<IActionResult> Add() 
         {
+            var mappings = await _namesRepository.GetAllNameMappings();
             return PartialView("_NewNameMappingPartial", new NameMapping
             {
                 Id = SetIndex(mappings),
@@ -40,29 +34,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(NameMapping mapping, List<NameMapping> mappings)
+        public async Task<IActionResult> Update(NameMapping mapping)
         {
-            if (IsValidNameMapping(mapping))
+            if (await _namesRepository.TryUpdateMapping(mapping))
             {
-                mappings.Add(mapping);
-                await _namesRepository.UpdateMappings(mappings);
-                TempData["StatusMessage"] = "Success! Name mapping was added!";
-                return Content("/Settings/PluginsRename");
-            }
-
-            return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Update(List<NameMapping> mappings)
-        {
-            if (!mappings.Any(item => string.IsNullOrEmpty(item.OldName) || string.IsNullOrEmpty(item.NewName)))
-            {
-                await _namesRepository.UpdateMappings(mappings);
+                await _namesRepository.TryUpdateMapping(mapping);
                 TempData["StatusMessage"] = "Success! Name mapping was updated!";
                 return Content("/Settings/PluginsRename");
             }
-
+                
             return PartialView("_StatusMessage", "Error! Parameter cannot be null!");
         }
 
@@ -74,36 +54,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             return Content("/Settings/PluginsRename");
         }
 
-        [Route("[controller]/[action]/{redirectUrl?}")]
-        [HttpPost]
-        public async Task<IActionResult> GoToPage(string redirectUrl, NameMapping mapping, List<NameMapping> mappings)
-        {
-            redirectUrl = redirectUrl.Replace('.', '/');
-
-            if (string.IsNullOrEmpty(mapping.NewName) &&
-                string.IsNullOrEmpty(mapping.OldName) &&
-                await HaveUnsavedChanges(mappings))
-            {
-                return Content(redirectUrl);
-            }
-
-            var modalDetails = new ModalMessage
-            {
-                ModalType = ModalType.WarningMessage,
-                Title = "Warning!",
-                Message = $"Discard changes for plugin rename?",
-                RequestPage = $"{redirectUrl}"
-            };
-
-            return PartialView("_ModalPartial", modalDetails);
-        }
-
-        private async Task<bool> HaveUnsavedChanges(List<NameMapping> mappings)
-        {
-            var savedNamesMapping = (await _namesRepository.GetAllNameMappings()).ToList();
-            return JsonConvert.SerializeObject(savedNamesMapping) == JsonConvert.SerializeObject(mappings);
-        }
-
         private static string SetIndex(IEnumerable<NameMapping> mappings)
         {
             var lastNameMapping = mappings.LastOrDefault();
@@ -113,12 +63,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             }
 
             return (int.Parse(lastNameMapping.Id) + 1).ToString();
-        }
-
-        private static bool IsValidNameMapping(NameMapping mapping)
-        {
-            return !string.IsNullOrEmpty(mapping.NewName) &&
-                   !string.IsNullOrEmpty(mapping.OldName);
         }
     }
 }

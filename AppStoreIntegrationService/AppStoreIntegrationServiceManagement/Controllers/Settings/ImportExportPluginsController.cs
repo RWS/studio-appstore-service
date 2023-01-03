@@ -16,19 +16,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         private readonly IPluginManager _pluginManager;
         private readonly IProductsRepository _productsRepository;
         private readonly IVersionManager _versionManager;
-        private readonly ICategoriesRepository _categoriesRepository;
+        private readonly ICategoriesManager _categoriesManager;
 
         public ImportExportPluginsController
         (
             IProductsRepository productsRepository,
             IVersionManager versionManager,
-            ICategoriesRepository categoriesRepository,
+            ICategoriesManager categoriesManager,
             IPluginManager pluginManager
         )
         {
             _productsRepository = productsRepository;
             _versionManager = versionManager;
-            _categoriesRepository = categoriesRepository;
+            _categoriesManager = categoriesManager;
             _pluginManager = pluginManager;
         }
 
@@ -47,7 +47,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 Value = await _pluginManager.GetPlugins(),
                 Products = await _productsRepository.GetAllProducts(),
                 ParentProducts = await _productsRepository.GetAllParents(),
-                Categories = await _categoriesRepository.GetAllCategories()
+                Categories = await _categoriesManager.ReadCategories()
             };
             var jsonString = JsonConvert.SerializeObject(response);
             var stream = Encoding.UTF8.GetBytes(jsonString);
@@ -74,7 +74,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
             if (success)
             {
-                await _categoriesRepository.UpdateCategories(response.Categories);
+                await _categoriesManager.SaveCategories(response.Categories);
                 await _productsRepository.UpdateProducts(response.Products);
                 await _productsRepository.UpdateProducts(response.ParentProducts);
                 await _versionManager.SaveVersion(response.APIVersion);

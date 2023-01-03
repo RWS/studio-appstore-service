@@ -1,11 +1,13 @@
-﻿@model CategoriesModel
+﻿@model IEnumerable<CategoryDetails>
 @{
     ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageSettingsNav.Categories;
+    var selectedCategory = Context.Request.Query["selectedCategory"];
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div id="statusMessageContainer"></div>
+
 <h1 class="fs1-inherit">Settings</h1>
 <h2 class="fs2-inherit">Manage categories</h2>
 <hr class="w-100">
@@ -20,26 +22,55 @@
                         <tr class="align-middle d-none d-lg-table-row">
                             <th>Id</th>
                             <th>Name</th>
-                            <td class="icon-cell text-center"><i onclick="table.AddNewRow()" title="Add new category" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
+                            <td class="icon-cell text-center"><i onclick="table.Add()" title="Add new category" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
                     <tbody class="table-body tbody-stripped">
-                        <partial name="_CategoriesPartial" model="@Model.Categories" />
+                        @foreach (var category in Model)
+                        {
+                            if (selectedCategory == category.Id.ToString())
+                            {
+                                <partial name="_NewCategoryPartial" model="category" />
+                            }
+                            else
+                            {
+                                <tr class="table-row d-flex flex-column d-lg-table-row">
+                                    <td class="d-none d-lg-table-cell">
+                                        <div class="input-group">
+                                            <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Id</span>
+                                            <p class="m-0 section w-100 align-self-center text-center text-lg-start">@category.Id</p>
+                                        </div>
+                                    </td>
+                                    <td class="order-first">
+                                        <p class="m-0 align-self-center text-center text-lg-start" onclick="Collapse(this)">@category.Name</p>
+                                    </td>
+                                    <td class="text-center align-middle d-none d-lg-table-cell">
+                                        <i class="fa fa-pen-alt cursor-pointer" title="Edit @category.Name" onclick="EnsurePreserved(() => table.Edit('@category.Id'))"></i>
+                                    </td>
+                                    <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
+                                        <i class="fa fa-trash-alt row-eraser cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" title="Delete @category.Name" onclick="table.Delete('@category.Id')"></i>
+                                    </td>
+                                </tr>
+                            }
+                        }
                     </tbody>
                     <tbody id="newRowPartial" class="tbody-stripped">
                     </tbody>
                 </table>
-                <button type="button" onclick="table.AddNewRow()" title="Add new category" class="btn pa-admin-success-btn d-inline fs-inherit">Add new</button>
+                <button type="button" onclick="table.Add()" title="Add new category" class="btn pa-admin-success-btn d-inline fs-inherit">Add new</button>
             </form>
         </div>
     </div>
 </div>
+
 <div id="modalContainer"></div>
-<partial name="_ModalPartial" model="@(new ModalMessage())" />
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this category?" })" />
 
 <script src="~/js/TableCrud.js" asp-append-version="true"></script>
 <script asp-append-version="true">
-    const table = new TableCrud("Categories/Delete/", "Categories/Add", 'Categories/Update', "Categories/AddNew", "#categoriesTable");
+    const table = new TableCrud("Category", "Categories/Update", "Categories/Add", "Categories/Delete")
 </script>
-
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
