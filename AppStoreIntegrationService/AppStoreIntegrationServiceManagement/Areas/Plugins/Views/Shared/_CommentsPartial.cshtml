@@ -1,4 +1,7 @@
 ﻿@model (int pluginId, string versionId, IEnumerable<Comment> comments)
+@{
+    var selectedComment = Context.Request.Query["selectedComment"];
+}
 
 <div class="p-3 border-bottom">
     <ul class="nav nav-tabs">
@@ -9,6 +12,7 @@
             <a class="nav-link active-tab" href="#">Comments</a>
         </li>
     </ul>
+
     @if (!Model.comments.Any())
     {
         <p class="m-0 py-2">No comments yet for this version.</p>
@@ -17,23 +21,35 @@
     {
         @foreach (var comment in Model.comments)
         {
-            <div class="p-3 border-bottom border-top">
-                <div class="d-flex">
-                    <i class="fa fa-user-alt me-2 align-self-center"></i>
-                    <p class="m-0">@comment.CommentAuthor commented - @comment.CommentDate</p>
+            if (selectedComment == comment.CommentId.ToString())
+            {
+                <div class="my-2">
+                    <partial name="_NewCommentPartial" model="comment" />
                 </div>
-                <p class="m-0 py-3">@Html.Raw(comment.CommentDescription)</p>
-                <div class="d-flex">
-                    <p class="m-0 me-2 cursor-pointer text-secondary">Edit</p>
-                    <p class="m-0 cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteComment('@Model.pluginId', '@Model.versionId', '@comment.CommentId')">Delete</p>
+            }
+            else
+            {
+                <div class="p-3 border-bottom border-top">
+                    <div class="d-flex">
+                        <i class="fa fa-user-alt me-2 align-self-center"></i>
+                        <p class="m-0">@comment.CommentAuthor commented - @comment.CommentDate</p>
+                    </div>
+                    <p class="m-0 py-3">@Html.Raw(comment.CommentDescription)</p>
+                    <div class="d-flex">
+                        <p class="m-0 me-2 cursor-pointer text-secondary" onclick="EnsurePreserved(() => { EditComment('@comment.CommentId') })">Edit</p>
+                        <p class="m-0 cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteComment('@Model.pluginId', '@Model.versionId', '@comment.CommentId')">Delete</p>
+                    </div>
                 </div>
-            </div>
+            }
         }
     }
 
-    <div class="mt-2">
-        <button class="btn pa-admin-success-btn" onclick="AddComment('@Model.pluginId', '@Model.versionId')"><i class="fa fa-comment"></i> Add comment</button>
-    </div>
+    @if (string.IsNullOrEmpty(selectedComment))
+    {
+        <div class="mt-2">
+            <button class="btn pa-admin-success-btn" id="addCommentBtn" onclick="AddComment('@Model.pluginId', '@Model.versionId')"><i class="fa fa-comment"></i> Add comment</button>
+        </div>
+    }
 </div>
 
-<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this message?" })"/>
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this message?" })" />

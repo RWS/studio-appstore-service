@@ -1,11 +1,9 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -116,34 +114,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _pluginRepository.RemovePlugin(id);
             TempData["StatusMessage"] = "Success! Plugin was removed!";
             return Content("");
-        }
-
-        [Route("[controller]/[action]/{redirectUrl}/{currentPage}")]
-        public async Task<IActionResult> GoToPage(ExtendedPluginDetails plugin, ExtendedPluginVersion version, string redirectUrl, string currentPage)
-        {
-            redirectUrl = redirectUrl.Replace('.', '/');
-
-            if (currentPage != "New" && await IsSaved(plugin, version))
-            {
-                return Content($"{redirectUrl}");
-            }
-
-            var modalDetails = new ModalMessage
-            {
-                RequestPage = $"{redirectUrl}",
-                ModalType = ModalType.WarningMessage,
-                Title = "Unsaved changes!",
-                Message = string.Format("Discard changes for {0}?", string.IsNullOrEmpty(plugin.Name) ? "plugin" : plugin.Name)
-            };
-
-            return PartialView("_ModalPartial", modalDetails);
-        }
-
-        private async Task<bool> IsSaved(ExtendedPluginDetails plugin, ExtendedPluginVersion version)
-        {
-            var foundPluginDetails = await _pluginRepository.GetPluginById(plugin.Id);
-            var newPluginDetails = plugin.ConvertToPluginDetails(foundPluginDetails, version);
-            return JsonConvert.SerializeObject(newPluginDetails) == JsonConvert.SerializeObject(foundPluginDetails);
         }
 
         [HttpPost]

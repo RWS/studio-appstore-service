@@ -14,6 +14,7 @@
         </div>
 
         <div class="col-12 col-lg-8 border-container">
+            <input hidden name="Page" value="@Page.Plugin" />
             <input hidden asp-for="Id" />
             <input hidden asp-for="IsEditMode" />
             <input hidden asp-for="SelectedVersionId" />
@@ -107,7 +108,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false" tabindex="0"></div>
+                        <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false" tabindex="0" oninput="UpdateDescription()">
+                            @Html.Raw(Model.Description)
+                        </div>
                     </div>
                     <textarea asp-for="Description" class="text-area-hidden"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>

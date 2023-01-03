@@ -51,6 +51,11 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonIgnore]
         public IEnumerable<Comment> VersionComments { get; set; }
 
+        public bool Equals(ExtendedPluginVersion other)
+        {
+            throw new NotImplementedException();
+        }
+
         public void SetSupportedProductsList(List<ProductDetails> supportedProductDetails, List<ParentProduct> parents)
         {
             SupportedProductsListItems = new MultiSelectList

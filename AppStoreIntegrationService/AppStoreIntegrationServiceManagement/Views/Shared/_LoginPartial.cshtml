@@ -1,10 +1,4 @@
 ﻿@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
-@{
-    var controller = ViewContext.RouteData.Values["controller"];
-    var action = ViewContext.RouteData.Values["action"];
-    var cookie = Context.Request.Cookies["FontSize"];
-}
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
@@ -14,18 +8,18 @@
         </li>
 
         <li class="nav-item">
-            <a onclick="RedirectTo('.Plugins', '@controller', '@action')" class="nav-link cursor-pointer active header-link">Plugins List</a>
+            <a onclick="EnsurePreserved(() => { window.location.href = '/Plugins' })" class="nav-link cursor-pointer active header-link">Plugins List</a>
         </li>
 
         if (User.IsInRole("Administrator"))
         {
             <li class="nav-item">
-                <a onclick="RedirectTo('.Settings', '@controller', '@action')" class="nav-link active cursor-pointer header-link">Settings</a>
+                <a onclick="EnsurePreserved(() => { window.location.href = '/Settings' })" class="nav-link active cursor-pointer header-link">Settings</a>
             </li>
         }
 
         <li class="nav-item">
-            <a onclick="RedirectTo('.Identity.Account.Profile', '@controller', '@action')" class="active nav-link cursor-pointer header-link">Hello @UserManager.GetUserName(User)!</a>
+            <a onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Profile' })" class="active nav-link cursor-pointer header-link">Profile</a>
         </li>
 
         <li class="nav-item">
@@ -42,4 +36,4 @@
     }
 </ul>
 
-<partial name="_CustomizationPartial"/>
+<partial name="_CustomizationPartial" />

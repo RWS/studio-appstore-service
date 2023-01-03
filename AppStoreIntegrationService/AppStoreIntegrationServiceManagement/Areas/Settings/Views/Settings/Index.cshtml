@@ -12,7 +12,7 @@
     <div class="col-12 col-md-9" id="settings-details-container">
         <div class="settings-details">
             <div>
-                <form method="post">
+                <form method="post" id="form">
                     <label class="fw-bold fs4-inherit mb-2" asp-for="@Model.Name">Site name</label>
                     <input asp-for="@Model.Name" value="@Model.Name" class="form-control mb-2 fs-inherit" />
                     <button type="submit" asp-controller="Settings" asp-action="Update" class="btn pa-admin-success-btn fs-inherit">Set</button>

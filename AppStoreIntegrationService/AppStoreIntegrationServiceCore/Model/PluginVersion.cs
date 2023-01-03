@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using AppStoreIntegrationServiceCore.Comparers;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class PluginVersion<T>
+    public class PluginVersion<T> : IEquatable<PluginVersion<T>>
     {
         private string _minimumRequiredVersionOfStudio;
         private string _maximumRequiredVersionOfStudio;
@@ -75,5 +76,19 @@ namespace AppStoreIntegrationServiceCore.Model
         public bool IsNavigationLink { get; set; }
         public string DownloadUrl { get; set; }
         public bool IsPrivatePlugin { get; set; }
+
+        public bool Equals(PluginVersion<T> other)
+        {
+            var properties = typeof(PluginVersion<string>).GetProperties().Where(p => !Equals(p.Name, "SupportedProducts"));
+            foreach (PropertyInfo property in properties)
+            {
+                if (!Equals(property.GetValue(this), property.GetValue(other)))
+                {
+                    return false;
+                }
+            }
+
+            return SupportedProducts.SequenceEqual(other.SupportedProducts);
+        }
     }
 }

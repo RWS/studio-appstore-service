@@ -40,5 +40,13 @@
             Child,
             Parent
         }
+
+        public enum Page
+        {
+            None = 0,
+            Plugin,
+            Version,
+            Comment
+        }
     }
 }

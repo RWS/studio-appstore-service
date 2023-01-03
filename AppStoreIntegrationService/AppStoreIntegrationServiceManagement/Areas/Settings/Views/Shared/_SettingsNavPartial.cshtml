@@ -1,15 +1,10 @@
-﻿@{
-    var controller = ViewContext.RouteData.Values["controller"];
-    var action = ViewContext.RouteData.Values["action"];
-}
-
-<div class="col-12 col-md-3">
+﻿<div class="col-12 col-md-3">
     <ul class="nav nav-pills flex-column" id="settings-navbar">
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.IndexNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings', '@controller', '@action')">Site name</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ImportPluginsNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings.ImportPlugins', '@controller', '@action')">Import plugins</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ExportPluginsNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings.ExportPlugins', '@controller', '@action')">Export plugins</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.PluginsRenameNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings.PluginsRename', '@controller', '@action')">Renamed plugins</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.ProductsNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings.Products', '@controller', '@action')">Products</a></li>
-        <li class="nav-item"><a class="nav-link option @ManageSettingsNav.CategoriesNavClass(ViewContext)" href="#" onclick="javascript: RedirectTo('.Settings.Categories', '@controller', '@action')">Categories</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManageSettingsNav.IndexNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Settings' })">Site name</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManageSettingsNav.ImportPluginsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/ImportPlugins' })">Import plugins</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManageSettingsNav.ExportPluginsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/ExportPlugins' })">Export plugins</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManageSettingsNav.PluginsRenameNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/PluginsRename' })">Renamed plugins</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManageSettingsNav.ProductsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/Products' })">Products</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManageSettingsNav.CategoriesNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/Categories' })">Categories</a></li>
     </ul>
 </div>

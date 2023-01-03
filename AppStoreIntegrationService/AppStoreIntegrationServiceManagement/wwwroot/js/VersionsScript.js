@@ -44,12 +44,31 @@ function SaveComment(pluginId, versionId) {
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            window.location.reload();
+            DiscardCommentEdit();
         }
     }
 
     request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}/Update`);
     request.send(data);
+}
+
+function EditComment(commentId) {
+    let url = new URL(window.location.href);
+
+    url.searchParams.set("selectedComment", commentId);
+    window.location.href = url.href;
+}
+
+function DiscardCommentEdit() {
+    let url = new URL(window.location.href);
+
+    if (url.searchParams.has("selectedComment")) {
+        url.searchParams.delete("selectedComment");
+        window.location.href = url.href;
+        return;
+    }
+
+    window.location.reload();
 }
 
 function DeleteComment(pluginId, versionId, commentId) {
@@ -66,7 +85,6 @@ function DeleteComment(pluginId, versionId, commentId) {
         request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}/Delete/${commentId}`);
         request.send(data);
     })
-    
 }
 
 function GenerateChecksum() {
@@ -130,6 +148,10 @@ function UpdatePlaceholder() {
     }
 
     placeholder.innerText = text;
+}
+
+function UpdateCommentDescription() {
+    document.getElementById("CommentDescription").value = event.target.innerHTML;
 }
 
 function AjaxSuccessCallback(actionResult) {

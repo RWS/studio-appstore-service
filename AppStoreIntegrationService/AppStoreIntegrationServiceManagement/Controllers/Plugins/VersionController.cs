@@ -24,7 +24,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index(int id)
         {
             var selectedVersion = Request.Query["selectedVersion"];
-            var plugin = new ExtendedPluginDetails(await _pluginRepository.GetPluginById(id))
+            var plugin = new ExtendedPluginDetails(await _pluginRepository.GetPluginById(id, User.IsInRole("Developer") ? User.Identity.Name : null))
             {
                 Parents = await _productsRepository.GetAllParents(),
                 IsEditMode = true
@@ -34,7 +34,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var versions = (await Task.WhenAll(plugin.Versions?.Select(async v => new ExtendedPluginVersion(v) 
             { 
                 VersionComments = await _commentsRepository.GetCommentsForVersion(plugin.Name, v.VersionId),
-                SupportedProductsListItems = products
+                SupportedProductsListItems = products,
+                PluginId = id
             }))).ToList();
 
             versions.Add(new ExtendedPluginVersion 

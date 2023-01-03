@@ -1,6 +1,4 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
-    document.querySelector('.edit-area').innerHTML = document.getElementById("Description").value;
-
     new DropDown(
         document.querySelector("#categoriesDropdown #dropDownToggle"),
         document.querySelector("#categoriesDropdown #CategoriesSelect"),
@@ -15,8 +13,11 @@
     });
 });
 
+function UpdateDescription() {
+    document.getElementById("Description").value = event.target.innerHTML;
+}
+
 function SavePlugin() {
-    document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
     $("#form").validate();
 
     if ($("#form").valid()) {

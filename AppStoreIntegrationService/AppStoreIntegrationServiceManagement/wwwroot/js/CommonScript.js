@@ -2,54 +2,27 @@
 let y;
 let draggable;
 
-function RedirectTo(goToPage, controller, action) {
-    var currentPage = controller + '/' + action;
+function EnsurePreserved(callback) {
+    let data = new FormData(document.getElementById("form"));
+    let request = new XMLHttpRequest();
 
-    if (currentPage == "Plugins/Edit" || currentPage == "Plugins/New") {
-        document.getElementById("Description").value = document.querySelector('.edit-area').innerHTML;
-        CreateRequest($('main').find('select, textarea, input').serialize(), `/Plugins/GoToPage/${goToPage}/${action}`);
-        return;
-    }
-
-    if (controller == "PluginsRename") {
-        CreateRequest($('main').find('input').serialize(), `/PluginsRename/GoToPage/${goToPage}`);
-        return;
-    }
-
-    if (controller == "Products") {
-        CreateRequest($('main').find('input, select').serialize(), `/Products/GoToPage/${goToPage}`);
-        return;
-    }
-
-    if (controller == "Categories") {
-        CreateRequest($('main').find('input, select').serialize(), `/Categories/GoToPage/${goToPage}`);
-        return;
-    }
-
-    if (controller == "Account" && action != "Users") {
-        CreateRequest($('main').find("input, input[type='radio']").serialize(), `/Account/GoToPage/${goToPage}/${action}`);
-        return;
-    }
-
-    goToPage = goToPage.replaceAll('.', '\\');
-    window.location.href = `${goToPage}`;
-}
-
-function CreateRequest(pageValues, url) {
-    $.ajax({
-        data: pageValues,
-        type: "POST",
-        url: url,
-        success: function (actionResult) {
-            if (!actionResult.includes("div")) {
-                window.location.href = actionResult;
-            }
-            else {
-                $('#modalContainer').html(actionResult);
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            if (request.responseText.includes('div')) {
+                $('#modalContainer').html(request.responseText);
                 $('#modalContainer').find('.modal').modal('show');
+                document.getElementById("modalContainer").querySelector("#confirmationBtn").addEventListener('click', () => {
+                    callback();
+                })
+
+            } else {
+                callback();
             }
         }
-    })
+    }
+
+    request.open("POST", `/Preservation/Check`);
+    request.send(data);
 }
 
 function Collapse(element) {

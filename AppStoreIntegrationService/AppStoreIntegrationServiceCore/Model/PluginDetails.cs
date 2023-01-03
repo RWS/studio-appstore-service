@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AppStoreIntegrationServiceCore.Comparers;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class PluginDetails<T, U>
+    public class PluginDetails<T, U> : IEquatable<PluginDetails<T, U>>
     {
         public PluginDetails() { }
 
@@ -59,5 +61,30 @@ namespace AppStoreIntegrationServiceCore.Model
         [Url(ErrorMessage = "Invalid url!")]
         public string DownloadUrl { get; set; }
         public DateTime? CreatedDate { get; set; }
+
+        public bool Equals(PluginDetails<T, U> other)
+        {
+            var properties = typeof(PluginDetails<T, U>).GetProperties().Where(p => !p.Name.Equals("Versions"));
+
+            foreach (PropertyInfo property in properties)
+            {
+                bool ok = property.Name switch
+                {
+                    "Categories" => Categories.SequenceEqual(other.Categories),
+                    "Icon" => Icon.Equals(other.Icon),
+                    "RatingSummary" => RatingSummary?.Equals(other.RatingSummary) ?? true,
+                    "Developer" => Developer.Equals(other.Developer),
+                    "Media" => Media?.SequenceEqual(other.Media, new IconEqualityComparer()) ?? true,
+                    _ => Equals(property.GetValue(this), property.GetValue(other))
+                };
+
+                if (!ok)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

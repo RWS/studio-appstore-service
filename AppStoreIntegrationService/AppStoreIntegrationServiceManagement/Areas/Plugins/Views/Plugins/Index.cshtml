@@ -41,7 +41,7 @@
 </div>
 
 
-<form id="activeFilters" class="m-0 px-1 py-3 d-flex">
+<form id="form" class="m-0 px-1 py-3 d-flex">
     <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white @(Model.Filters.Any(x => x.Value.IsSelected) ? "" : "d-none")" href="@Url.Action("Index")">
         <i class="fa fa-times-circle"></i>
         Clear all

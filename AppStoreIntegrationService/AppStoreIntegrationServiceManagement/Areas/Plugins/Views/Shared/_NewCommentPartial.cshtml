@@ -3,6 +3,9 @@
 <input hidden asp-for="CommentId" />
 <input hidden asp-for="CommentDate" />
 <input hidden asp-for="CommentAuthor" />
+<input hidden asp-for="PluginId" />
+<input hidden asp-for="VersionId" />
+<input hidden name="Page" value="@Page.Comment" />
 
 <div class="rich-text-editor border rounded">
     <div class="editor-toolbar d-flex justify-content-between border-bottom p-3 sticky-top">
@@ -17,12 +20,14 @@
         <i id="justifyFull" class="fa fa-align-justify cursor-pointer option align p-2"></i>
         <i id="createLink" onclick="ShowInsertionModal()" class="fa fa-link cursor-pointer p-2"></i>
     </div>
-    <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false" tabindex="0"></div>
+    <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false" tabindex="0" oninput="UpdateCommentDescription()">
+        @Html.Raw(Model.CommentDescription)
+    </div>
 </div>
 <textarea asp-for="CommentDescription" class="text-area-hidden"></textarea>
 <span asp-validation-for="CommentDescription" class="text-danger"></span>
 
 <button class="btn pa-admin-success-btn mt-2" onclick="SaveComment('@Model.PluginId', '@Model.VersionId')">Save</button>
-<button class="btn btn-secondary mt-2" onclick="window.location.reload()">Cancel</button>
+<button class="btn btn-secondary mt-2" onclick="EnsurePreserved(() => { DiscardCommentEdit() })">Cancel</button>
 
 

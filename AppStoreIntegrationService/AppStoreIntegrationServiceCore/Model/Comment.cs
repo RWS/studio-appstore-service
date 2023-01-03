@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class Comment
+    public class Comment : IEquatable<Comment>
     {
         public int CommentId { get; set; }
         public string CommentDescription { get; set; }
@@ -12,9 +12,12 @@ namespace AppStoreIntegrationServiceCore.Model
         public DateTime CommentDate { get; set; }
         [JsonIgnore]
         public bool IsEditMode { get; set; }
-        [JsonIgnore]
         public int PluginId { get; set; }
-        [JsonIgnore]
         public string VersionId { get; set; }
+
+        public bool Equals(Comment other)
+        {
+            return Equals(CommentDescription, other.CommentDescription);
+        }
     }
 }

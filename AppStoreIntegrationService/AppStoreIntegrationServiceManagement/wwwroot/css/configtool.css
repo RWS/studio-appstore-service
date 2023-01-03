@@ -149,7 +149,7 @@ body, html {
 
 /* Plugins index page */
 
-#activeFilters .fa-times-circle{
+#form .fa-times-circle{
     color: var(--pa-admin-foreground);
 }
 
