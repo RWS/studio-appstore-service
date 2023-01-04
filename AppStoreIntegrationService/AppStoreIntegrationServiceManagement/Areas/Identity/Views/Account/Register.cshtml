@@ -12,7 +12,8 @@
     <partial name="_ProfileNav" />
     <div class="col-12 col-md-9">
         <p class="fw-bold fs4-inherit">Add new user</p>
-        <form asp-controller="Account" asp-action="PostRegister" method="post">
+        <form asp-controller="Account" asp-action="PostRegister" method="post" id="form">
+            <input hidden name="Page" value="@Page.Register" />
             <div class="mb-3">
                 <label asp-for="Input.UserName" class="form-label"></label>
                 <input asp-for="Input.UserName" class="form-control fs-inherit" />

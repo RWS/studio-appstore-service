@@ -14,8 +14,8 @@ namespace AppStoreIntegrationServiceCore.Model
             ParentProductsListItems = new MultiSelectList
             (
                 parents,
-                nameof(ParentProduct.ParentId),
-                nameof(ParentProduct.ParentProductName)
+                nameof(ParentProduct.Id),
+                nameof(ParentProduct.ProductName)
             );
         }
 

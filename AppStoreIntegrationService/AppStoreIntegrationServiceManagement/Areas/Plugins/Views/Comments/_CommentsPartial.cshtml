@@ -4,14 +4,7 @@
 }
 
 <div class="p-3 border-bottom">
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link" href="#" onclick="Show('@Model.versionId', 'Details')">Details</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active-tab" href="#">Comments</a>
-        </li>
-    </ul>
+    <partial name="_VersionCommentPartial" model="@(Model.versionId, false)" />
 
     @if (!Model.comments.Any())
     {
@@ -24,7 +17,7 @@
             if (selectedComment == comment.CommentId.ToString())
             {
                 <div class="my-2">
-                    <partial name="_NewCommentPartial" model="comment" />
+                    <partial name="/Areas/Plugins/Views/Comments/_NewCommentPartial.cshtml" model="comment" />
                 </div>
             }
             else
@@ -35,10 +28,14 @@
                         <p class="m-0">@comment.CommentAuthor commented - @comment.CommentDate</p>
                     </div>
                     <p class="m-0 py-3">@Html.Raw(comment.CommentDescription)</p>
-                    <div class="d-flex">
-                        <p class="m-0 me-2 cursor-pointer text-secondary" onclick="EnsurePreserved(() => { EditComment('@comment.CommentId') })">Edit</p>
-                        <p class="m-0 cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteComment('@Model.pluginId', '@Model.versionId', '@comment.CommentId')">Delete</p>
-                    </div>
+                    @if (comment.CommentAuthor.Equals(User.Identity.Name))
+                    {
+                        <div class="d-flex">
+                            <p class="m-0 me-2 cursor-pointer text-secondary" onclick="EnsurePreserved(() => { EditComment('@comment.CommentId') })">Edit</p>
+                            <p class="m-0 cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteComment('@Model.pluginId', '@Model.versionId', '@comment.CommentId')">Delete</p>
+                        </div>
+                    }
+
                 </div>
             }
         }

@@ -13,18 +13,22 @@
     }
 
     Edit(id) {
-        let url = new URL(window.location.href);
+        let location = window.location.href;
+        let url = new URL(location);
+
+        if (location.includes('?')) {
+            url = new URL(location.split('?')[0]);
+        }
 
         url.searchParams.set(`selected${this.#field}`, id);
         window.location.href = url.href;
     }
 
     Discard() {
-        let url = new URL(window.location.href);
+        let url = window.location.href;
 
-        if (url.searchParams.has(`selected${this.#field}`)) {
-            url.searchParams.delete(`selected${this.#field}`);
-            window.location.href = url.href;
+        if (url.includes('?')) {
+            window.location.href = url.split('?')[0];
             return;
         }
 

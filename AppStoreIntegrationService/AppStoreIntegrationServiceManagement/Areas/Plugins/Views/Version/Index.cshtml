@@ -34,7 +34,7 @@
             <div class="version-details" aria-expanded="false">
                 @if(selectedVersion == version.VersionId && selectedView == "Comments")
                 {
-                    <partial name="_CommentsPartial" model="@(Model.plugin.Id, version.VersionId, version.VersionComments)" />
+                    <partial name="/Areas/Plugins/Views/Comments/_CommentsPartial.cshtml" model="@(Model.plugin.Id, version.VersionId, version.VersionComments)" />
                 }
 
                 @if(selectedVersion == version.VersionId && selectedView == "Details")

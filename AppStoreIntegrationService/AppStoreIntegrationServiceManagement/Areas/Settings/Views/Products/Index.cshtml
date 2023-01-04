@@ -1,11 +1,15 @@
-﻿@model ProductsModel
+﻿@model List<ExtendedProductDetails>
 @{
     ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageSettingsNav.Products;
+    var selectedProduct = Context.Request.Query["selectedProduct"];
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<partial name="_ModalPartial" model="@(new ModalMessage{ Message = "Are you sure you want to delete this product?" })" />
 <div id="statusMessageContainer"></div>
+<div id="modalContainer"></div>
+
 <h1 class="fs1-inherit">Settings</h1>
 <h2 class="fs2-inherit">Change site settings</h2>
 <hr class="w-100">
@@ -13,26 +17,9 @@
     <partial name="_SettingsNavPartial" />
     <div class="col-12 col-md-9">
         <div class="settings-details">
+            <partial name="_ProductsTabPartial" model="true" />
             <form method="post" id="form" onsubmit="return false">
-                <p class="fw-bold fs4-inherit mb-2">Parent Products</p>
-                <table id="parentProductsTable" class="table table-bordered table-collapse">
-                    <thead>
-                        <tr class="align-middle d-none d-lg-table-row">
-                            <th>Id</th>
-                            <th>ProductName</th>
-                            <td class="icon-cell text-center"><i onclick="parentTable.AddNewRow()" title="Add new parent product" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
-                            <td class="icon-cell"></td>
-                        </tr>
-                    </thead>
-                    <tbody class="table-body tbody-stripped">
-                        <partial name="_ParentProductsPartial" model="@Model.ParentProducts" />
-                    </tbody>
-                    <tbody id="newRowPartial" class="tbody-stripped">
-                    </tbody>
-                </table>
-                <button type="button" onclick="parentTable.AddNewRow()" class="btn pa-admin-success-btn d-inline mb-2 fs-inherit">Add new</button>
-                <hr class="w-100" />
-                <p class="fw-bold fs-4 mb-2">Products</p>
+                <input name="Page" value="@Page.Products" hidden />
                 <table id="productsTable" class="table table-bordered table-collapse">
                     <thead>
                         <tr class="align-middle d-none d-lg-table-row">
@@ -41,25 +28,69 @@
                             <th>ProductVersion</th>
                             <th>ProductParentId</th>
                             <th class="text-center">IsLegacy</th>
-                            <td class="icon-cell text-center"><i onclick="table.AddNewRow()" title="Add new product" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
+                            <td class="icon-cell text-center"><i onclick="table.Add()" title="Add new product" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
                     <tbody class="table-body tbody-stripped">
-                        <partial name="_ProductsPartial" model="@Model.Products" />
+                        @foreach (var product in Model)
+                        {
+                            if (selectedProduct == product.Id)
+                            {
+                                <partial name="_NewProductPartial" model="@product" />
+                            }
+                            else
+                            {
+                                <tr class="table-row d-flex flex-column d-lg-table-row" id="itemsRow">
+                                    <td class="d-none d-lg-table-cell">
+                                        <div class="input-group">
+                                            <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Id</span>
+                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@product.Id</p>
+                                        </div>
+                                    </td>
+                                    <td class="order-first">
+                                        <p class="m-0 align-self-center text-center text-lg-start" onclick="Collapse(this)">@product.ProductName</p>
+                                    </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        <div class="input-group">
+                                            <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Version</span>
+                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@product.MinimumStudioVersion</p>
+                                        </div>
+                                    </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        <div class="input-group">
+                                            <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">ParentId</span>
+                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@product.ParentProductID</p>
+                                        </div>
+                                    </td>
+                                    <td class="d-none d-lg-table-cell align-middle">
+                                        <div class="input-group text-center">
+                                            <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">IsLegacy</span>
+                                            <p class="m-0 w-100 align-self-center"><i class="fa @(product.IsLegacy ? "fa-check-circle" : "fa-times-circle")"></i></p>
+                                        </div>
+                                    </td>
+                                    <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
+                                        <i class="fa fa-pen-alt cursor-pointer" title="Edit @product.ProductName" onclick="EnsurePreserved(() => { table.Edit('@product.Id') })"></i>
+                                    </td>
+                                    <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
+                                        <i class="fa fa-trash-alt cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" title="Delete @product.ProductName" onclick="table.Delete('@product.Id')"></i>
+                                    </td>
+                                </tr>
+                            }
+                        }
                     </tbody>
                     <tbody id="newRowPartial" class="tbody-stripped"></tbody>
                 </table>
-                <button type="button" onclick="table.AddNewRow()" class="btn pa-admin-success-btn d-inline fs-inherit">Add new</button>
+                <button type="button" onclick="table.Add()" class="btn pa-admin-success-btn d-inline fs-inherit">Add new</button>
             </form>
         </div>
     </div>
 </div>
-<div id="modalContainer"></div>
-<partial name="_ModalPartial" model="@(new ModalMessage())" />
 
 <script src="~/js/TableCrud.js"></script>
 <script asp-append-version="true">
-    const table = new TableCrud("Products/Delete/", "Products/Add", 'Products/Update', "Products/AddNew", "#productsTable");
-    const parentTable = new TableCrud("ParentProducts/Delete/", "ParentProducts/Add", 'ParentProducts/Update', "ParentProducts/AddNew", "#parentProductsTable");
+    const table = new TableCrud("Product", "Products/Update", "Products/Add", "Products/Delete");
 </script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

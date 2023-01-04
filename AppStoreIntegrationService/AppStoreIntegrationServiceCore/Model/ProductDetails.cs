@@ -1,9 +1,10 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class ProductDetails
+    public class ProductDetails : IEquatable<ProductDetails>
     {
         private string _minimumStudioVersion;
 
@@ -18,7 +19,9 @@ namespace AppStoreIntegrationServiceCore.Model
         }
 
         public string Id { get; set; }
+        [Required(ErrorMessage = "The product name is required!")]
         public string ProductName { get; set; }
+        [Required(ErrorMessage = "Minimum version is required!")]
         public string MinimumStudioVersion
         {
             get 
@@ -38,9 +41,9 @@ namespace AppStoreIntegrationServiceCore.Model
         public string ParentProductID { get; set; }
         public bool IsLegacy { get; set; }
 
-        public bool IsValid()
+        public bool Equals(ProductDetails other)
         {
-            return new[] { Id, ProductName, MinimumStudioVersion }.All(item => item != null);
+            return ProductName.Equals(other.ProductName) && MinimumStudioVersion.Equals(other.MinimumStudioVersion);
         }
     }
 }

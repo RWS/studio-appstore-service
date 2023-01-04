@@ -1,12 +1,14 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
     [Area("Plugins")]
+    [Authorize]
     public class VersionController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
@@ -38,9 +40,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 PluginId = id
             }))).ToList();
 
+            string test = versions.Any(v => v.VersionId == selectedVersion) || string.IsNullOrEmpty(selectedVersion) ? Guid.NewGuid().ToString() : selectedVersion;
             versions.Add(new ExtendedPluginVersion 
             { 
-                VersionId = versions.Any(v => v.VersionId == selectedVersion) ? Guid.NewGuid().ToString() : selectedVersion,
+                VersionId = test,
                 SupportedProductsListItems = products,
                 IsNewVersion = true
             });

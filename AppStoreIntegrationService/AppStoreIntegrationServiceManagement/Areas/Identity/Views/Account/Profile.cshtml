@@ -21,8 +21,9 @@
 
     <div class="col-12 col-md-9">
         <p class="text-break fw-bold fs4-inherit">@string.Format("Edit profile {0}", Model.Id != null ? $"for {Model.Username}" : null)</p>
-        <form asp-controller="Account" asp-action="Update" asp-route-id="@Model.Id" method="post">
+        <form asp-controller="Account" asp-action="Update" asp-route-id="@Model.Id" method="post" id="form">
             <input hidden asp-for="Id" />
+            <input hidden name="Page" value="@Page.Profile"/>
             <div class="mb-3">
                 <label asp-for="Username" class="form-label"></label>
                 @if (Model.IsUsernameEditable)
@@ -53,7 +54,7 @@
                 else
                 {
                     <label asp-for="UserRole" class="form-check-label mb-2"></label>
-                    <input disabled asp-for="UserRole" class="form-control fs-inherit" />
+                    <input asp-for="UserRole" class="form-control fs-inherit" readonly />
                 }
 
             </div>

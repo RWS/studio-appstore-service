@@ -7,8 +7,10 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
     {
         Task<List<ProductDetails>> GetAllProducts();
         Task<List<ParentProduct>> GetAllParents();
-        Task UpdateProducts(List<ProductDetails> products);
-        Task UpdateProducts(List<ParentProduct> products);
+        Task<ParentProduct> GetParentById(string id);
+        Task<ProductDetails> GetProductById(string id);
+        Task<bool> TryUpdateProduct(ProductDetails products);
+        Task<bool> TryUpdateProduct(ParentProduct products);
         Task DeleteProduct(string id, ProductType type);
     }
 }

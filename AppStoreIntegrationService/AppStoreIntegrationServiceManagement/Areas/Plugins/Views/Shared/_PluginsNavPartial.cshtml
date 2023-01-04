@@ -18,6 +18,7 @@
             <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
+                <option value="InReview">InReview</option>
             </select>
         }
     </div>
@@ -28,6 +29,6 @@
     <ul class="nav nav-pills flex-column py-3" id="settings-navbar">
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.DetailsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id' })">Plugin details</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.VersionsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id/Versions' })">Plugin versions</a></li>
-        <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.CommentsNavClass(ViewContext)" href="#">Plugin comments</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.CommentsNavClass(ViewContext)">Plugin comments</a></li>
     </ul>
 }

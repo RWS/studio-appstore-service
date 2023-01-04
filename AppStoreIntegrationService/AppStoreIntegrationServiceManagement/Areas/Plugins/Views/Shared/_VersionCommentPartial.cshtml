@@ -1,0 +1,10 @@
+﻿@model (string id, bool)
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @(Model.Item2 ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.id', 'Details') })">Details</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @(!Model.Item2 ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.id', 'Comments') })">Comments</a>
+    </li>
+</ul>

@@ -1,0 +1,75 @@
+﻿@model List<ParentProduct>
+@{
+    ViewData["Title"] = "Settings";
+    ViewData["ActivePage"] = ManageSettingsNav.Products;
+    var selectedParent = Context.Request.Query["selectedParent"];
+}
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<partial name="_ModalPartial" model="@(new ModalMessage{ Message = "Are you sure you want to delete this parent product?" })" />
+<div id="statusMessageContainer"></div>
+<div id="modalContainer"></div>
+
+<h1 class="fs1-inherit">Settings</h1>
+<h2 class="fs2-inherit">Change site settings</h2>
+<hr class="w-100">
+<div class="row d-flex" id="settings-page">
+    <partial name="_SettingsNavPartial" />
+    <div class="col-12 col-md-9">
+        <div class="settings-details">
+            <partial name="_ProductsTabPartial" model="false"/>
+            <form method="post" id="form" onsubmit="return false">
+                <input name="Page" value="@Page.ParentProducts" hidden />
+                <table id="parentProductsTable" class="table table-bordered table-collapse">
+                    <thead>
+                        <tr class="align-middle d-none d-lg-table-row">
+                            <th>Id</th>
+                            <th>ProductName</th>
+                            <td class="icon-cell text-center"><i onclick="table.Add()" title="Add new parent product" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
+                            <td class="icon-cell"></td>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body tbody-stripped">
+                        @foreach (var parent in Model)
+                        {
+                            if (selectedParent == parent.Id)
+                            {
+                                <partial name="_NewParentProductPartial" model="parent" />
+                            }
+                            else
+                            {
+                                <tr class="table-row d-flex flex-column d-lg-table-row">
+                                    <td class="d-none d-lg-table-cell">
+                                        <div class="input-group">
+                                            <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Id</span>
+                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@parent.Id</p>
+                                        </div>
+                                    </td>
+                                    <td class="editable-field order-first">
+                                        <p class="m-0 align-self-center text-center text-lg-start" onclick="Collapse(this)">@parent.ProductName</p>
+                                    </td>
+                                    <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
+                                        <i class="fa fa-pen-alt cursor-pointer" title="Edit @parent.ProductName" onclick="EnsurePreserved(() => { table.Edit('@parent.Id') })"></i>
+                                    </td>
+                                    <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
+                                        <i class="fa fa-trash-alt row-eraser cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" title="Delete @parent.ProductName" onclick="table.Delete('@parent.Id')"></i>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                    <tbody id="newRowPartial" class="tbody-stripped"></tbody>
+                </table>
+                <button type="button" onclick="table.Add()" class="btn pa-admin-success-btn d-inline mb-2 fs-inherit">Add new</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/TableCrud.js"></script>
+<script asp-append-version="true">
+    const table = new TableCrud("Parent", 'ParentProducts/Update', "ParentProducts/Add", "ParentProducts/Delete");
+</script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

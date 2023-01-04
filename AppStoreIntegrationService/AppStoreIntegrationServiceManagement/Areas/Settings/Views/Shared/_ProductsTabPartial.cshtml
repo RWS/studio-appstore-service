@@ -1,0 +1,10 @@
+﻿@model bool
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @(Model ? "active-tab" : null)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/Products'})">Products</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @(!Model ? "active-tab" : null)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/Products/Parents'})">Parents</a>
+    </li>
+</ul>

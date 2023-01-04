@@ -47,7 +47,12 @@
             Plugin,
             Version,
             Comment,
-            Categories
+            Categories,
+            ParentProducts,
+            Products,
+            Profile,
+            Password,
+            Register
         }
     }
 }

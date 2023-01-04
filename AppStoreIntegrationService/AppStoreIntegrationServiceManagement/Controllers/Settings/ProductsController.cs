@@ -1,10 +1,7 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model;
-using AppStoreIntegrationServiceManagement.Model.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
@@ -35,11 +32,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 extendedProducts.Add(extended);
             }
 
-            return View(new ProductsModel
-            {
-                Products = extendedProducts,
-                ParentProducts = parents
-            });
+            return View(extendedProducts);
         }
 
         [HttpPost]
@@ -56,11 +49,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(List<ProductDetails> products)
+        public async Task<IActionResult> Update(ProductDetails product)
         {
-            await _productsRepository.UpdateProducts(products);
-            TempData["StatusMessage"] = "Success! Products were updated!";
-            return Content("/Settings/Products");
+            if (await _productsRepository.TryUpdateProduct(product))
+            {
+                TempData["StatusMessage"] = "Success! Products were updated!";
+                return Content("/Settings/Products");
+            }
+
+            return PartialView("_StatusMessage", "Error! There is already a product with this name!");
         }
 
         [HttpPost]

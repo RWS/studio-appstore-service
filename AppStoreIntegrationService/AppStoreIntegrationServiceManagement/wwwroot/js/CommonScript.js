@@ -1,9 +1,8 @@
 ﻿let x;
 let y;
 let draggable;
-let test;
+
 function EnsurePreserved(callback) {
-    test = callback;
     let data = new FormData(document.getElementById("form"));
     let request = new XMLHttpRequest();
 

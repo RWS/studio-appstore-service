@@ -1,10 +1,12 @@
 ﻿using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceCore.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
     [Area("Plugins")]
+    [Authorize]
     public class CommentsController : Controller
     {
         private readonly ICommentsRepository _commentsRepository;

@@ -14,19 +14,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     public class ImportExportPluginsController : Controller
     {
         private readonly IPluginManager _pluginManager;
-        private readonly IProductsRepository _productsRepository;
+        private readonly IProductsManager _productsManager;
         private readonly IVersionManager _versionManager;
         private readonly ICategoriesManager _categoriesManager;
 
         public ImportExportPluginsController
         (
-            IProductsRepository productsRepository,
+            IProductsManager productsmanager,
             IVersionManager versionManager,
             ICategoriesManager categoriesManager,
             IPluginManager pluginManager
         )
         {
-            _productsRepository = productsRepository;
+            _productsManager = productsmanager;
             _versionManager = versionManager;
             _categoriesManager = categoriesManager;
             _pluginManager = pluginManager;
@@ -45,8 +45,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             {
                 APIVersion = await _versionManager.GetVersion(),
                 Value = await _pluginManager.GetPlugins(),
-                Products = await _productsRepository.GetAllProducts(),
-                ParentProducts = await _productsRepository.GetAllParents(),
+                Products = await _productsManager.ReadProducts(),
+                ParentProducts = await _productsManager.ReadParents(),
                 Categories = await _categoriesManager.ReadCategories()
             };
             var jsonString = JsonConvert.SerializeObject(response);
@@ -75,8 +75,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             if (success)
             {
                 await _categoriesManager.SaveCategories(response.Categories);
-                await _productsRepository.UpdateProducts(response.Products);
-                await _productsRepository.UpdateProducts(response.ParentProducts);
+                await _productsManager.SaveProducts(response.Products);
+                await _productsManager.SaveProducts(response.ParentProducts);
                 await _versionManager.SaveVersion(response.APIVersion);
                 await _pluginManager.SavePlugins(response.Value);
 

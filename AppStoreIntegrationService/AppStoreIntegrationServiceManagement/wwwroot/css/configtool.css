@@ -292,8 +292,8 @@ table {
     color: white !important;
 }
 .fa-trash-alt, .fa-times-circle {
-    color: var(--pa-admin-danger-color);
-    font-size: var(--pa-admin-danger-fontsize);
+    color: var(--pa-admin-danger-color) !important;
+    font-size: var(--pa-admin-danger-fontsize) !important;
 }
 
 .btn-danger {

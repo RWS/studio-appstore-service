@@ -1,6 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceManagement.Model;
-using AppStoreIntegrationServiceManagement.Model.Identity;
+﻿using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -233,32 +231,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return Content("");
         }
 
-        [Route("[controller]/[action]/{redirectUrl?}/{currentPage?}")]
-        public async Task<IActionResult> GoToPage(ProfileModel profileModel, ChangePasswordModel passwordModel, RegisterModel registerModel, string redirectUrl, string currentPage)
-        {
-            var editedUser = await _userManager.FindByIdAsync(profileModel.Id);
-            var currentUser = await _userManager.GetUserAsync(User);
-            var user = editedUser ?? currentUser;
-            redirectUrl = redirectUrl.Replace('.', '/');
-
-            if (currentPage == "Profile" && await IsSavedProfile(profileModel, user) ||
-                currentPage == "ChangePassword" && passwordModel.Input.IsEmpty() ||
-                currentPage == "Register" && registerModel.Input.IsEmpty())
-            {
-                return Content(redirectUrl);
-            }
-
-            var modalDetails = new ModalMessage
-            {
-                RequestPage = $"{redirectUrl}",
-                ModalType = ModalType.WarningMessage,
-                Title = "Unsaved changes!",
-                Message = string.Format("Discard changes for {0}?", user.UserName)
-            };
-
-            return PartialView("_ModalPartial", modalDetails);
-        }
-
         private bool TryValidate(IdentityUser currentUser, string id, IdentityUser wantedUser, bool checkModelState, out IActionResult result)
         {
             if (currentUser == null)
@@ -297,19 +269,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 IsUsernameEditable = !isCurrentUserProfile || (username != "Admin" && role == "Administrator"),
                 IsUserRoleEditable = !isCurrentUserProfile,
                 Id = isCurrentUserProfile ? null : user.Id
-            };
-        }
-
-        private async Task<bool> IsSavedProfile(ProfileModel model, IdentityUser user)
-        {
-            var (oldUsername, oldUserRole) = (user.UserName, (await _userManager.GetRolesAsync(user))[0]);
-            var (newUsername, newUserRole) = (model.Username, model.UserRole);
-
-            return (newUserRole == null, newUsername == null) switch
-            {
-                (true, true) => true,
-                (true, false) => oldUsername == newUsername,
-                _ => oldUsername == newUsername && oldUserRole == newUserRole
             };
         }
     }

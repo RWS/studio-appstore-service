@@ -11,7 +11,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     {
         private readonly SignInManager<IdentityUser> _signInManager;
 
-        public AuthenticationController(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, IUserSeed userSeed)
+        public AuthenticationController(SignInManager<IdentityUser> signInManager, IUserSeed userSeed)
         {
             _signInManager = signInManager;
             userSeed.EnsureAdminExistance();

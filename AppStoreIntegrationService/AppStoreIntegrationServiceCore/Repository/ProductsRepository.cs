@@ -36,20 +36,54 @@ namespace AppStoreIntegrationServiceCore.Repository
             {
                 new ParentProduct
                 {
-                    ParentId = "1",
-                    ParentProductName = "Trados Studio"
+                    Id = "1",
+                    ProductName = "Trados Studio"
                 }
             };
         }
 
-        public async Task UpdateProducts(List<ProductDetails> products)
+        public async Task<bool> TryUpdateProduct(ProductDetails product)
         {
+            var products = await _productsManager.ReadProducts();
+            if (products.Any(p => p.ProductName == product.ProductName && p.Id != product.Id))
+            {
+                return false;
+            }
+
+            var index = products.IndexOf(products.FirstOrDefault(p => p.Id == product.Id));
+            if (index >= 0)
+            {
+                products[index] = product;
+            }
+            else
+            {
+                products.Add(product);
+            }
+
             await _productsManager.SaveProducts(products);
+            return true;
         }
 
-        public async Task UpdateProducts(List<ParentProduct> products)
+        public async Task<bool> TryUpdateProduct(ParentProduct parent)
         {
-            await _productsManager.SaveProducts(products);
+            var parents = await _productsManager.ReadParents();
+            if (parents.Any(p => p.ProductName == parent.ProductName && p.Id != parent.Id))
+            {
+                return false;
+            }
+
+            var index = parents.IndexOf(parents.FirstOrDefault(p => p.Id == parent.Id));
+            if (index >= 0)
+            {
+                parents[index] = parent;
+            }
+            else
+            {
+                parents.Add(parent);
+            }
+
+            await _productsManager.SaveProducts(parents);
+            return true;
         }
 
         public async Task DeleteProduct(string id, ProductType type)
@@ -57,12 +91,11 @@ namespace AppStoreIntegrationServiceCore.Repository
             var (Products, Parents) = await GetProductsFromPossibleLocations();
             if (type == ProductType.Child)
             {
-                await UpdateProducts(Products.Where(item => item.Id != id).ToList());
+                await _productsManager.SaveProducts(Products.Where(item => item.Id != id).ToList());
                 return;
             }
 
-            await UpdateProducts(Parents.Where(item => item.ParentId != id).ToList());
-
+            await _productsManager.SaveProducts(Parents.Where(item => item.Id != id).ToList());
         }
 
         public async Task<List<ProductDetails>> GetAllProducts()
@@ -80,6 +113,18 @@ namespace AppStoreIntegrationServiceCore.Repository
         private async Task<(List<ProductDetails> Products, List<ParentProduct> Parents)> GetProductsFromPossibleLocations()
         {
             return (Products: await _productsManager.ReadProducts() ?? _defaultProducts, Parents: await _productsManager.ReadParents() ?? _defaultParentProducts);
+        }
+
+        public async Task<ParentProduct> GetParentById(string id)
+        {
+            var parents = await _productsManager.ReadParents();
+            return parents.FirstOrDefault(p => p.Id.Equals(id));
+        }
+
+        public async Task<ProductDetails> GetProductById(string id)
+        {
+            var products = await _productsManager.ReadProducts();
+            return products.FirstOrDefault(p => p.Id.Equals(id));
         }
     }
 }

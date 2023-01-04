@@ -17,22 +17,32 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             _productsRepository = productsRepository;
         }
 
+        [Route("/Settings/Products/Parents")]
+        public async Task<IActionResult> Index()
+        {
+            return View(await _productsRepository.GetAllParents());
+        }
+
         [HttpPost]
-        public async Task<IActionResult> AddNew()
+        public async Task<IActionResult> Add()
         {
             var products = await _productsRepository.GetAllParents();
             return PartialView("_NewParentProductPartial", new ParentProduct
             {
-                ParentId = SetIndex(products)
+                Id = SetIndex(products)
             });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(List<ParentProduct> products)
+        public async Task<IActionResult> Update(ParentProduct product)
         {
-            await _productsRepository.UpdateProducts(products);
-            TempData["StatusMessage"] = "Success! Parent products table was updated!";
-            return Content("/Settings/Products");
+            if (await _productsRepository.TryUpdateProduct(product))
+            {
+                TempData["StatusMessage"] = "Success! Parent products table was updated!";
+                return Content(null);
+            }
+
+            return PartialView("_StatusMessage", "Error! There is already a parent product with this name!");
         }
 
         [HttpPost]
@@ -42,12 +52,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             if (products.Any(p => p.ParentProductID.Equals(id)))
             {
                 TempData["StatusMessage"] = "Error! This parent product is used among child products!";
-                return Content("/Settings/Products");
+                return Content(null);
             }
 
             await _productsRepository.DeleteProduct(id, ProductType.Parent);
-            TempData["StatusMessage"] = "Success! Product was deleted!";
-            return Content("/Settings/Products");
+            TempData["StatusMessage"] = "Success! Paret product was deleted!";
+            return Content(null);
         }
 
         private static string SetIndex(IEnumerable<ParentProduct> products)
@@ -58,7 +68,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 return "1";
             }
 
-            return (int.Parse(lastProduct.ParentId) + 1).ToString();
+            return (int.Parse(lastProduct.Id) + 1).ToString();
         }
     }
 }

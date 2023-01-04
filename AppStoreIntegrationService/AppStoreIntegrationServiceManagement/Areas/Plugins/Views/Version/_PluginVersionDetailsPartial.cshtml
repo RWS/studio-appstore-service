@@ -3,14 +3,7 @@
 <div class="p-3 border-bottom">
     @if (!Model.IsNewVersion)
     {
-        <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-                <a class="nav-link active-tab" href="#">Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="EnsurePreserved(() => { Show('@Model.VersionId', 'Comments') })">Comments</a>
-            </li>
-        </ul>
+        <partial name="_VersionCommentPartial" model="@(Model.VersionId, true)"/>
     }
 
     <input hidden name="Page" value="@Page.Version"/>
@@ -19,7 +12,7 @@
     <input hidden asp-for="IsNewVersion" />
     <input hidden asp-for="PluginId"/>
 
-    <div id="versionDetails" class="m-0 ml-lg-3">
+    <div id="versionDetails" class="m-0 ml-lg-3 mt-3">
         @for (int i = 0; i < Model.SupportedProducts?.Count; i++)
         {
             <input hidden asp-for="SupportedProducts[i]" />
