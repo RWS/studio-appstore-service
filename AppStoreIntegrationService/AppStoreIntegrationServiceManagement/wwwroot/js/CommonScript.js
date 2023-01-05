@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 
-    $(".alert-danger, .alert-success").fadeTo(3000, 500).slideUp(500, function () {
+    $("#alert").fadeTo(3000, 500).slideUp(500, function () {
         $(this).remove();
     });
 });

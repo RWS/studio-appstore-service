@@ -3,14 +3,15 @@
 <div class="p-3 border-bottom">
     @if (!Model.IsNewVersion)
     {
-        <partial name="_VersionCommentPartial" model="@(Model.VersionId, true)"/>
+        <partial name="_VersionCommentPartial" model="@(Model.VersionId, true)" />
     }
 
-    <input hidden name="Page" value="@Page.Version"/>
+    <input hidden name="Page" value="@Page.Version" />
     <input hidden asp-for="IsPrivatePlugin" value="true" />
     <input hidden asp-for="VersionId" />
     <input hidden asp-for="IsNewVersion" />
-    <input hidden asp-for="PluginId"/>
+    <input hidden asp-for="PluginId" />
+    <input hidden asp-for="VersionStatus" />
 
     <div id="versionDetails" class="m-0 ml-lg-3 mt-3">
         @for (int i = 0; i < Model.SupportedProducts?.Count; i++)
@@ -23,7 +24,7 @@
             <div class="w-100 d-flex flex-column">
                 <input asp-for="VersionNumber" class="form-control manifest-field fs-inherit" oninput="UpdatePlaceholder()" />
                 <span asp-validation-for="VersionNumber" class="text-danger"></span>
-                <span hidden id="VersionNumberManifestConflict" class="text-danger">Plugin manifest conflict! Invalid version number!</span>
+                <span id="VersionNumberManifestConflict" class="text-danger" @((bool?)TempData["IsVersionMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid version number!</span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -31,7 +32,7 @@
             <div class="w-100">
                 <input asp-for="MinimumRequiredVersionOfStudio" class="form-control manifest-field fs-inherit" />
                 <span asp-validation-for="MinimumRequiredVersionOfStudio" class="text-danger"></span>
-                <span hidden id="MinVersionManifestConflict" class="text-danger">Plugin manifest conflict! Invalid minimum version!</span>
+                <span id="MinVersionManifestConflict" class="text-danger" @((bool?)TempData["IsMinVersionMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid minimum version!</span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -39,14 +40,14 @@
             <div class="w-100">
                 <input asp-for="MaximumRequiredVersionOfStudio" class="form-control manifest-field fs-inherit" />
                 <span asp-validation-for="MaximumRequiredVersionOfStudio" class="text-danger"></span>
-                <span hidden id="MaxVersionManifestConflict" class="text-danger">Plugin manifest conflict! Invalid maximum version!</span>
+                <span id="MaxVersionManifestConflict" class="text-danger" @((bool?)TempData["IsMaxVersionMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid maximum version!</span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0 align-self-center" asp-for="VersionDownloadUrl">Download URL <span class="text-danger">*</span></label>
+            <label class="col-4 m-0 align-self-center" asp-for="DownloadUrl">Download URL <span class="text-danger">*</span></label>
             <div class="w-100">
-                <input asp-for="VersionDownloadUrl" class="form-control fs-inherit" onchange="GenerateChecksum()" />
-                <span asp-validation-for="VersionDownloadUrl" class="text-danger"></span>
+                <input asp-for="DownloadUrl" class="form-control fs-inherit" onchange="GenerateChecksum()" />
+                <span asp-validation-for="DownloadUrl" class="text-danger"></span>
             </div>
         </div>
         <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
@@ -95,14 +96,27 @@
                     <select asp-for="SupportedProducts" hidden multiple="multiple" asp-items="@Model.SupportedProductsListItems"></select>
                 </div>
                 <span asp-validation-for="SupportedProducts" class="text-danger"></span>
-                <span hidden id="ProductManifestConflict" class="text-danger">Plugin manifest conflict! Invalid product!</span>
+                <span id="ProductManifestConflict" class="text-danger" @((bool?)TempData["IsProductMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid product!</span>
             </div>
         </div>
-
-        <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId')">Save</button>
-        @if (!Model.IsNewVersion)
+        @if (User.IsInRole("Developer"))
         {
-            <button class="btn btn-danger" onclick="DeleteVersion('@Model.PluginId', '@Model.VersionId')">Delete</button>
+            <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId', 'InReview')">Submit</button>
+            <button class="btn pa-admin-outline-success-btn" onclick="SaveVersion('@Model.PluginId','Draft')">Save as draft</button>
+        }
+        else
+        {
+            if (Model.VersionStatus.Equals(Status.InReview))
+            {
+                if (User.IsInRole("Administrator"))
+                {
+                    <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId', 'Active')">Approve</button>
+                }
+            }
+            else
+            {
+                <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId')">Save</button>
+            }
         }
     </div>
 </div>

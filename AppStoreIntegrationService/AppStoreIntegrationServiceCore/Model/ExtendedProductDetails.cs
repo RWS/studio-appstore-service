@@ -9,7 +9,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public ExtendedProductDetails(ProductDetails product) : base(product) { }
         [JsonIgnore]
         public MultiSelectList ParentProductsListItems { get; set; }
-        public void SetParentProductsList(List<ParentProduct> parents)
+        public void SetParentProductsList(IEnumerable<ParentProduct> parents)
         {
             ParentProductsListItems = new MultiSelectList
             (

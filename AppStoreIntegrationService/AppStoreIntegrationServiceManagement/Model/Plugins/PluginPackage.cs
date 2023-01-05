@@ -14,25 +14,31 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
         public RequiredProduct RequiredProduct { get; set; }
         public string Author { get; set; }
 
-        public object CreatePluginMatchLog(ExtendedPluginDetails plugin, out bool isFullMatch)
+        public (bool, bool) CreatePluginMatchLog(PluginDetails<PluginVersion<string>, string> plugin, out bool isFullMatch)
         {
             var isNameMatch = PluginName == plugin.Name;
             var isAuthorMatch = Author == plugin.Developer.DeveloperName;
             isFullMatch = new[] { isNameMatch, isAuthorMatch }.All(match => match);
-            return new { isNameMatch, isAuthorMatch, isFullMatch };
+            return (isNameMatch, isAuthorMatch);
         }
 
-        public object CreateVersionMatchLog(ExtendedPluginVersion version, List<ProductDetails> products, out bool isFullMatch)
+        public VersionManifestComparison CreateVersionMatchLog(ExtendedPluginVersion version, IEnumerable<ProductDetails> products, out bool isFullMatch)
         {
             var isVersionMatch = Version == version.VersionNumber;
             var isMinVersionMatch = RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
             var isMaxVersionMatch = RequiredProduct.MaximumStudioVersion == version.MaximumRequiredVersionOfStudio;
             var isProductMatch = IsProductMatch(version, products);
             isFullMatch = new[] { isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isProductMatch }.All(match => match);
-            return new { isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isFullMatch, isProductMatch };
+            return new VersionManifestComparison
+            {
+                IsVersionMatch = isVersionMatch,
+                IsMinVersionMatch = isMinVersionMatch,
+                IsMaxVersionMatch = isMaxVersionMatch,
+                IsProductMatch = isProductMatch
+            };
         }
 
-        private static bool IsProductMatch(ExtendedPluginVersion version, List<ProductDetails> products)
+        private static bool IsProductMatch(ExtendedPluginVersion version, IEnumerable<ProductDetails> products)
         {
             var selectedProducts = version.SupportedProducts.SelectMany(sp => products.Where(p => p.Id == sp));
             return new[] {
@@ -59,7 +65,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
                 {
                     stream.CopyTo(fileStream);
                 }
-                
+
                 ZipFile.ExtractToDirectory($"{_pluginDownloadPath}/Plugin.sdlplugin", _pluginDownloadPath);
                 var response = ImportFromFile($"{_pluginDownloadPath}/pluginpackage.manifest.xml");
                 Directory.Delete(_pluginDownloadPath, true);
@@ -68,6 +74,11 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
             catch (Exception e)
             {
                 Directory.Delete(_pluginDownloadPath, true);
+                if (e is InvalidDataException)
+                {
+                    throw new Exception("The stream doesn't contain any zip file!");
+                }
+
                 throw new Exception(e.Message);
             }
         }

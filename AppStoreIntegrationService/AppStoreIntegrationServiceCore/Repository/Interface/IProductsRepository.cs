@@ -5,8 +5,8 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface IProductsRepository
     {
-        Task<List<ProductDetails>> GetAllProducts();
-        Task<List<ParentProduct>> GetAllParents();
+        Task<IEnumerable<ProductDetails>> GetAllProducts();
+        Task<IEnumerable<ParentProduct>> GetAllParents();
         Task<ParentProduct> GetParentById(string id);
         Task<ProductDetails> GetProductById(string id);
         Task<bool> TryUpdateProduct(ProductDetails products);

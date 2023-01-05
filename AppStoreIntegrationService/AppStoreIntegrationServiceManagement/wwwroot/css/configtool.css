@@ -393,7 +393,7 @@ input{
 
 .pa-admin-success-btn {
     background-color: var(--pa-admin-success-color);
-    border: var(--pa-admin-success-color);
+    border: 1px solid var(--pa-admin-success-color);
     color: var(--pa-admin-success-foreground);
     font-family: var(--pa-admin-success-fontfamily);
     font-size: var(--pa-admin-success-fontsize)
@@ -401,7 +401,23 @@ input{
 
 .pa-admin-success-btn:hover {
     background-color: var(--pa-admin-success-color-hover);
-    border: var(--pa-admin-success-color-hover);
+    border: 1px solid var(--pa-admin-success-color-hover);
+    color: var(--pa-admin-success-foreground);
+    font-family: var(--pa-admin-success-fontfamily);
+    font-size: var(--pa-admin-success-fontsize)
+}
+
+.pa-admin-outline-success-btn {
+    border: 1px solid var(--pa-admin-success-color);
+    background-color: var(--pa-admin-success-foreground);
+    color: var(--pa-admin-success-color);
+    font-family: var(--pa-admin-success-fontfamily);
+    font-size: var(--pa-admin-success-fontsize)
+}
+
+.pa-admin-outline-success-btn:hover {
+    background-color: var(--pa-admin-success-color);
+    border: 1px solid var(--pa-admin-success-color);
     color: var(--pa-admin-success-foreground);
     font-family: var(--pa-admin-success-fontfamily);
     font-size: var(--pa-admin-success-fontsize)

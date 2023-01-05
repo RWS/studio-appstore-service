@@ -21,7 +21,7 @@
 
             <div class="col-12 col-lg-4">
                 <div class="input-group">
-                    <input type="text" class="form-control form-control-sm" name="q" autocomplete="off" placeholder="Search plugin" aria-label="Search plugin" onkeydown="AddFilterOnEnterKey()">
+                    <input type="text" class="form-control form-control-sm" name="q" autocomplete="off" placeholder="Search plugin" aria-label="Search plugin">
                     <span class="input-group-text p-1 bg-light">
                         <button onclick="this.form.submit()" class="border-0 bg-light"><i aria-label="Submit search" class="fa fa-search filter-search-submit"></i></button>
                     </span>
@@ -88,7 +88,7 @@
                         <div class="col-6 d-flex justify-content-end">
                             <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-pen-alt"></i></a>
                             <a class="btn p-0 fs-inherit">
-                                <i class="far fa-trash-alt cursor-pointer" role="button" aria-label="Delete @plugin.Name" data-bs-toggle="modal" data-bs-target="confirmationModal" onclick="DeletePlugin('@plugin.Id')"></i>
+                                <i class="far fa-trash-alt cursor-pointer" role="button" aria-label="Delete @plugin.Name" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id')"></i>
                             </a>
                         </div>
                     </div>
@@ -101,4 +101,3 @@
 <partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this plugin?" })" />
 
 <script src="~/js/PluginsScript.js"></script>
-<script src="~/js/FilterScript.js"></script>

@@ -105,18 +105,17 @@ function GenerateChecksum() {
     request.send(data);
 }
 
-function SaveVersion(pluginId) {
+function SaveVersion(pluginId, saveAs) {
     let request = new XMLHttpRequest();
     let data = new FormData(document.getElementById("form"));
 
+    if (saveAs) {
+        data.set("VersionStatus", saveAs);
+    }
+
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            AjaxSuccessCallback(request.responseText);
-            let compare = JSON.parse(document.getElementById("ManifestVersionComparison").value)
-            document.getElementById("VersionNumberManifestConflict").hidden = compare.isVersionMatch;
-            document.getElementById("MinVersionManifestConflict").hidden = compare.isMinVersionMatch;
-            document.getElementById("MaxVersionManifestConflict").hidden = compare.isMaxVersionMatch;
-            document.getElementById("ProductManifestConflict").hidden = compare.isProductMatch;
+            window.location.reload();
         }
     }
 

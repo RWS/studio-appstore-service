@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace AppStoreIntegrationServiceCore.Model
@@ -16,18 +15,6 @@ namespace AppStoreIntegrationServiceCore.Model
             foreach (PropertyInfo property in properties)
             {
                 property.SetValue(this, property.GetValue(version));
-            }
-        }
-
-        [Required(ErrorMessage = "Download url is required!")]
-        [Url(ErrorMessage = "Invalid url!")]
-        [JsonIgnore]
-        public string VersionDownloadUrl 
-        { 
-            get => DownloadUrl; 
-            set
-            {
-                DownloadUrl = value;
             }
         }
 

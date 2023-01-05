@@ -44,7 +44,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             var response = new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = await _versionManager.GetVersion(),
-                Value = await _pluginManager.GetPlugins(),
+                Value = await _pluginManager.ReadPlugins(),
                 Products = await _productsManager.ReadProducts(),
                 ParentProducts = await _productsManager.ReadParents(),
                 Categories = await _categoriesManager.ReadCategories()

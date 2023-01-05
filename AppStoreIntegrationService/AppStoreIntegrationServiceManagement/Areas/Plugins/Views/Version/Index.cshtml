@@ -6,8 +6,8 @@
     var selectedVersion = Context.Request.Query["selectedVersion"];
 }
 
-<partial name="_StatusMessage" model="@TempData["StatusMessage"]"/>
-<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this version?" })"/>
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this version?" })" />
 <div id="statusMessageContainer"></div>
 <div id="modalContainer"></div>
 
@@ -19,25 +19,32 @@
     <div class="col-12 col-lg-8 border-container">
         @foreach (var version in Model.versions)
         {
+            if (User.IsInRole("Administrator") && version.VersionStatus.Equals(Status.Draft))
+            {
+                continue;
+            }
+
             <div class="d-flex justify-content-between p-3 border-bottom">
                 <div class="d-flex cursor-pointer w-100" onclick="Show('@version.VersionId', 'Details')">
                     <i class="fa fa-caret-down align-self-center me-2"></i>
-                    <p class="m-0 fw-bold version-number-placeholder">@(version.IsNewVersion ? "New Version" : version.VersionNumber)</p>
+                    <p class="m-0 fw-bold version-number-placeholder align-self-center">@(version.IsNewVersion ? "New Version" : version.VersionNumber)</p>
                 </div>
-                @if(!version.IsNewVersion)
+                @if (!version.IsNewVersion)
                 {
-                    <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId')"></i>
+                    <div class="d-flex justify-content-between">
+                        <div class="px-2 py-1 border rounded me-2">@version.VersionStatus</div>
+                        <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId')"></i>
+                    </div>
                 }
-                
             </div>
 
             <div class="version-details" aria-expanded="false">
-                @if(selectedVersion == version.VersionId && selectedView == "Comments")
+                @if (selectedVersion == version.VersionId && selectedView == "Comments")
                 {
                     <partial name="/Areas/Plugins/Views/Comments/_CommentsPartial.cshtml" model="@(Model.plugin.Id, version.VersionId, version.VersionComments)" />
                 }
 
-                @if(selectedVersion == version.VersionId && selectedView == "Details")
+                @if (selectedVersion == version.VersionId && selectedView == "Details")
                 {
                     <partial name="_PluginVersionDetailsPartial" model="@version" />
                 }

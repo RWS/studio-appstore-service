@@ -2,24 +2,24 @@
 
 <div class="d-flex flex-column align-items-center border-bottom py-3">
     <img alt="@Model.Name" class="img-thumbnail border-0" src="@Model.Icon.MediaUrl" asp-append-version="true" width="250" height="250">
-    <p class="text-center fw-bold p-1 text-wrap">@Model.Name</p>
+    <p class="text-center fw-bold p-1 text-wrap">@(Model.Name ?? "New plugin name")</p>
 
     <div class="d-flex align-content-center col-12 p-0">
-        <p class="col-4 m-0 align-self-center">Status</p>
-        @if (User.IsInRole("Developer"))
+        @if (!User.IsInRole("Developer") && !Model.Status.Equals(Status.InReview))
         {
+            <p class="col-4 m-0 align-self-center">Status</p>
             <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
-                <option value="InReview">InReview</option>
-                <option value="Draft">Draft</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
             </select>
         }
         else
         {
-            <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-                <option value="InReview">InReview</option>
-            </select>
+            if (Model.IsEditMode)
+            {
+                <p class="col-4 m-0 align-self-center">Status</p>
+                <input class="ignore form-control" readonly asp-for="Status" />
+            }
         }
     </div>
 </div>
@@ -30,5 +30,11 @@
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.DetailsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id' })">Plugin details</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.VersionsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id/Versions' })">Plugin versions</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.CommentsNavClass(ViewContext)">Plugin comments</a></li>
+    </ul>
+}
+else
+{
+    <ul class="nav nav-pills flex-column py-3" id="settings-navbar">
+        <li class="nav-item"><a class="nav-link cursor-pointer option active">Plugin details</a></li>
     </ul>
 }

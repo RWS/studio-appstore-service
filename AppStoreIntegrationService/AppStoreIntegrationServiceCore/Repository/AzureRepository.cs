@@ -77,55 +77,55 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await GetResponse())?.APIVersion;
         }
 
-        public async Task<List<CategoryDetails>> ReadCategories()
+        public async Task<IEnumerable<CategoryDetails>> ReadCategories()
         {
             return (await GetResponse())?.Categories;
         }
 
-        public async Task<List<PluginDetails<PluginVersion<string>, string>>> GetPlugins()
+        public async Task<IEnumerable<PluginDetails<PluginVersion<string>, string>>> ReadPlugins()
         {
             return (await GetResponse())?.Value;
         }
 
-        public async Task<List<ProductDetails>> ReadProducts()
+        public async Task<IEnumerable<ProductDetails>> ReadProducts()
         {
             return (await GetResponse())?.Products;
         }
 
-        public async Task<List<ParentProduct>> ReadParents()
+        public async Task<IEnumerable<ParentProduct>> ReadParents()
         {
             return (await GetResponse())?.ParentProducts;
         }
 
-        public async Task SavePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
+        public async Task SavePlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins)
         {
             var response = await GetResponse();
             response.Value = plugins;
             await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
-        public async Task BackupPlugins(List<PluginDetails<PluginVersion<string>, string>> plugins)
+        public async Task BackupPlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins)
         {
             var response = await GetResponse();
             response.Value = plugins;
             await _pluginsBackupBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
-        public async Task SaveProducts(List<ProductDetails> products)
+        public async Task SaveProducts(IEnumerable<ProductDetails> products)
         {
             var response = await GetResponse();
             response.Products = products;
             await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
-        public async Task SaveProducts(List<ParentProduct> products)
+        public async Task SaveProducts(IEnumerable<ParentProduct> products)
         {
             var response = await GetResponse();
             response.ParentProducts = products;
             await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
-        public async Task SaveCategories(List<CategoryDetails> categories)
+        public async Task SaveCategories(IEnumerable<CategoryDetails> categories)
         {
             var response = await GetResponse();
             response.Categories = categories;

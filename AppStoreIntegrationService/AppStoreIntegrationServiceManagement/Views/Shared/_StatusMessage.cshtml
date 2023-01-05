@@ -15,7 +15,6 @@
     </div>
 
     <input value="@TempData["Filehash"]" id="GeneratedFileHash" hidden />
-    <input value="@Html.Raw(Json.Serialize(TempData["ManifestPluginCompare"])).ToString()" id="ManifestPluginComparison" hidden />
     <input value="@Html.Raw(Json.Serialize(TempData["ManifestVersionCompare"])).ToString()" id="ManifestVersionComparison" hidden />
 }
 

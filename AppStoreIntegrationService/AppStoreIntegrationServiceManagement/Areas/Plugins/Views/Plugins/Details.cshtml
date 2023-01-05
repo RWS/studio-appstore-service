@@ -25,7 +25,7 @@
                 <div class="w-100 d-flex flex-column">
                     <input asp-for="Name" class="form-control manifest-field fs-inherit" />
                     <span asp-validation-for="Name" class="text-danger"></span>
-                    <span hidden id="PluginNameManifestConflict" class="text-danger">Plugin manifest conflict! Invalid plugin name!</span>
+                    <span id="PluginNameManifestConflict" class="text-danger" @((bool?)TempData["IsNameMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid plugin name!</span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -48,7 +48,7 @@
                     }
 
                     <span asp-validation-for="@Model.Developer.DeveloperName" class="text-danger"></span>
-                    <span hidden id="DeveloperNameManifestConflict" class="text-danger">Plugin manifest conflict! Invalid developer name!</span>
+                    <span id="DeveloperNameManifestConflict" class="text-danger" @((bool?)TempData["IsAuthorMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid developer name!</span>
                 </div>
             </div>
             <div class="d-flex align-content-center col-12 p-0 mb-3">
@@ -146,7 +146,25 @@
 
             <div id="pluginVersionContainer"></div>
             <div id="modalContainer"></div>
-            <button onclick="SavePlugin()" type="button" class="btn btn-primary pa-admin-success-btn ml-lg-3 text-center me-2 fs-inherit">Save</button>
+            @if (User.IsInRole("Developer"))
+            {
+                <button class="btn pa-admin-success-btn" onclick="SavePlugin('InReview')">Submit</button>
+                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('Draft')">Save as draft</button>
+            }
+            else
+            {
+                if (Model.Status.Equals(Status.InReview))
+                {
+                    if (User.IsInRole("Administrator"))
+                    {
+                        <button class="btn pa-admin-success-btn" onclick="SavePlugin('Active')">Approve</button>
+                    }
+                }
+                else
+                {
+                    <button class="btn pa-admin-success-btn" onclick="SavePlugin()">Save</button>
+                }
+            }
 
         </div>
     </div>

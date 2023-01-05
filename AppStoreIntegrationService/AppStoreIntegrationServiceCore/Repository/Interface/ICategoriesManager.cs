@@ -4,7 +4,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface ICategoriesManager
     {
-        Task SaveCategories(List<CategoryDetails> categories);
-        Task<List<CategoryDetails>> ReadCategories();
+        Task SaveCategories(IEnumerable<CategoryDetails> categories);
+        Task<IEnumerable<CategoryDetails>> ReadCategories();
     }
 }

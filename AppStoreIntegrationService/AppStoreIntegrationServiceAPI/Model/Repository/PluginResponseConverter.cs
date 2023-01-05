@@ -19,7 +19,7 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
             };
         }
 
-        private static PluginDetails<PluginVersion<ProductDetails>, CategoryDetails> ConvertToOldPlugin(PluginDetails<PluginVersion<string>, string> plugin, List<CategoryDetails> categories, List<ProductDetails> products)
+        private static PluginDetails<PluginVersion<ProductDetails>, CategoryDetails> ConvertToOldPlugin(PluginDetails<PluginVersion<string>, string> plugin, IEnumerable<CategoryDetails> categories, IEnumerable<ProductDetails> products)
         {
             var newVersions = new List<PluginVersion<ProductDetails>>();
             foreach (var version in plugin.Versions)
@@ -42,7 +42,7 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
             return newPlugin;
         }
 
-        private static void ConvertToOldVersion(PluginVersion<string> version, List<PluginVersion<ProductDetails>> newVersions, List<ProductDetails> products)
+        private static void ConvertToOldVersion(PluginVersion<string> version, List<PluginVersion<ProductDetails>> newVersions, IEnumerable<ProductDetails> products)
         {
             var oldVersion = new PluginVersion<ProductDetails>
             {

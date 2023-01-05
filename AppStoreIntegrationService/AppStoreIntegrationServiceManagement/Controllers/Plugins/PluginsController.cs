@@ -36,7 +36,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index()
         {
             PluginFilter filter = ApplyFilters();
-            var pluginsList = await _pluginRepository.GetAll(filter.SortOrder, User.IsInRole("Developer") ? User.Identity.Name : null);
+            var pluginsList = await _pluginRepository.GetAll(filter.SortOrder, User);
             var products = await _productsRepository.GetAllProducts();
             var statusFilters = new List<string> { "Active", "Inactive" };
 
@@ -95,7 +95,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Edit(int id)
         {
             var categories = await _categoriesRepository.GetAllCategories();
-            var plugin = await _pluginRepository.GetPluginById(id, User.IsInRole("Developer") ? User.Identity.Name : null);
+            var plugin = await _pluginRepository.GetPluginById(id, User);
 
             if (plugin == null)
             {
@@ -118,38 +118,40 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Save(ExtendedPluginDetails plugin, Status status)
+        public async Task<IActionResult> Save(PluginDetails<PluginVersion<string>, string> plugin, Status status, bool isEditMode)
         {
             try
             {
                 plugin.Status = status;
-                if (plugin.IsEditMode)
+                if (isEditMode)
                 {
-                    await _pluginRepository.UpdatePlugin(new PluginDetails<PluginVersion<string>, string>(plugin));
+                    await _pluginRepository.UpdatePlugin(plugin);
 
-                    if (plugin.DownloadUrl != null)
+                    if (!string.IsNullOrEmpty(plugin.DownloadUrl))
                     {
                         var response = await PluginPackage.DownloadPlugin(plugin.DownloadUrl);
-                        TempData["ManifestPluginCompare"] = response.CreatePluginMatchLog(plugin, out bool isFullMatch);
+                        (TempData["IsNameMatch"], TempData["IsAuthorMatch"]) = response.CreatePluginMatchLog(plugin, out bool isFullMatch);
 
                         if (!isFullMatch)
                         {
-                            return PartialView("_StatusMessage", "Warning! Plugin was saved but there are manifest conflicts!");
+                            TempData["StatusMessage"] = "Warning! Plugin was saved but there are manifest conflicts!";
+                            return new EmptyResult();
                         }
                     }
                 }
                 else
                 {
-                    await _pluginRepository.AddPlugin(new PluginDetails<PluginVersion<string>, string>(plugin));
+                    await _pluginRepository.AddPlugin(plugin);
                 }
 
                 TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
-                return Content($"/Plugins/Edit/{plugin.Id}");
             }
             catch (Exception e)
             {
-                return PartialView("_StatusMessage", string.Format("Error! {0}!", e.Message));
+                TempData["StatusMessage"] = string.Format("Error! {0}!", e.Message);
             }
+
+            return new EmptyResult();
         }
 
         private PluginFilter ApplyFilters()

@@ -65,7 +65,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             return plugins.Select(p => p.Categories.Any(c => c == id)).Any(item => item);
         }
 
-        private static string SetIndex(List<CategoryDetails> categories)
+        private static string SetIndex(IEnumerable<CategoryDetails> categories)
         {
             var lastCategory = categories.MaxBy(c => c.Id);
             if (lastCategory == null)

@@ -63,7 +63,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
-            var inUse = (await _pluginManager.GetPlugins()).SelectMany(p => p.Versions.SelectMany(v => v.SupportedProducts));
+            var inUse = (await _pluginManager.ReadPlugins()).SelectMany(p => p.Versions.SelectMany(v => v.SupportedProducts));
             if (inUse.Any(p => p.Equals(id)))
             {
                 TempData["StatusMessage"] = "Error! This product is used by plugins!";

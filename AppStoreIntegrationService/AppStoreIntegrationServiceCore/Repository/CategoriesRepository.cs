@@ -49,11 +49,11 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task DeleteCategory(string id)
         {
             var categories = await _categoriesManager.ReadCategories() ?? _defaultCategories;
-            categories.Remove(categories.FirstOrDefault(c => c.Id == id));
+            categories.ToList().Remove(categories.FirstOrDefault(c => c.Id == id));
             await _categoriesManager.SaveCategories(categories);
         }
 
-        public async Task<List<CategoryDetails>> GetAllCategories()
+        public async Task<IEnumerable<CategoryDetails>> GetAllCategories()
         {
             return await _categoriesManager.ReadCategories() ?? _defaultCategories;
         }
@@ -66,7 +66,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<bool> TryUpdateCategory(CategoryDetails category)
         {
-            var categories = await _categoriesManager.ReadCategories();
+            var categories = (await _categoriesManager.ReadCategories()).ToList();
             if (categories.Any(c => c.Name == category.Name && c.Id != category.Id))
             {
                 return false;

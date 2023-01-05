@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
@@ -9,8 +10,8 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         Task AddPlugin(PluginDetails<PluginVersion<string>, string> plugin);
         Task UpdatePluginVersion(int pluginId, PluginVersion<string> version);
         Task RemovePluginVersion(int pluginId, string versionId);
-        Task<PluginDetails<PluginVersion<string>, string>> GetPluginById(int id, string developerName = null);
-        List<PluginDetails<PluginVersion<string>, string>> SearchPlugins(List<PluginDetails<PluginVersion<string>, string>> pluginsList, PluginFilter filter, List<ProductDetails> products);
-        Task<List<PluginDetails<PluginVersion<string>, string>>> GetAll(string sortOrder, string developerName = null);
+        Task<PluginDetails<PluginVersion<string>, string>> GetPluginById(int id, ClaimsPrincipal user = null);
+        IEnumerable<PluginDetails<PluginVersion<string>, string>> SearchPlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> pluginsList, PluginFilter filter, IEnumerable<ProductDetails> products);
+        Task<IEnumerable<PluginDetails<PluginVersion<string>, string>>> GetAll(string sortOrder, ClaimsPrincipal user = null);
     }
 }

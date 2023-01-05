@@ -1,8 +1,8 @@
-﻿using AppStoreIntegrationServiceCore.Comparers;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -74,8 +74,12 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonProperty("SDLHosted")]
         public bool SdlHosted { get; set; }
         public bool IsNavigationLink { get; set; }
+        [Required(ErrorMessage = "Download url is required!")]
+        [Url(ErrorMessage = "Invalid url!")]
         public string DownloadUrl { get; set; }
         public bool IsPrivatePlugin { get; set; }
+        [JsonProperty("Status")]
+        public Status VersionStatus { get; set; }
 
         public bool Equals(PluginVersion<T> other)
         {

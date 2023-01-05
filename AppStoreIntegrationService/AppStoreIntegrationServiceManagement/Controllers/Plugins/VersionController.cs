@@ -26,26 +26,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index(int id)
         {
             var selectedVersion = Request.Query["selectedVersion"];
-            var plugin = new ExtendedPluginDetails(await _pluginRepository.GetPluginById(id, User.IsInRole("Developer") ? User.Identity.Name : null))
+            var plugin = new ExtendedPluginDetails(await _pluginRepository.GetPluginById(id, User))
             {
                 Parents = await _productsRepository.GetAllParents(),
                 IsEditMode = true
             };
 
             var products = new MultiSelectList(await _productsRepository.GetAllProducts(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
-            var versions = (await Task.WhenAll(plugin.Versions?.Select(async v => new ExtendedPluginVersion(v) 
-            { 
+            var versions = (await Task.WhenAll(plugin.Versions?.Select(async v => new ExtendedPluginVersion(v)
+            {
                 VersionComments = await _commentsRepository.GetCommentsForVersion(plugin.Name, v.VersionId),
                 SupportedProductsListItems = products,
                 PluginId = id
             }))).ToList();
 
-            string test = versions.Any(v => v.VersionId == selectedVersion) || string.IsNullOrEmpty(selectedVersion) ? Guid.NewGuid().ToString() : selectedVersion;
-            versions.Add(new ExtendedPluginVersion 
-            { 
-                VersionId = test,
+            versions.Add(new ExtendedPluginVersion
+            {
+                VersionId = versions.Any(v => v.VersionId == selectedVersion) || string.IsNullOrEmpty(selectedVersion) ? Guid.NewGuid().ToString() : selectedVersion,
                 SupportedProductsListItems = products,
-                IsNewVersion = true
+                IsNewVersion = true,
+                PluginId = id
             });
             return View((plugin, versions));
         }
@@ -56,12 +56,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             try
             {
                 await _pluginRepository.UpdatePluginVersion(pluginId, version);
-                var response = await PluginPackage.DownloadPlugin(version.VersionDownloadUrl);
-                TempData["ManifestVersionCompare"] = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
+                var response = await PluginPackage.DownloadPlugin(version.DownloadUrl);
+                var log = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
+
+                TempData["IsVersionMatch"] = log.IsVersionMatch;
+                TempData["IsMinVersionMatch"] = log.IsMinVersionMatch;
+                TempData["IsMaxVersionMatch"] = log.IsMaxVersionMatch;
+                TempData["IsProductMatch"] = log.IsProductMatch;
 
                 if (!isFullMatch)
                 {
-                    return PartialView("_StatusMessage", "Warning! Version was saved but there are manifest conflicts!");
+                    TempData["StatusMessage"] = "Warning! Version was saved but there are manifest conflicts!";
+                    return new EmptyResult();
                 }
             }
             catch (Exception e)
@@ -70,15 +76,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             TempData["StatusMessage"] = string.Format("Success! Version was {0}!", version.IsNewVersion ? "added" : "updated");
-            return Content(null);
+            return new EmptyResult();
         }
 
         [HttpPost]
-        public async Task<IActionResult> GenerateChecksum(string versionDownloadUrl)
+        public async Task<IActionResult> GenerateChecksum(string downloadUrl)
         {
             try
             {
-                var remoteReader = new RemoteStreamReader(new Uri(versionDownloadUrl));
+                var remoteReader = new RemoteStreamReader(new Uri(downloadUrl));
                 var filehash = SHA1Generator.GetHash(await remoteReader.ReadAsStreamAsync());
                 TempData["Filehash"] = filehash;
                 return PartialView("_StatusMessage", "Success! Checksum was generated!");

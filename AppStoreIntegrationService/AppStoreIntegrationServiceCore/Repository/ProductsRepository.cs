@@ -44,7 +44,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<bool> TryUpdateProduct(ProductDetails product)
         {
-            var products = await _productsManager.ReadProducts();
+            var products = (await _productsManager.ReadProducts()).ToList();
             if (products.Any(p => p.ProductName == product.ProductName && p.Id != product.Id))
             {
                 return false;
@@ -66,7 +66,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<bool> TryUpdateProduct(ParentProduct parent)
         {
-            var parents = await _productsManager.ReadParents();
+            var parents = (await _productsManager.ReadParents()).ToList();
             if (parents.Any(p => p.ProductName == parent.ProductName && p.Id != parent.Id))
             {
                 return false;
@@ -98,19 +98,19 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _productsManager.SaveProducts(Parents.Where(item => item.Id != id).ToList());
         }
 
-        public async Task<List<ProductDetails>> GetAllProducts()
+        public async Task<IEnumerable<ProductDetails>> GetAllProducts()
         {
             var (Products, _) = await GetProductsFromPossibleLocations();
             return Products;
         }
 
-        public async Task<List<ParentProduct>> GetAllParents()
+        public async Task<IEnumerable<ParentProduct>> GetAllParents()
         {
             var (_, Parents) = await GetProductsFromPossibleLocations();
             return Parents;
         }
 
-        private async Task<(List<ProductDetails> Products, List<ParentProduct> Parents)> GetProductsFromPossibleLocations()
+        private async Task<(IEnumerable<ProductDetails> Products, IEnumerable<ParentProduct> Parents)> GetProductsFromPossibleLocations()
         {
             return (Products: await _productsManager.ReadProducts() ?? _defaultProducts, Parents: await _productsManager.ReadParents() ?? _defaultParentProducts);
         }

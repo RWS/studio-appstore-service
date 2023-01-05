@@ -4,8 +4,8 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface IPluginManager
     {
-        Task<List<PluginDetails<PluginVersion<string>, string>>> GetPlugins();
-        Task SavePlugins(List<PluginDetails<PluginVersion<string>, string>> plugins);
-        Task BackupPlugins(List<PluginDetails<PluginVersion<string>, string>> plugins);
+        Task<IEnumerable<PluginDetails<PluginVersion<string>, string>>> ReadPlugins();
+        Task SavePlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins);
+        Task BackupPlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins);
     }
 }
