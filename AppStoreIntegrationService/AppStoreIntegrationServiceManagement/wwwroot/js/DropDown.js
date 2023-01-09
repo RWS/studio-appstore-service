@@ -5,41 +5,47 @@
     #productsSummary;
     #overflowArrows;
     #filters;
+    #isReadOnly;
 
-    constructor(toggler, menu, aggregator, productsSummary, overflowArrows, filters) {
+    constructor(toggler, menu, aggregator, productsSummary, overflowArrows, filters, isReadOnly) {
         this.#toggler = toggler;
         this.#menu = menu;
         this.#aggregator = aggregator;
         this.#productsSummary = productsSummary;
         this.#overflowArrows = overflowArrows;
         this.#filters = filters;
+        this.#isReadOnly = isReadOnly;
     }
 
     Init() {
-        this.#SortOptions(this.#menu, Array.from(this.#menu.querySelectorAll("li")).find(p => p.hasAttribute("selected")));
-        this.#CreateCollapsedSummary(true);
-        this.#menu.addEventListener('click', e => this.#OptionClickEventListener(e))
-        this.#overflowArrows.forEach(arrow => arrow.addEventListener('click', e => this.#OverflowArrowEventListener(e)))
-        this.#overflowArrows.forEach(arrow => arrow.addEventListener('mouseenter', () => this.#EraseMouseEnterEventListener()))
-        this.#overflowArrows.forEach(arrow => arrow.addEventListener('mouseleave', () => this.#EraseMouseLeaveEventListener()))
+        if (!this.#isReadOnly) {
+            this.#SortOptions(this.#menu, Array.from(this.#menu.querySelectorAll("li")).find(p => p.hasAttribute("selected")));
+            this.#CreateCollapsedSummary(true);
+            this.#menu.addEventListener('click', e => this.#OptionClickEventListener(e))
+            this.#overflowArrows.forEach(arrow => arrow.addEventListener('mouseenter', () => this.#EraseMouseEnterEventListener()))
+            this.#overflowArrows.forEach(arrow => arrow.addEventListener('mouseleave', () => this.#EraseMouseLeaveEventListener()))
 
-        var observer = new MutationObserver(mutations => {
-            mutations.forEach(mutation => {
-                if (mutation.attributeName == "aria-expanded") {
-                    if (mutation.target.ariaExpanded == "true") {
-                        this.#CreateCollapsedSummary(false);
-                        return;
+            var observer = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    if (mutation.attributeName == "aria-expanded") {
+                        if (mutation.target.ariaExpanded == "true") {
+                            this.#CreateCollapsedSummary(false);
+                            return;
+                        }
+
+                        this.#CreateCollapsedSummary(true);
                     }
-
-                    this.#CreateCollapsedSummary(true);
-                }
+                });
             });
-        });
 
-        observer.observe(this.#toggler, {
-            attributes: true,
-            attributeFilter: ['aria-expanded']
-        });
+            observer.observe(this.#toggler, {
+                attributes: true,
+                attributeFilter: ['aria-expanded']
+            });
+        }
+
+        this.#overflowArrows.forEach(arrow => arrow.addEventListener('click', e => this.#OverflowArrowEventListener(e)))
+        this.#TryToggleOverflowArrows();
     }
 
     #CreateCollapsedSummary(isCollapsed) {
@@ -80,7 +86,7 @@
         }
 
         var text = document.createElement('p');
-        text.classList.add('m-0', 'align-middle');
+        text.classList.add('m-0', 'align-middle', 'text-nowrap');
         text.innerText = product.innerText;
         box.append(text, cross);
         this.#productsSummary.append(box);

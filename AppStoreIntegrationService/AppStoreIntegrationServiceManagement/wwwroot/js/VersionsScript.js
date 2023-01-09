@@ -1,6 +1,4 @@
-﻿let parentProducts;
-
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
     $("#form").data('validator', null);
     $.validator.unobtrusive.parse("#form");
 
@@ -38,37 +36,23 @@ function AddComment(pluginId, versionId) {
 }
 
 function SaveComment(pluginId, versionId) {
-    document.getElementById("CommentDescription").value = document.querySelector('.edit-area').innerHTML
     let request = new XMLHttpRequest();
     let data = new FormData(document.getElementById("form"));
+    let button = event.currentTarget;
+    ToggleLoader(button);
 
     request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            DiscardCommentEdit();
+        if (request.readyState == XMLHttpRequest.DONE) {
+            if (request.status == 200) {
+                DiscardCommentEdit();
+            } else {
+                ToggleLoader(button);
+            }
         }
     }
 
     request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}/Update`);
     request.send(data);
-}
-
-function EditComment(commentId) {
-    let url = new URL(window.location.href);
-
-    url.searchParams.set("selectedComment", commentId);
-    window.location.href = url.href;
-}
-
-function DiscardCommentEdit() {
-    let url = new URL(window.location.href);
-
-    if (url.searchParams.has("selectedComment")) {
-        url.searchParams.delete("selectedComment");
-        window.location.href = url.href;
-        return;
-    }
-
-    window.location.reload();
 }
 
 function DeleteComment(pluginId, versionId, commentId) {
@@ -92,11 +76,13 @@ function GenerateChecksum() {
     let spinner = document.querySelector(".spinner-border");
     let data = new FormData(document.getElementById("form"));
     spinner.hidden = false;
+    document.getElementById("FileHash").disabled = true;
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
             AjaxSuccessCallback(request.responseText);
             document.getElementById("FileHash").value = document.getElementById("GeneratedFileHash").value;
+            document.getElementById("FileHash").disabled = false;
             spinner.hidden = true;
         }
     }
@@ -108,19 +94,36 @@ function GenerateChecksum() {
 function SaveVersion(pluginId, saveAs) {
     let request = new XMLHttpRequest();
     let data = new FormData(document.getElementById("form"));
+    let button = event.currentTarget;
+    ToggleLoader(button);
 
     if (saveAs) {
         data.set("VersionStatus", saveAs);
     }
 
     request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            window.location.reload();
+        if (request.readyState == XMLHttpRequest.DONE) {
+            if (request.status == 200) {
+                window.location.reload();
+            } else {
+                ToggleLoader(button);
+            }
         }
     }
 
     request.open("POST", `/Plugins/Edit/${pluginId}/Versions/Save`);
     request.send(data);
+}
+
+function ToggleLoader(element) {
+    if (element.disabled) {
+        element.disabled = false;
+        element.firstElementChild.hidden = true;
+        return;
+    }
+
+    element.disabled = true;
+    element.firstElementChild.hidden = false;
 }
 
 function DeleteVersion(pluginId, versionId) {
@@ -149,20 +152,21 @@ function UpdatePlaceholder() {
     placeholder.innerText = text;
 }
 
-function UpdateCommentDescription() {
-    document.getElementById("CommentDescription").value = event.target.innerHTML;
-}
-
 function AjaxSuccessCallback(actionResult) {
     if (!actionResult.includes("div")) {
         window.location.reload();
         return;
     }
 
-    $('.alert').remove();
-    $('#statusMessageContainer').html(actionResult);
-    $('#statusMessageContainer').find('.modal').modal('show');
-    $(".alert").fadeTo(3000, 500).slideUp(500, function () {
-        $(this).remove();
-    });
+    document.querySelector('.alert').remove();
+    document.getElementById("statusMessageContainer").innerHTML = actionResult;
+    var timeout = new setTimeout(() => {
+        let alert = document.querySelector('.alert')
+        alert.classList.add('slide-up');
+        alert.addEventListener('animationend', () => {
+            alert.remove();
+        })
+    }, 3000);
+
+    clearTimeout(timeout);
 }

@@ -49,7 +49,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             if (!plugins.Any(p => p.Name.Equals(plugin.Name)))
             {
                 await _pluginManager.BackupPlugins(plugins);
-                plugin.Id = plugins.MaxBy(p => p.Id).Id + 1;
+                plugin.Id = plugins?.MaxBy(p => p.Id)?.Id + 1 ?? 0;
                 await _pluginManager.SavePlugins(plugins.Append(plugin));
             }
             else
@@ -115,25 +115,33 @@ namespace AppStoreIntegrationServiceCore.Repository
 
             if (user?.IsInRole("Developer") ?? false)
             {
-                return plugins.Where(p => p.Developer.DeveloperName.Equals(user.Identity.Name));
+                return plugins?.Where(p => p.Developer.DeveloperName.Equals(user.Identity.Name));
             }
 
             if (user?.IsInRole("Administrator") ?? false)
             {
-                return plugins.Where(p => !p.Status.Equals(Status.Draft));
+                return plugins;
             }
 
-            return plugins.Where(p => p.Status.Equals(Status.Active) || p.Status.Equals(Status.Inactive));
+            return plugins?.Where(p => p.Status.Equals(Status.Active) || p.Status.Equals(Status.Inactive));
         }
 
         private static IEnumerable<PluginDetails<PluginVersion<string>, string>> FilterByStatus(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins, Status status)
         {
+            if (status.Equals(Status.Active))
+            {
+                plugins = plugins.Where(x => x.Status.Equals(Status.Active));
+                foreach (var plugin in plugins)
+                {
+                    plugin.Versions = plugin.Versions.Where(v => v.VersionStatus.Equals(Status.Active)).ToList();
+                }
+            }
+
             return status switch
             {
-                Status.Active => plugins.Where(x => x.Status.Equals(Status.Active)),
                 Status.Inactive => plugins.Where(x => x.Status.Equals(Status.Inactive)),
-                Status.Draft => plugins.Where(x => x.Status.Equals(Status.Draft)),
-                Status.InReview => plugins.Where(x => x.Status.Equals(Status.InReview)),
+                Status.Draft => plugins.Where(x => x.Status.Equals(Status.Draft) || x.Versions.Any(v => v.VersionStatus.Equals(Status.Draft))),
+                Status.InReview => plugins.Where(x => x.Status.Equals(Status.InReview) || x.Versions.Any(v => v.VersionStatus.Equals(Status.InReview))),
                 _ => plugins
             };
         }
@@ -189,19 +197,6 @@ namespace AppStoreIntegrationServiceCore.Repository
             return categoryIds.SelectMany(c => pluginsList.Where(p => p.Categories.Any(pc => pc.Equals(c))));
         }
 
-        private static IEnumerable<PluginDetails<PluginVersion<string>, string>> ApplySort(IEnumerable<PluginDetails<PluginVersion<string>, string>> pluginsList, SortType sortType)
-        {
-            return sortType switch
-            {
-                SortType.TopRated => pluginsList.OrderByDescending(p => p.RatingSummary?.AverageOverallRating).ThenBy(p => p.Name),
-                SortType.DownloadCount => pluginsList.OrderByDescending(p => p.DownloadCount).ThenBy(p => p.Name),
-                SortType.ReviewCount => pluginsList.OrderByDescending(p => p.RatingSummary?.RatingsCount).ThenBy(p => p.Name),
-                SortType.LastUpdated => pluginsList.OrderByDescending(p => p.ReleaseDate).ThenBy(p => p.Name),
-                SortType.NewlyAdded => pluginsList.OrderByDescending(p => p.CreatedDate).ThenBy(p => p.Name),
-                _ => pluginsList,
-            };
-        }
-
         public IEnumerable<PluginDetails<PluginVersion<string>, string>> SearchPlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> pluginsList, PluginFilter filter, IEnumerable<ProductDetails> products)
         {
             pluginsList ??= new List<PluginDetails<PluginVersion<string>, string>>();
@@ -232,7 +227,6 @@ namespace AppStoreIntegrationServiceCore.Repository
                 searchedPluginList = FilterByCategory(searchedPluginList, filter.CategoryId);
             }
 
-            searchedPluginList = ApplySort(searchedPluginList, filter.SortBy);
             return searchedPluginList;
         }
 

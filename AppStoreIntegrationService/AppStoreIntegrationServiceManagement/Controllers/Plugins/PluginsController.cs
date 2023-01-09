@@ -15,6 +15,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IPluginRepository _pluginRepository;
         private readonly IProductsRepository _productsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
+        private readonly ICommentsRepository _commentsRepository;
         private readonly IHttpContextAccessor _context;
 
         public PluginsController
@@ -22,13 +23,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             IPluginRepository pluginRepository,
             IHttpContextAccessor context,
             IProductsRepository productsRepository,
-            ICategoriesRepository categoriesRepository
+            ICategoriesRepository categoriesRepository,
+            ICommentsRepository commentsRepository
         )
         {
             _pluginRepository = pluginRepository;
             _context = context;
             _productsRepository = productsRepository;
             _categoriesRepository = categoriesRepository;
+            _commentsRepository = commentsRepository;
         }
 
         [Route("Plugins")]
@@ -40,14 +43,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var products = await _productsRepository.GetAllProducts();
             var statusFilters = new List<string> { "Active", "Inactive" };
 
-            if (User.IsInRole("Developer"))
+            if (!User.IsInRole("StandardUser"))
             {
                 statusFilters.Add("Draft");
-                statusFilters.Add("InReview");
-            }
-
-            if (User.IsInRole("Administrator"))
-            {
                 statusFilters.Add("InReview");
             }
 
@@ -84,8 +82,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return View("Details", new ExtendedPluginDetails
             {
                 Icon = new IconDetails { MediaUrl = GetDefaultIcon() },
-                Developer = new DeveloperDetails { DeveloperName = User.IsInRole("Administrator") ? "" : User.Identity.Name },
+                Developer = new DeveloperDetails { DeveloperName = User.IsInRole("Administrator") ? null : User.Identity.Name },
                 IsEditMode = false,
+                IsThirdParty = User.IsInRole("Developer"),
                 SelectedVersionId = Guid.NewGuid().ToString(),
                 CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
             });
@@ -102,7 +101,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 return NotFound();
             }
 
-            return View("Details", new ExtendedPluginDetails(plugin)
+            var isReadonly = User.IsInRole("Standard") && plugin.IsThirdParty;
+            return View(isReadonly ? "ReadonlyDetails" : "Details", new ExtendedPluginDetails(plugin)
             {
                 IsEditMode = true,
                 CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
@@ -112,7 +112,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
+            var plugin = await _pluginRepository.GetPluginById(id);
             await _pluginRepository.RemovePlugin(id);
+            await _commentsRepository.DeleteComments(plugin.Name);
             TempData["StatusMessage"] = "Success! Plugin was removed!";
             return Content("");
         }
@@ -145,6 +147,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 }
 
                 TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
+                return Content($"/Plugins/Edit/{plugin.Id}");
             }
             catch (Exception e)
             {
@@ -164,6 +167,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             {
                 SortOrder = "asc",
                 Status = Status.All,
+                VersionStatus = Status.All,
                 SupportedProduct = query.ContainsKey(productFilter) ? query[productFilter] : default,
                 Query = query.ContainsKey(searchFilter) ? query[searchFilter] : default
             };

@@ -19,7 +19,7 @@
     <div class="col-12 col-lg-8 border-container">
         @foreach (var version in Model.versions)
         {
-            if (User.IsInRole("Administrator") && version.VersionStatus.Equals(Status.Draft))
+            if (!User.IsInRole("Developer") && version.VersionStatus.Equals(Status.Draft))
             {
                 continue;
             }
@@ -33,7 +33,10 @@
                 {
                     <div class="d-flex justify-content-between">
                         <div class="px-2 py-1 border rounded me-2">@version.VersionStatus</div>
-                        <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId')"></i>
+                        @if (version.IsThirdParty && !User.IsInRole("StandardUser"))
+                        {
+                            <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId')"></i>
+                        }
                     </div>
                 }
             </div>
@@ -46,7 +49,14 @@
 
                 @if (selectedVersion == version.VersionId && selectedView == "Details")
                 {
-                    <partial name="_PluginVersionDetailsPartial" model="@version" />
+                    if (version.IsThirdParty && User.IsInRole("Standard"))
+                    {
+                        <partial name="_ReadonlyVersionPartial" model="@version" />
+                    }
+                    else
+                    {
+                        <partial name="_VersionPartial" model="@version" />
+                    }
                 }
             </div>
         }
@@ -54,10 +64,9 @@
 </form>
 
 <script src="~/js/VersionsScript.js" asp-append-version="true"></script>
-<script src="~/js/DropDown.js" asp-append-version="true"></script>
 <script src="~/js/RichTextEditor.js" asp-append-version="true"></script>
 <script asp-append-version="true">
-    parentProducts = @Html.Raw(Json.Serialize(Model.plugin.Parents));
+    let parentProducts = @Html.Raw(Json.Serialize(Model.plugin.Parents));
 </script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

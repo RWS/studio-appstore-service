@@ -7,39 +7,10 @@ namespace AppStoreIntegrationServiceCore.Repository
     public class ProductsRepository : IProductsRepository
     {
         private readonly IProductsManager _productsManager;
-        private readonly List<ProductDetails> _defaultProducts;
-        private readonly List<ParentProduct> _defaultParentProducts;
 
         public ProductsRepository(IProductsManager productsManager)
         {
             _productsManager = productsManager;
-            _defaultProducts = new List<ProductDetails>
-            {
-                new ProductDetails
-                {
-                    Id = "1",
-                    ProductName = "SDL Trados Studio 2021",
-                    ParentProductID = "1",
-                    MinimumStudioVersion = "16.0"
-                },
-                new ProductDetails
-                {
-                    Id = "2",
-                    ProductName = "Trados Studio 2022",
-                    ParentProductID = "1",
-                    MinimumStudioVersion = "17.0"
-                },
-
-            };
-
-            _defaultParentProducts = new List<ParentProduct>()
-            {
-                new ParentProduct
-                {
-                    Id = "1",
-                    ProductName = "Trados Studio"
-                }
-            };
         }
 
         public async Task<bool> TryUpdateProduct(ProductDetails product)
@@ -112,7 +83,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private async Task<(IEnumerable<ProductDetails> Products, IEnumerable<ParentProduct> Parents)> GetProductsFromPossibleLocations()
         {
-            return (Products: await _productsManager.ReadProducts() ?? _defaultProducts, Parents: await _productsManager.ReadParents() ?? _defaultParentProducts);
+            return (Products: await _productsManager.ReadProducts(), Parents: await _productsManager.ReadParents());
         }
 
         public async Task<ParentProduct> GetParentById(string id)

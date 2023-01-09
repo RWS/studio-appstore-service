@@ -40,7 +40,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<ParentProduct>> ReadParents()
         {
-            return (await GetResponse())?.ParentProducts;
+            return (await GetResponse())?.ParentProducts ?? new List<ParentProduct>();
         }
 
         public async Task<IEnumerable<PluginDetails<PluginVersion<string>, string>>> ReadPlugins()
@@ -50,7 +50,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<ProductDetails>> ReadProducts()
         {
-            return (await GetResponse())?.Products;
+            return (await GetResponse())?.Products ?? new List<ProductDetails>();
         }
 
         public async Task<string> GetVersion()
@@ -60,7 +60,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<CategoryDetails>> ReadCategories()
         {
-            return (await GetResponse())?.Categories;
+            return (await GetResponse())?.Categories ?? new List<CategoryDetails>();
         }
 
         public async Task SaveNames(List<NameMapping> names)
@@ -121,18 +121,18 @@ namespace AppStoreIntegrationServiceCore.Repository
             _options.Value.Name = settings.Name;
         }
 
-        public async Task<IDictionary<string, IDictionary<string, IEnumerable<Comment>>>> ReadComments()
+        public async Task<IDictionary<string, CommentPackage>> ReadComments()
         {
             if (_configurationSettings.CommentsFilePath == null)
             {
-                return new Dictionary<string, IDictionary<string, IEnumerable<Comment>>>();
+                return new Dictionary<string, CommentPackage>();
             }
 
             var content = await File.ReadAllTextAsync(_configurationSettings.CommentsFilePath);
-            return JsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, IEnumerable<Comment>>>>(content) ?? new Dictionary<string, IDictionary<string, IEnumerable<Comment>>>();
+            return JsonConvert.DeserializeObject<IDictionary<string, CommentPackage>>(content) ?? new Dictionary<string, CommentPackage>();
         }
 
-        public async Task UpdateComments(IDictionary<string, IDictionary<string, IEnumerable<Comment>>> comments)
+        public async Task UpdateComments(IDictionary<string, CommentPackage> comments)
         {
             await File.WriteAllTextAsync(_configurationSettings.CommentsFilePath, JsonConvert.SerializeObject(comments));
         }

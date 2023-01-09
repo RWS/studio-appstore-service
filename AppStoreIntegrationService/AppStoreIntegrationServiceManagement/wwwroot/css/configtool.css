@@ -68,12 +68,6 @@ body, html {
     background: var(--pa-admin-body-color);
 }
 
-/* Edit plugin */
-
-.fa-plus{
-    color: var(--pa-admin-color);
-}
-
 /* Sticky alert */
 #alert {
     position: fixed;
@@ -460,6 +454,25 @@ header {
 .draggable {
     position: absolute;
     user-select: none;
+}
+
+/* keyframes */
+
+.slide-right{
+    animation: slide-right 1s ease-in-out forwards;
+    transform-origin: left;
+}
+
+@keyframes slide-right {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(300px);
+    }
 }
 
 /* Responsive */

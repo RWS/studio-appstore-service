@@ -12,6 +12,7 @@
     <input hidden asp-for="IsNewVersion" />
     <input hidden asp-for="PluginId" />
     <input hidden asp-for="VersionStatus" />
+    <input hidden asp-for="IsThirdParty" />
 
     <div id="versionDetails" class="m-0 ml-lg-3 mt-3">
         @for (int i = 0; i < Model.SupportedProducts?.Count; i++)
@@ -75,7 +76,7 @@
             <div class="col-8">
                 <div class="dropdown w-100" id="productsDropdown">
                     <div class="w-100 border rounded p-2 d-flex justify-content-between" role="button" id="dropDownToggle" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="d-flex align-items-center w-100">
+                        <div class="d-flex align-items-center col-11">
                             <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none"></i>
                             <div class="d-flex selection-summary">
                                 Select...
@@ -90,7 +91,7 @@
                         @foreach (var item in Model.SupportedProductsListItems)
                         {
                             var isSelected = Model.SupportedProducts?.Any(p => p.Equals(item.Value)) ?? false;
-                            <li class="dropdown-item" @((bool)isSelected ? "selected" : "") id="@item.Value">@item.Text</li>
+                            <li class="dropdown-item" id="@item.Value" @((bool)isSelected ? "selected" : null)>@item.Text</li>
                         }
                     </ul>
                     <select asp-for="SupportedProducts" hidden multiple="multiple" asp-items="@Model.SupportedProductsListItems"></select>
@@ -99,24 +100,53 @@
                 <span id="ProductManifestConflict" class="text-danger" @((bool?)TempData["IsProductMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid product!</span>
             </div>
         </div>
-        @if (User.IsInRole("Developer"))
+        @if (Model.IsThirdParty)
         {
-            <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId', 'InReview')">Submit</button>
-            <button class="btn pa-admin-outline-success-btn" onclick="SaveVersion('@Model.PluginId','Draft')">Save as draft</button>
+            @if (User.IsInRole("Developer"))
+            {
+                <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId', 'InReview')">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Submit
+                </button>
+                <button class="btn pa-admin-outline-success-btn" onclick="SaveVersion('@Model.PluginId','Draft')">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Save as draft
+                </button>
+            }
+
+            if (User.IsInRole("Administrator"))
+            {
+                @if (Model.VersionStatus.Equals(Status.InReview))
+                {
+                    <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId', 'Active')">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                        Approve
+                    </button>
+                    <button class="btn btn-danger" onclick="SaveVersion('@Model.PluginId', 'Draft')">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                        Reject
+                    </button>
+                }
+                else
+                {
+                    <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId', 'Draft')">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                        Save
+                    </button>
+                }
+            }
         }
         else
         {
-            if (Model.VersionStatus.Equals(Status.InReview))
-            {
-                if (User.IsInRole("Administrator"))
-                {
-                    <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId', 'Active')">Approve</button>
-                }
-            }
-            else
-            {
-                <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId')">Save</button>
-            }
+            <button class="btn pa-admin-success-btn" onclick="SaveVersion('@Model.PluginId')">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Save
+            </button>
         }
     </div>
 </div>
+
+<script asp-append-version="true">
+    let isReadOnly = false
+</script>
+<script src="~/js/DropDown.js" asp-append-version="true"></script>

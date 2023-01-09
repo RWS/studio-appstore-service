@@ -5,7 +5,7 @@
     <p class="text-center fw-bold p-1 text-wrap">@(Model.Name ?? "New plugin name")</p>
 
     <div class="d-flex align-content-center col-12 p-0">
-        @if (!User.IsInRole("Developer") && !Model.Status.Equals(Status.InReview))
+        @if (!User.IsInRole("Developer") && (Model.Status.Equals(Status.Active) || Model.Status.Equals(Status.Inactive)))
         {
             <p class="col-4 m-0 align-self-center">Status</p>
             <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
@@ -29,7 +29,7 @@
     <ul class="nav nav-pills flex-column py-3" id="settings-navbar">
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.DetailsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id' })">Plugin details</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.VersionsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id/Versions' })">Plugin versions</a></li>
-        <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.CommentsNavClass(ViewContext)">Plugin comments</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.ReviewsNavClass(ViewContext)">Plugin reviews</a></li>
     </ul>
 }
 else

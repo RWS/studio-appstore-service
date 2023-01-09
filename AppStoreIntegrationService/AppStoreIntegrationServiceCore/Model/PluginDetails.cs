@@ -44,23 +44,15 @@ namespace AppStoreIntegrationServiceCore.Model
         [EmailAddress(ErrorMessage = "Invalid email address!")]
         public string SupportEmail { get; set; }
         public IconDetails Icon { get; set; }
-        public DateTime? ReleaseDate { get; set; }
-        public int DownloadCount { get; set; }
-        public int CommentCount { get; set; }
-        public string SupportText { get; set; }
         public bool PaidFor { get; set; }
         public Status Status { get; set; }
-        public string Pricing { get; set; }
-        public RatingDetails RatingSummary { get; set; }
         public DeveloperDetails Developer { get; set; }
-        public List<IconDetails> Media { get; set; }
         public List<T> Versions { get; set; } = new List<T>();
         public List<U> Categories { get; set; } = new List<U>();
-
+        public bool IsThirdParty { get; set; }
         [Required(ErrorMessage = "Plugin downoad url is required!")]
         [Url(ErrorMessage = "Invalid url!")]
         public string DownloadUrl { get; set; }
-        public DateTime? CreatedDate { get; set; }
 
         public bool Equals(PluginDetails<T, U> other)
         {
@@ -72,9 +64,7 @@ namespace AppStoreIntegrationServiceCore.Model
                 {
                     "Categories" => Categories.SequenceEqual(other.Categories),
                     "Icon" => Icon.Equals(other.Icon),
-                    "RatingSummary" => RatingSummary?.Equals(other.RatingSummary) ?? true,
                     "Developer" => Developer.Equals(other.Developer),
-                    "Media" => Media?.SequenceEqual(other.Media, new IconEqualityComparer()) ?? true,
                     _ => Equals(property.GetValue(this), property.GetValue(other))
                 };
 

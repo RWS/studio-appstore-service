@@ -23,6 +23,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public DateTime? CreatedDate { get; set; }
         public int DownloadCount { get; set; }
+        public int CommentCount { get; set; }
         [JsonProperty("Id")]
         public string VersionId { get; set; }
         public DateTime? ReleasedDate { get; set; }
@@ -38,6 +39,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public List<T> SupportedProducts { get; set; }
         public bool AppHasStudioPluginInstaller { get; set; }
         [RegularExpression(@"^(\d{1,2}\.)?(\d{1}\.)?(\d{1})$", ErrorMessage = "Invalid version number!")]
+        public bool IsThirdParty { get; set; }
         public string MinimumRequiredVersionOfStudio
         {
             get

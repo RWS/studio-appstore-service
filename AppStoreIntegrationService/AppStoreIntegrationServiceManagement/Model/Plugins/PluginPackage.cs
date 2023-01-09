@@ -76,7 +76,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
                 Directory.Delete(_pluginDownloadPath, true);
                 if (e is InvalidDataException)
                 {
-                    throw new Exception("The stream doesn't contain any zip file!");
+                    throw new Exception("Unable to execute manifest comparison! There is no manifest in the URL!");
                 }
 
                 throw new Exception(e.Message);

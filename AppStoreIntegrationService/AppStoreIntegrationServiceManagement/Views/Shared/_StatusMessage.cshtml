@@ -9,12 +9,14 @@
         _ => "warning"
     };
 
-    <div id="alert" class="alert shadow alert-@statusMessageClass alert-dismissible" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        <p class="text-break m-0">@Model</p>
-    </div>
+    <div class="alert-container">
+        <div id="alert" class="alert shadow alert-@statusMessageClass alert-dismissible" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <p class="text-break m-0">@Model</p>
+        </div>
 
-    <input value="@TempData["Filehash"]" id="GeneratedFileHash" hidden />
-    <input value="@Html.Raw(Json.Serialize(TempData["ManifestVersionCompare"])).ToString()" id="ManifestVersionComparison" hidden />
+        <input value="@TempData["Filehash"]" id="GeneratedFileHash" hidden />
+        <input value="@Html.Raw(Json.Serialize(TempData["ManifestVersionCompare"])).ToString()" id="ManifestVersionComparison" hidden />
+    </div>
 }
 

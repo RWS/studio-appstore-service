@@ -35,18 +35,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var products = new MultiSelectList(await _productsRepository.GetAllProducts(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
             var versions = (await Task.WhenAll(plugin.Versions?.Select(async v => new ExtendedPluginVersion(v)
             {
-                VersionComments = await _commentsRepository.GetCommentsForVersion(plugin.Name, v.VersionId),
+                VersionComments = await _commentsRepository.GetComments(plugin.Name, v.VersionId),
                 SupportedProductsListItems = products,
-                PluginId = id
+                PluginId = id,
+                IsThirdParty = plugin.IsThirdParty
             }))).ToList();
+
+            if (plugin.IsThirdParty && !User.IsInRole("Developer"))
+            {
+                return View((plugin, versions));
+            }
 
             versions.Add(new ExtendedPluginVersion
             {
                 VersionId = versions.Any(v => v.VersionId == selectedVersion) || string.IsNullOrEmpty(selectedVersion) ? Guid.NewGuid().ToString() : selectedVersion,
                 SupportedProductsListItems = products,
                 IsNewVersion = true,
-                PluginId = id
+                PluginId = id,
+                IsThirdParty = plugin.IsThirdParty
             });
+
             return View((plugin, versions));
         }
 
@@ -73,6 +81,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             catch (Exception e)
             {
                 TempData["StatusMessage"] = $"Error! {e.Message}.";
+                return new EmptyResult();
             }
 
             TempData["StatusMessage"] = string.Format("Success! Version was {0}!", version.IsNewVersion ? "added" : "updated");

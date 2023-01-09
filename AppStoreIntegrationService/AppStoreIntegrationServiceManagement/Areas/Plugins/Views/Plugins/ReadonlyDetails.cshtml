@@ -1,0 +1,122 @@
+﻿@model ExtendedPluginDetails
+@{
+    ViewData["Title"] = "Edit";
+    ViewData["ActivePage"] = ManagePluginsNav.Details;
+}
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<div id="modalContainer"></div>
+
+<form method="post" onsubmit="return false" class="row px-2" id="form" enctype="multipart/form-data">
+    <div class="col-12 col-lg-4">
+        <partial name="_PluginsNavPartial" model="@Model" />
+    </div>
+
+    <div class="col-12 col-lg-8 border-container">
+        @if (Model.IsEditMode)
+        {
+            <partial name="_PluginCommentsTab" model="(true, Model.Id)" />
+        }
+
+        <input readonly hidden name="Page" value="@Page.Plugin" />
+        <input readonly hidden asp-for="Id" />
+        <input readonly hidden asp-for="IsEditMode" />
+        <input readonly hidden asp-for="SelectedVersionId" />
+        <input readonly hidden asp-for="IsThirdParty" />
+        <input readonly hidden class="ignore" asp-for="DownloadUrl" />
+
+        <div class="d-flex align-content-center col-12 p-0 mb-3 mt-3">
+            <label class="col-4 m-0 align-self-center form-label" asp-for="Name">Plugin Name <span class="text-danger">*</span></label>
+            <div class="w-100 d-flex flex-column">
+                <input asp-for="Name" class="form-control manifest-field fs-inherit" readonly />
+                <span asp-validation-for="Name" class="text-danger"></span>
+                <span id="PluginNameManifestConflict" class="text-danger" @((bool?)TempData["IsNameMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid plugin name!</span>
+            </div>
+        </div>
+        <div class="d-flex align-content-center col-12 p-0 mb-3">
+            <label class="col-4 m-0 align-self-center form-label" asp-for="@Model.Icon.MediaUrl">Icon url <span class="text-danger">*</span></label>
+            <div class="w-100">
+                <input asp-for="@Model.Icon.MediaUrl" class="form-control fs-inherit" readonly />
+                <span asp-validation-for="@Model.Icon.MediaUrl" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="d-flex align-content-center col-12 p-0 mb-3">
+            <label class="col-4 m-0 align-self-center form-label" asp-for="@Model.Developer.DeveloperName">Developer </label>
+            <div class="w-100">
+                <input asp-for="@Model.Developer.DeveloperName" class="form-control fs-inherit" readonly />
+                <span asp-validation-for="@Model.Developer.DeveloperName" class="text-danger"></span>
+                <span id="DeveloperNameManifestConflict" class="text-danger" @((bool?)TempData["IsAuthorMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid developer name!</span>
+            </div>
+        </div>
+        <div class="d-flex align-content-center col-12 p-0 mb-3">
+            <label class="col-4 m-0 align-self-center form-label" asp-for="ChangelogLink">Changelog link </label>
+            <div class="w-100">
+                <input asp-for="ChangelogLink" class="form-control fs-inherit" readonly />
+                <span asp-validation-for="ChangelogLink" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="d-flex align-content-center col-12 p-0 mb-3">
+            <label class="col-4 m-0 align-self-center form-label" asp-for="SupportUrl">Support url </label>
+            <div class="w-100">
+                <input asp-for="SupportUrl" class="form-control fs-inherit" readonly />
+                <span asp-validation-for="SupportUrl" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="d-flex align-content-center col-12 p-0 mb-3">
+            <label class="col-4 m-0 align-self-center form-label" asp-for="SupportEmail">Support email </label>
+            <div class="w-100">
+                <input asp-for="SupportEmail" class="form-control fs-inherit" readonly />
+                <span asp-validation-for="SupportEmail" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="d-flex align-content-center col-12 p-0 mb-3">
+            <label class="col-4 m-0 align-self-center form-label" asp-for="Description">Description <span class="text-danger">*</span></label>
+            <div class="col-8">
+                <div class="rich-text-editor border rounded">
+                    <div class="edit-area border-0 p-3" contenteditable="false" spellcheck="false" tabindex="0">
+                        @Html.Raw(Model.Description)
+                    </div>
+                </div>
+                <textarea asp-for="Description" class="text-area-hidden"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="d-flex align-content-center col-12 p-0 mb-3">
+            <label class="col-4 m-0 align-self-center p-0" asp-for="Categories">Plugin categories </label>
+            <div class="dropdown col-8 p-0" id="categoriesDropdown">
+                <div class="w-100 border rounded p-2 d-flex justify-content-between overflow-hidden" role="button" aria-expanded="false">
+                    <div class="d-flex align-items-center col-12">
+                        <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories left"></i>
+                        <div class="d-flex selection-summary">
+                            @foreach (var item in Model.CategoryListItems)
+                            {
+                                if (Model.Categories.Any(c => c.Equals(item.Value)))
+                                {
+                                    <span class="border-0 rounded px-1 d-flex me-2">
+                                        <p class="m-0 text-nowrap">@item.Text</p>
+                                        <i class="fa fa-circle align-self-center ms-2 p-1" style="font-size:8px;"></i>
+                                    </span>
+                                }
+                            }
+                        </div>
+                        <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories right"></i>
+                    </div>
+                </div>
+                <select asp-for="Categories" hidden asp-items="@Model.CategoryListItems"></select>
+            </div>
+        </div>
+        <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
+            <label class="col-4 m-0" asp-for="PaidFor">Paid for</label>
+            <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" onclick="return false" />
+        </div>
+    </div>
+</form>
+
+<script asp-append-version="true">let isReadOnly = true</script>
+<script src="~/js/DropDown.js" asp-append-version="true"></script>
+<script src="~/js/PluginDetailsScript.js" asp-append-version="true"></script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+

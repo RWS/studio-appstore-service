@@ -11,6 +11,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public string Price { get; set; }
         public List<int> CategoryId { get; set; }
         public Status Status { get; set; }
+        public Status VersionStatus { get; set; }
         public string SupportedProduct { get; set; }
     }
 }
