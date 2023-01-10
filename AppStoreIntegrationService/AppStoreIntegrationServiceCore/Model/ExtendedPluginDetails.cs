@@ -9,11 +9,6 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public ExtendedPluginDetails(PluginDetails<PluginVersion<string>, string> other)
         {
-            if (other == null)
-            {
-                return;
-            }
-
             var thisProperties = typeof(PluginDetails<ExtendedPluginVersion, string>).GetProperties();
             var otherProperties = typeof(PluginDetails<PluginVersion<string>, string>).GetProperties();
 

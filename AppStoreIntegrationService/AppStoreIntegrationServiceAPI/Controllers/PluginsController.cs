@@ -45,9 +45,9 @@ namespace AppStoreIntegrationServiceAPI.Controllers
                 return Ok(_converter.CreateOldResponse(response).Value);
             }
 
-            if (version == new Version(1, 0, 0))
+            if (version == new Version(2, 0, 0))
             {
-                return Ok(response);
+                return Ok(_converter.CreateBaseResponse(response));
             }
 
             return NotFound();

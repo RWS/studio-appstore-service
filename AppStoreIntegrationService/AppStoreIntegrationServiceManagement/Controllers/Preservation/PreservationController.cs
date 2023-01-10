@@ -68,7 +68,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             var plugin = await _pluginRepository.GetPluginById(version.PluginId, User);
             var saved = plugin?.Versions.FirstOrDefault(v => v.VersionId == version.VersionId);
 
-            if (saved?.Equals(new PluginVersion<string>(version)) ?? true)
+            if (saved?.Equals(version) ?? true)
             {
                 return Content(null);
             }
