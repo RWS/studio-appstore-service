@@ -21,13 +21,8 @@ namespace AppStoreIntegrationServiceCore.Model
             }
         }
 
-        public DateTime? CreatedDate { get; set; }
-        public int DownloadCount { get; set; }
-        public int CommentCount { get; set; }
         [JsonProperty("Id")]
         public string VersionId { get; set; }
-        public DateTime? ReleasedDate { get; set; }
-        public string TechnicalRequirements { get; set; }
         [Required(ErrorMessage = "Version number is required!")]
         [RegularExpression(@"^(\d+\.)?(\d+\.)?(\d+\.)?(\d+)$", ErrorMessage = "Invalid version number!")]
         public string VersionNumber { get; set; }
@@ -73,8 +68,7 @@ namespace AppStoreIntegrationServiceCore.Model
                 _maximumRequiredVersionOfStudio = value;
             }
         }
-        [JsonProperty("SDLHosted")]
-        public bool SdlHosted { get; set; }
+
         public bool IsNavigationLink { get; set; }
         [Required(ErrorMessage = "Download url is required!")]
         [Url(ErrorMessage = "Invalid url!")]

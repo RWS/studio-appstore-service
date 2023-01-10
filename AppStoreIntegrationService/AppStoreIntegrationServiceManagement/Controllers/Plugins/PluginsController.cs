@@ -112,7 +112,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var plugin = await _pluginRepository.GetPluginById(id);
+            var plugin = await _pluginRepository.GetPluginById(id, User);
             await _pluginRepository.RemovePlugin(id);
             await _commentsRepository.DeleteComments(plugin.Name);
             TempData["StatusMessage"] = "Success! Plugin was removed!";

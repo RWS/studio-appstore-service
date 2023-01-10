@@ -1,5 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.Comparers;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using static AppStoreIntegrationServiceCore.Enums;
 
@@ -7,24 +6,6 @@ namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginDetails<T, U> : IEquatable<PluginDetails<T, U>>
     {
-        public PluginDetails() { }
-
-        public PluginDetails(ExtendedPluginDetails other)
-        {
-            var thisProperties = typeof(PluginDetails<T, U>).GetProperties();
-            var otherProperties = typeof(PluginDetails<ExtendedPluginVersion, string>).GetProperties();
-
-            for (var i = 0; i < thisProperties.Length; i++)
-            {
-                if (thisProperties[i].Name != "Versions")
-                {
-                    thisProperties[i].SetValue(this, otherProperties[i].GetValue(other));
-                }
-            }
-
-            Versions = other.Versions?.Cast<T>().ToList();
-        }
-
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Plugin name is required!")]

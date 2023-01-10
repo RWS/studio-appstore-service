@@ -36,7 +36,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
         public async Task<IActionResult> Check
         (
             ExtendedPluginVersion version,
-            ExtendedPluginDetails plugin,
+            PluginDetails<PluginVersion<string>, string> plugin,
             Comment comment,
             CategoryDetails category,
             ParentProduct parent,
@@ -79,11 +79,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             });
         }
 
-        public async Task<IActionResult> Check(ExtendedPluginDetails plugin, Status status)
+        public async Task<IActionResult> Check(PluginDetails<PluginVersion<string>, string> plugin, Status status)
         {
             var saved = await _pluginRepository.GetPluginById(plugin.Id, User);
+            plugin.Status = status;
 
-            if (saved?.Equals(new PluginDetails<PluginVersion<string>, string>(plugin) { Status = status }) ?? true)
+            if (saved?.Equals(plugin) ?? true)
             {
                 return Content(null);
             }
