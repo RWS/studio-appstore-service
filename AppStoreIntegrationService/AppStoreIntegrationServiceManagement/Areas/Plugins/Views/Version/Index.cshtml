@@ -35,7 +35,41 @@
                         <div class="px-2 py-1 border rounded me-2">@version.VersionStatus</div>
                         @if (version.IsThirdParty && !User.IsInRole("StandardUser"))
                         {
-                            <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId')"></i>
+                            if (version.NeedsDeletionApproval)
+                            {
+                                if (User.IsInRole("Administrator"))
+                                {
+                                    <div class="position-relative">
+                                        <div class="btn-group">
+                                            <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                            <div class="dropdown-menu">
+                                                <div class="d-flex p-2">
+                                                    <button class="btn pa-admin-success-btn me-2" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId', true)">Approve</button>
+                                                    <button class="btn btn-danger" onclick="ApproveDeletion('@Model.plugin.Id', '@version.VersionId', false)">Reject</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <i class="fa fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="Deletion approval needed!"></i>
+                                    </div>
+                                }
+
+                                if (User.IsInRole("Developer"))
+                                {
+                                    <div class="position-relative cursor-pointer">
+                                        <i class="fa fa-trash-alt align-self-center"></i>
+                                        <i class="fa fa-clock text-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="Deletion approval pending!"></i>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId', true)"></i>
+                            }
+                        }
+
+                        @if (!version.IsThirdParty)
+                        {
+                            <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId', true)"></i>
                         }
                     </div>
                 }

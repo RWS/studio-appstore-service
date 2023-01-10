@@ -64,6 +64,12 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugins?.FirstOrDefault(p => p.Id.Equals(id));
         }
 
+        public async Task<PluginVersion<string>> GetPluginVersion(int pluginId, string versionId, ClaimsPrincipal user = null)
+        {
+            var plugin = await GetPluginById(pluginId, user);
+            return plugin.Versions.FirstOrDefault(v => v.VersionId.Equals(versionId));
+        }
+
         public async Task RemovePluginVersion(int id, string versionId)
         {
             var plugins = await _pluginManager.ReadPlugins();

@@ -110,9 +110,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, bool deletionApproved)
         {
             var plugin = await _pluginRepository.GetPluginById(id, User);
+
+            if (User.IsInRole("Developer") || (User.IsInRole("Administrator") && !deletionApproved))
+            {
+                plugin.NeedsDeletionApproval = deletionApproved;
+                await _pluginRepository.UpdatePlugin(plugin);
+                TempData["StatusMessage"] = string.Format("Success! Plugin deletion request was {0}!", deletionApproved ? "sent" : "rejected");
+                return Content("");
+            }
+
             await _pluginRepository.RemovePlugin(id);
             await _commentsRepository.DeleteComments(plugin.Name);
             TempData["StatusMessage"] = "Success! Plugin was removed!";

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
-    [Authorize(Policy = "IsAdmin")]
+    [Authorize(Roles = "Administrator, Developer")]
     public class PluginsRenameController : Controller
     {
         private readonly INamesRepository _namesRepository;

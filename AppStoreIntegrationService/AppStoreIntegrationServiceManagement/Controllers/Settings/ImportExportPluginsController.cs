@@ -9,7 +9,6 @@ using System.Text;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
-    [Authorize(Policy = "IsAdmin")]
     [Area("Settings")]
     public class ImportExportPluginsController : Controller
     {
@@ -17,49 +16,56 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         private readonly IProductsManager _productsManager;
         private readonly IVersionManager _versionManager;
         private readonly ICategoriesManager _categoriesManager;
+        private readonly IPluginRepository _pluginRepository;
 
         public ImportExportPluginsController
         (
             IProductsManager productsmanager,
             IVersionManager versionManager,
             ICategoriesManager categoriesManager,
-            IPluginManager pluginManager
+            IPluginManager pluginManager,
+            IPluginRepository pluginRepository
         )
         {
             _productsManager = productsmanager;
             _versionManager = versionManager;
             _categoriesManager = categoriesManager;
             _pluginManager = pluginManager;
+            _pluginRepository = pluginRepository;
         }
 
+        [Authorize(Roles = "Administrator, Developer")]
         [Route("Settings/ExportPlugins")]
         public IActionResult Export()
         {
             return View();
         }
 
+        [Authorize(Roles = "Administrator, Developer")]
         [HttpPost]
         public async Task<IActionResult> CreateExport()
         {
             var response = new PluginResponse<PluginDetails<PluginVersion<string>, string>>
             {
                 APIVersion = await _versionManager.GetVersion(),
-                Value = await _pluginManager.ReadPlugins(),
+                Value = await _pluginRepository.GetAll("asc", User),
                 Products = await _productsManager.ReadProducts(),
                 ParentProducts = await _productsManager.ReadParents(),
                 Categories = await _categoriesManager.ReadCategories()
             };
-            var jsonString = JsonConvert.SerializeObject(response);
-            var stream = Encoding.UTF8.GetBytes(jsonString);
+
+            var stream = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
             return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
         }
 
+        [Authorize(Roles = "Administrator")]
         [Route("Settings/ImportPlugins")]
         public IActionResult Import()
         {
             return View(new ImportPluginsModel());
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         public async Task<IActionResult> CreateImport(ImportPluginsModel import)
         {

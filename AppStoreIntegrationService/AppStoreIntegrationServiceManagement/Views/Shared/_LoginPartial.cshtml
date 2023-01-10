@@ -18,6 +18,13 @@
             </li>
         }
 
+        if (User.IsInRole("Developer"))
+        {
+            <li class="nav-item">
+                <a onclick="EnsurePreserved(() => { window.location.href = '/Settings/ExportPlugins' })" class="nav-link active cursor-pointer header-link">Settings</a>
+            </li>
+        }
+
         <li class="nav-item">
             <a onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Profile' })" class="active nav-link cursor-pointer header-link">Profile</a>
         </li>

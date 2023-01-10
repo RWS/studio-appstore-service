@@ -105,8 +105,17 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Delete/{versionId}")]
-        public async Task<IActionResult> Delete(int pluginId, string versionId)
+        public async Task<IActionResult> Delete(int pluginId, string versionId, bool deletionApproval)
         {
+            if (User.IsInRole("Developer") || (User.IsInRole("Administrator") && !deletionApproval))
+            {
+                var version = await _pluginRepository.GetPluginVersion(pluginId, versionId, User);
+                version.NeedsDeletionApproval = deletionApproval;
+                await _pluginRepository.UpdatePluginVersion(pluginId, version);
+                TempData["StatusMessage"] = string.Format("Success! Version deletion request was {0}!", deletionApproval ? "sent" : "rejected");
+                return Content(null);
+            }
+
             await _pluginRepository.RemovePluginVersion(pluginId, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";
             return Content(null);

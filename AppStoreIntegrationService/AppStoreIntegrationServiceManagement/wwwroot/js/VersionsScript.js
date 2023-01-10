@@ -126,19 +126,25 @@ function ToggleLoader(element) {
     element.firstElementChild.hidden = false;
 }
 
-function DeleteVersion(pluginId, versionId) {
+function DeleteVersion(pluginId, versionId, deletionApproval) {
     document.getElementById('confirmationBtn').onclick = function () {
-        let request = new XMLHttpRequest();
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                window.location.reload();
-            }
-        }
-
-        request.open("POST", `/Plugins/Edit/${pluginId}/Versions/Delete/${versionId}`);
-        request.send();
+        ApproveDeletion(pluginId, versionId, deletionApproval);
     }
+}
+
+function ApproveDeletion(pluginId, versionId, deletionApproval) {
+    let request = new XMLHttpRequest();
+    var data = new FormData();
+    data.set("DeletionApproval", deletionApproval)
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            window.location.reload();
+        }
+    }
+
+    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/Delete/${versionId}`);
+    request.send(data);
 }
 
 function UpdatePlaceholder() {

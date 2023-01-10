@@ -9,6 +9,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public bool IsThirdParty { get; set; }
         [JsonProperty("Status")]
         public Status VersionStatus { get; set; }
+        public bool NeedsDeletionApproval { get; set; }
 
         public bool Equals(PluginVersion<T> other)
         {

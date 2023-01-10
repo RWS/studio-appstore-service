@@ -277,6 +277,13 @@ table {
 
 /* Generic */
 
+.fa-clock,
+.fa-exclamation-circle{
+    position: absolute;
+    top: -10px;
+    right: -17px;
+}
+
 .active-tab{
     border: 1px solid var(--pa-admin-color) !important;
     border-bottom: 0;
