@@ -299,7 +299,7 @@ table {
 
 .btn-danger {
     background-color: var(--pa-admin-danger-color);
-    border: var(--pa-admin-danger-color);
+    border-color: var(--pa-admin-danger-color);
     color: var(--pa-admin-danger-foreground);
     font-family: var(--pa-admin-danger-fontfamily);
     font-size: var(--pa-admin-danger-fontsize)
@@ -307,7 +307,7 @@ table {
 
 .btn-danger:hover {
     background-color: var(--pa-admin-danger-color-hover);
-    border: var(--pa-admin-danger-color-hover);
+    border-color: var(--pa-admin-danger-color-hover);
     color: var(--pa-admin-danger-foreground);
     font-family: var(--pa-admin-danger-fontfamily);
     font-size: var(--pa-admin-danger-fontsize)

@@ -8,6 +8,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public Status Status { get; set; }
         public bool IsThirdParty { get; set; }
         public bool NeedsDeletionApproval { get; set; }
+        public bool HasAdminConsent { get; set; }
         public bool Equals(PluginDetails<T, U> other)
         {
             var properties = typeof(PluginDetails<T, U>).GetProperties().Where(p => !p.Name.Equals("Versions"));

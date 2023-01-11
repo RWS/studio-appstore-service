@@ -1,18 +1,35 @@
 ﻿@model NameMapping
+@inject IPluginRepository pluginRepository
+@{
+    var plugins = await pluginRepository.GetAll("asc", User);
+}
 
 <tr class="table-row d-flex flex-column d-lg-table-row" id="newDataRow">
     <td>
         <div>
-            <input hidden asp-for="@Model.Id" />
+            <input hidden asp-for="Id" />
             <p title="Name mapping id @Model.Id" class="m-0 text-center text-lg-start">@Model.Id</p>
         </div>
     </td>
     <td class="editable-field">
-        <input class="form-control form-control-sm text-center text-lg-start fs-inherit" placeholder="OldName" asp-for="@Model.OldName" autofocus />
+        <input class="form-control form-control-sm text-center text-lg-start fs-inherit" autocomplete="off" list="datalistOptions" placeholder="Type to search..." asp-for="OldName" autofocus>
         <span asp-validation-for="OldName" class="text-danger"></span>
+        <datalist id="datalistOptions">
+            @foreach (var plugin in plugins)
+            {
+                if (Model.OldName.Equals(plugin.Name))
+                {
+                    <option value="@plugin.Name" selected />
+                }
+                else
+                {
+                    <option value="@plugin.Name"/>
+                }
+            }
+        </datalist>
     </td>
     <td class="editable-field">
-        <input class="form-control form-control-sm text-center text-lg-start fs-inherit" placeholder="NewName" asp-for="@Model.NewName" />
+        <input class="form-control form-control-sm text-center text-lg-start fs-inherit" placeholder="NewName" asp-for="NewName" />
         <span asp-validation-for="NewName" class="text-danger"></span>
     </td>
     <td class="icon-cell text-center"><i onclick="table.Save()" title="Save new mapping" class="fa fa-check-circle success-icon cursor-pointer align-middle"></i></td>

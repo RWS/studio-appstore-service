@@ -45,7 +45,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<PluginDetails<PluginVersion<string>, string>>> ReadPlugins()
         {
-            return (await GetResponse())?.Value;
+            return (await GetResponse())?.Value ?? new List<PluginDetails<PluginVersion<string>, string>>();
         }
 
         public async Task<IEnumerable<ProductDetails>> ReadProducts()

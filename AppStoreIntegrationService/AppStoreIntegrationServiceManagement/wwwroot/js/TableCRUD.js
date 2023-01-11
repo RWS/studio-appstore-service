@@ -42,6 +42,10 @@
             let request = new XMLHttpRequest();
             let data = new FormData(document.getElementById("form"));
 
+            for (const pair of data.entries()) {
+                console.log(`${pair[0]}, ${pair[1]}`);
+            }
+
             request.onreadystatechange = () => {
                 if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
                     if (request.responseText.includes('div')) {

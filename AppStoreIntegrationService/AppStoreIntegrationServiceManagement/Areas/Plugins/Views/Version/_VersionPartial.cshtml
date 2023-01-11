@@ -13,6 +13,8 @@
     <input hidden asp-for="PluginId" />
     <input hidden asp-for="VersionStatus" />
     <input hidden asp-for="IsThirdParty" />
+    <input hidden asp-for="NeedsDeletionApproval" />
+    <input hidden asp-for="HasAdminConsent" />
 
     <div id="versionDetails" class="m-0 ml-lg-3 mt-3">
         @for (int i = 0; i < Model.SupportedProducts?.Count; i++)

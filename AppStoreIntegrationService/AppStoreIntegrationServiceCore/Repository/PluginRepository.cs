@@ -126,7 +126,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
             if (user?.IsInRole("Administrator") ?? false)
             {
-                return plugins;
+                return plugins.SkipWhile(p => p.Status.Equals(Status.Draft) && !p.HasAdminConsent);
             }
 
             return plugins?.Where(p => p.Status.Equals(Status.Active) || p.Status.Equals(Status.Inactive));

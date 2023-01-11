@@ -10,16 +10,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     public class PluginsRenameController : Controller
     {
         private readonly INamesRepository _namesRepository;
+        private readonly IPluginRepository _pluginRepository;
 
-        public PluginsRenameController(INamesRepository namesRepository)
+        public PluginsRenameController(INamesRepository namesRepository, IPluginRepository pluginRepository)
         {
             _namesRepository = namesRepository;
+            _pluginRepository = pluginRepository;
         }
 
         [Route("Settings/PluginsRename")]
         public async Task<IActionResult> Index()
         {
-            return View(await _namesRepository.GetAllNameMappings());
+            var plugins = await _pluginRepository.GetAll("asc", User);
+            var names = await _namesRepository.GetAllNameMappings();
+            return View(plugins.SelectMany(p => names.Where(n => n.OldName.Equals(p.Name))));
         }
 
         [HttpPost]

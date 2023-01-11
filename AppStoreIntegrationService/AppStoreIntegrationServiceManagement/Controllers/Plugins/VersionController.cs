@@ -4,6 +4,7 @@ using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -63,6 +64,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             try
             {
+                version.HasAdminConsent = version.HasAdminConsent || version.VersionStatus.Equals(Status.InReview);
                 await _pluginRepository.UpdatePluginVersion(pluginId, version);
                 var response = await PluginPackage.DownloadPlugin(version.DownloadUrl);
                 var log = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
@@ -107,9 +109,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Delete/{versionId}")]
         public async Task<IActionResult> Delete(int pluginId, string versionId, bool deletionApproval)
         {
-            if (User.IsInRole("Developer") || (User.IsInRole("Administrator") && !deletionApproval))
+            var version = await _pluginRepository.GetPluginVersion(pluginId, versionId, User);
+
+            if (User.IsInRole("Developer") && version.HasAdminConsent || 
+               (User.IsInRole("Administrator") && !deletionApproval))
             {
-                var version = await _pluginRepository.GetPluginVersion(pluginId, versionId, User);
                 version.NeedsDeletionApproval = deletionApproval;
                 await _pluginRepository.UpdatePluginVersion(pluginId, version);
                 TempData["StatusMessage"] = string.Format("Success! Version deletion request was {0}!", deletionApproval ? "sent" : "rejected");

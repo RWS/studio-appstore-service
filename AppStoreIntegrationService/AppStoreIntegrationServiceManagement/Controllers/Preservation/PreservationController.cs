@@ -84,7 +84,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             var saved = await _pluginRepository.GetPluginById(plugin.Id, User);
             plugin.Status = status;
 
-            if (saved?.Equals(plugin) ?? true)
+            if (saved?.Equals(plugin) ?? false)
             {
                 return Content(null);
             }

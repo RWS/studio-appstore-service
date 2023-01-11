@@ -9,8 +9,8 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public ExtendedPluginDetails(PluginDetails<PluginVersion<string>, string> other)
         {
-            var thisProperties = typeof(PluginDetails<ExtendedPluginVersion, string>).GetProperties();
-            var otherProperties = typeof(PluginDetails<PluginVersion<string>, string>).GetProperties();
+            var thisProperties = typeof(PluginDetails<ExtendedPluginVersion, string>).GetProperties().OrderBy(p => p.Name).ToArray();
+            var otherProperties = typeof(PluginDetails<PluginVersion<string>, string>).GetProperties().OrderBy(p => p.Name).ToArray();
 
             for (var i = 0; i < thisProperties.Length; i++)
             {

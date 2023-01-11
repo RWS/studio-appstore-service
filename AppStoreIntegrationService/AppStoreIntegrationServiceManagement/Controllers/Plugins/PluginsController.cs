@@ -101,7 +101,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 return NotFound();
             }
 
-            var isReadonly = User.IsInRole("Standard") && plugin.IsThirdParty;
+            var isReadonly = User.IsInRole("StandardUser") && plugin.IsThirdParty;
             return View(isReadonly ? "ReadonlyDetails" : "Details", new ExtendedPluginDetails(plugin)
             {
                 IsEditMode = true,
@@ -114,7 +114,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(id, User);
 
-            if (User.IsInRole("Developer") || (User.IsInRole("Administrator") && !deletionApproved))
+            if (User.IsInRole("Developer") && plugin.HasAdminConsent || 
+               (User.IsInRole("Administrator") && !deletionApproved))
             {
                 plugin.NeedsDeletionApproval = deletionApproved;
                 await _pluginRepository.UpdatePlugin(plugin);
@@ -134,6 +135,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             try
             {
                 plugin.Status = status;
+                plugin.HasAdminConsent = plugin.HasAdminConsent || status.Equals(Status.InReview);
+
                 if (isEditMode)
                 {
                     await _pluginRepository.UpdatePlugin(plugin);

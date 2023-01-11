@@ -86,14 +86,15 @@
                         }
 
                         <div class="col-6 d-flex justify-content-end">
-                            <a class="focus-transparent me-3 text-decor" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-pen-alt"></i></a>
-                            <div class="btn p-0 fs-inherit position-relative d-flex">
-                                @if (plugin.IsThirdParty && !User.IsInRole("StandardUser"))
+
+                            @if (plugin.IsThirdParty && !User.IsInRole("StandardUser"))
+                            {
+                                <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-pen-alt"></i></a>
+                                if (plugin.NeedsDeletionApproval)
                                 {
-                                    if (plugin.NeedsDeletionApproval)
+                                    if (User.IsInRole("Administrator"))
                                     {
-                                        if (User.IsInRole("Administrator"))
-                                        {
+                                        <div class="btn p-0 fs-inherit position-relative d-flex">
                                             <div class="btn-group">
                                                 <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"></i>
                                                 <div class="dropdown-menu">
@@ -104,25 +105,39 @@
                                                 </div>
                                             </div>
                                             <i class="fa fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="Deletion approval needed!"></i>
-                                        }
+                                        </div>
+                                    }
 
-                                        if (User.IsInRole("Developer"))
-                                        {
+                                    if (User.IsInRole("Developer"))
+                                    {
+                                        <div class="btn p-0 fs-inherit position-relative d-flex">
                                             <i class="fa fa-trash-alt align-self-center"></i>
                                             <i class="fa fa-clock cursor-pointer text-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="Deletion approval pending!"></i>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id', true)"></i>
+                                        </div>
                                     }
                                 }
-
-                                @if (!plugin.IsThirdParty)
+                                else
                                 {
-                                    <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id', true)"></i>
+                                    <div class="btn p-0 fs-inherit position-relative d-flex">
+                                        <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id', true)"></i>
+                                    </div>
                                 }
-                            </div>
+                            }
+
+                            @if (plugin.IsThirdParty && User.IsInRole("StandardUser"))
+                            {
+                                <div class="btn p-0 fs-inherit position-relative d-flex">
+                                    <a class="focus-transparent text-secondary" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-eye"></i></a>
+                                </div>
+                            }
+
+                            @if (!plugin.IsThirdParty)
+                            {
+                                <div class="btn p-0 fs-inherit position-relative d-flex">
+                                    <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-pen-alt"></i></a>
+                                    <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id', true)"></i>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
