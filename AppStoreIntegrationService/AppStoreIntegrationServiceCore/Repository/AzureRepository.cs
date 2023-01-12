@@ -10,7 +10,7 @@ using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class AzureRepository : IResponseManager, IPluginManager, IProductsManager, IVersionManager, INamesManager, ICategoriesManager, ISettingsManager, ICommentsManager
+    public class AzureRepository : IResponseManager, IPluginManager, IProductsManager, IVersionManager, INamesManager, ICategoriesManager, ISettingsManager, ICommentsManager, ILogsManager
     {
         private readonly IConfigurationSettings _configurationSettings;
         private readonly BlobRequestOptions _blobRequestOptions;
@@ -19,6 +19,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         private CloudBlockBlob _nameMappingsBlockBlob;
         private CloudBlockBlob _settingsBlockBlob;
         private CloudBlockBlob _commentsBlockBlob;
+        private CloudBlockBlob _logsBlockBlob;
         private CloudBlobContainer _cloudBlobContainer;
 
         public AzureRepository(IConfigurationSettings configurationSettings)
@@ -42,10 +43,10 @@ namespace AppStoreIntegrationServiceCore.Repository
             InitializeBlockBlobs();
         }
 
-        public async Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> GetResponse()
+        public async Task<PluginResponse<PluginDetails>> GetResponse()
         {
             string containerContent = await _pluginsListBlockBlobOptimized.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(containerContent) ?? new PluginResponse<PluginDetails<PluginVersion<string>, string>>();
+            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(containerContent) ?? new PluginResponse<PluginDetails>();
         }
 
         public async Task<List<NameMapping>> ReadNames()
@@ -82,7 +83,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await GetResponse())?.Categories;
         }
 
-        public async Task<IEnumerable<PluginDetails<PluginVersion<string>, string>>> ReadPlugins()
+        public async Task<IEnumerable<PluginDetails>> ReadPlugins()
         {
             return (await GetResponse())?.Value;
         }
@@ -97,14 +98,14 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await GetResponse())?.ParentProducts;
         }
 
-        public async Task SavePlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins)
+        public async Task SavePlugins(IEnumerable<PluginDetails> plugins)
         {
             var response = await GetResponse();
             response.Value = plugins;
             await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
-        public async Task BackupPlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins)
+        public async Task BackupPlugins(IEnumerable<PluginDetails> plugins)
         {
             var response = await GetResponse();
             response.Value = plugins;
@@ -137,6 +138,30 @@ namespace AppStoreIntegrationServiceCore.Repository
             var response = await GetResponse();
             response.APIVersion = version;
             await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+        }
+
+        public async Task<IDictionary<string, CommentPackage>> ReadComments()
+        {
+            var containterContent = await _commentsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+            return JsonConvert.DeserializeObject<IDictionary<string, CommentPackage>>(containterContent) ?? new Dictionary<string, CommentPackage>();
+        }
+
+        public async Task UpdateComments(IDictionary<string, CommentPackage> comments)
+        {
+            var text = JsonConvert.SerializeObject(comments);
+            await _commentsBlockBlob.UploadTextAsync(text);
+        }
+
+        public async Task<IDictionary<int, IEnumerable<Log>>> ReadLogs()
+        {
+            var containterContent = await _logsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+            return JsonConvert.DeserializeObject<IDictionary<int, IEnumerable<Log>>>(containterContent) ?? new Dictionary<int, IEnumerable<Log>>();
+        }
+
+        public async Task UpdateLogs(IDictionary<int, IEnumerable<Log>> logs)
+        {
+            var text = JsonConvert.SerializeObject(logs);
+            await _logsBlockBlob.UploadTextAsync(text);
         }
 
         private CloudStorageAccount GetCloudStorageAccount()
@@ -200,6 +225,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             CreateEmptyFile(_nameMappingsBlockBlob);
             CreateEmptyFile(_settingsBlockBlob);
             CreateEmptyFile(_commentsBlockBlob);
+            CreateEmptyFile(_logsBlockBlob);
         }
 
         private void SetCloudBlockBlobs()
@@ -226,6 +252,11 @@ namespace AppStoreIntegrationServiceCore.Repository
             {
                 _commentsBlockBlob = GetBlockBlobReference(_configurationSettings.CommentsFileName);
             }
+
+            if (!string.IsNullOrEmpty(_configurationSettings.LogsFileName))
+            {
+                _logsBlockBlob = GetBlockBlobReference(_configurationSettings.LogsFileName);
+            }
         }
 
         private void CreateContainer(CloudStorageAccount cloudStorageAccount)
@@ -240,18 +271,6 @@ namespace AppStoreIntegrationServiceCore.Repository
                     PublicAccess = BlobContainerPublicAccessType.Blob
                 });
             }
-        }
-
-        public async Task<IDictionary<string, CommentPackage>> ReadComments()
-        {
-            var containterContent = await _commentsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<IDictionary<string, CommentPackage>>(containterContent) ?? new Dictionary<string, CommentPackage>();
-        }
-
-        public async Task UpdateComments(IDictionary<string, CommentPackage> comments)
-        {
-            var text = JsonConvert.SerializeObject(comments);
-            await _commentsBlockBlob.UploadTextAsync(text);
         }
     }
 }

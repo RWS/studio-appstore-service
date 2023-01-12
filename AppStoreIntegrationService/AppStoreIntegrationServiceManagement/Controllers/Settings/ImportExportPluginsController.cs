@@ -45,7 +45,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> CreateExport()
         {
-            var response = new PluginResponse<PluginDetails<PluginVersion<string>, string>>
+            var response = new PluginResponse<PluginDetails>
             {
                 APIVersion = await _versionManager.GetVersion(),
                 Value = await _pluginRepository.GetAll("asc", User),
@@ -95,7 +95,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             return PartialView("_ModalPartial", modalDetails);
         }
 
-        private static bool TryImportFromFile(IFormFile file, out PluginResponse<PluginDetails<PluginVersion<string>, string>> response)
+        private static bool TryImportFromFile(IFormFile file, out PluginResponse<PluginDetails> response)
         {
             var result = new StringBuilder();
             using (var reader = new StreamReader(file.OpenReadStream()))
@@ -110,7 +110,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             {
                 try
                 {
-                    response = JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(result.ToString());
+                    response = JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(result.ToString());
                     return true;
 
                 }

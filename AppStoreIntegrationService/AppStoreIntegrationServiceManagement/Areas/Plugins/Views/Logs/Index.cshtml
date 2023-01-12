@@ -1,0 +1,81 @@
+﻿@model (ExtendedPluginDetails plugin, List<FilterItem> filters)
+@{
+    ViewData["Title"] = "Log";
+    ViewData["ActivePage"] = ManagePluginsNav.PluginDetails;
+    ViewData["ActiveSubPage"] = ManagePluginsNav.Logs;
+    var dateFrom = Context.Request.Query["FromDate"];
+    var dateTo = Context.Request.Query["ToDate"];
+    var query = Context.Request.Query["Query"];
+}
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+
+<div class="row px-2">
+    <div class="col-12 col-lg-4">
+        <partial name="_PluginsNavPartial" model="@Model.plugin" />
+    </div>
+
+    <div class="col-12 col-lg-8 border-container">
+        <partial name="_PluginSubMenu" model="Model.plugin.Id" />
+        <div class="border-bottom p-3">
+            <form method="get" asp-action="Index" id="form">
+                <div class="container-fluid p-0">
+                    <div class="row">
+                        <div class="d-flex col-7">
+                            <div class="d-flex">
+                                <label class="align-self-center me-2" for="#from">From:</label>
+                                <input class="form-control" type="date" name="FromDate" id="from" value="@dateFrom" />
+                            </div>
+                            <div class="d-flex ms-2">
+                                <label class="align-self-center me-2" for="#to">To:</label>
+                                <input class="form-control" type="date" name="ToDate" id="to" value="@dateTo" />
+                            </div>
+                            <button onclick="this.form.submit()" class="border-0 ms-2 bg-transparent"><i aria-label="Submit search" class="fa fa-search filter-search-submit"></i></button>
+                        </div>
+                        <div class="col-5 d-flex">
+                            <div class="input-group">
+                                <input type="text" class="form-control form-control-sm" name="Query" autocomplete="off" value="@query" placeholder="Search plugin" aria-label="Search plugin">
+                                <span class="input-group-text p-1 bg-light">
+                                    <button onclick="this.form.submit()" class="border-0 bg-light"><i aria-label="Submit search" class="fa fa-search filter-search-submit"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <form method="get">
+                @if (Model.filters.Any(x => x.IsSelected))
+                {
+                    <div class="container-fluid mt-3 p-0 px-3">
+                        <div class="row">
+                            <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white" href="@Url.Action("Index")">
+                                <i class="fa fa-times-circle"></i>
+                                Clear all
+                            </a>
+                            @foreach (var item in Model.filters)
+                            {
+                                if (item.IsSelected)
+                                {
+                                    <label for="@item.Id" class="delete-filter me-1 delete-filter-active cursor-pointer">
+                                        <i class="fa fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear @item.Id filter"></i>
+                                        @item.Label
+                                        <input type="checkbox" name="@item.Id" id="@item.Id" value="@item.Value" onchange="this.form.submit()" checked hidden />
+                                    </label>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </form>
+        </div>
+        
+        <div>
+            @foreach (var item in Model.plugin.Logs)
+            {
+                <div contenteditable="false" class="p-3 border-bottom">
+                    @Html.Raw(item.Description)
+                </div>
+            }
+        </div>
+    </div>
+</div>

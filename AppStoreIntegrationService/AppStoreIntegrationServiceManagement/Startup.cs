@@ -56,6 +56,7 @@ namespace AppStoreIntegrationServiceManagement
                 services.AddSingleton<ICategoriesManager, AzureRepository>();
                 services.AddSingleton<ISettingsManager, AzureRepository>();
                 services.AddSingleton<ICommentsManager, AzureRepository>();
+                services.AddSingleton<ILogsManager, AzureRepository>();
             }
             else
             {
@@ -67,6 +68,7 @@ namespace AppStoreIntegrationServiceManagement
                 services.AddSingleton<ICategoriesManager, LocalRepository>();
                 services.AddSingleton<ISettingsManager, LocalRepository>();
                 services.AddSingleton<ICommentsManager, LocalRepository>();
+                services.AddSingleton<ILogsManager, LocalRepository>();
                 services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
                 services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
             }
@@ -77,6 +79,7 @@ namespace AppStoreIntegrationServiceManagement
             services.AddSingleton<IProductsRepository, ProductsRepository>();
             services.AddSingleton<INamesRepository, NamesRepository>();
             services.AddSingleton<ICommentsRepository, CommentsRepository>();
+            services.AddSingleton<ILoggingRepository, LoggingRepository>();
             services.AddSingleton<CustomizationHelper>();
 
             services.AddAuthorization(options =>

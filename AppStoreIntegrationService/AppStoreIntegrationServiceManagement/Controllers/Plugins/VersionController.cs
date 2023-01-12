@@ -4,6 +4,7 @@ using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NuGet.Protocol.Plugins;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -15,12 +16,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IPluginRepository _pluginRepository;
         private readonly IProductsRepository _productsRepository;
         private readonly ICommentsRepository _commentsRepository;
+        private readonly ILoggingRepository _loggingRepository;
 
-        public VersionController(IPluginRepository pluginRepository, IProductsRepository productsRepository, ICommentsRepository commentsRepository)
+        public VersionController
+        (
+            IPluginRepository pluginRepository,
+            IProductsRepository productsRepository,
+            ICommentsRepository commentsRepository,
+            ILoggingRepository loggingRepository
+        )
         {
             _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
             _commentsRepository = commentsRepository;
+            _loggingRepository = loggingRepository;
         }
 
         [HttpGet("/Plugins/Edit/{id}/Versions")]
@@ -60,11 +69,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Save")]
-        public async Task<IActionResult> Save(ExtendedPluginVersion version, int pluginId)
+        public async Task<IActionResult> Save(PluginVersion version, bool isNewVersion, int pluginId)
         {
             try
             {
                 version.HasAdminConsent = version.HasAdminConsent || version.VersionStatus.Equals(Status.InReview);
+                var old = await _pluginRepository.GetPluginVersion(pluginId, version.VersionId, User);
+                await _loggingRepository.Log(User, pluginId, new PluginVersionBase<string>(version), old == null ? old : new PluginVersionBase<string>(old));
                 await _pluginRepository.UpdatePluginVersion(pluginId, version);
                 var response = await PluginPackage.DownloadPlugin(version.DownloadUrl);
                 var log = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
@@ -86,7 +97,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 return new EmptyResult();
             }
 
-            TempData["StatusMessage"] = string.Format("Success! Version was {0}!", version.IsNewVersion ? "added" : "updated");
+            TempData["StatusMessage"] = string.Format("Success! Version was {0}!", isNewVersion ? "added" : "updated");
             return new EmptyResult();
         }
 
@@ -111,7 +122,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var version = await _pluginRepository.GetPluginVersion(pluginId, versionId, User);
 
-            if (User.IsInRole("Developer") && version.HasAdminConsent || 
+            if (User.IsInRole("Developer") && version.HasAdminConsent ||
                (User.IsInRole("Administrator") && !deletionApproval))
             {
                 version.NeedsDeletionApproval = deletionApproval;
@@ -120,6 +131,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 return Content(null);
             }
 
+            await _loggingRepository.Log(User, pluginId, $"<b>{User.Identity.Name}</b> removed the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}");
             await _pluginRepository.RemovePluginVersion(pluginId, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";
             return Content(null);

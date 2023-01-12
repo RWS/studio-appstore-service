@@ -1,7 +1,8 @@
 ﻿@model ExtendedPluginDetails
 @{
     ViewData["Title"] = "Edit";
-    ViewData["ActivePage"] = ManagePluginsNav.Details;
+    ViewData["ActivePage"] = ManagePluginsNav.PluginDetails;
+    ViewData["ActiveSubPage"] = ManagePluginsNav.Details;
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
@@ -16,7 +17,7 @@
     <div class="col-12 col-lg-8 border-container">
         @if (Model.IsEditMode)
         {
-            <partial name="_PluginCommentsTab" model="(true, Model.Id)" />
+            <partial name="_PluginSubMenu" model="Model.Id" />
         }
         
         <input readonly hidden name="Page" value="@Page.Plugin" />
@@ -29,7 +30,10 @@
         <input readonly hidden class="ignore" asp-for="DownloadUrl" />
 
         <div class="d-flex align-content-center col-12 p-0 mb-3 mt-3">
-            <label class="col-4 m-0 align-self-center form-label" asp-for="Name">Plugin Name <span class="text-danger">*</span></label>
+            <div class="d-flex col-4 ">
+                <label class="m-0 align-self-center form-label" asp-for="Name"></label>
+                <span class="text-danger align-self-center ms-1">*</span>
+            </div>
             <div class="w-100 d-flex flex-column">
                 <input asp-for="Name" class="form-control manifest-field fs-inherit" />
                 <span asp-validation-for="Name" class="text-danger"></span>
@@ -37,14 +41,17 @@
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0 align-self-center form-label" asp-for="@Model.Icon.MediaUrl">Icon url <span class="text-danger">*</span></label>
+            <div class="d-flex col-4">
+                <label class="m-0 align-self-center form-label" asp-for="@Model.Icon.MediaUrl"></label>
+                <span class="text-danger align-self-center ms-1">*</span>
+            </div>
             <div class="w-100">
                 <input asp-for="@Model.Icon.MediaUrl" class="form-control fs-inherit" />
                 <span asp-validation-for="@Model.Icon.MediaUrl" class="text-danger"></span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0 align-self-center form-label" asp-for="@Model.Developer.DeveloperName">Developer </label>
+            <label class="col-4 m-0 align-self-center form-label" asp-for="@Model.Developer.DeveloperName"></label>
             <div class="w-100">
                 @if (Model.IsThirdParty)
                 {
@@ -60,28 +67,31 @@
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0 align-self-center form-label" asp-for="ChangelogLink">Changelog link </label>
+            <label class="col-4 m-0 align-self-center form-label" asp-for="ChangelogLink"></label>
             <div class="w-100">
                 <input asp-for="ChangelogLink" class="form-control fs-inherit" />
                 <span asp-validation-for="ChangelogLink" class="text-danger"></span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0 align-self-center form-label" asp-for="SupportUrl">Support url </label>
+            <label class="col-4 m-0 align-self-center form-label" asp-for="SupportUrl"></label>
             <div class="w-100">
                 <input asp-for="SupportUrl" class="form-control fs-inherit" />
                 <span asp-validation-for="SupportUrl" class="text-danger"></span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0 align-self-center form-label" asp-for="SupportEmail">Support email </label>
+            <label class="col-4 m-0 align-self-center form-label" asp-for="SupportEmail"></label>
             <div class="w-100">
                 <input asp-for="SupportEmail" class="form-control fs-inherit" />
                 <span asp-validation-for="SupportEmail" class="text-danger"></span>
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0 align-self-center form-label" asp-for="Description">Description <span class="text-danger">*</span></label>
+            <div class="d-flex col-4 ">
+                <label class="m-0 align-self-center form-label" asp-for="Description"></label>
+                <span class="text-danger align-self-center ms-1">*</span>
+            </div>
             <div class="col-8">
                 <div class="rich-text-editor border rounded">
                     <div class="editor-toolbar d-flex justify-content-between border-bottom p-3 sticky-top">
@@ -125,7 +135,10 @@
             </div>
         </div>
         <div class="d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0 align-self-center p-0" asp-for="Categories">Plugin categories </label>
+            <div class="d-flex col-4 ">
+                <label class="m-0 align-self-center p-0" asp-for="Categories"></label>
+                <span class="text-danger align-self-center ms-1">*</span></span>
+            </div>
             <div class="dropdown col-8 p-0" id="categoriesDropdown">
                 <div class="w-100 border rounded p-2 d-flex justify-content-between overflow-hidden" role="button" id="dropDownToggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                     <div class="d-flex align-items-center col-11">
@@ -148,7 +161,7 @@
             </div>
         </div>
         <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
-            <label class="col-4 m-0" asp-for="PaidFor">Paid for</label>
+            <label class="col-4 m-0" asp-for="PaidFor"></label>
             <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" />
         </div>
 

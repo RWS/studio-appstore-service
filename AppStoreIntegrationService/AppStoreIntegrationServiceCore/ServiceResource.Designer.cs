@@ -61,6 +61,15 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;li&gt;The value for &lt;b&gt;{0}&lt;/b&gt; was changed from &lt;i&gt;[{1}]&lt;/i&gt; to &lt;i&gt;[{2}]&lt;/i&gt;&lt;/li&gt;.
+        /// </summary>
+        public static string ArrayLogString {
+            get {
+                return ResourceManager.GetString("ArrayLogString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to APPSTOREINTEGRATION_BLOBNAME.
         /// </summary>
         public static string BlobName {
@@ -98,11 +107,47 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_LOGSFILENAME.
+        /// </summary>
+        public static string LogsFileName {
+            get {
+                return ResourceManager.GetString("LogsFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;li&gt;The value for &lt;b&gt;{0}&lt;/b&gt; was changed from &lt;i&gt;{1}&lt;/i&gt; to &lt;i&gt;{2}&lt;/i&gt;&lt;/li&gt;.
+        /// </summary>
+        public static string LogString {
+            get {
+                return ResourceManager.GetString("LogString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to APPSTOREINTEGRATION_MAPPINGFILENAME.
         /// </summary>
         public static string MappingFileName {
             get {
                 return ResourceManager.GetString("MappingFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; made a change to {1} at {2}&lt;br&gt;&lt;br&gt;&lt;p&gt;The following changes occured:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;.
+        /// </summary>
+        public static string NewPluginLogString {
+            get {
+                return ResourceManager.GetString("NewPluginLogString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; made a change to this plugin at {1}&lt;br&gt;&lt;br&gt;&lt;p&gt;The version with number {2} has changed:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;.
+        /// </summary>
+        public static string NewVersionLogString {
+            get {
+                return ResourceManager.GetString("NewVersionLogString", resourceCulture);
             }
         }
         

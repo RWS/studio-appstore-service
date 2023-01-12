@@ -14,7 +14,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
         public RequiredProduct RequiredProduct { get; set; }
         public string Author { get; set; }
 
-        public (bool, bool) CreatePluginMatchLog(PluginDetails<PluginVersion<string>, string> plugin, out bool isFullMatch)
+        public (bool, bool) CreatePluginMatchLog(PluginDetails plugin, out bool isFullMatch)
         {
             var isNameMatch = PluginName == plugin.Name;
             var isAuthorMatch = Author == plugin.Developer.DeveloperName;
@@ -22,7 +22,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
             return (isNameMatch, isAuthorMatch);
         }
 
-        public VersionManifestComparison CreateVersionMatchLog(ExtendedPluginVersion version, IEnumerable<ProductDetails> products, out bool isFullMatch)
+        public VersionManifestComparison CreateVersionMatchLog(PluginVersion version, IEnumerable<ProductDetails> products, out bool isFullMatch)
         {
             var isVersionMatch = Version == version.VersionNumber;
             var isMinVersionMatch = RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
@@ -38,7 +38,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
             };
         }
 
-        private static bool IsProductMatch(ExtendedPluginVersion version, IEnumerable<ProductDetails> products)
+        private static bool IsProductMatch(PluginVersion version, IEnumerable<ProductDetails> products)
         {
             var selectedProducts = version.SupportedProducts.SelectMany(sp => products.Where(p => p.Id == sp));
             return new[] {

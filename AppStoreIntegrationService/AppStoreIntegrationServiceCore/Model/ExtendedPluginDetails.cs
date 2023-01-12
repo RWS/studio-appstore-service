@@ -1,26 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System.Reflection;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class ExtendedPluginDetails : PluginDetails<ExtendedPluginVersion, string>
+    public class ExtendedPluginDetails : PluginDetails
     {
         public ExtendedPluginDetails() : base() { }
 
-        public ExtendedPluginDetails(PluginDetails<PluginVersion<string>, string> other)
+        public ExtendedPluginDetails(PluginDetails other)
         {
-            var thisProperties = typeof(PluginDetails<ExtendedPluginVersion, string>).GetProperties().OrderBy(p => p.Name).ToArray();
-            var otherProperties = typeof(PluginDetails<PluginVersion<string>, string>).GetProperties().OrderBy(p => p.Name).ToArray();
-
-            for (var i = 0; i < thisProperties.Length; i++)
+            PropertyInfo[] properties = typeof(PluginDetails).GetProperties();
+            foreach (PropertyInfo property in properties)
             {
-                if (thisProperties[i].Name != "Versions")
-                {
-                    thisProperties[i].SetValue(this, otherProperties[i].GetValue(other));
-                }
+                property.SetValue(this, property.GetValue(other));
             }
-
-            Versions = other.Versions?.Select(v => new ExtendedPluginVersion(v)).ToList();
         }
 
         [JsonIgnore]
@@ -31,6 +26,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public string SelectedVersionId { get; set; }
         [JsonIgnore]
         public IEnumerable<Comment> Comments { get; set; }
+        public IEnumerable<Log> Logs { get; set; }
         [JsonIgnore]
         public IEnumerable<ParentProduct> Parents { get; set; }
     }

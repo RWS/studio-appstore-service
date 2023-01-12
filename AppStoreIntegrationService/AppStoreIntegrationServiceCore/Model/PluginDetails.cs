@@ -3,15 +3,15 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class PluginDetails<T, U> : PluginDetailsBase<T, U>, IEquatable<PluginDetails<T, U>>
+    public class PluginDetails : PluginDetailsBase<PluginVersion, string>, IEquatable<PluginDetails>
     {
         public Status Status { get; set; }
         public bool IsThirdParty { get; set; }
         public bool NeedsDeletionApproval { get; set; }
         public bool HasAdminConsent { get; set; }
-        public bool Equals(PluginDetails<T, U> other)
+        public bool Equals(PluginDetails other)
         {
-            var properties = typeof(PluginDetails<T, U>).GetProperties().Where(p => !p.Name.Equals("Versions"));
+            var properties = typeof(PluginDetails).GetProperties().Where(p => !p.Name.Equals("Versions"));
 
             foreach (PropertyInfo property in properties)
             {

@@ -21,6 +21,8 @@ namespace AppStoreIntegrationServiceCore.Repository
         public string PluginsFileBackUpPath { get; set; }
         public string SettingsFileName { get; set; }
         public string CommentsFileName { get; set; }
+        public string LogsFilePath { get; set; }
+        public string LogsFileName { get; set; }
 
         public ConfigurationSettings(DeployMode deployMode)
         {
@@ -49,6 +51,11 @@ namespace AppStoreIntegrationServiceCore.Repository
             if (!string.IsNullOrEmpty(CommentsFileName))
             {
                 CommentsFilePath = Path.Combine(ConfigFolderPath, CommentsFileName);
+            }
+
+            if (!string.IsNullOrEmpty(LogsFileName))
+            {
+                LogsFilePath = Path.Combine(ConfigFolderPath, LogsFileName);
             }
 
             if (!string.IsNullOrEmpty(PluginsFileName))
@@ -80,6 +87,11 @@ namespace AppStoreIntegrationServiceCore.Repository
                     await File.Create(CommentsFilePath).DisposeAsync();
                 }
 
+                if (!string.IsNullOrEmpty(LogsFilePath) && !File.Exists(LogsFilePath))
+                {
+                    await File.Create(LogsFilePath).DisposeAsync();
+                }
+
                 if (!string.IsNullOrEmpty(PluginsFileBackUpPath) && !File.Exists(PluginsFileBackUpPath))
                 {
                     await File.Create(PluginsFileBackUpPath).DisposeAsync();
@@ -98,6 +110,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             MappingFileName = GetVariable(ServiceResource.MappingFileName);
             SettingsFileName = GetVariable(ServiceResource.SettingsFileName);
             CommentsFileName = GetVariable(ServiceResource.CommentsFileName);
+            LogsFileName = GetVariable(ServiceResource.LogsFileName);
         }
 
         private static string GetVariable(string key)

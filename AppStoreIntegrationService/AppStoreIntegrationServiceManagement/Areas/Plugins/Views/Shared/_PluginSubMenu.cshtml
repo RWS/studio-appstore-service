@@ -1,0 +1,13 @@
+﻿@model int
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @ManagePluginsNav.DetailsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model'})">Details</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @ManagePluginsNav.CommentsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model/Comments'})">Comments</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @ManagePluginsNav.LogsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model/Logs'})">Logs</a>
+    </li>
+</ul>

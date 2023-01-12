@@ -27,7 +27,7 @@
 @if (Model.IsEditMode)
 {
     <ul class="nav nav-pills flex-column py-3" id="settings-navbar">
-        <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.DetailsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id' })">Plugin details</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.PluginDetailsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id' })">Plugin details</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.VersionsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id/Versions' })">Plugin versions</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.ReviewsNavClass(ViewContext)">Plugin reviews</a></li>
     </ul>

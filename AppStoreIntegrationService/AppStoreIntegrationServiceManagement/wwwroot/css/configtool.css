@@ -1,57 +1,47 @@
 :root {
-/* Basic customization */
+    /* Basic customization */
     --pa-admin-color: #28b059;
     --pa-admin-color-hover: #2aa65b;
     --pa-admin-foreground: #FFFFFF;
     --pa-admin-fontsize: 16px;
     --pa-admin-fontfamily: var(--bs-font-sans-serif);
-
-/* Advanced customization */
+    /* Advanced customization */
     --pa-admin-navbar-fontsize: var(--pa-admin-fontsize);
     --pa-admin-navbar-color: var(--pa-admin-color);
     --pa-admin-navbar-foreground: var(--pa-admin-foreground);
     --pa-admin-navbar-fontfamily: var(--pa-admin-fontfamily);
-
     --pa-admin-modal-fontsize: var(--pa-admin-fontsize);
     --pa-admin-modal-color: #FFFFFF;
     --pa-admin-modal-foreground: #000000;
     --pa-admin-modal-fontfamily: var(--pa-admin-fontfamily);
-
     --pa-admin-body-color: #FFFFFF;
     --pa-admin-body-foreground: #000000;
-
     --pa-admin-select-fontsize: var(--pa-admin-fontsize);
     --pa-admin-select-color: var(--pa-admin-color);
     --pa-admin-select-foreground: var(--pa-admin-foreground);
     --pa-admin-select-fontfamily: var(--pa-admin-fontfamily);
-
     --pa-admin-card-fontsize: var(--pa-admin-fontsize);
     --pa-admin-card-color: #FFFFFF;
     --pa-admin-card-foreground: #000000;
     --pa-admin-card-fontfamily: var(--pa-admin-fontfamily);
-
     --pa-admin-table-fontsize: inherit;
     --pa-admin-table-color: #f2f2f2;
     --pa-admin-table-foreground: inherit;
     --pa-admin-table-fontfamily: inherit;
-
     --pa-admin-input-fontsize: var(--pa-admin-fontsize);
     --pa-admin-input-color: #FFFFFF;
     --pa-admin-input-foreground: #000000;
     --pa-admin-input-fontfamily: var(--pa-admin-fontfamily);
-
     --pa-admin-success-fontsize: var(--pa-admin-fontsize);
     --pa-admin-success-color: var(--pa-admin-color);
     --pa-admin-success-foreground: var(--pa-admin-foreground);
     --pa-admin-success-fontfamily: var(--pa-admin-fontfamily);
     --pa-admin-success-color-hover: var(--pa-admin-color-hover);
-
     --pa-admin-secondary-fontsize: var(--pa-admin-fontsize);
     --pa-admin-secondary-color: #6c757d;
     --pa-admin-secondary-foreground: var(--pa-admin-foreground);
     --pa-admin-secondary-fontfamily: var(--pa-admin-fontfamily);
     --pa-admin-secondary-color-hover: #60666c;
-
     --pa-admin-danger-fontsize: var(--pa-admin-fontsize);
     --pa-admin-danger-color: #dc3545;
     --pa-admin-danger-foreground: var(--pa-admin-foreground);
@@ -93,7 +83,7 @@ body, html {
     position: absolute;
 }
 
-.fa-chevron-left{
+.fa-chevron-left {
     left: -25px;
 }
 
@@ -101,22 +91,22 @@ body, html {
     right: -25px;
 }
 
-.selection-summary{
+.selection-summary {
     overflow-x: hidden;
 }
 
-.selection-box{
+.selection-box {
     min-width: fit-content;
 }
 
-.custom-select{
+.custom-select {
     height: min-content;
     max-height: 200px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
-.dropdown{
+.dropdown {
     color: var(--pa-admin-input-foreground);
     background-color: var(--pa-admin-input-color);
     font-size: var(--pa-admin-input-fontsize);
@@ -143,8 +133,8 @@ body, html {
 
 /* Plugins index page */
 
-#form .fa-times-circle{
-    color: var(--pa-admin-foreground);
+.delete-filter .fa-times-circle {
+    color: var(--pa-admin-foreground) !important;
 }
 
 .img-item {
@@ -186,9 +176,9 @@ body, html {
     width: max-content;
 }
 
-.delete-filter:hover {
-    background: var(--pa-admin-color-hover);
-}
+    .delete-filter:hover {
+        background: var(--pa-admin-color-hover);
+    }
 
 .delete-filter-active {
     display: inline-block;
@@ -235,11 +225,11 @@ body, html {
     font-family: var(--pa-admin-input-fontfamily);
 }
 
-.rich-text-editor i:hover,
-.rich-text-editor .dropdown-toggle:hover,
-.active {
-    background-color: lightgray;
-}
+    .rich-text-editor i:hover,
+    .rich-text-editor .dropdown-toggle:hover,
+    .active {
+        background-color: lightgray;
+    }
 
 .edit-area {
     height: 200px;
@@ -278,13 +268,13 @@ table {
 /* Generic */
 
 .fa-clock,
-.fa-exclamation-circle{
+.fa-exclamation-circle {
     position: absolute;
     top: -10px;
     right: -17px;
 }
 
-.active-tab{
+.active-tab {
     border: 1px solid var(--pa-admin-color) !important;
     border-bottom: 0;
     border-top-left-radius: 5px;
@@ -292,6 +282,7 @@ table {
     background-color: var(--pa-admin-color) !important;
     color: white !important;
 }
+
 .fa-trash-alt, .fa-times-circle {
     color: var(--pa-admin-danger-color) !important;
     font-size: var(--pa-admin-danger-fontsize) !important;
@@ -305,15 +296,15 @@ table {
     font-size: var(--pa-admin-danger-fontsize)
 }
 
-.btn-danger:hover {
-    background-color: var(--pa-admin-danger-color-hover);
-    border-color: var(--pa-admin-danger-color-hover);
-    color: var(--pa-admin-danger-foreground);
-    font-family: var(--pa-admin-danger-fontfamily);
-    font-size: var(--pa-admin-danger-fontsize)
-}
+    .btn-danger:hover {
+        background-color: var(--pa-admin-danger-color-hover);
+        border-color: var(--pa-admin-danger-color-hover);
+        color: var(--pa-admin-danger-foreground);
+        font-family: var(--pa-admin-danger-fontfamily);
+        font-size: var(--pa-admin-danger-fontsize)
+    }
 
-.fa-pen-alt{
+.fa-pen-alt {
     color: var(--pa-admin-secondary-color);
     font-size: var(--pa-admin-secondary-fontsize);
 }
@@ -326,15 +317,15 @@ table {
     font-size: var(--pa-admin-secondary-fontsize)
 }
 
-.btn-secondary:hover {
-    background-color: var(--pa-admin-secondary-color-hover);
-    border: var(--pa-admin-secondary-color-hover);
-    color: var(--pa-admin-secondary-foreground);
-    font-family: var(--pa-admin-secondary-fontfamily);
-    font-size: var(--pa-admin-secondary-fontsize)
-}
+    .btn-secondary:hover {
+        background-color: var(--pa-admin-secondary-color-hover);
+        border: var(--pa-admin-secondary-color-hover);
+        color: var(--pa-admin-secondary-foreground);
+        font-family: var(--pa-admin-secondary-fontfamily);
+        font-size: var(--pa-admin-secondary-fontsize)
+    }
 
-input{
+input {
     color: var(--pa-admin-input-foreground) !important;
     background-color: var(--pa-admin-input-color) !important;
     font-size: var(--pa-admin-input-fontsize) !important;
@@ -351,10 +342,10 @@ input{
     font-size: var(--pa-admin-success-fontsize)
 }
 
-.success-icon:hover {
-    color: var(--pa-admin-success-color-hover);
-    font-size: var(--pa-admin-success-fontsize)
-}
+    .success-icon:hover {
+        color: var(--pa-admin-success-color-hover);
+        font-size: var(--pa-admin-success-fontsize)
+    }
 
 .focus-transparent:focus {
     background-color: transparent;
@@ -368,7 +359,7 @@ input{
     font-size: 1em;
 }
 
-.fs1-inherit{
+.fs1-inherit {
     font-size: 2.2em;
 }
 
@@ -400,13 +391,13 @@ input{
     font-size: var(--pa-admin-success-fontsize)
 }
 
-.pa-admin-success-btn:hover {
-    background-color: var(--pa-admin-success-color-hover);
-    border: 1px solid var(--pa-admin-success-color-hover);
-    color: var(--pa-admin-success-foreground);
-    font-family: var(--pa-admin-success-fontfamily);
-    font-size: var(--pa-admin-success-fontsize)
-}
+    .pa-admin-success-btn:hover {
+        background-color: var(--pa-admin-success-color-hover);
+        border: 1px solid var(--pa-admin-success-color-hover);
+        color: var(--pa-admin-success-foreground);
+        font-family: var(--pa-admin-success-fontfamily);
+        font-size: var(--pa-admin-success-fontsize)
+    }
 
 .pa-admin-outline-success-btn {
     border: 1px solid var(--pa-admin-success-color);
@@ -416,13 +407,13 @@ input{
     font-size: var(--pa-admin-success-fontsize)
 }
 
-.pa-admin-outline-success-btn:hover {
-    background-color: var(--pa-admin-success-color);
-    border: 1px solid var(--pa-admin-success-color);
-    color: var(--pa-admin-success-foreground);
-    font-family: var(--pa-admin-success-fontfamily);
-    font-size: var(--pa-admin-success-fontsize)
-}
+    .pa-admin-outline-success-btn:hover {
+        background-color: var(--pa-admin-success-color);
+        border: 1px solid var(--pa-admin-success-color);
+        color: var(--pa-admin-success-foreground);
+        font-family: var(--pa-admin-success-fontfamily);
+        font-size: var(--pa-admin-success-fontsize)
+    }
 
 #settings-navbar .nav-link.active,
 #profile-navbar .nav-link.active,
@@ -442,18 +433,18 @@ header {
     font-size: var(--pa-admin-navbar-fontsize) !important;
 }
 
-.modal-content{
+.modal-content {
     font-size: var(--pa-admin-modal-fontsize);
     font-family: var(--pa-admin-modal-fontfamily);
     color: var(--pa-admin-modal-foreground);
     background-color: var(--pa-admin-modal-color);
 }
 
-.cursor-move{
+.cursor-move {
     cursor: move;
 }
 
-.resizable{
+.resizable {
     resize: both;
     overflow: auto;
 }
@@ -465,7 +456,7 @@ header {
 
 /* keyframes */
 
-.slide-right{
+.slide-right {
     animation: slide-right 1s ease-in-out forwards;
     transform-origin: left;
 }

@@ -32,7 +32,9 @@
         {
             Status = 0,
             Product,
-            Query
+            Query,
+            FromDate,
+            ToDate
         }
 
         public enum ProductType

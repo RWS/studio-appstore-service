@@ -2,10 +2,11 @@
 using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using Newtonsoft.Json;
+using System.Xml.Linq;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class LocalRepository : IResponseManager, IPluginManager, IProductsManager, IVersionManager, INamesManager, ICategoriesManager, ISettingsManager, ICommentsManager
+    public class LocalRepository : IResponseManager, IPluginManager, IProductsManager, IVersionManager, INamesManager, ICategoriesManager, ISettingsManager, ICommentsManager, ILogsManager
     {
         private readonly IConfigurationSettings _configurationSettings;
         private readonly IWritableOptions<SiteSettings> _options;
@@ -16,15 +17,15 @@ namespace AppStoreIntegrationServiceCore.Repository
             _options = options;
         }
 
-        public async Task<PluginResponse<PluginDetails<PluginVersion<string>, string>>> GetResponse()
+        public async Task<PluginResponse<PluginDetails>> GetResponse()
         {
             if (string.IsNullOrEmpty(_configurationSettings.LocalPluginsFilePath))
             {
-                return new PluginResponse<PluginDetails<PluginVersion<string>, string>>();
+                return new PluginResponse<PluginDetails>();
             }
 
             var content = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePath);
-            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails<PluginVersion<string>, string>>>(content) ?? new PluginResponse<PluginDetails<PluginVersion<string>, string>>();
+            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(content) ?? new PluginResponse<PluginDetails>();
         }
 
         public async Task<List<NameMapping>> ReadNames()
@@ -43,9 +44,9 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await GetResponse())?.ParentProducts ?? new List<ParentProduct>();
         }
 
-        public async Task<IEnumerable<PluginDetails<PluginVersion<string>, string>>> ReadPlugins()
+        public async Task<IEnumerable<PluginDetails>> ReadPlugins()
         {
-            return (await GetResponse())?.Value ?? new List<PluginDetails<PluginVersion<string>, string>>();
+            return (await GetResponse())?.Value ?? new List<PluginDetails>();
         }
 
         public async Task<IEnumerable<ProductDetails>> ReadProducts()
@@ -75,7 +76,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
         }
 
-        public async Task SavePlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins)
+        public async Task SavePlugins(IEnumerable<PluginDetails> plugins)
         {
             var response = await GetResponse();
             response.Value = plugins;
@@ -103,7 +104,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
         }
 
-        public async Task BackupPlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins)
+        public async Task BackupPlugins(IEnumerable<PluginDetails> plugins)
         {
             var response = await GetResponse();
             response.Value = plugins;
@@ -135,6 +136,22 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task UpdateComments(IDictionary<string, CommentPackage> comments)
         {
             await File.WriteAllTextAsync(_configurationSettings.CommentsFilePath, JsonConvert.SerializeObject(comments));
+        }
+
+        public async Task<IDictionary<int, IEnumerable<Log>>> ReadLogs()
+        {
+            if (_configurationSettings.LogsFilePath == null)
+            {
+                return new Dictionary<int, IEnumerable<Log>>();
+            }
+
+            var content = await File.ReadAllTextAsync(_configurationSettings.LogsFilePath);
+            return JsonConvert.DeserializeObject<IDictionary<int, IEnumerable<Log>>>(content) ?? new Dictionary<int, IEnumerable<Log>>();
+        }
+
+        public async Task UpdateLogs(IDictionary<int, IEnumerable<Log>> logs)
+        {
+            await File.WriteAllTextAsync(_configurationSettings.LogsFilePath, JsonConvert.SerializeObject(logs));
         }
     }
 }

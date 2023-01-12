@@ -6,6 +6,7 @@ namespace AppStoreIntegrationServiceCore.Model
     public class DeveloperDetails : IEquatable<DeveloperDetails>
     {
         [RegularExpression(@"^(\(?[a-zA-Z]{1,}\)?)( ?(- ?)?\(?[a-zA-Z]{1,}'?[).,]?)*$", ErrorMessage = "Invalid name!")]
+        [Display(Name = "Developer name")]
         public string DeveloperName { get; set; }
         public string DeveloperDescription { get; set; }
         [JsonProperty("DeveloperURL")]

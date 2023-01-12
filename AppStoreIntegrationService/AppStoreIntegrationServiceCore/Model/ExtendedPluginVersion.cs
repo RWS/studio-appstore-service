@@ -5,13 +5,13 @@ using System.Reflection;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
-    public class ExtendedPluginVersion : PluginVersion<string>
+    public class ExtendedPluginVersion : PluginVersion
     {
         public ExtendedPluginVersion() { }
 
-        public ExtendedPluginVersion(PluginVersion<string> version)
+        public ExtendedPluginVersion(PluginVersion version)
         {
-            PropertyInfo[] properties = typeof(PluginVersion<string>).GetProperties();
+            PropertyInfo[] properties = typeof(PluginVersion).GetProperties();
             foreach (PropertyInfo property in properties)
             {
                 property.SetValue(this, property.GetValue(version));

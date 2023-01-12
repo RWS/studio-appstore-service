@@ -15,7 +15,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             _pluginManager = pluginManager;
         }
 
-        public async Task UpdatePlugin(PluginDetails<PluginVersion<string>, string> plugin)
+        public async Task UpdatePlugin(PluginDetails plugin)
         {
             var plugins = (await _pluginManager.ReadPlugins()).ToList();
 
@@ -42,9 +42,9 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _pluginManager.SavePlugins(plugins);
         }
 
-        public async Task AddPlugin(PluginDetails<PluginVersion<string>, string> plugin)
+        public async Task AddPlugin(PluginDetails plugin)
         {
-            var plugins = await _pluginManager.ReadPlugins() ?? new List<PluginDetails<PluginVersion<string>, string>>();
+            var plugins = await _pluginManager.ReadPlugins() ?? new List<PluginDetails>();
 
             if (!plugins.Any(p => p.Name.Equals(plugin.Name)))
             {
@@ -58,13 +58,13 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
         }
 
-        public async Task<PluginDetails<PluginVersion<string>, string>> GetPluginById(int id, ClaimsPrincipal user = null)
+        public async Task<PluginDetails> GetPluginById(int id, ClaimsPrincipal user = null)
         {
             var plugins = await GetAll("asc", user);
             return plugins?.FirstOrDefault(p => p.Id.Equals(id));
         }
 
-        public async Task<PluginVersion<string>> GetPluginVersion(int pluginId, string versionId, ClaimsPrincipal user = null)
+        public async Task<PluginVersion> GetPluginVersion(int pluginId, string versionId, ClaimsPrincipal user = null)
         {
             var plugin = await GetPluginById(pluginId, user);
             return plugin.Versions.FirstOrDefault(v => v.VersionId.Equals(versionId));
@@ -80,7 +80,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _pluginManager.SavePlugins(plugins);
         }
 
-        public async Task UpdatePluginVersion(int id, PluginVersion<string> version)
+        public async Task UpdatePluginVersion(int id, PluginVersion version)
         {
             var plugins = await _pluginManager.ReadPlugins();
             var plugin = plugins.FirstOrDefault(p => p.Id.Equals(id));
@@ -108,7 +108,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _pluginManager.SavePlugins(plugins.Where(p => !p.Id.Equals(id)));
         }
 
-        public async Task<IEnumerable<PluginDetails<PluginVersion<string>, string>>> GetAll(string sortOrder, ClaimsPrincipal user = null)
+        public async Task<IEnumerable<PluginDetails>> GetAll(string sortOrder, ClaimsPrincipal user = null)
         {
             var condition = !string.IsNullOrEmpty(sortOrder) && !sortOrder.Equals("asc", StringComparison.CurrentCultureIgnoreCase);
             var plugins = await _pluginManager.ReadPlugins();
@@ -132,7 +132,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugins?.Where(p => p.Status.Equals(Status.Active) || p.Status.Equals(Status.Inactive));
         }
 
-        private static IEnumerable<PluginDetails<PluginVersion<string>, string>> FilterByStatus(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins, Status status)
+        private static IEnumerable<PluginDetails> FilterByStatus(IEnumerable<PluginDetails> plugins, Status status)
         {
             if (status.Equals(Status.Active))
             {
@@ -152,19 +152,19 @@ namespace AppStoreIntegrationServiceCore.Repository
             };
         }
 
-        private static IEnumerable<PluginDetails<PluginVersion<string>, string>> FilterByQuery(IEnumerable<PluginDetails<PluginVersion<string>, string>> pluginsList, string query)
+        private static IEnumerable<PluginDetails> FilterByQuery(IEnumerable<PluginDetails> pluginsList, string query)
         {
             return pluginsList.Where(p => Regex.IsMatch(p.Name, query, RegexOptions.IgnoreCase));
         }
 
-        private static IEnumerable<PluginDetails<PluginVersion<string>, string>> FilterByPrice(IEnumerable<PluginDetails<PluginVersion<string>, string>> pluginsList, string price)
+        private static IEnumerable<PluginDetails> FilterByPrice(IEnumerable<PluginDetails> pluginsList, string price)
         {
             return pluginsList.Where(p => p.PaidFor == (!string.IsNullOrEmpty(price) && price.Equals("paid", StringComparison.CurrentCultureIgnoreCase)));
         }
 
-        private static IEnumerable<PluginDetails<PluginVersion<string>, string>> FilterByVersion(IEnumerable<PluginDetails<PluginVersion<string>, string>> pluginsList, string studioVersion, IEnumerable<ProductDetails> products)
+        private static IEnumerable<PluginDetails> FilterByVersion(IEnumerable<PluginDetails> pluginsList, string studioVersion, IEnumerable<ProductDetails> products)
         {
-            var plugins = new List<PluginDetails<PluginVersion<string>, string>>();
+            var plugins = new List<PluginDetails>();
             var expression = new Regex("\\d+", RegexOptions.IgnoreCase);
             var versionNumber = expression.Match(studioVersion);
             var oldTradosName = $"SDL Trados Studio {versionNumber.Value}";
@@ -172,7 +172,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
             foreach (var plugin in pluginsList)
             {
-                var matchingVersions = new List<PluginVersion<string>>();
+                var matchingVersions = new List<PluginVersion>();
 
                 foreach (var version in plugin.Versions)
                 {
@@ -198,14 +198,14 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugins;
         }
 
-        private static IEnumerable<PluginDetails<PluginVersion<string>, string>> FilterByCategory(IEnumerable<PluginDetails<PluginVersion<string>, string>> pluginsList, IEnumerable<int> categoryIds)
+        private static IEnumerable<PluginDetails> FilterByCategory(IEnumerable<PluginDetails> pluginsList, IEnumerable<int> categoryIds)
         {
             return categoryIds.SelectMany(c => pluginsList.Where(p => p.Categories.Any(pc => pc.Equals(c))));
         }
 
-        public IEnumerable<PluginDetails<PluginVersion<string>, string>> SearchPlugins(IEnumerable<PluginDetails<PluginVersion<string>, string>> pluginsList, PluginFilter filter, IEnumerable<ProductDetails> products)
+        public IEnumerable<PluginDetails> SearchPlugins(IEnumerable<PluginDetails> pluginsList, PluginFilter filter, IEnumerable<ProductDetails> products)
         {
-            pluginsList ??= new List<PluginDetails<PluginVersion<string>, string>>();
+            pluginsList ??= new List<PluginDetails>();
 
             var searchedPluginList = FilterByStatus(pluginsList, filter.Status);
             if (!string.IsNullOrEmpty(filter?.SupportedProduct))
@@ -236,7 +236,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             return searchedPluginList;
         }
 
-        private static IEnumerable<PluginDetails<PluginVersion<string>, string>> FilterByProduct(IEnumerable<PluginDetails<PluginVersion<string>, string>> plugins, string product)
+        private static IEnumerable<PluginDetails> FilterByProduct(IEnumerable<PluginDetails> plugins, string product)
         {
             return plugins.Where(p => p.Versions.Select(v => v.SupportedProducts.Any(p => p.Equals(product))).Any(check => check));
         }

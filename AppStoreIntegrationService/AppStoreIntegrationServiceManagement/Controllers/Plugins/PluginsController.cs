@@ -16,6 +16,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IProductsRepository _productsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
         private readonly ICommentsRepository _commentsRepository;
+        private readonly ILoggingRepository _loggingRepository;
         private readonly IHttpContextAccessor _context;
 
         public PluginsController
@@ -24,7 +25,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             IHttpContextAccessor context,
             IProductsRepository productsRepository,
             ICategoriesRepository categoriesRepository,
-            ICommentsRepository commentsRepository
+            ICommentsRepository commentsRepository,
+            ILoggingRepository loggingRepository
         )
         {
             _pluginRepository = pluginRepository;
@@ -32,6 +34,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             _productsRepository = productsRepository;
             _categoriesRepository = categoriesRepository;
             _commentsRepository = commentsRepository;
+            _loggingRepository = loggingRepository;
         }
 
         [Route("Plugins")]
@@ -49,29 +52,32 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 statusFilters.Add("InReview");
             }
 
-            var status = statusFilters.Select(x => new KeyValuePair<FilterType, FilterItem>(FilterType.Status, new FilterItem
+            var status = statusFilters.Select(x => new FilterItem
             {
-                Id = $"{(int)Enum.Parse(typeof(Status), x)}",
-                Name = x,
+                Id = "Status",
+                Label = x,
+                Value = $"{(int)Enum.Parse(typeof(Status), x)}",
                 IsSelected = Request.Query["Status"].Any(y => y == $"{(int)Enum.Parse(typeof(Status), x)}")
-            }));
+            });
 
             return View(new ConfigToolModel
             {
-                Plugins = _pluginRepository.SearchPlugins(pluginsList, filter, products).Select(p => new ExtendedPluginDetails(p)).ToList(),
-                StatusListItems = new SelectList(status.Select(x => x.Value), nameof(FilterItem.Id), nameof(FilterItem.Name), Request.Query["Status"].FirstOrDefault()),
+                Plugins = _pluginRepository.SearchPlugins(pluginsList, filter, products).Select(p => new ExtendedPluginDetails(p)),
+                StatusListItems = new SelectList(status, nameof(FilterItem.Value), nameof(FilterItem.Label), Request.Query["Status"].FirstOrDefault()),
                 ProductsListItems = new SelectList(products ?? new List<ProductDetails>(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName), Request.Query["Product"].FirstOrDefault()),
-                Filters = status.Concat(products.Select(x => new KeyValuePair<FilterType, FilterItem>(FilterType.Status, new FilterItem
+                Filters = status.Concat(products.Select(x => new FilterItem
                 {
-                    Id = x.Id,
-                    Name = x.ProductName,
+                    Id = "Product",
+                    Label = x.ProductName,
+                    Value = x.ProductName,
                     IsSelected = Request.Query["Product"].Any(y => y == x.Id)
-                }))).Append(new KeyValuePair<FilterType, FilterItem>(FilterType.Query, new FilterItem
+                })).Append(new FilterItem
                 {
-                    Id = "0",
-                    Name = Request.Query["q"].FirstOrDefault(),
-                    IsSelected = Request.Query["q"].FirstOrDefault(x => !string.IsNullOrEmpty(x)) != null
-                }))
+                    Id = "Query",
+                    Label = Request.Query["Query"],
+                    Value = Request.Query["Query"],
+                    IsSelected = !string.IsNullOrEmpty(Request.Query["Query"].FirstOrDefault())
+                })
             });
         }
 
@@ -125,12 +131,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             await _pluginRepository.RemovePlugin(id);
             await _commentsRepository.DeleteComments(plugin.Name);
+            await _loggingRepository.Log(User, id, $"<b>{User.Identity.Name} removed {plugin.Name} at {DateTime.Now}</b>");
             TempData["StatusMessage"] = "Success! Plugin was removed!";
             return Content("");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Save(PluginDetails<PluginVersion<string>, string> plugin, Status status, bool isEditMode)
+        public async Task<IActionResult> Save(PluginDetails plugin, Status status, bool isEditMode)
         {
             try
             {
@@ -139,6 +146,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
                 if (isEditMode)
                 {
+                    var old = await _pluginRepository.GetPluginById(plugin.Id, User);
+                    await _loggingRepository.Log(User, new PluginDetailsBase<PluginVersionBase<string>, string>(plugin), new PluginDetailsBase<PluginVersionBase<string>, string>(old));
                     await _pluginRepository.UpdatePlugin(plugin);
 
                     if (!string.IsNullOrEmpty(plugin.DownloadUrl))
@@ -172,7 +181,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private PluginFilter ApplyFilters()
         {
             const string statusFilter = "Status";
-            const string searchFilter = "q";
+            const string searchFilter = "Query";
             const string productFilter = "Product";
             var query = Request.Query;
             var filters = new PluginFilter()

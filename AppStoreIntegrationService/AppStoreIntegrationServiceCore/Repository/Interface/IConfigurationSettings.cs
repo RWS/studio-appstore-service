@@ -20,6 +20,8 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         public string PluginsFileBackUpPath { get; set; }
         public string CommentsFilePath { get; set; }
         public string CommentsFileName { get; set; }
+        public string LogsFilePath { get; set; }
+        public string LogsFileName { get; set; }
         public Task SetFilePathsProperties(IWebHostEnvironment environment);
     }
 }

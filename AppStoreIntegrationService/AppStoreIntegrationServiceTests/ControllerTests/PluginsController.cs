@@ -19,7 +19,8 @@ namespace AppStoreIntegrationServiceTests
             var mockCategoriesRepository = Substitute.For<ICategoriesRepository>();
             var mockTempDataProvider = Substitute.For<ITempDataProvider>();
             var mockCommentsRepository = Substitute.For<ICommentsRepository>();
-            var pluginsController = new PluginsController(mockPluginRepository, mockContextAccesor, mockProductsRepository, mockCategoriesRepository, mockCommentsRepository)
+            var mockLogginRepository = Substitute.For<ILoggingRepository>();
+            var pluginsController = new PluginsController(mockPluginRepository, mockContextAccesor, mockProductsRepository, mockCategoriesRepository, mockCommentsRepository, mockLogginRepository)
             {
                 ControllerContext = new ControllerContext
                 {

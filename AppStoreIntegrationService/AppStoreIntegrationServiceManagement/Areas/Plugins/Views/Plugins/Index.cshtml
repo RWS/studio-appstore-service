@@ -21,7 +21,7 @@
 
             <div class="col-12 col-lg-4">
                 <div class="input-group">
-                    <input type="text" class="form-control form-control-sm" name="q" autocomplete="off" placeholder="Search plugin" aria-label="Search plugin">
+                    <input type="text" class="form-control form-control-sm" name="Query" autocomplete="off" placeholder="Search plugin" aria-label="Search plugin">
                     <span class="input-group-text p-1 bg-light">
                         <button onclick="this.form.submit()" class="border-0 bg-light"><i aria-label="Submit search" class="fa fa-search filter-search-submit"></i></button>
                     </span>
@@ -42,18 +42,18 @@
 
 
 <form id="form" class="m-0 px-1 py-3 d-flex">
-    <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white @(Model.Filters.Any(x => x.Value.IsSelected) ? "" : "d-none")" href="@Url.Action("Index")">
+    <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white @(Model.Filters.Any(x => x.IsSelected) ? "" : "d-none")" href="@Url.Action("Index")">
         <i class="fa fa-times-circle"></i>
         Clear all
     </a>
     @foreach (var item in Model.Filters)
     {
-        if (item.Value.IsSelected)
+        if (item.IsSelected)
         {
-            <label for="@item.Key.ToString()" class="delete-filter me-1 delete-filter-active">
-                <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear @item.Key.ToString() filter"></i>
-                @item.Value.Name
-                <input hidden type="checkbox" name="@item.Key.ToString()" value="@item.Value.Id" onchange="this.form.submit()" checked />
+            <label for="@item.Id" class="delete-filter me-1 delete-filter-active">
+                <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear @item.Id filter"></i>
+                @item.Label
+                <input hidden type="checkbox" id="@item.Id" name="@item.Id" value="@item.Value" onchange="this.form.submit()" checked />
             </label>
         }
     }

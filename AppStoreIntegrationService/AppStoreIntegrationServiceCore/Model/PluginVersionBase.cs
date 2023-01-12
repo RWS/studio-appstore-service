@@ -9,18 +9,44 @@ namespace AppStoreIntegrationServiceCore.Model
         private string _minimumRequiredVersionOfStudio;
         private string _maximumRequiredVersionOfStudio;
 
+        public PluginVersionBase() { }
+
+        public PluginVersionBase(PluginVersion other)
+        {
+            var thisProperties = typeof(PluginVersionBase<T>).GetProperties();
+            var otherProperties = typeof(PluginVersion).GetProperties().Where(x => thisProperties.Any(y => y.Name.Equals(x.Name))).ToArray();
+
+            for (var i = 0; i < thisProperties.Length; i++)
+            {
+                if (thisProperties[i].Name != "Versions")
+                {
+                    thisProperties[i].SetValue(this, otherProperties[i].GetValue(other));
+                }
+            }
+
+            SupportedProducts = other.SupportedProducts?.Cast<T>().ToList();
+        }
+
         [JsonProperty("Id")]
         public string VersionId { get; set; }
+
+        [Display(Name = "Version number")]
         [Required(ErrorMessage = "Version number is required!")]
         [RegularExpression(@"^(\d+\.)?(\d+\.)?(\d+\.)?(\d+)$", ErrorMessage = "Invalid version number!")]
         public string VersionNumber { get; set; }
+        [Display(Name = "Checksum")]
         [Required(ErrorMessage = "Checksum is required!")]
         [RegularExpression(@"\b(?:[0-9a-z]-?){40}\b", ErrorMessage = "Invalid checksum!")]
         public string FileHash { get; set; }
+
         [Required(ErrorMessage = "At least one product is required!")]
         [MinLength(1)]
         public List<T> SupportedProducts { get; set; }
+
+        [Display(Name = "App Has Studio Plugin Installer")]
         public bool AppHasStudioPluginInstaller { get; set; }
+
+        [Display(Name = "Minimum Required Studio Version")]
         [RegularExpression(@"^(\d{1,2}\.)?(\d{1}\.)?(\d{1})$", ErrorMessage = "Invalid version number!")]
         public string MinimumRequiredVersionOfStudio
         {
@@ -38,6 +64,8 @@ namespace AppStoreIntegrationServiceCore.Model
                 _minimumRequiredVersionOfStudio = value;
             }
         }
+
+        [Display(Name = "Maximum Required Studio Version")]
         [RegularExpression(@"^(\d{1,2}\.)?(\d{1}\.)?(\d{1})$", ErrorMessage = "Invalid version number!")]
         public string MaximumRequiredVersionOfStudio
         {
@@ -56,7 +84,10 @@ namespace AppStoreIntegrationServiceCore.Model
             }
         }
 
+        [Display(Name = "Is Navigation Link ")]
         public bool IsNavigationLink { get; set; }
+
+        [Display(Name = "Download Url")]
         [Required(ErrorMessage = "Download url is required!")]
         [Url(ErrorMessage = "Invalid url!")]
         public string DownloadUrl { get; set; }
