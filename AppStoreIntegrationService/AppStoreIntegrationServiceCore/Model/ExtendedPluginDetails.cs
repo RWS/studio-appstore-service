@@ -23,8 +23,6 @@ namespace AppStoreIntegrationServiceCore.Model
         [JsonIgnore]
         public MultiSelectList CategoryListItems { get; set; }
         [JsonIgnore]
-        public string SelectedVersionId { get; set; }
-        [JsonIgnore]
         public IEnumerable<Comment> Comments { get; set; }
         public IEnumerable<Log> Logs { get; set; }
         [JsonIgnore]

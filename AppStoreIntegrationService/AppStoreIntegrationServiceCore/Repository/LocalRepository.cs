@@ -2,7 +2,6 @@
 using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using Newtonsoft.Json;
-using System.Xml.Linq;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
@@ -28,15 +27,9 @@ namespace AppStoreIntegrationServiceCore.Repository
             return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(content) ?? new PluginResponse<PluginDetails>();
         }
 
-        public async Task<List<NameMapping>> ReadNames()
+        public async Task<IEnumerable<NameMapping>> ReadNames()
         {
-            if (_configurationSettings.NameMappingsFilePath == null)
-            {
-                return new List<NameMapping>();
-            }
-
-            var content = await File.ReadAllTextAsync(_configurationSettings.NameMappingsFilePath);
-            return JsonConvert.DeserializeObject<List<NameMapping>>(content) ?? new List<NameMapping>();
+            return (await GetResponse())?.Names ?? new List<NameMapping>();
         }
 
         public async Task<IEnumerable<ParentProduct>> ReadParents()
@@ -64,9 +57,24 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await GetResponse())?.Categories ?? new List<CategoryDetails>();
         }
 
-        public async Task SaveNames(List<NameMapping> names)
+        public async Task<SiteSettings> ReadSettings()
         {
-            await File.WriteAllTextAsync(_configurationSettings.NameMappingsFilePath, JsonConvert.SerializeObject(names));
+            return new SiteSettings { Name = _options.Value.Name };
+        }
+        public async Task<IDictionary<int, CommentPackage>> ReadComments()
+        {
+            return (await GetResponse())?.Comments ?? new Dictionary<int, CommentPackage>();
+        }
+        public async Task<IDictionary<int, IEnumerable<Log>>> ReadLogs()
+        {
+            return (await GetResponse())?.Logs ?? new Dictionary<int, IEnumerable<Log>>();
+        }
+
+        public async Task SaveNames(IEnumerable<NameMapping> names)
+        {
+            var response = await GetResponse();
+            response.Names = names;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
         }
 
         public async Task SaveProducts(IEnumerable<ParentProduct> products)
@@ -111,47 +119,24 @@ namespace AppStoreIntegrationServiceCore.Repository
             await File.WriteAllTextAsync(_configurationSettings.PluginsFileBackUpPath, JsonConvert.SerializeObject(response));
         }
 
-        public async Task<SiteSettings> ReadSettings()
-        {
-            return new SiteSettings { Name = _options.Value.Name };
-        }
-
         public async Task SaveSettings(SiteSettings settings)
         {
             _options.SaveOption(settings);
             _options.Value.Name = settings.Name;
         }
 
-        public async Task<IDictionary<string, CommentPackage>> ReadComments()
+        public async Task UpdateComments(IDictionary<int, CommentPackage> comments)
         {
-            if (_configurationSettings.CommentsFilePath == null)
-            {
-                return new Dictionary<string, CommentPackage>();
-            }
-
-            var content = await File.ReadAllTextAsync(_configurationSettings.CommentsFilePath);
-            return JsonConvert.DeserializeObject<IDictionary<string, CommentPackage>>(content) ?? new Dictionary<string, CommentPackage>();
-        }
-
-        public async Task UpdateComments(IDictionary<string, CommentPackage> comments)
-        {
-            await File.WriteAllTextAsync(_configurationSettings.CommentsFilePath, JsonConvert.SerializeObject(comments));
-        }
-
-        public async Task<IDictionary<int, IEnumerable<Log>>> ReadLogs()
-        {
-            if (_configurationSettings.LogsFilePath == null)
-            {
-                return new Dictionary<int, IEnumerable<Log>>();
-            }
-
-            var content = await File.ReadAllTextAsync(_configurationSettings.LogsFilePath);
-            return JsonConvert.DeserializeObject<IDictionary<int, IEnumerable<Log>>>(content) ?? new Dictionary<int, IEnumerable<Log>>();
+            var response = await GetResponse();
+            response.Comments = comments;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
         }
 
         public async Task UpdateLogs(IDictionary<int, IEnumerable<Log>> logs)
         {
-            await File.WriteAllTextAsync(_configurationSettings.LogsFilePath, JsonConvert.SerializeObject(logs));
+            var response = await GetResponse();
+            response.Logs = logs;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
         }
     }
 }

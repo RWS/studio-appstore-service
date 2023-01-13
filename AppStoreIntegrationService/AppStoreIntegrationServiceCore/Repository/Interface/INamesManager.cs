@@ -4,7 +4,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface INamesManager
     {
-        Task SaveNames(List<NameMapping> names);
-        Task<List<NameMapping>> ReadNames();
+        Task SaveNames(IEnumerable<NameMapping> names);
+        Task<IEnumerable<NameMapping>> ReadNames();
     }
 }

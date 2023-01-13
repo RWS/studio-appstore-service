@@ -13,10 +13,5 @@ namespace AppStoreIntegrationServiceCore.Model
         {
             return ProductName == other.ProductName;
         }
-
-        public bool IsValid()
-        {
-            return Id != null && ProductName != null;
-        }
     }
 }

@@ -15,13 +15,12 @@
     <div class="col-12 col-lg-8 border-container">
         @if (Model.IsEditMode)
         {
-            <partial name="_PluginCommentsTab" model="(true, Model.Id)" />
+            <partial name="_PluginSubMenu" model="Model.Id" />
         }
 
         <input readonly hidden name="Page" value="@Page.Plugin" />
         <input readonly hidden asp-for="Id" />
         <input readonly hidden asp-for="IsEditMode" />
-        <input readonly hidden asp-for="SelectedVersionId" />
         <input readonly hidden asp-for="IsThirdParty" />
         <input readonly hidden asp-for="NeedsDeletionApproval" />
         <input readonly hidden asp-for="HasAdminConsent" />

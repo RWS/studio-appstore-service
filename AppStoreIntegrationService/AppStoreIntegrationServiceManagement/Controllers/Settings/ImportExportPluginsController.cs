@@ -17,6 +17,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         private readonly IVersionManager _versionManager;
         private readonly ICategoriesManager _categoriesManager;
         private readonly IPluginRepository _pluginRepository;
+        private readonly INamesManager _namesManager;
+        private readonly ILogsManager _logsManager;
+        private readonly ICommentsManager _commentsManager;
 
         public ImportExportPluginsController
         (
@@ -24,7 +27,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             IVersionManager versionManager,
             ICategoriesManager categoriesManager,
             IPluginManager pluginManager,
-            IPluginRepository pluginRepository
+            IPluginRepository pluginRepository,
+            INamesManager namesManager,
+            ILogsManager logsManager,
+            ICommentsManager commentsManager
         )
         {
             _productsManager = productsmanager;
@@ -32,6 +38,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             _categoriesManager = categoriesManager;
             _pluginManager = pluginManager;
             _pluginRepository = pluginRepository;
+            _namesManager = namesManager;
+            _logsManager = logsManager;
+            _commentsManager = commentsManager;
         }
 
         [Authorize(Roles = "Administrator, Developer")]
@@ -51,7 +60,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 Value = await _pluginRepository.GetAll("asc", User),
                 Products = await _productsManager.ReadProducts(),
                 ParentProducts = await _productsManager.ReadParents(),
-                Categories = await _categoriesManager.ReadCategories()
+                Categories = await _categoriesManager.ReadCategories(),
+                Names = await _namesManager.ReadNames(),
+                Logs = await _logsManager.ReadLogs(),
+                Comments = await _commentsManager.ReadComments(),
             };
 
             var stream = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
@@ -85,6 +97,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 await _productsManager.SaveProducts(response.ParentProducts);
                 await _versionManager.SaveVersion(response.APIVersion);
                 await _pluginManager.SavePlugins(response.Value);
+                await _namesManager.SaveNames(response.Names);
+                await _logsManager.UpdateLogs(response.Logs);
+                await _commentsManager.UpdateComments(response.Comments);
 
                 modalDetails.RequestPage = "/Plugins";
                 modalDetails.ModalType = ModalType.SuccessMessage;

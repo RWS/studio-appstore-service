@@ -14,12 +14,9 @@ namespace AppStoreIntegrationServiceCore.Repository
     {
         private readonly IConfigurationSettings _configurationSettings;
         private readonly BlobRequestOptions _blobRequestOptions;
-        private CloudBlockBlob _pluginsListBlockBlobOptimized;
-        private CloudBlockBlob _pluginsBackupBlockBlobOptimized;
-        private CloudBlockBlob _nameMappingsBlockBlob;
+        private CloudBlockBlob _pluginsBlockBlob;
+        private CloudBlockBlob _pluginsBackupBlockBlob;
         private CloudBlockBlob _settingsBlockBlob;
-        private CloudBlockBlob _commentsBlockBlob;
-        private CloudBlockBlob _logsBlockBlob;
         private CloudBlobContainer _cloudBlobContainer;
 
         public AzureRepository(IConfigurationSettings configurationSettings)
@@ -45,20 +42,55 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<PluginResponse<PluginDetails>> GetResponse()
         {
-            string containerContent = await _pluginsListBlockBlobOptimized.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+            string containerContent = await _pluginsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
             return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(containerContent) ?? new PluginResponse<PluginDetails>();
         }
 
-        public async Task<List<NameMapping>> ReadNames()
+        public async Task<IEnumerable<NameMapping>> ReadNames()
         {
-            var containterContent = await _nameMappingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<List<NameMapping>>(containterContent) ?? new List<NameMapping>();
+            return (await GetResponse())?.Names ?? new List<NameMapping>();
         }
 
-        public async Task SaveNames(List<NameMapping> mappings)
+        public async Task<string> GetVersion()
         {
-            var text = JsonConvert.SerializeObject(mappings);
-            await _nameMappingsBlockBlob.UploadTextAsync(text);
+            return (await GetResponse())?.APIVersion ?? "1.0.0";
+        }
+
+        public async Task<IEnumerable<CategoryDetails>> ReadCategories()
+        {
+            return (await GetResponse())?.Categories ?? new List<CategoryDetails>();
+        }
+
+        public async Task<IEnumerable<PluginDetails>> ReadPlugins()
+        {
+            return (await GetResponse())?.Value ?? new List<PluginDetails>();
+        }
+
+        public async Task<IEnumerable<ProductDetails>> ReadProducts()
+        {
+            return (await GetResponse())?.Products ?? new List<ProductDetails>();
+        }
+
+        public async Task<IEnumerable<ParentProduct>> ReadParents()
+        {
+            return (await GetResponse())?.ParentProducts ?? new List<ParentProduct>();
+        }
+
+        public async Task<IDictionary<int, CommentPackage>> ReadComments()
+        {
+            return (await GetResponse())?.Comments ?? new Dictionary<int, CommentPackage>();
+        }
+        public async Task<IDictionary<int, IEnumerable<Log>>> ReadLogs()
+        {
+            return (await GetResponse())?.Logs ?? new Dictionary<int, IEnumerable<Log>>();
+        }
+
+
+        public async Task SaveNames(IEnumerable<NameMapping> mappings)
+        {
+            var response = await GetResponse();
+            response.Names = mappings;
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
         public async Task<SiteSettings> ReadSettings()
@@ -73,95 +105,60 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _settingsBlockBlob.UploadTextAsync(text);
         }
 
-        public async Task<string> GetVersion()
-        {
-            return (await GetResponse())?.APIVersion;
-        }
-
-        public async Task<IEnumerable<CategoryDetails>> ReadCategories()
-        {
-            return (await GetResponse())?.Categories;
-        }
-
-        public async Task<IEnumerable<PluginDetails>> ReadPlugins()
-        {
-            return (await GetResponse())?.Value;
-        }
-
-        public async Task<IEnumerable<ProductDetails>> ReadProducts()
-        {
-            return (await GetResponse())?.Products;
-        }
-
-        public async Task<IEnumerable<ParentProduct>> ReadParents()
-        {
-            return (await GetResponse())?.ParentProducts;
-        }
-
         public async Task SavePlugins(IEnumerable<PluginDetails> plugins)
         {
             var response = await GetResponse();
             response.Value = plugins;
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
         public async Task BackupPlugins(IEnumerable<PluginDetails> plugins)
         {
             var response = await GetResponse();
             response.Value = plugins;
-            await _pluginsBackupBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+            await _pluginsBackupBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
         public async Task SaveProducts(IEnumerable<ProductDetails> products)
         {
             var response = await GetResponse();
             response.Products = products;
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
         public async Task SaveProducts(IEnumerable<ParentProduct> products)
         {
             var response = await GetResponse();
             response.ParentProducts = products;
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
         public async Task SaveCategories(IEnumerable<CategoryDetails> categories)
         {
             var response = await GetResponse();
             response.Categories = categories;
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
         public async Task SaveVersion(string version)
         {
             var response = await GetResponse();
             response.APIVersion = version;
-            await _pluginsListBlockBlobOptimized.UploadTextAsync(JsonConvert.SerializeObject(response));
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
-        public async Task<IDictionary<string, CommentPackage>> ReadComments()
+        public async Task UpdateComments(IDictionary<int, CommentPackage> comments)
         {
-            var containterContent = await _commentsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<IDictionary<string, CommentPackage>>(containterContent) ?? new Dictionary<string, CommentPackage>();
-        }
-
-        public async Task UpdateComments(IDictionary<string, CommentPackage> comments)
-        {
-            var text = JsonConvert.SerializeObject(comments);
-            await _commentsBlockBlob.UploadTextAsync(text);
-        }
-
-        public async Task<IDictionary<int, IEnumerable<Log>>> ReadLogs()
-        {
-            var containterContent = await _logsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<IDictionary<int, IEnumerable<Log>>>(containterContent) ?? new Dictionary<int, IEnumerable<Log>>();
+            var response = await GetResponse();
+            response.Comments = comments;
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
         public async Task UpdateLogs(IDictionary<int, IEnumerable<Log>> logs)
         {
-            var text = JsonConvert.SerializeObject(logs);
-            await _logsBlockBlob.UploadTextAsync(text);
+            var response = await GetResponse();
+            response.Logs = logs;
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
         private CloudStorageAccount GetCloudStorageAccount()
@@ -220,42 +217,24 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private void InitializeBlockBlobs()
         {
-            CreateEmptyFile(_pluginsListBlockBlobOptimized);
-            CreateEmptyFile(_pluginsBackupBlockBlobOptimized);
-            CreateEmptyFile(_nameMappingsBlockBlob);
+            CreateEmptyFile(_pluginsBlockBlob);
+            CreateEmptyFile(_pluginsBackupBlockBlob);
             CreateEmptyFile(_settingsBlockBlob);
-            CreateEmptyFile(_commentsBlockBlob);
-            CreateEmptyFile(_logsBlockBlob);
         }
 
         private void SetCloudBlockBlobs()
         {
             if (!string.IsNullOrEmpty(_configurationSettings.PluginsFileName))
             {
-                _pluginsListBlockBlobOptimized = GetBlockBlobReference(_configurationSettings.PluginsFileName);
+                _pluginsBlockBlob = GetBlockBlobReference(_configurationSettings.PluginsFileName);
 
                 var backupFileName = $"{Path.GetFileNameWithoutExtension(_configurationSettings.PluginsFileName)}_backupFile.json";
-                _pluginsBackupBlockBlobOptimized = GetBlockBlobReference(backupFileName);
-            }
-
-            if (!string.IsNullOrEmpty(_configurationSettings.MappingFileName))
-            {
-                _nameMappingsBlockBlob = GetBlockBlobReference(_configurationSettings.MappingFileName);
+                _pluginsBackupBlockBlob = GetBlockBlobReference(backupFileName);
             }
 
             if (!string.IsNullOrEmpty(_configurationSettings.SettingsFileName))
             {
                 _settingsBlockBlob = GetBlockBlobReference(_configurationSettings.SettingsFileName);
-            }
-
-            if (!string.IsNullOrEmpty(_configurationSettings.CommentsFileName))
-            {
-                _commentsBlockBlob = GetBlockBlobReference(_configurationSettings.CommentsFileName);
-            }
-
-            if (!string.IsNullOrEmpty(_configurationSettings.LogsFileName))
-            {
-                _logsBlockBlob = GetBlockBlobReference(_configurationSettings.LogsFileName);
             }
         }
 

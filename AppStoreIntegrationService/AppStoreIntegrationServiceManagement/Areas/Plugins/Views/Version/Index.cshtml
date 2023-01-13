@@ -19,8 +19,7 @@
     <div class="col-12 col-lg-8 border-container">
         @foreach (var version in Model.versions)
         {
-            if ((User.IsInRole("StandardUser") && !version.VersionStatus.Equals(Status.Active)) ||
-                (User.IsInRole("Administrator") && !version.HasAdminConsent))
+            if ((!User.IsInRole("Developer") && version.IsThirdParty && !version.HasAdminConsent))
             {
                 continue;
             }

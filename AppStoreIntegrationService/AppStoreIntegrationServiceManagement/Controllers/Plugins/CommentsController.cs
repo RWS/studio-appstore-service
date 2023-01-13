@@ -22,7 +22,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index(int pluginId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId, User);
-            var comments = await _commentsRepository.GetComments(plugin.Name);
+            var comments = await _commentsRepository.GetComments(pluginId);
             return View(new ExtendedPluginDetails(plugin)
             {
                 Comments = comments,
@@ -34,8 +34,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost("/Plugins/Edit/{pluginId}/Comments/New")]
         public async Task<IActionResult> New(int pluginId, string versionId)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var comments = await _commentsRepository.GetComments(plugin.Name, versionId);
+            var comments = await _commentsRepository.GetComments(pluginId, versionId);
             return PartialView("_NewCommentPartial", new Comment
             {
                 CommentId = comments.LastOrDefault()?.CommentId + 1 ?? 0,
@@ -50,8 +49,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost("/Plugins/Edit/{pluginId}/Comments/Update")]
         public async Task<IActionResult> Update(Comment comment, int pluginId, string versionId)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId);
-            await _commentsRepository.SaveComment(comment, plugin.Name, versionId);
+            await _commentsRepository.SaveComment(comment, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was updated!";
             return Content(null);
         }
@@ -60,8 +58,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost("/Plugins/Edit/{pluginId}/Comments/Delete/{commentId}")]
         public async Task<IActionResult> Delete(int commentId, int pluginId, string versionId)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId);
-            await _commentsRepository.DeleteComment(commentId, plugin.Name, versionId);
+            await _commentsRepository.DeleteComment(commentId, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was deleted!";
             return Content(null);
         }

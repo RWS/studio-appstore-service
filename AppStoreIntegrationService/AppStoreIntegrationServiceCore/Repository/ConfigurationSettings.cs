@@ -11,18 +11,12 @@ namespace AppStoreIntegrationServiceCore.Repository
         public string BlobName { get; set; }
         public string LocalFolderPath { get; set; }
         public string PluginsFileName { get; set; }
-        public string MappingFileName { get; set; }
         public string InstrumentationKey { get; set; }
         public DeployMode DeployMode { get; set; }
-        public string NameMappingsFilePath { get; set; }
-        public string CommentsFilePath { get; set; }
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsFilePath { get; set; }
         public string PluginsFileBackUpPath { get; set; }
         public string SettingsFileName { get; set; }
-        public string CommentsFileName { get; set; }
-        public string LogsFilePath { get; set; }
-        public string LogsFileName { get; set; }
 
         public ConfigurationSettings(DeployMode deployMode)
         {
@@ -41,21 +35,6 @@ namespace AppStoreIntegrationServiceCore.Repository
                 case DeployMode.NetworkFilePath:
                     ConfigFolderPath = LocalFolderPath;
                     break;
-            }
-
-            if (!string.IsNullOrEmpty(MappingFileName))
-            {
-                NameMappingsFilePath = Path.Combine(ConfigFolderPath, MappingFileName);
-            }
-
-            if (!string.IsNullOrEmpty(CommentsFileName))
-            {
-                CommentsFilePath = Path.Combine(ConfigFolderPath, CommentsFileName);
-            }
-
-            if (!string.IsNullOrEmpty(LogsFileName))
-            {
-                LogsFilePath = Path.Combine(ConfigFolderPath, LogsFileName);
             }
 
             if (!string.IsNullOrEmpty(PluginsFileName))
@@ -77,21 +56,6 @@ namespace AppStoreIntegrationServiceCore.Repository
                     await File.Create(LocalPluginsFilePath).DisposeAsync();
                 }
 
-                if (!string.IsNullOrEmpty(NameMappingsFilePath) && !File.Exists(NameMappingsFilePath))
-                {
-                    await File.Create(NameMappingsFilePath).DisposeAsync();
-                }
-
-                if (!string.IsNullOrEmpty(CommentsFilePath) && !File.Exists(CommentsFilePath))
-                {
-                    await File.Create(CommentsFilePath).DisposeAsync();
-                }
-
-                if (!string.IsNullOrEmpty(LogsFilePath) && !File.Exists(LogsFilePath))
-                {
-                    await File.Create(LogsFilePath).DisposeAsync();
-                }
-
                 if (!string.IsNullOrEmpty(PluginsFileBackUpPath) && !File.Exists(PluginsFileBackUpPath))
                 {
                     await File.Create(PluginsFileBackUpPath).DisposeAsync();
@@ -107,10 +71,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             LocalFolderPath = GetVariable(ServiceResource.LocalFolderPath);
             PluginsFileName = GetVariable(ServiceResource.PluginsFileName);
             InstrumentationKey = GetVariable(ServiceResource.TelemetryInstrumentationKey);
-            MappingFileName = GetVariable(ServiceResource.MappingFileName);
             SettingsFileName = GetVariable(ServiceResource.SettingsFileName);
-            CommentsFileName = GetVariable(ServiceResource.CommentsFileName);
-            LogsFileName = GetVariable(ServiceResource.LogsFileName);
         }
 
         private static string GetVariable(string key)

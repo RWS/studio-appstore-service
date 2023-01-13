@@ -97,8 +97,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public async Task<IActionResult> Check(Comment comment)
         {
-            var plugin = await _pluginRepository.GetPluginById(comment.PluginId);
-            var saved = await _commentsRepository.GetComment(plugin.Name, comment.CommentId, comment.VersionId);
+            var saved = await _commentsRepository.GetComment(comment.PluginId, comment.CommentId, comment.VersionId);
 
             if (saved?.Equals(comment) ?? true)
             {

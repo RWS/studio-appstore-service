@@ -4,6 +4,7 @@ using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -42,17 +43,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index()
         {
             PluginFilter filter = ApplyFilters();
-            var pluginsList = await _pluginRepository.GetAll(filter.SortOrder, User);
+            var plugins = await _pluginRepository.GetAll(filter.SortOrder, User);
             var products = await _productsRepository.GetAllProducts();
-            var statusFilters = new List<string> { "Active", "Inactive" };
-
-            if (!User.IsInRole("StandardUser"))
-            {
-                statusFilters.Add("Draft");
-                statusFilters.Add("InReview");
-            }
-
-            var status = statusFilters.Select(x => new FilterItem
+            var status = new List<string> { "Active", "Inactive" }.Concat(User.IsInRole("StandardUser") ? new List<string>() : new[] { "Draft", "InReview" }).Select(x => new FilterItem
             {
                 Id = "Status",
                 Label = x,
@@ -62,9 +55,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             return View(new ConfigToolModel
             {
-                Plugins = _pluginRepository.SearchPlugins(pluginsList, filter, products).Select(p => new ExtendedPluginDetails(p)),
+                Plugins = _pluginRepository.SearchPlugins(plugins, filter, products).Select(p => new ExtendedPluginDetails(p)),
                 StatusListItems = new SelectList(status, nameof(FilterItem.Value), nameof(FilterItem.Label), Request.Query["Status"].FirstOrDefault()),
-                ProductsListItems = new SelectList(products ?? new List<ProductDetails>(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName), Request.Query["Product"].FirstOrDefault()),
+                ProductsListItems = new SelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName), Request.Query["Product"].FirstOrDefault()),
                 Filters = status.Concat(products.Select(x => new FilterItem
                 {
                     Id = "Product",
@@ -91,7 +84,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 Developer = new DeveloperDetails { DeveloperName = User.IsInRole("Administrator") ? null : User.Identity.Name },
                 IsEditMode = false,
                 IsThirdParty = User.IsInRole("Developer"),
-                SelectedVersionId = Guid.NewGuid().ToString(),
                 CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
             });
         }
@@ -130,8 +122,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             await _pluginRepository.RemovePlugin(id);
-            await _commentsRepository.DeleteComments(plugin.Name);
-            await _loggingRepository.Log(User, id, $"<b>{User.Identity.Name} removed {plugin.Name} at {DateTime.Now}</b>");
+            await _commentsRepository.DeleteComments(id);
+            await _loggingRepository.Log(User, id, $"<b>{User.Identity.Name}</b> removed <b>{plugin.Name}</b> at {DateTime.Now}");
             TempData["StatusMessage"] = "Success! Plugin was removed!";
             return Content("");
         }
@@ -165,6 +157,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 else
                 {
                     await _pluginRepository.AddPlugin(plugin);
+                    await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> added <b>{plugin.Name}</b> at {DateTime.Now}");
                 }
 
                 TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
@@ -173,9 +166,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             catch (Exception e)
             {
                 TempData["StatusMessage"] = string.Format("Error! {0}!", e.Message);
+                return new EmptyResult();
             }
-
-            return new EmptyResult();
         }
 
         private PluginFilter ApplyFilters()
@@ -188,7 +180,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             {
                 SortOrder = "asc",
                 Status = Status.All,
-                VersionStatus = Status.All,
                 SupportedProduct = query.ContainsKey(productFilter) ? query[productFilter] : default,
                 Query = query.ContainsKey(searchFilter) ? query[searchFilter] : default
             };

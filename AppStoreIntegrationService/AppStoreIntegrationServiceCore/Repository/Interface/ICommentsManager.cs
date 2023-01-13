@@ -4,7 +4,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
     public interface ICommentsManager
     {
-        public Task<IDictionary<string, CommentPackage>> ReadComments();
-        public Task UpdateComments(IDictionary<string, CommentPackage> package);
+        public Task<IDictionary<int, CommentPackage>> ReadComments();
+        public Task UpdateComments(IDictionary<int, CommentPackage> package);
     }
 }

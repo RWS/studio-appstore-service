@@ -4,7 +4,6 @@ using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using NuGet.Protocol.Plugins;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -32,40 +31,38 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             _loggingRepository = loggingRepository;
         }
 
-        [HttpGet("/Plugins/Edit/{id}/Versions")]
-        public async Task<IActionResult> Index(int id)
+        [HttpGet("/Plugins/Edit/{pluginId}/Versions")]
+        public async Task<IActionResult> Index(int pluginId)
         {
+            var versions = new List<ExtendedPluginVersion>();
             var selectedVersion = Request.Query["selectedVersion"];
-            var plugin = new ExtendedPluginDetails(await _pluginRepository.GetPluginById(id, User))
-            {
-                Parents = await _productsRepository.GetAllParents(),
-                IsEditMode = true
-            };
+            var parents = await _productsRepository.GetAllParents();
+            var products = await _productsRepository.GetAllProducts();
+            var plugin = await _pluginRepository.GetPluginById(pluginId, User);
+            var extendedPlugin = new ExtendedPluginDetails(plugin) { Parents = parents, IsEditMode = true };
+            var productsList = new MultiSelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
 
-            var products = new MultiSelectList(await _productsRepository.GetAllProducts(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
-            var versions = (await Task.WhenAll(plugin.Versions?.Select(async v => new ExtendedPluginVersion(v)
+            foreach (var version in extendedPlugin.Versions)
             {
-                VersionComments = await _commentsRepository.GetComments(plugin.Name, v.VersionId),
-                SupportedProductsListItems = products,
-                PluginId = id,
-                IsThirdParty = plugin.IsThirdParty
-            }))).ToList();
-
-            if (plugin.IsThirdParty && !User.IsInRole("Developer"))
-            {
-                return View((plugin, versions));
+                versions.Add(new ExtendedPluginVersion(version)
+                {
+                    VersionComments = await _commentsRepository.GetComments(pluginId, version.VersionId),
+                    SupportedProductsListItems = productsList,
+                    PluginId = pluginId,
+                    IsThirdParty = extendedPlugin.IsThirdParty
+                });
             }
 
             versions.Add(new ExtendedPluginVersion
             {
                 VersionId = versions.Any(v => v.VersionId == selectedVersion) || string.IsNullOrEmpty(selectedVersion) ? Guid.NewGuid().ToString() : selectedVersion,
-                SupportedProductsListItems = products,
+                SupportedProductsListItems = productsList,
                 IsNewVersion = true,
-                PluginId = id,
-                IsThirdParty = plugin.IsThirdParty
+                PluginId = pluginId,
+                IsThirdParty = extendedPlugin.IsThirdParty
             });
 
-            return View((plugin, versions));
+            return View((extendedPlugin, versions));
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Save")]
@@ -122,8 +119,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var version = await _pluginRepository.GetPluginVersion(pluginId, versionId, User);
 
-            if (User.IsInRole("Developer") && version.HasAdminConsent ||
-               (User.IsInRole("Administrator") && !deletionApproval))
+            if (User.IsInRole("Developer") && version.HasAdminConsent || (User.IsInRole("Administrator") && !deletionApproval))
             {
                 version.NeedsDeletionApproval = deletionApproval;
                 await _pluginRepository.UpdatePluginVersion(pluginId, version);

@@ -27,7 +27,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<bool> TryUpdateMapping(NameMapping mapping)
         {
-            var mappings = await _namesManager.ReadNames();
+            var mappings = (await _namesManager.ReadNames()).ToList();
             if (Exists(mappings, mapping))
             {
                 return false;

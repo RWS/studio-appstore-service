@@ -23,7 +23,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index(int pluginId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId, User);
-            var logs = await _loggingRepository.GetPluginLogs(plugin.Id);
+            var logs = await _loggingRepository.GetPluginLogs(pluginId);
             var from = string.IsNullOrEmpty(Request.Query["FromDate"].FirstOrDefault()) ? DateTime.MinValue : DateTime.Parse(Request.Query["FromDate"][0]);
             var to = string.IsNullOrEmpty(Request.Query["ToDate"].FirstOrDefault()) ? DateTime.MaxValue : DateTime.Parse(Request.Query["ToDate"][0]);
 
@@ -32,7 +32,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             {
                 Logs = logs,
                 IsEditMode = true,
-            }, new List<FilterItem>
+            }, ApplyFilters()));
+        }
+
+        private IEnumerable<FilterItem> ApplyFilters()
+        {
+            return new List<FilterItem>
             {
                 new FilterItem
                 {
@@ -55,7 +60,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                     Value = Request.Query["Query"],
                     IsSelected = !string.IsNullOrEmpty(Request.Query["Query"].FirstOrDefault())
                 }
-            }));
+            };
         }
     }
 }
