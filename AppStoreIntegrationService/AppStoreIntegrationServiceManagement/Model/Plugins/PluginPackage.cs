@@ -71,14 +71,14 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
                 Directory.Delete(_pluginDownloadPath, true);
                 return response;
             }
+            catch (InvalidDataException)
+            {
+                Directory.Delete(_pluginDownloadPath, true);
+                throw new Exception("Unable to execute manifest comparison! There is no manifest in the URL!");
+            }
             catch (Exception e)
             {
                 Directory.Delete(_pluginDownloadPath, true);
-                if (e is InvalidDataException)
-                {
-                    throw new Exception("Unable to execute manifest comparison! There is no manifest in the URL!");
-                }
-
                 throw new Exception(e.Message);
             }
         }

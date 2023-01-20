@@ -7,11 +7,11 @@ namespace AppStoreIntegrationServiceManagement.Model
     public class CustomizationHelper
     {
         private readonly IEnumerable<string> defaults = new[] { "navbar", "success", "select" };
-        private readonly IRequestCookieCollection _cookies;
+        private readonly IHttpContextAccessor _context;
 
         public CustomizationHelper(IHttpContextAccessor context)
         {
-            _cookies = context.HttpContext.Request.Cookies;
+            _context = context;
             FontFamilies = JsonConvert.DeserializeObject<List<string>>(Encoding.ASCII.GetString(ServiceResource.FontNames));
             InitFields();
         }
@@ -22,62 +22,70 @@ namespace AppStoreIntegrationServiceManagement.Model
 
         public string GetFontSizeForField(string field, string defaultValue)
         {
+            var cookies = _context.HttpContext.Request.Cookies;
+
             if (string.IsNullOrEmpty(field))
             {
-                return string.IsNullOrEmpty(_cookies["FontSize"]) ? defaultValue : _cookies["FontSize"];
+                return string.IsNullOrEmpty(cookies["FontSize"]) ? defaultValue : cookies["FontSize"];
             }
 
-            if (string.IsNullOrEmpty(_cookies[$"{field}FontSize"]))
+            if (string.IsNullOrEmpty(cookies[$"{field}FontSize"]))
             {
-                return defaults.Any(x => x == field) && !string.IsNullOrEmpty(_cookies["FontSize"]) ? _cookies["FontSize"] : defaultValue;
+                return defaults.Any(x => x == field) && !string.IsNullOrEmpty(cookies["FontSize"]) ? cookies["FontSize"] : defaultValue;
             }
 
-            return _cookies[$"{field}FontSize"];
+            return cookies[$"{field}FontSize"];
         }
 
         public string GetForegroundForField(string field, string defaultValue)
         {
+            var cookies = _context.HttpContext.Request.Cookies;
+
             if (string.IsNullOrEmpty(field))
             {
-                return string.IsNullOrEmpty(_cookies["ForegroundColor"]) ? defaultValue : _cookies["ForegroundColor"];
+                return string.IsNullOrEmpty(cookies["ForegroundColor"]) ? defaultValue : cookies["ForegroundColor"];
             }
 
-            if (string.IsNullOrEmpty(_cookies[$"{field}ForegroundColor"]))
+            if (string.IsNullOrEmpty(cookies[$"{field}ForegroundColor"]))
             {
-                return defaults.Any(x => x == field) && !string.IsNullOrEmpty(_cookies["ForegroundColor"]) ? _cookies["ForegroundColor"] : defaultValue;
+                return defaults.Any(x => x == field) && !string.IsNullOrEmpty(cookies["ForegroundColor"]) ? cookies["ForegroundColor"] : defaultValue;
             }
 
-            return _cookies[$"{field}ForegroundColor"];
+            return cookies[$"{field}ForegroundColor"];
         }
 
         public string GetBackgroundForField(string field, string defaultValue)
         {
+            var cookies = _context.HttpContext.Request.Cookies;
+
             if (string.IsNullOrEmpty(field))
             {
-                return string.IsNullOrEmpty(_cookies["BackgroundColor"]) ? defaultValue : _cookies["BackgroundColor"];
+                return string.IsNullOrEmpty(cookies["BackgroundColor"]) ? defaultValue : cookies["BackgroundColor"];
             }
 
-            if (string.IsNullOrEmpty(_cookies[$"{field}BackgroundColor"]))
+            if (string.IsNullOrEmpty(cookies[$"{field}BackgroundColor"]))
             {
-                return defaults.Any(x => x == field) && !string.IsNullOrEmpty(_cookies["BackgroundColor"]) ? _cookies["BackgroundColor"] : defaultValue;
+                return defaults.Any(x => x == field) && !string.IsNullOrEmpty(cookies["BackgroundColor"]) ? cookies["BackgroundColor"] : defaultValue;
             }
 
-            return _cookies[$"{field}BackgroundColor"];
+            return cookies[$"{field}BackgroundColor"];
         }
 
         public string GetFontFamilyForField(string field, string defaultValue)
         {
+            var cookies = _context.HttpContext.Request.Cookies;
+
             if (string.IsNullOrEmpty(field))
             {
-                return string.IsNullOrEmpty(_cookies["FontFamily"]) ? defaultValue : _cookies["FontFamily"];
+                return string.IsNullOrEmpty(cookies["FontFamily"]) ? defaultValue : cookies["FontFamily"];
             }
 
-            if (string.IsNullOrEmpty(_cookies[$"{field}FontFamily"]))
+            if (string.IsNullOrEmpty(cookies[$"{field}FontFamily"]))
             {
-                return defaults.Any(x => x == field) && !string.IsNullOrEmpty(_cookies["FontFamily"]) ? _cookies["FontFamily"] : defaultValue;
+                return defaults.Any(x => x == field) && !string.IsNullOrEmpty(cookies["FontFamily"]) ? cookies["FontFamily"] : defaultValue;
             }
 
-            return _cookies[$"{field}FontFamily"]?.Replace('+', ' ');
+            return cookies[$"{field}FontFamily"]?.Replace('+', ' ');
         }
 
         private void InitFields()

@@ -5,6 +5,9 @@ using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceAPI.Model.Repository.Interface;
 using AppStoreIntegrationServiceAPI.Model.Repository;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using AppStoreIntegrationServiceAPI.HealthChecks;
+using HealthChecks.UI.Client;
 
 namespace AppStoreIntegrationServiceAPI
 {
@@ -19,15 +22,9 @@ namespace AppStoreIntegrationServiceAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var serviceProvider = services.BuildServiceProvider();
-            var env = serviceProvider.GetService<IWebHostEnvironment>();
-
-            var settingsDeployMode = Configuration.GetValue<string>("DeployMode");
-            _ = Enum.TryParse(settingsDeployMode, out DeployMode deployMode);
-            var configurationSettings = GetConfigurationSettings(env, deployMode).Result;
-
-            services.AddMvc();
-            services.AddHttpContextAccessor();
+            _ = Enum.TryParse(Configuration.GetValue<string>("DeployMode"), out DeployMode deployMode);
+            var configurationSettings = GetConfigurationSettings(GetServiceProvider(services).GetService<IWebHostEnvironment>(), deployMode).Result;
+            
             services.Configure<GzipCompressionProviderOptions>(options =>
             {
                 options.Level = CompressionLevel.Optimal;
@@ -38,6 +35,10 @@ namespace AppStoreIntegrationServiceAPI
                 options.EnableForHttps = true;
                 options.Providers.Add<GzipCompressionProvider>();
             });
+
+            services.AddMvc();
+            services.AddHttpContextAccessor();
+            services.AddHealthChecks().AddCheck<ResponeTimeHealthCheck>("Response time");
 
             if (deployMode == DeployMode.AzureBlob)
             {
@@ -68,6 +69,11 @@ namespace AppStoreIntegrationServiceAPI
             services.AddSingleton<INamesRepository, NamesRepository>();
         }
 
+        private static ServiceProvider GetServiceProvider(IServiceCollection services)
+        {
+            return services.BuildServiceProvider();
+        }
+
         private async Task<ConfigurationSettings> GetConfigurationSettings(IWebHostEnvironment env, DeployMode deployMode)
         {
             var configurationSettings = new ConfigurationSettings(deployMode);
@@ -93,6 +99,10 @@ namespace AppStoreIntegrationServiceAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions()
+                {
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}"

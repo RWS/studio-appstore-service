@@ -5,22 +5,9 @@
     <p class="text-center fw-bold p-1 text-wrap">@(Model.Name ?? "New plugin name")</p>
 
     <div class="d-flex align-content-center col-12 p-0">
-        @if (!User.IsInRole("Developer") && (Model.Status.Equals(Status.Active) || Model.Status.Equals(Status.Inactive)))
-        {
-            <p class="col-4 m-0 align-self-center">Status</p>
-            <select class="form-select-sm fs-inherit pa-admin-select w-100" asp-for="Status">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-            </select>
-        }
-        else
-        {
-            if (Model.IsEditMode)
-            {
-                <p class="col-4 m-0 align-self-center">Status</p>
-                <input class="ignore form-control" readonly asp-for="Status" />
-            }
-        }
+        <p class="col-4 m-0 align-self-center">Status</p>
+        <div class="px-2 py-1 border rounded me-2 w-100">@Model.Status</div>
+        <input hidden readonly asp-for="Status" />
     </div>
 </div>
 

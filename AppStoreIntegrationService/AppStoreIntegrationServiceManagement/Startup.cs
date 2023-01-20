@@ -7,6 +7,9 @@ using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using HealthChecks.UI.Client;
 
 namespace AppStoreIntegrationServiceManagement
 {
@@ -43,6 +46,7 @@ namespace AppStoreIntegrationServiceManagement
 
             services.AddMvc();
             services.AddHttpContextAccessor();
+            services.AddHealthChecks().AddCheck<SQLConnectionHealthCheck>("SQL connection");
             services.AddResponseCaching();
             services.AddHttpContextAccessor();
 
@@ -146,6 +150,10 @@ namespace AppStoreIntegrationServiceManagement
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions()
+                {
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"

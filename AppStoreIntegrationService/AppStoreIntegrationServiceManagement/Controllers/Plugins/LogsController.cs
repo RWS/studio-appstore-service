@@ -24,15 +24,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId, User);
             var logs = await _loggingRepository.GetPluginLogs(pluginId);
-            var from = string.IsNullOrEmpty(Request.Query["FromDate"].FirstOrDefault()) ? DateTime.MinValue : DateTime.Parse(Request.Query["FromDate"][0]);
-            var to = string.IsNullOrEmpty(Request.Query["ToDate"].FirstOrDefault()) ? DateTime.MaxValue : DateTime.Parse(Request.Query["ToDate"][0]);
+            var fromDateFilter = string.IsNullOrEmpty(Request.Query["FromDate"].FirstOrDefault()) ? DateTime.MinValue : DateTime.Parse(Request.Query["FromDate"][0]);
+            var toDateFilter = string.IsNullOrEmpty(Request.Query["ToDate"].FirstOrDefault()) ? DateTime.MaxValue : DateTime.Parse(Request.Query["ToDate"][0]);
+            var extended = ExtendedPluginDetails.CopyFrom(plugin);
 
-            logs = _loggingRepository.SearchLogs(logs, from, to, Request.Query["Query"].FirstOrDefault());
-            return View((new ExtendedPluginDetails(plugin)
-            {
-                Logs = logs,
-                IsEditMode = true,
-            }, ApplyFilters()));
+            logs = _loggingRepository.SearchLogs(logs, fromDateFilter, toDateFilter, Request.Query["Query"].FirstOrDefault());
+            extended.Logs = logs;
+            extended.IsEditMode = true;
+
+            return View((extended, ApplyFilters()));
         }
 
         private IEnumerable<FilterItem> ApplyFilters()

@@ -112,12 +112,12 @@ namespace AppStoreIntegrationServiceCore.Repository
             };
         }
 
-        private string GetPropertyChange(object old, object current, PropertyInfo info)
+        private static string GetPropertyChange(object old, object current, PropertyInfo info)
         {
             var oldValue = info.GetValue(old);
             var newValue = info.GetValue(current);
 
-            if (oldValue.Equals(newValue))
+            if (Equals(oldValue, newValue))
             {
                 return null;
             }

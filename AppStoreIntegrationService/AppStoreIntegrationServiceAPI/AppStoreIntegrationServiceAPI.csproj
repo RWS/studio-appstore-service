@@ -9,6 +9,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
+	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\AppStoreIntegrationServiceCore\AppStoreIntegrationServiceCore.csproj" />
 	</ItemGroup>
 

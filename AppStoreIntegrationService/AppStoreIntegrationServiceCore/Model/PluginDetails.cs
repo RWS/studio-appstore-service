@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using static AppStoreIntegrationServiceCore.Enums;
+﻿using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -9,27 +8,24 @@ namespace AppStoreIntegrationServiceCore.Model
         public bool IsThirdParty { get; set; }
         public bool NeedsDeletionApproval { get; set; }
         public bool HasAdminConsent { get; set; }
+        public bool WasActive { get; set; }
         public bool Equals(PluginDetails other)
         {
-            var properties = typeof(PluginDetails).GetProperties().Where(p => !p.Name.Equals("Versions"));
-
-            foreach (PropertyInfo property in properties)
-            {
-                bool ok = property.Name switch
-                {
-                    "Categories" => Categories.SequenceEqual(other.Categories),
-                    "Icon" => Icon.Equals(other.Icon),
-                    "Developer" => Developer.Equals(other.Developer),
-                    _ => Equals(property.GetValue(this), property.GetValue(other))
-                };
-
-                if (!ok)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return Name == other.Name &&
+                   Description == other.Description &&
+                   ChangelogLink == other.ChangelogLink &&
+                   SupportUrl == other.SupportUrl &&
+                   SupportEmail == other.SupportEmail &&
+                   Icon.Equals(other.Icon) &&
+                   PaidFor == other.PaidFor &&
+                   Developer.Equals(other.Developer) &&
+                   Categories.SequenceEqual(other.Categories) &&
+                   DownloadUrl == other.DownloadUrl &&
+                   Status == other.Status &&
+                   IsThirdParty == other.IsThirdParty &&
+                   NeedsDeletionApproval == other.NeedsDeletionApproval &&
+                   HasAdminConsent == other.HasAdminConsent &&
+                   WasActive == other.WasActive;
         }
     }
 }

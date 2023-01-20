@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace AppStoreIntegrationServiceCore.Model
+﻿namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginNamesRequest
     {

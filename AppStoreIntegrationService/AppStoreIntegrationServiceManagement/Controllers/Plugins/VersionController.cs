@@ -36,21 +36,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var versions = new List<ExtendedPluginVersion>();
             var selectedVersion = Request.Query["selectedVersion"];
-            var parents = await _productsRepository.GetAllParents();
             var products = await _productsRepository.GetAllProducts();
             var plugin = await _pluginRepository.GetPluginById(pluginId, User);
-            var extendedPlugin = new ExtendedPluginDetails(plugin) { Parents = parents, IsEditMode = true };
             var productsList = new MultiSelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
+            var extendedPlugin = ExtendedPluginDetails.CopyFrom(plugin);
+
+            extendedPlugin.Parents = await _productsRepository.GetAllParents();
+            extendedPlugin.IsEditMode = true;
 
             foreach (var version in extendedPlugin.Versions)
             {
-                versions.Add(new ExtendedPluginVersion(version)
-                {
-                    VersionComments = await _commentsRepository.GetComments(pluginId, version.VersionId),
-                    SupportedProductsListItems = productsList,
-                    PluginId = pluginId,
-                    IsThirdParty = extendedPlugin.IsThirdParty
-                });
+                var extendedVersion = ExtendedPluginVersion.CopyFrom(version);
+                extendedVersion.VersionComments = await _commentsRepository.GetComments(pluginId, version.VersionId);
+                extendedVersion.SupportedProductsListItems = productsList;
+                extendedVersion.PluginId = pluginId;
+                extendedVersion.IsThirdParty = extendedPlugin.IsThirdParty;
+                versions.Add(extendedVersion);
             }
 
             versions.Add(new ExtendedPluginVersion
@@ -59,43 +60,48 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 SupportedProductsListItems = productsList,
                 IsNewVersion = true,
                 PluginId = pluginId,
+                VersionStatus = Status.Inactive,
                 IsThirdParty = extendedPlugin.IsThirdParty
             });
 
-            return View((extendedPlugin, versions));
+            return View((extendedPlugin, versions.Where(v => !v.IsThirdParty || User.IsInRole("Developer") || User.IsInRole("StandardUser") && v.VersionStatus == Status.Active || User.IsInRole("Administrator") && v.HasAdminConsent)));
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Save")]
-        public async Task<IActionResult> Save(PluginVersion version, bool isNewVersion, int pluginId)
+        public async Task<IActionResult> Save(PluginVersion version, bool isNewVersion, int pluginId, bool saveStatusOnly)
         {
             try
             {
                 version.HasAdminConsent = version.HasAdminConsent || version.VersionStatus.Equals(Status.InReview);
+                version.WasActive = version.WasActive || version.VersionStatus.Equals(Status.Active);
                 var old = await _pluginRepository.GetPluginVersion(pluginId, version.VersionId, User);
-                await _loggingRepository.Log(User, pluginId, new PluginVersionBase<string>(version), old == null ? old : new PluginVersionBase<string>(old));
+                await _loggingRepository.Log(User, pluginId, PluginVersionBase<string>.CopyFrom(version), PluginVersionBase<string>.CopyFrom(old));
                 await _pluginRepository.UpdatePluginVersion(pluginId, version);
-                var response = await PluginPackage.DownloadPlugin(version.DownloadUrl);
-                var log = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
 
-                TempData["IsVersionMatch"] = log.IsVersionMatch;
-                TempData["IsMinVersionMatch"] = log.IsMinVersionMatch;
-                TempData["IsMaxVersionMatch"] = log.IsMaxVersionMatch;
-                TempData["IsProductMatch"] = log.IsProductMatch;
-
-                if (!isFullMatch)
+                if (!saveStatusOnly)
                 {
-                    TempData["StatusMessage"] = "Warning! Version was saved but there are manifest conflicts!";
-                    return new EmptyResult();
+                    var response = await PluginPackage.DownloadPlugin(version.DownloadUrl);
+                    var log = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
+
+                    TempData["IsVersionMatch"] = log.IsVersionMatch;
+                    TempData["IsMinVersionMatch"] = log.IsMinVersionMatch;
+                    TempData["IsMaxVersionMatch"] = log.IsMaxVersionMatch;
+                    TempData["IsProductMatch"] = log.IsProductMatch;
+
+                    if (!isFullMatch)
+                    {
+                        TempData["StatusMessage"] = "Warning! Version was saved but there are manifest conflicts!";
+                        return new EmptyResult();
+                    }
                 }
+
+                TempData["StatusMessage"] = string.Format("Success! Version was {0}!", isNewVersion ? "added" : "updated");
+                return new EmptyResult();
             }
             catch (Exception e)
             {
-                TempData["StatusMessage"] = $"Error! {e.Message}.";
-                return new EmptyResult();
+                return PartialView("_StatusMessage", string.Format("Error! {0}!", e.Message));
             }
-
-            TempData["StatusMessage"] = string.Format("Success! Version was {0}!", isNewVersion ? "added" : "updated");
-            return new EmptyResult();
         }
 
         [HttpPost]
@@ -119,7 +125,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var version = await _pluginRepository.GetPluginVersion(pluginId, versionId, User);
 
-            if (User.IsInRole("Developer") && version.HasAdminConsent || (User.IsInRole("Administrator") && !deletionApproval))
+            if (User.IsInRole("Developer") && version.HasAdminConsent && version.WasActive || 
+               (User.IsInRole("Administrator") && !deletionApproval))
             {
                 version.NeedsDeletionApproval = deletionApproval;
                 await _pluginRepository.UpdatePluginVersion(pluginId, version);

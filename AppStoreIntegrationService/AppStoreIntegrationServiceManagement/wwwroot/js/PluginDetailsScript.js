@@ -14,7 +14,7 @@
     });
 });
 
-function SavePlugin(saveAs) {
+function SavePlugin(saveAs, saveStatusOnly) {
     var button = event.currentTarget;
     $("#form").validate();
 
@@ -22,18 +22,29 @@ function SavePlugin(saveAs) {
         let request = new XMLHttpRequest();
         let data = new FormData(document.getElementById("form"));
         ToggleLoader(button);
-
-        if (saveAs != undefined) {
-            data.set("Status", saveAs);
-        }
+        data.set("Status", saveAs);
+        data.set("SaveStatusOnly", saveStatusOnly);
 
         request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE) {
-                if (request.status == 200) {
-                    window.location.href = request.responseText;
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                if (request.responseText.includes('div')) {
+                    document.getElementById('statusMessageContainer').innerHTML = request.responseText;
+
+                    let alert = document.querySelector('.alert')
+                    if (alert) {
+                        setTimeout(() => {
+
+                            alert.classList.add('slide-right');
+                            alert.addEventListener('animationend', () => {
+                                document.querySelector('.alert-container').remove();
+                            })
+                        }, 3000);
+                    }
+
+                    ToggleLoader(button);
                 }
                 else {
-                    ToggleLoader(button);
+                    window.location.href = request.responseText;
                 }
             }
         }

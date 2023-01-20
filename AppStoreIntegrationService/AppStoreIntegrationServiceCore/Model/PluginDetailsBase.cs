@@ -1,31 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+using static AppStoreIntegrationServiceCore.Enums;
+using System.Linq;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginDetailsBase<T, U>
     {
-        public PluginDetailsBase() { }
-
-        public PluginDetailsBase(PluginDetails other)
-        {
-            var thisProperties = typeof(PluginDetailsBase<T, U>).GetProperties();
-            var otherProperties = typeof(PluginDetails).GetProperties().Where(x => thisProperties.Any(y => y.Name.Equals(x.Name))).ToArray();
-
-            for (var i = 0; i < thisProperties.Length; i++)
-            {
-                if (thisProperties[i].Name != "Versions")
-                {
-                    thisProperties[i].SetValue(this, otherProperties[i].GetValue(other));
-                }
-            }
-
-            Versions = other.Versions?.Cast<T>().ToList();
-        }
         public int Id { get; set; }
 
         [Display(Name = "Plugin name")]
         [Required(ErrorMessage = "Plugin name is required!")]
-        [RegularExpression(@"^(\(?[a-zA-Z]{1,}\)?)( ?(- ?)?\(?[a-zA-Z0-9]{1,}'?[).,]?)*$", ErrorMessage = "Invalid name!")]
+        [RegularExpression(@"^(\w+[^<>=]?(\w+)?)(\s?\w+[^<>= ]?)*$", ErrorMessage = "Invalid plugin name!")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Description field is required!")]
@@ -50,11 +36,32 @@ namespace AppStoreIntegrationServiceCore.Model
         public bool PaidFor { get; set; }
         public DeveloperDetails Developer { get; set; }
         public List<T> Versions { get; set; } = new List<T>();
+
         [Display(Name = "Plugin categories")]
         public List<U> Categories { get; set; } = new List<U>();
+
         [Required(ErrorMessage = "Plugin downoad url is required!")]
         [Url(ErrorMessage = "Invalid url!")]
         [Display(Name = "Download url")]
         public string DownloadUrl { get; set; }
+
+        public static PluginDetailsBase<T,U> CopyFrom(PluginDetails other)
+        {
+            return JsonConvert.DeserializeObject<PluginDetailsBase<T, U>>(JsonConvert.SerializeObject(other));
+        }
+
+        public bool Equals(PluginDetailsBase<T, U> other)
+        {
+            return Name == other.Name &&
+                   Description == other.Description &&
+                   ChangelogLink == other.ChangelogLink &&
+                   SupportUrl == other.SupportUrl &&
+                   SupportEmail == other.SupportEmail &&
+                   Icon.Equals(other.Icon) &&
+                   PaidFor == other.PaidFor &&
+                   Developer.Equals(other.Developer) &&
+                   Categories.SequenceEqual(other.Categories) &&
+                   DownloadUrl == other.DownloadUrl;
+        }
     }
 }

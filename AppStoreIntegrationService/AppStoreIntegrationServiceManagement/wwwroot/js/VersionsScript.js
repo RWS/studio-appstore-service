@@ -91,23 +91,18 @@ function GenerateChecksum() {
     request.send(data);
 }
 
-function SaveVersion(pluginId, saveAs) {
+function SaveVersion(pluginId, saveAs, saveStatusOnly) {
     let request = new XMLHttpRequest();
     let data = new FormData(document.getElementById("form"));
     let button = event.currentTarget;
     ToggleLoader(button);
-
-    if (saveAs) {
-        data.set("VersionStatus", saveAs);
-    }
+    data.set("VersionStatus", saveAs);
+    data.set("SaveStatusOnly", saveStatusOnly);
 
     request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE) {
-            if (request.status == 200) {
-                window.location.reload();
-            } else {
-                ToggleLoader(button);
-            }
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            AjaxSuccessCallback(request.responseText);
+            ToggleLoader(button);
         }
     }
 

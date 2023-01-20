@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace AppStoreIntegrationServiceCore.Model
@@ -7,16 +6,6 @@ namespace AppStoreIntegrationServiceCore.Model
     public class ProductDetails : IEquatable<ProductDetails>
     {
         private string _minimumStudioVersion;
-
-        public ProductDetails() { }
-        public ProductDetails(ProductDetails other)
-        {
-            PropertyInfo[] properties = typeof(ProductDetails).GetProperties();
-            foreach (PropertyInfo property in properties)
-            {
-                property.SetValue(this, property.GetValue(other));
-            }
-        }
 
         public string Id { get; set; }
         [Required(ErrorMessage = "The product name is required!")]

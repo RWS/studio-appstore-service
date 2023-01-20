@@ -24,7 +24,7 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
             return new PluginResponse<PluginDetailsBase<PluginVersionBase<string>, string>>
             {
                 APIVersion = response.APIVersion,
-                Value = response.Value.Select(p => new PluginDetailsBase<PluginVersionBase<string>, string>(p)),
+                Value = response.Value.Select(p => PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(p)),
                 Products = response.Products,
                 ParentProducts = response.ParentProducts,
                 Categories = response.Categories

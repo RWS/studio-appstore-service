@@ -1,10 +1,10 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Areas.Plugins.Views.Shared;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Linq;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -55,7 +55,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             return View(new ConfigToolModel
             {
-                Plugins = _pluginRepository.SearchPlugins(plugins, filter, products).Select(p => new ExtendedPluginDetails(p)),
+                Plugins = _pluginRepository.SearchPlugins(plugins, filter, products).Select(p => ExtendedPluginDetails.CopyFrom(p)),
                 StatusListItems = new SelectList(status, nameof(FilterItem.Value), nameof(FilterItem.Label), Request.Query["Status"].FirstOrDefault()),
                 ProductsListItems = new SelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName), Request.Query["Product"].FirstOrDefault()),
                 Filters = status.Concat(products.Select(x => new FilterItem
@@ -100,11 +100,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             var isReadonly = User.IsInRole("StandardUser") && plugin.IsThirdParty;
-            return View(isReadonly ? "ReadonlyDetails" : "Details", new ExtendedPluginDetails(plugin)
-            {
-                IsEditMode = true,
-                CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
-            });
+            var extended = ExtendedPluginDetails.CopyFrom(plugin);
+            extended.CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name));
+            extended.IsEditMode = true;
+
+            return View(isReadonly ? "ReadonlyDetails" : "Details", extended);
         }
 
         [HttpPost]
@@ -112,7 +112,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(id, User);
 
-            if (User.IsInRole("Developer") && plugin.HasAdminConsent || 
+            if (User.IsInRole("Developer") && plugin.HasAdminConsent && plugin.WasActive || 
                (User.IsInRole("Administrator") && !deletionApproved))
             {
                 plugin.NeedsDeletionApproval = deletionApproved;
@@ -129,20 +129,28 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Save(PluginDetails plugin, Status status, bool isEditMode)
+        public async Task<IActionResult> Save(PluginDetails plugin, Status status, bool isEditMode, bool saveStatusOnly)
         {
             try
             {
                 plugin.Status = status;
-                plugin.HasAdminConsent = plugin.HasAdminConsent || status.Equals(Status.InReview);
+                plugin.HasAdminConsent = plugin.HasAdminConsent || status == Status.InReview;
+                plugin.WasActive = plugin.WasActive || status == Status.Active;
 
                 if (isEditMode)
                 {
-                    var old = await _pluginRepository.GetPluginById(plugin.Id, User);
-                    await _loggingRepository.Log(User, new PluginDetailsBase<PluginVersionBase<string>, string>(plugin), new PluginDetailsBase<PluginVersionBase<string>, string>(old));
+                    var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, User);
+                    var oldPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(plugin);
+                    var newPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(oldPlugin);
+
+                    if (!oldPluginToBase.Equals(newPluginToBase))
+                    {
+                        await _loggingRepository.Log(User, oldPluginToBase, newPluginToBase);
+                    }
+                    
                     await _pluginRepository.UpdatePlugin(plugin);
 
-                    if (!string.IsNullOrEmpty(plugin.DownloadUrl))
+                    if (!string.IsNullOrEmpty(plugin.DownloadUrl) && !saveStatusOnly)
                     {
                         var response = await PluginPackage.DownloadPlugin(plugin.DownloadUrl);
                         (TempData["IsNameMatch"], TempData["IsAuthorMatch"]) = response.CreatePluginMatchLog(plugin, out bool isFullMatch);
@@ -165,8 +173,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
             catch (Exception e)
             {
-                TempData["StatusMessage"] = string.Format("Error! {0}!", e.Message);
-                return new EmptyResult();
+                return PartialView("_StatusMessage", string.Format("Error! {0}!", e.Message));
             }
         }
 

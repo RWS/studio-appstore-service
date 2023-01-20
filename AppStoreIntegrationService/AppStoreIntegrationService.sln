@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppStoreIntegrationServiceM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppStoreIntegrationServiceTests", "AppStoreIntegrationServiceTests\AppStoreIntegrationServiceTests.csproj", "{31C49948-9DB4-4A66-8BA5-A8E506DA04E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStoreIntegrationServiceHealthCheck", "AppStoreIntegrationServiceHealthCheck\AppStoreIntegrationServiceHealthCheck.csproj", "{587C0702-E8BD-4ACC-ABA9-A4257BE987DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,14 @@ Global
 		{31C49948-9DB4-4A66-8BA5-A8E506DA04E5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{31C49948-9DB4-4A66-8BA5-A8E506DA04E5}.Release|x86.ActiveCfg = Release|Any CPU
 		{31C49948-9DB4-4A66-8BA5-A8E506DA04E5}.Release|x86.Build.0 = Release|Any CPU
+		{587C0702-E8BD-4ACC-ABA9-A4257BE987DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{587C0702-E8BD-4ACC-ABA9-A4257BE987DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{587C0702-E8BD-4ACC-ABA9-A4257BE987DF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{587C0702-E8BD-4ACC-ABA9-A4257BE987DF}.Debug|x86.Build.0 = Debug|Any CPU
+		{587C0702-E8BD-4ACC-ABA9-A4257BE987DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{587C0702-E8BD-4ACC-ABA9-A4257BE987DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{587C0702-E8BD-4ACC-ABA9-A4257BE987DF}.Release|x86.ActiveCfg = Release|Any CPU
+		{587C0702-E8BD-4ACC-ABA9-A4257BE987DF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
     public class ExtendedProductDetails : ProductDetails
     {
-        public ExtendedProductDetails() { }
-        public ExtendedProductDetails(ProductDetails product) : base(product) { }
         [JsonIgnore]
         public MultiSelectList ParentProductsListItems { get; set; }
         public void SetParentProductsList(IEnumerable<ParentProduct> parents)
@@ -19,5 +17,10 @@ namespace AppStoreIntegrationServiceCore.Model
             );
         }
 
+        public static ExtendedProductDetails CopyFrom(ProductDetails other)
+        {
+            var toString = JsonConvert.SerializeObject(other);
+            return JsonConvert.DeserializeObject<ExtendedProductDetails>(toString);
+        }
     }
 }

@@ -23,11 +23,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId, User);
             var comments = await _commentsRepository.GetComments(pluginId);
-            return View(new ExtendedPluginDetails(plugin)
-            {
-                Comments = comments,
-                IsEditMode = true,
-            });
+            var extended = ExtendedPluginDetails.CopyFrom(plugin);
+            extended.Comments = comments;
+            extended.IsEditMode = true;
+
+            return View(extended);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Comments/{versionId}/New")]

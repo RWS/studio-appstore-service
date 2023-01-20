@@ -27,7 +27,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
             foreach (var product in products)
             {
-                var extended = new ExtendedProductDetails(product);
+                var extended = ExtendedProductDetails.CopyFrom(product);
                 extended.SetParentProductsList(parents);
                 extendedProducts.Add(extended);
             }

@@ -1,23 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Reflection;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
     public class ExtendedPluginVersion : PluginVersion
     {
-        public ExtendedPluginVersion() { }
-
-        public ExtendedPluginVersion(PluginVersion version)
-        {
-            PropertyInfo[] properties = typeof(PluginVersion).GetProperties();
-            foreach (PropertyInfo property in properties)
-            {
-                property.SetValue(this, property.GetValue(version));
-            }
-        }
-
         [JsonIgnore]
         public int PluginId { get; set; }
 
@@ -30,5 +18,11 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [JsonIgnore]
         public IEnumerable<Comment> VersionComments { get; set; }
+
+        public static new ExtendedPluginVersion CopyFrom(PluginVersion other)
+        {
+            var toString = JsonConvert.SerializeObject(other);
+            return JsonConvert.DeserializeObject<ExtendedPluginVersion>(toString);
+        }
     }
 }

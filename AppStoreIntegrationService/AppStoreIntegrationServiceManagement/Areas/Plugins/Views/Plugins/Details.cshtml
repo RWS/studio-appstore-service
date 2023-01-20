@@ -8,6 +8,7 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <partial name="_LinkPartial" />
 <div id="modalContainer"></div>
+<div id="statusMessageContainer"></div>
 
 <form method="post" class="row px-2" onsubmit="return false" id="form" enctype="multipart/form-data">
     <div class="col-12 col-lg-4">
@@ -19,13 +20,14 @@
         {
             <partial name="_PluginSubMenu" model="Model.Id" />
         }
-        
+
         <input readonly hidden name="Page" value="@Page.Plugin" />
         <input readonly hidden asp-for="Id" />
         <input readonly hidden asp-for="IsEditMode" />
         <input readonly hidden asp-for="IsThirdParty" />
         <input readonly hidden asp-for="NeedsDeletionApproval" />
         <input readonly hidden asp-for="HasAdminConsent" />
+        <input readonly hidden asp-for="WasActive" />
         <input readonly hidden class="ignore" asp-for="DownloadUrl" />
 
         <div class="d-flex align-content-center col-12 p-0 mb-3 mt-3">
@@ -164,48 +166,52 @@
             <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" />
         </div>
 
-        @if (Model.IsThirdParty)
+        @if (Model.IsThirdParty && User.IsInRole("Developer"))
         {
-            @if (User.IsInRole("Developer"))
-            {
-                <button class="btn pa-admin-success-btn" onclick="SavePlugin('InReview')">
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                    Submit
-                </button>
-                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('Draft')">
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                    Save as draft
-                </button>
-            }
+            <button class="btn pa-admin-success-btn" onclick="SavePlugin('InReview', false)">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Submit
+            </button>
+            <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('Draft', true)">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Save as draft
+            </button>
 
-            @if (User.IsInRole("Administrator"))
-            {
-                if (Model.Status.Equals(Status.InReview))
-                {
-                    <button class="btn pa-admin-success-btn" onclick="SavePlugin('Active')">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                        Approve
-                    </button>
-                    <button class="btn btn-danger" onclick="SavePlugin('Draft')">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                        Reject
-                    </button>
-                }
-                else
-                {
-                    <button class="btn pa-admin-success-btn" onclick="SavePlugin()">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                        Save
-                    </button>
-                }
-            }
+
+        }
+        else if (Model.IsThirdParty && User.IsInRole("Administrator") && Model.Status.Equals(Status.InReview))
+        {
+            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Active', false)">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Approve
+            </button>
+            <button class="btn btn-danger" onclick="SavePlugin('Draft', true)">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Reject
+            </button>
         }
         else
         {
-            <button class="btn pa-admin-success-btn" onclick="SavePlugin()">
+            <button class="btn pa-admin-success-btn" onclick="SavePlugin('@Model.Status.ToString()', false)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Save
             </button>
+
+            @if (Model.Status.Equals(Status.Active))
+            {
+                <button class="btn btn-outline-secondary" onclick="SavePlugin('Inactive',true)">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Deactivate
+                </button>
+            }
+
+            @if (Model.Status.Equals(Status.Inactive))
+            {
+                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('Active',true)">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Activate
+                </button>
+            }
         }
     </div>
 </form>

@@ -4,6 +4,7 @@
     {
         public string APIVersion { get; set; }
         public IEnumerable<T> Value { get; set; }
+        public IEnumerable<T> Pending { get; set; }
         public IEnumerable<ProductDetails> Products { get; set; }
         public IEnumerable<ParentProduct> ParentProducts { get; set; }
         public IEnumerable<CategoryDetails> Categories { get; set; }

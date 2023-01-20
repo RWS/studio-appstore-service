@@ -9,24 +9,6 @@ namespace AppStoreIntegrationServiceCore.Model
         private string _minimumRequiredVersionOfStudio;
         private string _maximumRequiredVersionOfStudio;
 
-        public PluginVersionBase() { }
-
-        public PluginVersionBase(PluginVersion other)
-        {
-            var thisProperties = typeof(PluginVersionBase<T>).GetProperties();
-            var otherProperties = typeof(PluginVersion).GetProperties().Where(x => thisProperties.Any(y => y.Name.Equals(x.Name))).ToArray();
-
-            for (var i = 0; i < thisProperties.Length; i++)
-            {
-                if (thisProperties[i].Name != "Versions")
-                {
-                    thisProperties[i].SetValue(this, otherProperties[i].GetValue(other));
-                }
-            }
-
-            SupportedProducts = other.SupportedProducts?.Cast<T>().ToList();
-        }
-
         [JsonProperty("Id")]
         public string VersionId { get; set; }
 
@@ -92,5 +74,16 @@ namespace AppStoreIntegrationServiceCore.Model
         [Url(ErrorMessage = "Invalid url!")]
         public string DownloadUrl { get; set; }
         public bool IsPrivatePlugin { get; set; }
+
+        public static PluginVersionBase<T> CopyFrom(PluginVersion other)
+        {
+            if (other == null)
+            {
+                return null;
+            }
+
+            var otherToString = JsonConvert.SerializeObject(other);
+            return JsonConvert.DeserializeObject<PluginVersionBase<T>>(otherToString);
+        }
     }
 }

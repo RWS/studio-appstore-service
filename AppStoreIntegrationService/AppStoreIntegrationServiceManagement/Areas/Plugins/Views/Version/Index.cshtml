@@ -1,4 +1,4 @@
-﻿@model (ExtendedPluginDetails plugin, List<ExtendedPluginVersion> versions)
+﻿@model (ExtendedPluginDetails plugin, IEnumerable<ExtendedPluginVersion> versions)
 @{
     ViewData["Title"] = "Versions";
     ViewData["ActivePage"] = ManagePluginsNav.Versions;
@@ -17,81 +17,86 @@
     </div>
 
     <div class="col-12 col-lg-8 border-container">
-        @foreach (var version in Model.versions)
+        @if (Model.versions.Any())
         {
-            if ((!User.IsInRole("Developer") && version.IsThirdParty && !version.HasAdminConsent))
+            @foreach (var version in Model.versions)
             {
-                continue;
-            }
-
-            <div class="d-flex justify-content-between p-3 border-bottom">
-                <div class="d-flex cursor-pointer w-100" onclick="Show('@version.VersionId', 'Details')">
-                    <i class="fa fa-caret-down align-self-center me-2"></i>
-                    <p class="m-0 fw-bold version-number-placeholder align-self-center">@(version.IsNewVersion ? "New Version" : version.VersionNumber)</p>
-                </div>
-                @if (!version.IsNewVersion)
-                {
-                    <div class="d-flex justify-content-between">
-                        <div class="px-2 py-1 border rounded me-2">@version.VersionStatus</div>
-                        @if (version.IsThirdParty && !User.IsInRole("StandardUser"))
-                        {
-                            if (version.NeedsDeletionApproval)
+                <div class="d-flex justify-content-between p-3 border-bottom">
+                    <div class="d-flex cursor-pointer w-100" onclick="Show('@version.VersionId', 'Details')">
+                        <i class="fa fa-caret-down align-self-center me-2"></i>
+                        <p class="m-0 fw-bold version-number-placeholder align-self-center">@(version.IsNewVersion ? "New Version" : version.VersionNumber)</p>
+                    </div>
+                    @if (!version.IsNewVersion)
+                    {
+                        <div class="d-flex justify-content-between">
+                            <div class="px-2 py-1 border rounded me-2">@version.VersionStatus</div>
+                            @if (version.IsThirdParty && !User.IsInRole("StandardUser"))
                             {
-                                if (User.IsInRole("Administrator"))
+                                if (version.NeedsDeletionApproval)
                                 {
-                                    <div class="position-relative">
-                                        <div class="btn-group">
-                                            <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"></i>
-                                            <div class="dropdown-menu">
-                                                <div class="d-flex p-2">
-                                                    <button class="btn pa-admin-success-btn me-2" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId', true)">Approve</button>
-                                                    <button class="btn btn-danger" onclick="ApproveDeletion('@Model.plugin.Id', '@version.VersionId', false)">Reject</button>
+                                    if (User.IsInRole("Administrator"))
+                                    {
+                                        <div class="position-relative">
+                                            <div class="btn-group">
+                                                <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                                <div class="dropdown-menu">
+                                                    <div class="d-flex p-2">
+                                                        <button class="btn pa-admin-success-btn me-2" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId', true)">Approve</button>
+                                                        <button class="btn btn-danger" onclick="ApproveDeletion('@Model.plugin.Id', '@version.VersionId', false)">Reject</button>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <i class="fa fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="Deletion approval needed!"></i>
                                         </div>
-                                        <i class="fa fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="Deletion approval needed!"></i>
-                                    </div>
-                                }
+                                    }
 
-                                if (User.IsInRole("Developer"))
+                                    if (User.IsInRole("Developer"))
+                                    {
+                                        <div class="position-relative cursor-pointer">
+                                            <i class="fa fa-trash-alt align-self-center"></i>
+                                            <i class="fa fa-clock text-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="Deletion approval pending!"></i>
+                                        </div>
+                                    }
+                                }
+                                else
                                 {
-                                    <div class="position-relative cursor-pointer">
-                                        <i class="fa fa-trash-alt align-self-center"></i>
-                                        <i class="fa fa-clock text-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="Deletion approval pending!"></i>
-                                    </div>
+                                    <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId', true)"></i>
                                 }
                             }
-                            else
+
+                            @if (!version.IsThirdParty)
                             {
                                 <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId', true)"></i>
                             }
-                        }
+                        </div>
+                    }
+                </div>
 
-                        @if (!version.IsThirdParty)
+                <div class="version-details" aria-expanded="false">
+                    @if (selectedVersion == version.VersionId && selectedView == "Comments")
+                    {
+                        <partial name="/Areas/Plugins/Views/Comments/_CommentsPartial.cshtml" model="@(Model.plugin.Id, version.VersionId, version.VersionComments)" />
+                    }
+
+                    @if (selectedVersion == version.VersionId && selectedView == "Details")
+                    {
+                        if (version.IsThirdParty && User.IsInRole("StandardUser"))
                         {
-                            <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteVersion('@Model.plugin.Id', '@version.VersionId', true)"></i>
+                            <partial name="_ReadonlyVersionPartial" model="@version" />
                         }
-                    </div>
-                }
-            </div>
-
-            <div class="version-details" aria-expanded="false">
-                @if (selectedVersion == version.VersionId && selectedView == "Comments")
-                {
-                    <partial name="/Areas/Plugins/Views/Comments/_CommentsPartial.cshtml" model="@(Model.plugin.Id, version.VersionId, version.VersionComments)" />
-                }
-
-                @if (selectedVersion == version.VersionId && selectedView == "Details")
-                {
-                    if (version.IsThirdParty && User.IsInRole("StandardUser"))
-                    {
-                        <partial name="_ReadonlyVersionPartial" model="@version" />
+                        else
+                        {
+                            <partial name="_VersionPartial" model="@version" />
+                        }
                     }
-                    else
-                    {
-                        <partial name="_VersionPartial" model="@version" />
-                    }
-                }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="d-flex flex-column align-items-center">
+                <img src="~/images/empty-result.png" width="200" height="200" />
+                <h5 class="mt-2">No versions found!</h5>
             </div>
         }
     </div>
