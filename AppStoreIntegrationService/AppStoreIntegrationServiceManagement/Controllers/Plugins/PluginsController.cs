@@ -1,6 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Areas.Plugins.Views.Shared;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -55,7 +54,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             return View(new ConfigToolModel
             {
-                Plugins = _pluginRepository.SearchPlugins(plugins, filter, products).Select(p => ExtendedPluginDetails.CopyFrom(p)),
+                Plugins = PluginFilter.SearchPlugins(plugins, filter, products).Select(p => ExtendedPluginDetails.CopyFrom(p)),
                 StatusListItems = new SelectList(status, nameof(FilterItem.Value), nameof(FilterItem.Label), Request.Query["Status"].FirstOrDefault()),
                 ProductsListItems = new SelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName), Request.Query["Product"].FirstOrDefault()),
                 Filters = status.Concat(products.Select(x => new FilterItem
@@ -116,7 +115,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                (User.IsInRole("Administrator") && !deletionApproved))
             {
                 plugin.NeedsDeletionApproval = deletionApproved;
-                await _pluginRepository.UpdatePlugin(plugin);
+                await _pluginRepository.SavePlugin(plugin);
                 TempData["StatusMessage"] = string.Format("Success! Plugin deletion request was {0}!", deletionApproved ? "sent" : "rejected");
                 return Content("");
             }
@@ -148,7 +147,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                         await _loggingRepository.Log(User, oldPluginToBase, newPluginToBase);
                     }
                     
-                    await _pluginRepository.UpdatePlugin(plugin);
+                    await _pluginRepository.SavePlugin(plugin);
 
                     if (!string.IsNullOrEmpty(plugin.DownloadUrl) && !saveStatusOnly)
                     {
@@ -164,7 +163,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 }
                 else
                 {
-                    await _pluginRepository.AddPlugin(plugin);
+                    await _pluginRepository.SavePlugin(plugin);
                     await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> added <b>{plugin.Name}</b> at {DateTime.Now}");
                 }
 

@@ -13,18 +13,11 @@ namespace AppStoreIntegrationServiceAPI.Controllers
     public class PluginsController : Controller
     {
         private readonly IPluginResponseConverter _converter;
-        private readonly IPluginRepository _pluginRepository;
         private readonly IResponseManager _manager;
 
-        public PluginsController
-        (
-            IPluginResponseConverter converter,
-            IPluginRepository pluginRepository,
-            IResponseManager manager
-        )
+        public PluginsController(IPluginResponseConverter converter, IResponseManager manager)
         {
             _converter = converter;
-            _pluginRepository = pluginRepository;
             _manager = manager;
         }
 
@@ -38,7 +31,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             _ = Request.Headers.TryGetValue("apiversion", out StringValues text);
             filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;
             var response = await _manager.GetResponse();
-            response.Value = _pluginRepository.SearchPlugins(response.Value, filter, response.Products);
+            response.Value = PluginFilter.SearchPlugins(response.Value, filter, response.Products);
 
             if (!Version.TryParse(text, out Version version) || version == new Version(1, 0, 0))
             {
