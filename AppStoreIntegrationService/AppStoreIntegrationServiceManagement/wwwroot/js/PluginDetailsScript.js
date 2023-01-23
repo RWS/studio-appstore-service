@@ -14,7 +14,7 @@
     });
 });
 
-function SavePlugin(saveAs, saveStatusOnly) {
+function SavePlugin() {
     var button = event.currentTarget;
     $("#form").validate();
 
@@ -22,35 +22,160 @@ function SavePlugin(saveAs, saveStatusOnly) {
         let request = new XMLHttpRequest();
         let data = new FormData(document.getElementById("form"));
         ToggleLoader(button);
-        data.set("Status", saveAs);
-        data.set("SaveStatusOnly", saveStatusOnly);
 
         request.onreadystatechange = function () {
             if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                if (request.responseText.includes('div')) {
-                    document.getElementById('statusMessageContainer').innerHTML = request.responseText;
-
-                    let alert = document.querySelector('.alert')
-                    if (alert) {
-                        setTimeout(() => {
-
-                            alert.classList.add('slide-right');
-                            alert.addEventListener('animationend', () => {
-                                document.querySelector('.alert-container').remove();
-                            })
-                        }, 3000);
-                    }
-
-                    ToggleLoader(button);
-                }
-                else {
-                    window.location.href = request.responseText;
-                }
+                HttpRequestCallback(request.responseText)
             }
         }
 
         request.open("POST", `/Plugins/Plugins/Save`);
         request.send(data);
+    }
+}
+
+function SaveAsDraft() {
+    var button = event.currentTarget;
+    $("#form").validate();
+
+    if ($("#form").valid()) {
+        let request = new XMLHttpRequest();
+        let data = new FormData(document.getElementById("form"));
+        ToggleLoader(button);
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                HttpRequestCallback(request.responseText);
+            }
+        }
+
+        request.open("POST", `/Plugins/Plugins/SaveAsDraft`);
+        request.send(data);
+    }
+}
+
+function Submit(removeOtherVersions) {
+    var button = event.currentTarget;
+    $("#form").validate();
+
+    if ($("#form").valid()) {
+        let request = new XMLHttpRequest();
+        let data = new FormData(document.getElementById("form"));
+        data.set("RemoveOtherVersions", removeOtherVersions);
+        ToggleLoader(button);
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                HttpRequestCallback(request.responseText);
+            }
+        }
+
+        request.open("POST", `/Plugins/Plugins/Submit`);
+        request.send(data);
+    }
+}
+
+function Approve(removeOtherVersions) {
+    var button = event.currentTarget;
+    $("#form").validate();
+
+    if ($("#form").valid()) {
+        let request = new XMLHttpRequest();
+        let data = new FormData(document.getElementById("form"));
+        data.set("RemoveOtherVersions", removeOtherVersions);
+        ToggleLoader(button);
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                HttpRequestCallback(request.responseText);
+            }
+        }
+
+        request.open("POST", `/Plugins/Plugins/Approve`);
+        request.send(data);
+    }
+}
+
+function Reject(removeOtherVersions) {
+    var button = event.currentTarget;
+    $("#form").validate();
+
+    if ($("#form").valid()) {
+        let request = new XMLHttpRequest();
+        let data = new FormData(document.getElementById("form"));
+        data.set("RemoveOtherVersions", removeOtherVersions);
+        ToggleLoader(button);
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                HttpRequestCallback(request.responseText);
+            }
+        }
+
+        request.open("POST", `/Plugins/Plugins/Reject`);
+        request.send(data);
+    }
+}
+
+function Activate() {
+    var button = event.currentTarget;
+    $("#form").validate();
+
+    if ($("#form").valid()) {
+        let request = new XMLHttpRequest();
+        let data = new FormData(document.getElementById("form"));
+        ToggleLoader(button);
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                HttpRequestCallback(request.responseText);
+            }
+        }
+
+        request.open("POST", `/Plugins/Plugins/Activate`);
+        request.send(data);
+    }
+}
+
+function Deactivate() {
+    var button = event.currentTarget;
+    $("#form").validate();
+
+    if ($("#form").valid()) {
+        let request = new XMLHttpRequest();
+        let data = new FormData(document.getElementById("form"));
+        ToggleLoader(button);
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                HttpRequestCallback(request.responseText);
+            }
+        }
+
+        request.open("POST", `/Plugins/Plugins/Deactivate`);
+        request.send(data);
+    }
+}
+
+function HttpRequestCallback(response) {
+    if (response.includes('div')) {
+        document.getElementById('statusMessageContainer').innerHTML = response;
+
+        let alert = document.querySelector('.alert')
+        if (alert) {
+            setTimeout(() => {
+
+                alert.classList.add('slide-right');
+                alert.addEventListener('animationend', () => {
+                    document.querySelector('.alert-container').remove();
+                })
+            }, 3000);
+        }
+
+        ToggleLoader(button);
+    }
+    else {
+        window.location.href = response;
     }
 }
 

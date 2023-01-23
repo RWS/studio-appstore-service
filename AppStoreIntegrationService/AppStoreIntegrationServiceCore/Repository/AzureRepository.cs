@@ -112,13 +112,6 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
-        public async Task BackupPlugins(IEnumerable<PluginDetails> plugins)
-        {
-            var response = await GetResponse();
-            response.Value = plugins;
-            await _pluginsBackupBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
-        }
-
         public async Task SaveProducts(IEnumerable<ProductDetails> products)
         {
             var response = await GetResponse();
@@ -250,6 +243,26 @@ namespace AppStoreIntegrationServiceCore.Repository
                     PublicAccess = BlobContainerPublicAccessType.Blob
                 });
             }
+        }
+
+        public Task<IEnumerable<PluginDetails>> ReadPending()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SavePending(IEnumerable<PluginDetails> plugins)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<PluginDetails>> ReadDrafts()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveDrafts(IEnumerable<PluginDetails> plugins)
+        {
+            throw new NotImplementedException();
         }
     }
 }

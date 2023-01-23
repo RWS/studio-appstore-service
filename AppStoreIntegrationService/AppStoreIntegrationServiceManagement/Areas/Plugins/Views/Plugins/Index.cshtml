@@ -101,8 +101,8 @@
                                                     <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"></i>
                                                     <div class="dropdown-menu">
                                                         <div class="d-flex p-2">
-                                                            <button class="btn pa-admin-success-btn me-2" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id', true)">Approve</button>
-                                                            <button class="btn btn-danger" onclick="ApproveDeletion('@plugin.Id', false)">Reject</button>
+                                                            <button class="btn pa-admin-success-btn me-2" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="ApproveDeletion('@plugin.Id')">Approve</button>
+                                                            <button class="btn btn-danger" onclick="RejectDeletion('@plugin.Id')">Reject</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -120,9 +120,19 @@
                                     }
                                     else
                                     {
-                                        <div class="btn p-0 fs-inherit position-relative d-flex">
-                                            <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id', true)"></i>
-                                        </div>
+                                        if (plugin.IsActive)
+                                        {
+                                            <div class="btn p-0 fs-inherit position-relative d-flex">
+                                                <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="RequestDeletion('@plugin.Id')"></i>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="btn p-0 fs-inherit position-relative d-flex">
+                                                <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id')"></i>
+                                            </div>
+                                        }
+
                                     }
                                 }
 
@@ -137,7 +147,7 @@
                                 {
                                     <div class="btn p-0 fs-inherit position-relative d-flex">
                                         <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-pen-alt"></i></a>
-                                        <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id', true)"></i>
+                                        <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeletePlugin('@plugin.Id')"></i>
                                     </div>
                                 }
                             </div>

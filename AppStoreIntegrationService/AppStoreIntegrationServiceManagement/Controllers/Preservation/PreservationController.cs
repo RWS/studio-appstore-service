@@ -50,7 +50,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
         {
            return page switch
             {
-                Page.Plugin => await Check(plugin, status),
+                Page.Details => await Check(plugin, status),
                 Page.Version => await Check(version),
                 Page.Comment => await Check(comment),
                 Page.Categories => await Check(category),

@@ -6,6 +6,9 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
     {
         Task<IEnumerable<PluginDetails>> ReadPlugins();
         Task SavePlugins(IEnumerable<PluginDetails> plugins);
-        Task BackupPlugins(IEnumerable<PluginDetails> plugins);
+        Task<IEnumerable<PluginDetails>> ReadPending();
+        Task SavePending(IEnumerable<PluginDetails> plugins);
+        Task<IEnumerable<PluginDetails>> ReadDrafts();
+        Task SaveDrafts(IEnumerable<PluginDetails> plugins);
     }
 }

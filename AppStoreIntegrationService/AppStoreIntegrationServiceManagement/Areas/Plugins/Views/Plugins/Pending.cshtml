@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Edit";
     ViewData["ActivePage"] = ManagePluginsNav.PluginDetails;
-    ViewData["ActiveSubPage"] = ManagePluginTabs.Details;
+    ViewData["ActiveSubPage"] = ManagePluginTabs.Pending;
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
@@ -20,13 +20,14 @@
         {
             <partial name="_PluginSubMenu" model="Model.Id" />
         }
-        <input readonly hidden name="Page" value="@Page.Details" />
 
-        <partial name="_PluginDetailsPartial" model="@Model"/>
+        <input readonly hidden name="Page" value="@Page.Pending" />
 
-        @if (Model.IsThirdParty && User.IsInRole("Developer"))
+        <partial name="_PluginDetailsPartial" model="@Model" />
+
+        @if (User.IsInRole("Developer"))
         {
-            <button class="btn pa-admin-success-btn" onclick="Submit(true)">
+            <button class="btn pa-admin-success-btn" onclick="Submit()">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Submit
             </button>
@@ -35,28 +36,17 @@
                 Save as draft
             </button>
         }
-        else
+
+        @if (User.IsInRole("Administrator") && Model.Status.Equals(Status.InReview))
         {
-            <button class="btn pa-admin-success-btn" onclick="SavePlugin()">
+            <button class="btn pa-admin-success-btn" onclick="Approve(true)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Save
+                Approve
             </button>
-
-            @if (Model.IsEditMode && Model.Status.Equals(Status.Active))
-            {
-                <button class="btn btn-outline-secondary" onclick="Deactivate()">
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                    Deactivate
-                </button>
-            }
-
-            @if (Model.IsEditMode && Model.Status.Equals(Status.Inactive))
-            {
-                <button class="btn pa-admin-outline-success-btn" onclick="Activate()">
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                    Activate
-                </button>
-            }
+            <button class="btn btn-danger" onclick="Reject(true)">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Reject
+            </button>
         }
     </div>
 </form>

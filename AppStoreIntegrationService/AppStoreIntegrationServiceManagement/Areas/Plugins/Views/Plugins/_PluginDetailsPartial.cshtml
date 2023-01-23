@@ -1,0 +1,148 @@
+﻿@model ExtendedPluginDetails
+
+<input readonly hidden asp-for="Id" />
+<input readonly hidden asp-for="IsEditMode" />
+<input readonly hidden asp-for="IsThirdParty" />
+<input readonly hidden asp-for="NeedsDeletionApproval" />
+<input readonly hidden asp-for="HasAdminConsent" />
+<input readonly hidden asp-for="IsActive" />
+<input readonly hidden class="ignore" asp-for="DownloadUrl" />
+
+<div class="d-flex align-content-center col-12 p-0 mb-3 mt-3">
+    <div class="d-flex col-4 ">
+        <label class="m-0 align-self-center form-label" asp-for="Name"></label>
+        <span class="text-danger align-self-center ms-1">*</span>
+    </div>
+    <div class="w-100 d-flex flex-column">
+        <input asp-for="Name" class="form-control manifest-field fs-inherit" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+        <span id="PluginNameManifestConflict" class="text-danger" @((bool?)TempData["IsNameMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid plugin name!</span>
+    </div>
+</div>
+<div class="d-flex align-content-center col-12 p-0 mb-3">
+    <div class="d-flex col-4">
+        <label class="m-0 align-self-center form-label" asp-for="@Model.Icon.MediaUrl"></label>
+        <span class="text-danger align-self-center ms-1">*</span>
+    </div>
+    <div class="w-100">
+        <input asp-for="@Model.Icon.MediaUrl" class="form-control fs-inherit" />
+        <span asp-validation-for="@Model.Icon.MediaUrl" class="text-danger"></span>
+    </div>
+</div>
+<div class="d-flex align-content-center col-12 p-0 mb-3">
+    <label class="col-4 m-0 align-self-center form-label" asp-for="@Model.Developer.DeveloperName"></label>
+    <div class="w-100">
+        @if (Model.IsThirdParty)
+        {
+            <input asp-for="@Model.Developer.DeveloperName" readonly class="form-control fs-inherit" />
+        }
+        else
+        {
+            <input asp-for="@Model.Developer.DeveloperName" class="form-control fs-inherit" />
+        }
+
+        <span asp-validation-for="@Model.Developer.DeveloperName" class="text-danger"></span>
+        <span id="DeveloperNameManifestConflict" class="text-danger" @((bool?)TempData["IsAuthorMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid developer name!</span>
+    </div>
+</div>
+<div class="d-flex align-content-center col-12 p-0 mb-3">
+    <label class="col-4 m-0 align-self-center form-label" asp-for="ChangelogLink"></label>
+    <div class="w-100">
+        <input asp-for="ChangelogLink" class="form-control fs-inherit" />
+        <span asp-validation-for="ChangelogLink" class="text-danger"></span>
+    </div>
+</div>
+<div class="d-flex align-content-center col-12 p-0 mb-3">
+    <label class="col-4 m-0 align-self-center form-label" asp-for="SupportUrl"></label>
+    <div class="w-100">
+        <input asp-for="SupportUrl" class="form-control fs-inherit" />
+        <span asp-validation-for="SupportUrl" class="text-danger"></span>
+    </div>
+</div>
+<div class="d-flex align-content-center col-12 p-0 mb-3">
+    <label class="col-4 m-0 align-self-center form-label" asp-for="SupportEmail"></label>
+    <div class="w-100">
+        <input asp-for="SupportEmail" class="form-control fs-inherit" />
+        <span asp-validation-for="SupportEmail" class="text-danger"></span>
+    </div>
+</div>
+<div class="d-flex align-content-center col-12 p-0 mb-3">
+    <div class="d-flex col-4 ">
+        <label class="m-0 align-self-center form-label" asp-for="Description"></label>
+        <span class="text-danger align-self-center ms-1">*</span>
+    </div>
+    <div class="col-8">
+        <div class="rich-text-editor border rounded">
+            <div class="editor-toolbar d-flex justify-content-between border-bottom p-3 sticky-top">
+                <i id="bold" data-tag-name="B" class="fa fa-bold cursor-pointer option format p-2"></i>
+                <i id="underline" data-tag-name="U" class="fa fa-underline cursor-pointer option format p-2"></i>
+                <i id="italic" data-tag-name="I" class="fa fa-italic cursor-pointer option format p-2"></i>
+                <i id="insertUnorderedList" data-tag-name="UL" class="fa fa-list-ul cursor-pointer option p-2"></i>
+                <i id="insertOrderedList" data-tag-name="OL" class="fa fa-list-ol cursor-pointer option p-2"></i>
+                <i id="justifyLeft" class="fa fa-align-left cursor-pointer option align p-2"></i>
+                <i id="justifyCenter" class="fa fa-align-center cursor-pointer option align p-2"></i>
+                <i id="justifyRight" class="fa fa-align-right cursor-pointer option align p-2"></i>
+                <i id="justifyFull" class="fa fa-align-justify cursor-pointer option align p-2"></i>
+                <i id="createLink" onclick="ShowInsertionModal()" class="fa fa-link cursor-pointer p-2"></i>
+                <div class="dropdown">
+                    <div class="dropdown-toggle" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Select table size">
+                        <i class="fa fa-table cursor-pointer p-2"></i>
+                    </div>
+
+                    <div class="dropdown-menu" style="width:200px;" aria-labelledby="dropdownMenuLink">
+                        <div class="p-3 table-dimension-selector">
+                            <h6 class="table-dimension">0x0</h6>
+                            @for (var i = 1; i <= 10; i++)
+                            {
+                                <div class="d-flex justify-content-between mb-1">
+                                    @for (var j = 1; j <= 10; j++)
+                                    {
+                                        <div id="@($"{i}x{j}")" role="button" aria-label="Insert @($"{i}x{j}") table" class="selector-cell border cursor-pointer"></div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="edit-area border-0 p-3" contenteditable="true" spellcheck="false" tabindex="0" oninput="UpdateDescription()">
+                @Html.Raw(Model.Description)
+            </div>
+        </div>
+        <textarea asp-for="Description" class="text-area-hidden"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+</div>
+<div class="d-flex align-content-center col-12 p-0 mb-3">
+    <div class="d-flex col-4 ">
+        <label class="m-0 align-self-center p-0" asp-for="Categories"></label>
+        <span class="text-danger align-self-center ms-1">*</span></span>
+    </div>
+    <div class="dropdown col-8 p-0" id="categoriesDropdown">
+        <div class="w-100 border rounded p-2 d-flex justify-content-between overflow-hidden" role="button" id="dropDownToggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+            <div class="d-flex align-items-center col-11">
+                <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories left"></i>
+                <div class="d-flex selection-summary">Select...</div>
+                <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none" role="button" aria-label="Scroll categories right"></i>
+            </div>
+            <div class="col-1 d-flex align-items-center justify-content-center">
+                <i class="fa fa-caret-down"></i>
+            </div>
+        </div>
+        <ul class="dropdown-menu custom-select p-0 w-100 fs-inherit" id="CategoriesSelect" aria-labelledby="dropDownToggle">
+            @foreach (var item in Model.CategoryListItems)
+            {
+                var isSelected = Model.Categories.Any(c => c == item.Value);
+                <li class="dropdown-item" @(isSelected ? "selected" : "") id="@item.Value">@item.Text</li>
+            }
+        </ul>
+        <select asp-for="Categories" hidden asp-items="@Model.CategoryListItems"></select>
+    </div>
+</div>
+<div class="form-check d-flex align-content-center col-12 p-0 mb-3">
+    <label class="col-4 m-0" asp-for="PaidFor"></label>
+    <input asp-for="PaidFor" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" />
+</div>
+
+
+

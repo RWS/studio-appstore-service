@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Edit";
     ViewData["ActivePage"] = ManagePluginsNav.PluginDetails;
+    ViewData["ActiveSubPage"] = ManagePluginTabs.Details;
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
@@ -18,7 +19,7 @@
             <partial name="_PluginSubMenu" model="Model.Id" />
         }
 
-        <input readonly hidden name="Page" value="@Page.Plugin" />
+        <input readonly hidden name="Page" value="@Page.Details" />
         <input readonly hidden asp-for="Id" />
         <input readonly hidden asp-for="IsEditMode" />
         <input readonly hidden asp-for="IsThirdParty" />

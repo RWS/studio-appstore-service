@@ -8,7 +8,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public bool IsThirdParty { get; set; }
         public bool NeedsDeletionApproval { get; set; }
         public bool HasAdminConsent { get; set; }
-        public bool WasActive { get; set; }
+        public bool IsActive { get; set; }
         public bool Equals(PluginDetails other)
         {
             return Name == other.Name &&
@@ -25,7 +25,7 @@ namespace AppStoreIntegrationServiceCore.Model
                    IsThirdParty == other.IsThirdParty &&
                    NeedsDeletionApproval == other.NeedsDeletionApproval &&
                    HasAdminConsent == other.HasAdminConsent &&
-                   WasActive == other.WasActive;
+                   IsActive == other.IsActive;
         }
     }
 }

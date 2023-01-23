@@ -46,7 +46,9 @@
         public enum Page
         {
             None = 0,
-            Plugin,
+            Details,
+            Draft,
+            Pending,
             Version,
             Comment,
             Categories,

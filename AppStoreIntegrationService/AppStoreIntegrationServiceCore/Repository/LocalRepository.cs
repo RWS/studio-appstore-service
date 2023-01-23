@@ -57,6 +57,30 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await GetResponse())?.Categories ?? new List<CategoryDetails>();
         }
 
+        public async Task<IEnumerable<PluginDetails>> ReadPending()
+        {
+            return (await GetResponse())?.Pending ?? new List<PluginDetails>();
+        }
+
+        public async Task SavePending(IEnumerable<PluginDetails> plugins)
+        {
+            var response = await GetResponse();
+            response.Pending = plugins;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
+        }
+
+        public async Task<IEnumerable<PluginDetails>> ReadDrafts()
+        {
+            return (await GetResponse())?.Drafts ?? new List<PluginDetails>();
+        }
+
+        public async Task SaveDrafts(IEnumerable<PluginDetails> plugins)
+        {
+            var response = await GetResponse();
+            response.Drafts = plugins;
+            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
+        }
+
         public async Task<SiteSettings> ReadSettings()
         {
             return new SiteSettings { Name = _options.Value.Name };
@@ -110,13 +134,6 @@ namespace AppStoreIntegrationServiceCore.Repository
             var response = await GetResponse();
             response.APIVersion = version;
             await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
-        }
-
-        public async Task BackupPlugins(IEnumerable<PluginDetails> plugins)
-        {
-            var response = await GetResponse();
-            response.Value = plugins;
-            await File.WriteAllTextAsync(_configurationSettings.PluginsFileBackUpPath, JsonConvert.SerializeObject(response));
         }
 
         public async Task SaveSettings(SiteSettings settings)
