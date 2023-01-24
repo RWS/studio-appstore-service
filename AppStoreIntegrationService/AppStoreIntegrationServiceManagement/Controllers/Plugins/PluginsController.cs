@@ -4,6 +4,7 @@ using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -77,9 +78,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> New()
         {
             var categories = await _categoriesRepository.GetAllCategories();
+            var plugins = await _pluginRepository.GetAll("asc");
+            var request = _context.HttpContext?.Request;
+
             return View("Details", new ExtendedPluginDetails
             {
-                Icon = new IconDetails { MediaUrl = GetDefaultIcon() },
+                Id = plugins.MaxBy(x => x.Id)?.Id + 1 ?? 0,
+                Icon = new IconDetails { MediaUrl = $"{request?.Scheme}://{request?.Host.Value}/images/plugin.ico" },
                 Developer = new DeveloperDetails { DeveloperName = User.IsInRole("Developer") ? User.Identity.Name : null },
                 IsEditMode = false,
                 Status = User.IsInRole("Developer") ? Status.Draft : Status.Active,
@@ -91,78 +96,30 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Route("Plugins/Edit/{id:int}")]
         public async Task<IActionResult> Edit(int id)
         {
-            if (!await _pluginRepository.ExitsPlugin(id))
-            {
-                return NotFound();
-            }
-
-            var categories = await _categoriesRepository.GetAllCategories();
-            var plugin = await _pluginRepository.GetActiveById(id);
-
-            if (plugin == null)
-            {
-                return RedirectToAction("Pending", new { id });
-            }
-
-            var isReadonly = User.IsInRole("StandardUser") && plugin.IsThirdParty;
-            var extended = ExtendedPluginDetails.CopyFrom(plugin);
-            extended.CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name));
-            extended.IsEditMode = true;
-
-            return View(isReadonly ? "ReadonlyDetails" : "Details", extended);
+            var plugin = await _pluginRepository.GetPluginById(id, Status.Active);
+            var view = User.IsInRole("StandardUser") && plugin.IsThirdParty ? "ReadonlyDetails" : "Details";
+            return await Render(id, Status.Active, _pluginRepository.GetPluginById, "Pending", view);
         }
 
         [Route("Plugins/Pending/{id:int}")]
         [Authorize(Roles = "Administrator, Developer")]
         public async Task<IActionResult> Pending(int id)
         {
-            if (!await _pluginRepository.ExitsPlugin(id))
-            {
-                return NotFound();
-            }
-
-            var categories = await _categoriesRepository.GetAllCategories();
-            var plugin = await _pluginRepository.GetPendingById(id, User);
-
-            if (plugin == null)
-            {
-                return RedirectToAction("Draft", new { id });
-            }
-
-            var extended = ExtendedPluginDetails.CopyFrom(plugin);
-            extended.CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name));
-            extended.IsEditMode = true;
-            return View("Pending", extended);
+            return await Render(id, Status.InReview, _pluginRepository.GetPluginById, "Draft", "Pending");
         }
 
-        [Authorize(Roles = "Administrator, Developer")]
         [Route("Plugins/Draft/{id:int}")]
+        [Authorize(Roles = "Administrator, Developer")]
         public async Task<IActionResult> Draft(int id)
         {
-            if (!await _pluginRepository.ExitsPlugin(id))
-            {
-                return NotFound();
-            }
-
-            var categories = await _categoriesRepository.GetAllCategories();
-            var plugin = await _pluginRepository.GetDraftById(id, User);
-
-            if (plugin == null)
-            {
-                return RedirectToAction("Edit", new { id });
-            }
-
-            var extended = ExtendedPluginDetails.CopyFrom(plugin);
-            extended.CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name));
-            extended.IsEditMode = true;
-            return View("Draft", extended);
+            return await Render(id, Status.Draft, _pluginRepository.GetPluginById, "Edit", "Draft");
         }
 
         [HttpPost]
         [Authorize(Roles = "Developer")]
         public async Task<IActionResult> RequestDeletion(int id)
         {
-            var plugin = await _pluginRepository.GetPluginById(id, User);
+            var plugin = await _pluginRepository.GetPluginById(id, Status.All, User);
             if (plugin.IsActive)
             {
                 plugin.NeedsDeletionApproval = true;
@@ -171,30 +128,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 return Content(null);
             }
 
-            await _pluginRepository.RemovePlugin(id);
-            await _commentsRepository.DeleteComments(id);
-            await _loggingRepository.Log(User, id, $"<b>{User.Identity.Name}</b> removed <b>{plugin.Name}</b> at {DateTime.Now}");
-            TempData["StatusMessage"] = "Success! Plugin was removed!";
-            return Content(null);
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> ApproveDeletion(int id)
-        {
-            var plugin = await _pluginRepository.GetPluginById(id, User);
-            await _pluginRepository.RemovePlugin(id);
-            await _commentsRepository.DeleteComments(id);
-            await _loggingRepository.Log(User, id, $"<b>{User.Identity.Name}</b> removed <b>{plugin.Name}</b> at {DateTime.Now}");
-            TempData["StatusMessage"] = "Success! Plugin was removed!";
-            return Content(null);
+            return RedirectToAction("Delete", new { id });
         }
 
         [HttpPost]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> RejectDeletion(int id)
         {
-            var plugin = await _pluginRepository.GetPluginById(id, User);
+            var plugin = await _pluginRepository.GetPluginById(id, Status.All, User);
             plugin.NeedsDeletionApproval = false;
             await _pluginRepository.SavePlugin(plugin);
             await _loggingRepository.Log(User, id, $"<b>{User.Identity.Name}</b> rejected deletion for <b>{plugin.Name}</b> at {DateTime.Now}");
@@ -205,7 +146,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var plugin = await _pluginRepository.GetPluginById(id, User);
+            var plugin = await _pluginRepository.GetPluginById(id, Status.All, User);
             await _pluginRepository.RemovePlugin(id);
             await _commentsRepository.DeleteComments(id);
             await _loggingRepository.Log(User, id, $"<b>{User.Identity.Name}</b> removed <b>{plugin.Name}</b> at {DateTime.Now}");
@@ -214,10 +155,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Activate(PluginDetails plugin)
+        public async Task<IActionResult> ChangeStatus(PluginDetails plugin, Status status)
         {
-            plugin.Status = Status.Active;
-            var oldPlugin = await _pluginRepository.GetActiveById(plugin.Id);
+            plugin.Status = status;
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Active);
             await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> changed the status of <b>{plugin.Name}</b> from <b>{oldPlugin.Status}</b> to <b>{plugin.Status}</b>");
             await _pluginRepository.SavePlugin(plugin, false);
             TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
@@ -226,43 +167,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Deactivate(PluginDetails plugin)
-        {
-            plugin.Status = Status.Inactive;
-            var oldPlugin = await _pluginRepository.GetActiveById(plugin.Id);
-            await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> changed the status of <b>{plugin.Name}</b> from <b>{oldPlugin.Status}</b> to <b>{plugin.Status}</b>");
-            await _pluginRepository.SavePlugin(plugin, false);
-            TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
-
-            return Content($"/Plugins/Edit/{plugin.Id}");
-        }
-
-        [HttpPost]
+        [Authorize(Roles = "Developer")]
         public async Task<IActionResult> Submit(PluginDetails plugin, bool removeOtherVersions)
         {
             plugin.Status = Status.InReview;
             plugin.HasAdminConsent = true;
-            var oldPlugin = await _pluginRepository.GetPendingById(plugin.Id);
-
-            if (oldPlugin == null)
-            {
-                await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> submitted new changes for <b>{plugin.Name}</b> at {DateTime.Now}");
-            }
-            else
-            {
-                var oldPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(plugin);
-                var newPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(oldPlugin);
-
-                if (!oldPluginToBase.Equals(newPluginToBase))
-                {
-                    await _loggingRepository.Log(User, oldPluginToBase, newPluginToBase);
-                }
-            }
-
-            await _pluginRepository.SavePlugin(plugin, removeOtherVersions);
-
-            TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
-            return Content($"/Plugins/Pending/{plugin.Id}");
+            string log = "<b>{0}</b> submitted new changes for <b>{1}</b> at {2}";
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.InReview);
+            return await SaveChanges(plugin, oldPlugin, log, "Pending", removeOtherVersions);
         }
 
         [HttpPost]
@@ -271,27 +183,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             plugin.Status = Status.Active;
             plugin.IsActive = true;
-            var oldPlugin = await _pluginRepository.GetPendingById(plugin.Id);
-
-            if (oldPlugin == null)
-            {
-                await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> accepted the changes for <b>{plugin.Name}</b> at {DateTime.Now}");
-            }
-            else
-            {
-                var oldPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(plugin);
-                var newPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(oldPlugin);
-
-                if (!oldPluginToBase.Equals(newPluginToBase))
-                {
-                    await _loggingRepository.Log(User, oldPluginToBase, newPluginToBase);
-                }
-            }
-
-            await _pluginRepository.SavePlugin(plugin, removeOtherVersions);
-
-            TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
-            return Content($"/Plugins/Edit/{plugin.Id}");
+            string log = "<b>{0}</b> accepted the changes for <b>{1}</b> at {2}";
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Active);
+            return await SaveChanges(plugin, oldPlugin, log, "Edit", removeOtherVersions);
         }
 
         [HttpPost]
@@ -300,100 +194,100 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             plugin.Status = Status.Draft;
             plugin.HasAdminConsent = true;
-            var oldPlugin = await _pluginRepository.GetPendingById(plugin.Id);
-
-            if (oldPlugin == null)
-            {
-                await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> rejected the changes for <b>{plugin.Name}</b> at {DateTime.Now}");
-            }
-            else
-            {
-                var oldPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(plugin);
-                var newPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(oldPlugin);
-
-                if (!oldPluginToBase.Equals(newPluginToBase))
-                {
-                    await _loggingRepository.Log(User, oldPluginToBase, newPluginToBase);
-                }
-            }
-
-            await _pluginRepository.SavePlugin(plugin, removeOtherVersions);
-
-            TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
-            return Content($"/Plugins/Draft/{plugin.Id}");
+            string log = "<b>{0}</b> rejected the changes for <b>{1}</b> at {2}";
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.InReview);
+            return await SaveChanges(plugin, oldPlugin, log, "Draft", removeOtherVersions);
         }
 
         [HttpPost]
+        [Authorize(Roles = "Developer")]
         public async Task<IActionResult> SaveAsDraft(PluginDetails plugin)
         {
             plugin.Status = Status.Draft;
             plugin.HasAdminConsent = false;
-            var oldPlugin = await _pluginRepository.GetDraftById(plugin.Id);
-
-            if (oldPlugin == null)
-            {
-                await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> drafted a new version for <b>{plugin.Name}</b> at {DateTime.Now}");
-            }
-            else
-            {
-                var oldPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(plugin);
-                var newPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(oldPlugin);
-
-                if (!oldPluginToBase.Equals(newPluginToBase))
-                {
-                    await _loggingRepository.Log(User, oldPluginToBase, newPluginToBase);
-                }
-            }
-
-            await _pluginRepository.SavePlugin(plugin);
-
-            TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
-            return Content($"/Plugins/Draft/{plugin.Id}");
+            string log = "<b>{0}</b> drafted a new version for <b>{1}</b> at {2}";
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Draft);
+            return await SaveChanges(plugin, oldPlugin, log, "Draft");
         }
 
         [HttpPost]
         public async Task<IActionResult> Save(PluginDetails plugin)
         {
+            string log = "<b>{0}</b> accepted the changes for <b>{1}</b> at {2}";
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Active);
+            return await SaveChanges(plugin, oldPlugin, log, "Edit");
+        }
+
+        private async Task<IActionResult> SaveChanges(PluginDetails plugin, PluginDetails oldPlugin, string log, string successRedirect, bool removeOtherVersions = false)
+        {
             try
             {
-                var oldPlugin = await _pluginRepository.GetActiveById(plugin.Id);
-
                 if (oldPlugin == null)
                 {
-                    await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> accepted the changes for <b>{plugin.Name}</b> at {DateTime.Now}");
+                    await _loggingRepository.Log(User, plugin.Id, string.Format(log, User.Identity.Name, plugin.Name, DateTime.Now));
+                    await _pluginRepository.SavePlugin(plugin, removeOtherVersions);
+                    TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
+                    return Content($"/Plugins/{successRedirect}/{plugin.Id}");
                 }
-                else
+
+                var oldPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(plugin);
+                var newPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(oldPlugin);
+                TempData["StatusMessage"] = $"Success! Nothing to save, {plugin.Name} is up to date!";
+
+                if (!oldPluginToBase.Equals(newPluginToBase))
                 {
-                    var oldPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(plugin);
-                    var newPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(oldPlugin);
-
-                    if (!oldPluginToBase.Equals(newPluginToBase))
-                    {
-                        await _loggingRepository.Log(User, oldPluginToBase, newPluginToBase);
-                    }
-
-                    if (!string.IsNullOrEmpty(plugin.DownloadUrl))
-                    {
-                        var response = await PluginPackage.DownloadPlugin(plugin.DownloadUrl);
-                        (TempData["IsNameMatch"], TempData["IsAuthorMatch"]) = response.CreatePluginMatchLog(plugin, out bool isFullMatch);
-
-                        if (!isFullMatch)
-                        {
-                            TempData["StatusMessage"] = "Warning! Plugin was saved but there are manifest conflicts!";
-                            return new EmptyResult();
-                        }
-                    }
+                    await _loggingRepository.Log(User, oldPluginToBase, newPluginToBase);
+                    await _pluginRepository.SavePlugin(plugin, removeOtherVersions);
+                    TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
+                    await CompareWithManifest(plugin);
                 }
 
-                await _pluginRepository.SavePlugin(plugin, false);
-                TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
-
-                return Content($"/Plugins/Edit/{plugin.Id}");
+                return Content($"/Plugins/{successRedirect}/{plugin.Id}");
             }
             catch (Exception e)
             {
                 return PartialView("_StatusMessage", string.Format("Error! {0}!", e.Message));
             }
+        }
+
+        private async Task CompareWithManifest(PluginDetails plugin)
+        {
+            if (string.IsNullOrEmpty(plugin.DownloadUrl))
+            {
+                return;
+            }
+
+            var response = await PluginPackage.DownloadPlugin(plugin.DownloadUrl);
+            (TempData["IsNameMatch"], TempData["IsAuthorMatch"]) = response.CreatePluginMatchLog(plugin, out bool isFullMatch);
+
+            if (isFullMatch)
+            {
+                return;
+            }
+
+            TempData["StatusMessage"] = "Warning! Plugin was saved but there are manifest conflicts!";
+        }
+
+        private async Task<IActionResult> Render(int id, Status status, Func<int, Status, ClaimsPrincipal, Task<PluginDetails>> getPluginById, string viewIfNull, string viewIfSuccess)
+        {
+            if (!await _pluginRepository.ExitsPlugin(id))
+            {
+                return NotFound();
+            }
+
+            var categories = await _categoriesRepository.GetAllCategories();
+            var plugin = await getPluginById(id, status, User);
+
+            if (plugin == null)
+            {
+                return Redirect($"/Plugins/{viewIfNull}/{id}");
+            }
+
+            var extended = ExtendedPluginDetails.CopyFrom(plugin);
+            extended.CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name));
+            extended.IsEditMode = true;
+
+            return View(viewIfSuccess, extended);
         }
 
         private PluginFilter ApplyFilters()
@@ -420,13 +314,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             return filters;
-        }
-
-        private string GetDefaultIcon()
-        {
-            var scheme = _context.HttpContext?.Request?.Scheme;
-            var host = _context.HttpContext?.Request?.Host.Value;
-            return $"{scheme}://{host}/images/plugin.ico";
         }
     }
 }

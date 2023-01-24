@@ -16,7 +16,7 @@
         </li>
     }
 
-    @if (await repository.HasDraft(Model, User))
+    @if (await repository.HasDraftChanges(Model, User))
     {
         <li class="nav-item">
             <a class="nav-link cursor-pointer @ManagePluginTabs.DraftTabClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Draft/@Model'})">Draft</a>

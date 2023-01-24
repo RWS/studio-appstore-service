@@ -27,11 +27,11 @@
 
         @if (User.IsInRole("Developer"))
         {
-            <button class="btn pa-admin-success-btn" onclick="Submit(true)">
+            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit', true)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Submit
             </button>
-            <button class="btn pa-admin-outline-success-btn" onclick="SaveAsDraft()">
+            <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('SaveAsDraft')">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Save as draft
             </button>

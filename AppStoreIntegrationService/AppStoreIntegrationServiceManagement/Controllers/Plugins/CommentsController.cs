@@ -2,6 +2,7 @@
 using AppStoreIntegrationServiceCore.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -21,7 +22,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Route("/Plugins/Edit/{pluginId}/Comments")]
         public async Task<IActionResult> Index(int pluginId)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId, User);
+            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
             var comments = await _commentsRepository.GetComments(pluginId);
             var extended = ExtendedPluginDetails.CopyFrom(plugin);
             extended.Comments = comments;

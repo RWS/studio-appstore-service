@@ -3,6 +3,7 @@ using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -22,7 +23,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Route("/Plugins/Edit/{pluginId}/Logs")]
         public async Task<IActionResult> Index(int pluginId)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId, User);
+            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
             var logs = await _loggingRepository.GetPluginLogs(pluginId);
             var fromDateFilter = string.IsNullOrEmpty(Request.Query["FromDate"].FirstOrDefault()) ? DateTime.MinValue : DateTime.Parse(Request.Query["FromDate"][0]);
             var toDateFilter = string.IsNullOrEmpty(Request.Query["ToDate"].FirstOrDefault()) ? DateTime.MaxValue : DateTime.Parse(Request.Query["ToDate"][0]);

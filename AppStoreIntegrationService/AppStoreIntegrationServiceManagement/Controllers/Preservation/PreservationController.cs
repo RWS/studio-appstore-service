@@ -65,7 +65,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public async Task<IActionResult> Check(ExtendedPluginVersion version)
         {
-            var plugin = await _pluginRepository.GetPluginById(version.PluginId, User);
+            var plugin = await _pluginRepository.GetPluginById(version.PluginId, Status.All, User);
             var saved = plugin?.Versions.FirstOrDefault(v => v.VersionId == version.VersionId);
 
             if (saved?.Equals(version) ?? true)
@@ -81,7 +81,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public async Task<IActionResult> Check(PluginDetails plugin, Status status)
         {
-            var saved = await _pluginRepository.GetPluginById(plugin.Id, User);
+            var saved = await _pluginRepository.GetPluginById(plugin.Id, Status.All, User);
             plugin.Status = status;
 
             if (saved?.Equals(plugin) ?? false)

@@ -4,7 +4,6 @@ namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginDetails : PluginDetailsBase<PluginVersion, string>, IEquatable<PluginDetails>
     {
-        public Status Status { get; set; }
         public bool IsThirdParty { get; set; }
         public bool NeedsDeletionApproval { get; set; }
         public bool HasAdminConsent { get; set; }

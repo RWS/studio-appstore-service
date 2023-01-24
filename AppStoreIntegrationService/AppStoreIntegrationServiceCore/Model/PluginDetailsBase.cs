@@ -44,6 +44,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [Url(ErrorMessage = "Invalid url!")]
         [Display(Name = "Download url")]
         public string DownloadUrl { get; set; }
+        public Status Status { get; set; }
 
         public static PluginDetailsBase<T,U> CopyFrom(PluginDetails other)
         {
@@ -61,7 +62,8 @@ namespace AppStoreIntegrationServiceCore.Model
                    PaidFor == other.PaidFor &&
                    Developer.Equals(other.Developer) &&
                    Categories.SequenceEqual(other.Categories) &&
-                   DownloadUrl == other.DownloadUrl;
+                   DownloadUrl == other.DownloadUrl &&
+                   Status == other.Status;
         }
     }
 }

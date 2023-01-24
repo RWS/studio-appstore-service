@@ -79,6 +79,7 @@ namespace AppStoreIntegrationServiceManagement
 
             services.AddSingleton<IConfigurationSettings>(GetConfigurationSettings(GetServiceProvider(services).GetService<IWebHostEnvironment>(), deployMode).Result);
             services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
+            services.AddSingleton<IPluginVersionRepository, PluginVersionRepository>();
             services.AddSingleton<IPluginRepository, PluginRepository>();
             services.AddSingleton<IProductsRepository, ProductsRepository>();
             services.AddSingleton<INamesRepository, NamesRepository>();

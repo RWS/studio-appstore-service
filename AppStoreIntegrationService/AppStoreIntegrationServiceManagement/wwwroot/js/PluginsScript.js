@@ -1,4 +1,4 @@
-﻿function DeletePlugin(id) {
+﻿function Delete(action, id) {
     document.getElementById('confirmationBtn').onclick = function () {
         let request = new XMLHttpRequest();
 
@@ -8,50 +8,7 @@
             }
         }
 
-        request.open("POST", `Plugins/Plugins/Delete/${id}`);
-        request.send();
-    }
-}
-
-function RequestDeletion(id) {
-    document.getElementById('confirmationBtn').onclick = function () {
-        let request = new XMLHttpRequest();
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                HttpRequestCallback(request.responseText);
-            }
-        }
-
-        request.open("POST", `Plugins/Plugins/RequestDeletion/${id}`);
-        request.send();
-    }
-}
-
-function RejectDeletion(id) {
-    let request = new XMLHttpRequest();
-
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText);
-        }
-    }
-
-    request.open("POST", `Plugins/Plugins/RejectDeletion/${id}`);
-    request.send();
-}
-
-function ApproveDeletion(id) {
-    document.getElementById('confirmationBtn').onclick = function () {
-        let request = new XMLHttpRequest();
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                HttpRequestCallback(request.responseText);
-            }
-        }
-
-        request.open("POST", `Plugins/Plugins/ApproveDeletion/${id}`);
+        request.open("POST", `Plugins/Plugins/${action}/${id}`);
         request.send();
     }
 }

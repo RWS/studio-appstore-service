@@ -15,6 +15,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IPluginRepository _pluginRepository;
         private readonly IProductsRepository _productsRepository;
         private readonly ICommentsRepository _commentsRepository;
+        private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly ILoggingRepository _loggingRepository;
 
         public VersionController
@@ -22,13 +23,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             IPluginRepository pluginRepository,
             IProductsRepository productsRepository,
             ICommentsRepository commentsRepository,
-            ILoggingRepository loggingRepository
+            ILoggingRepository loggingRepository,
+            IPluginVersionRepository pluginVersionRepository
         )
         {
             _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
             _commentsRepository = commentsRepository;
             _loggingRepository = loggingRepository;
+            _pluginVersionRepository = pluginVersionRepository;
         }
 
         [HttpGet("/Plugins/Edit/{pluginId}/Versions")]
@@ -37,7 +40,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var versions = new List<ExtendedPluginVersion>();
             var selectedVersion = Request.Query["selectedVersion"];
             var products = await _productsRepository.GetAllProducts();
-            var plugin = await _pluginRepository.GetPluginById(pluginId, User);
+            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
             var productsList = new MultiSelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
             var extendedPlugin = ExtendedPluginDetails.CopyFrom(plugin);
 
@@ -74,9 +77,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             {
                 version.HasAdminConsent = version.HasAdminConsent || version.VersionStatus.Equals(Status.InReview);
                 version.WasActive = version.WasActive || version.VersionStatus.Equals(Status.Active);
-                var old = await _pluginRepository.GetPluginVersion(pluginId, version.VersionId, User);
+                var old = await _pluginVersionRepository.GetPluginVersion(pluginId, version.VersionId, User);
                 await _loggingRepository.Log(User, pluginId, PluginVersionBase<string>.CopyFrom(version), PluginVersionBase<string>.CopyFrom(old));
-                await _pluginRepository.UpdatePluginVersion(pluginId, version);
+                await _pluginVersionRepository.UpdatePluginVersion(pluginId, version);
 
                 if (!saveStatusOnly)
                 {
@@ -120,22 +123,82 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ChangeStatus(PluginVersion version, Status status)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Developer")]
+        public async Task<IActionResult> Submit(PluginVersion version, bool removeOtherVersions)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> Approve(PluginVersion version, bool removeOtherVersions = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> Reject(PluginVersion version, bool removeOtherVersions = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "Developer")]
+        public async Task<IActionResult> SaveAsDraft(PluginVersion version)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Save(PluginVersion version)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Developer")]
+        public async Task<IActionResult> RequestDeletion(int pluginId, string versionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> RejectDeletion(int pluginId, string versionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int pluginId, string versionId)
+        {
+            throw new NotImplementedException();
+        }
+
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Delete/{versionId}")]
         public async Task<IActionResult> Delete(int pluginId, string versionId, bool deletionApproval)
         {
-            var version = await _pluginRepository.GetPluginVersion(pluginId, versionId, User);
+            var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId, User);
 
             if (User.IsInRole("Developer") && version.HasAdminConsent && version.WasActive || 
                (User.IsInRole("Administrator") && !deletionApproval))
             {
                 version.NeedsDeletionApproval = deletionApproval;
-                await _pluginRepository.UpdatePluginVersion(pluginId, version);
+                await _pluginVersionRepository.UpdatePluginVersion(pluginId, version);
                 TempData["StatusMessage"] = string.Format("Success! Version deletion request was {0}!", deletionApproval ? "sent" : "rejected");
                 return Content(null);
             }
 
             await _loggingRepository.Log(User, pluginId, $"<b>{User.Identity.Name}</b> removed the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}");
-            await _pluginRepository.RemovePluginVersion(pluginId, versionId);
+            await _pluginVersionRepository.RemovePluginVersion(pluginId, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";
             return Content(null);
         }

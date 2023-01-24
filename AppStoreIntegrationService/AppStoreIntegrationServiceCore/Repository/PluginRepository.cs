@@ -23,7 +23,7 @@ namespace AppStoreIntegrationServiceCore.Repository
                 _ => new List<PluginDetails>(await _pluginManager.ReadPlugins()),
             };
 
-            plugins = UpdatePlugins(plugin, plugins);
+            plugins = await UpdatePlugins(plugin, plugins);
             await SaveDrafts(plugins, plugin, removeOtherVersions);
             await SavePending(plugins, plugin, removeOtherVersions);
             await SavePlugins(plugins, plugin, removeOtherVersions);
@@ -69,23 +69,28 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
         }
 
-        private static List<PluginDetails> UpdatePlugins(PluginDetails plugin, List<PluginDetails> plugins)
+        private async Task<List<PluginDetails>> UpdatePlugins(PluginDetails plugin, List<PluginDetails> plugins)
         {
-            if (plugins.Where(p => p.Name == plugin.Name).Count() > 1)
-            {
-                throw new Exception($"Another plugin with the name {plugin.Name} already exists");
-            }
-
+            var allPlugins = await GetAll(null);
             var old = plugins.FirstOrDefault(p => p.Id == plugin.Id);
             var index = plugins.IndexOf(old);
 
             if (index < 0)
             {
-                plugin.Id = plugins.MaxBy(p => p.Id)?.Id + 1 ?? 0;
+                if (allPlugins.Where(p => p.Name == plugin.Name && p.Id != plugin.Id).Count() > 0)
+                {
+                    throw new Exception($"Another plugin with the name {plugin.Name} already exists");
+                }
+
                 plugins.Add(plugin);
             }
             else
             {
+                if (allPlugins.Where(p => p.Name == plugin.Name && p.Id != plugin.Id).Count() > 1)
+                {
+                    throw new Exception($"Another plugin with the name {plugin.Name} already exists");
+                }
+
                 plugin.Versions = plugin.Versions.Any() ? plugin.Versions : old.Versions;
                 plugins[index] = plugin;
             }
@@ -93,57 +98,29 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugins;
         }
 
-        public async Task<PluginDetails> GetDraftById(int id, ClaimsPrincipal user = null)
+        public async Task<PluginDetails> GetDraftById(int id, ClaimsPrincipal user)
         {
             var drafts = await _pluginManager.ReadDrafts();
-            return drafts?.FirstOrDefault(p => p.Id.Equals(id));
+            return drafts?.FirstOrDefault(p => p.Id == id);
         }
 
-        public async Task<PluginDetails> GetPendingById(int id, ClaimsPrincipal user = null)
+        public async Task<PluginDetails> GetPendingById(int id, ClaimsPrincipal user)
         {
             var plugins = await _pluginManager.ReadPending();
             return plugins?.FirstOrDefault(p => p.Id.Equals(id));
         }
 
-        public async Task<PluginDetails> GetPluginById(int id, ClaimsPrincipal user = null)
+        public async Task<PluginDetails> GetPluginById(int id, Status status = Status.All, ClaimsPrincipal user = null)
         {
-            var plugins = await GetAll("asc", user);
+            var plugins = status switch
+            {
+                Status.Draft => await _pluginManager.ReadDrafts(),
+                Status.InReview => await _pluginManager.ReadPending(),
+                Status.Active => await _pluginManager.ReadPlugins(),
+                _ => await GetAll(null, user)
+            };
+
             return plugins?.FirstOrDefault(p => p.Id.Equals(id));
-        }
-
-        public async Task<PluginVersion> GetPluginVersion(int pluginId, string versionId, ClaimsPrincipal user = null)
-        {
-            var plugin = await GetPluginById(pluginId, user);
-            return plugin.Versions.FirstOrDefault(v => v.VersionId.Equals(versionId));
-        }
-
-        public async Task RemovePluginVersion(int id, string versionId)
-        {
-            var plugins = await _pluginManager.ReadPlugins();
-            var plugin = plugins.FirstOrDefault(p => p.Id == id);
-            var version = plugin.Versions.FirstOrDefault(v => v.VersionId == versionId);
-            plugin.Versions.Remove(version);
-            await _pluginManager.SavePlugins(plugins);
-        }
-
-        public async Task UpdatePluginVersion(int id, PluginVersion version)
-        {
-            var plugins = await _pluginManager.ReadPlugins();
-            var plugin = plugins.FirstOrDefault(p => p.Id == id);
-            var old = plugin.Versions?.FirstOrDefault(v => v.VersionId == version.VersionId);
-
-            if (old == null)
-            {
-                plugin.Versions.Add(version);
-            }
-            else
-            {
-                var index = plugin.Versions.IndexOf(old);
-                plugin.Versions[index] = version;
-            }
-
-            plugin.DownloadUrl = version.DownloadUrl;
-            await SavePlugin(plugin);
         }
 
         public async Task RemovePlugin(int id)
@@ -159,16 +136,14 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<PluginDetails>> GetAll(string sortOrder, ClaimsPrincipal user = null)
         {
-            var condition = !string.IsNullOrEmpty(sortOrder) && !sortOrder.Equals("asc", StringComparison.CurrentCultureIgnoreCase);
             var drafts = await _pluginManager.ReadDrafts();
             var pending = await _pluginManager.ReadPending();
             var plugins = await _pluginManager.ReadPlugins();
-
             plugins = plugins.Concat(pending).Concat(drafts).DistinctBy(p => p.Id);
 
-            plugins = condition switch
+            plugins = sortOrder?.ToLower() switch
             {
-                true => plugins?.OrderByDescending(p => p.Name).ToList(),
+                "asc" => plugins?.OrderByDescending(p => p.Name).ToList(),
                 _ => plugins?.OrderBy(p => p.Name).ToList()
             };
 
@@ -192,6 +167,11 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<bool> ExitsPlugin(int id)
         {
+            if (id < 0)
+            {
+                return false;
+            }
+
             var drafts = await _pluginManager.ReadDrafts();
             var pending = await _pluginManager.ReadPending();
             var production = await _pluginManager.ReadPlugins();
@@ -205,10 +185,10 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugins.Any(p => p.Id == id);
         }
 
-        public async Task<bool> HasPendingChanges(int id, ClaimsPrincipal user)
+        public async Task<bool> HasPendingChanges(int id, ClaimsPrincipal user = null)
         {
             var pending = await _pluginManager.ReadPending();
-            if (user.IsInRole("Administrator") || user.IsInRole("Developer"))
+            if ((user?.IsInRole("Administrator") ?? false) || (user?.IsInRole("Developer") ?? false))
             {
                 return pending.Any(p => p.Id == id);
             }
@@ -216,7 +196,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             return false;
         }
 
-        public async Task<bool> HasDraft(int id, ClaimsPrincipal user = null)
+        public async Task<bool> HasDraftChanges(int id, ClaimsPrincipal user = null)
         {
             var drafts = await _pluginManager.ReadDrafts();
             if (user?.IsInRole("Administrator") ?? false)

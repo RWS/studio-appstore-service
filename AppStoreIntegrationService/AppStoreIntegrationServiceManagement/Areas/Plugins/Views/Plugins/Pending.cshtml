@@ -27,11 +27,11 @@
 
         @if (User.IsInRole("Developer"))
         {
-            <button class="btn pa-admin-success-btn" onclick="Submit()">
+            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit')">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Submit
             </button>
-            <button class="btn pa-admin-outline-success-btn" onclick="SaveAsDraft()">
+            <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('SaveAsDraft')">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Save as draft
             </button>
@@ -39,11 +39,11 @@
 
         @if (User.IsInRole("Administrator") && Model.Status.Equals(Status.InReview))
         {
-            <button class="btn pa-admin-success-btn" onclick="Approve(true)">
+            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Approve', true)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Approve
             </button>
-            <button class="btn btn-danger" onclick="Reject(true)">
+            <button class="btn btn-danger" onclick="SavePlugin('Reject', true)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Reject
             </button>

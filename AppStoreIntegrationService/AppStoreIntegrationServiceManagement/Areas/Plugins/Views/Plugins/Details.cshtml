@@ -26,25 +26,25 @@
 
         @if (Model.IsThirdParty && User.IsInRole("Developer"))
         {
-            <button class="btn pa-admin-success-btn" onclick="Submit(true)">
+            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit', true)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Submit
             </button>
-            <button class="btn pa-admin-outline-success-btn" onclick="SaveAsDraft()">
+            <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('SaveAsDraft')">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Save as draft
             </button>
         }
         else
         {
-            <button class="btn pa-admin-success-btn" onclick="SavePlugin()">
+            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Save')">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Save
             </button>
 
             @if (Model.IsEditMode && Model.Status.Equals(Status.Active))
             {
-                <button class="btn btn-outline-secondary" onclick="Deactivate()">
+                <button class="btn btn-outline-secondary" onclick="SavePlugin('ChangeStatus', false, 'Inactive')">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                     Deactivate
                 </button>
@@ -52,7 +52,7 @@
 
             @if (Model.IsEditMode && Model.Status.Equals(Status.Inactive))
             {
-                <button class="btn pa-admin-outline-success-btn" onclick="Activate()">
+                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('ChangeStatus')">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                     Activate
                 </button>
