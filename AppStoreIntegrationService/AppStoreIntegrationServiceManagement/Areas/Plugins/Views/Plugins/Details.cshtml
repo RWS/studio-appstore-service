@@ -44,7 +44,7 @@
 
             @if (Model.IsEditMode && Model.Status.Equals(Status.Active))
             {
-                <button class="btn btn-outline-secondary" onclick="SavePlugin('ChangeStatus', false, 'Inactive')">
+                <button class="btn btn-outline-secondary" onclick="SavePlugin('Deactivate')">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                     Deactivate
                 </button>
@@ -52,7 +52,7 @@
 
             @if (Model.IsEditMode && Model.Status.Equals(Status.Inactive))
             {
-                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('ChangeStatus')">
+                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('Activate')">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                     Activate
                 </button>

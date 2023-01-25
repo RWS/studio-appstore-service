@@ -190,7 +190,6 @@ function InsertLink() {
             break;
     }
 
-    console.log(tag);
     document.execCommand('insertHTML', true, tag);
     document.querySelector('#linkModal #linkPlaceholder').value = '';
     document.querySelector('#linkModal #imageLink').value = '';

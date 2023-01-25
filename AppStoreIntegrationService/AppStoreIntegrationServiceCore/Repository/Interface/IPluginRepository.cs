@@ -8,11 +8,11 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
     {
         Task RemovePlugin(int id);
         Task<bool> ExitsPlugin(int id);
-        Task<PluginDetails> GetPluginById(int id, Status status = Status.All, ClaimsPrincipal user = null);
-        Task SavePlugin(PluginDetails plugin, bool removeOtherVersions = false);
-        Task<IEnumerable<PluginDetails>> GetAll(string sortOrder, ClaimsPrincipal user = null);
         Task<bool> HasActiveChanges(int id);
-        Task<bool> HasPendingChanges(int id, ClaimsPrincipal user = null);
         Task<bool> HasDraftChanges(int id, ClaimsPrincipal user = null);
+        Task<bool> HasPendingChanges(int id, ClaimsPrincipal user = null);
+        Task SavePlugin(PluginDetails plugin, bool removeOtherVersions = false);
+        Task<PluginDetails> GetPluginById(int id, Status status = Status.All, ClaimsPrincipal user = null);
+        Task<IEnumerable<PluginDetails>> GetAll(string sortOrder, ClaimsPrincipal user = null, Status status = Status.All);
     }
 }

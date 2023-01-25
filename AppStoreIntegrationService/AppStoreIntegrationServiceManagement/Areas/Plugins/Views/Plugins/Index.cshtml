@@ -101,8 +101,8 @@
                                                     <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"></i>
                                                     <div class="dropdown-menu">
                                                         <div class="d-flex p-2">
-                                                            <button class="btn pa-admin-success-btn me-2" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('Delete', '@plugin.Id')">Approve</button>
-                                                            <button class="btn btn-danger" onclick="Delete('RejectDeletion', '@plugin.Id')">Reject</button>
+                                                            <button class="btn pa-admin-success-btn me-2" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('AcceptDeletion', '@plugin.Id')">Approve</button>
+                                                            <button class="btn btn-danger" onclick="Delete('RejectDeletion', '@plugin.Id', false)">Reject</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -120,7 +120,7 @@
                                     }
                                     else
                                     {
-                                        if (plugin.IsActive)
+                                        if (User.IsInRole("Developer") && plugin.IsActive)
                                         {
                                             <div class="btn p-0 fs-inherit position-relative d-flex">
                                                 <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('RequestDeletion', '@plugin.Id')"></i>

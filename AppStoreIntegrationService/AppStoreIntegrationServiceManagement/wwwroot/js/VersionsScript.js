@@ -2,7 +2,7 @@
     $("#form").data('validator', null);
     $.validator.unobtrusive.parse("#form");
 
-    if (new URL(window.location.href).searchParams.get("selectedView") == "Details") {
+    if (new URL(window.location.href).searchParams.get("selectedView")) {
         new DropDown(
             document.querySelector("#productsDropdown #dropDownToggle"),
             document.querySelector("#productsDropdown #ProductsSelect"),
@@ -14,25 +14,35 @@
     }
 })
 
-function Show(versionId, view) {
+function Show(versionId, status) {
     let url = new URL(window.location.href);
-
     url.searchParams.set("selectedVersion", versionId);
-    url.searchParams.set("selectedView", view);
+
+    switch (status) {
+        case "Draft": url.searchParams.set("selectedView", "Draft");
+            break;
+        case "InReview": url.searchParams.set("selectedView", "Pending");
+            break;
+        default: url.searchParams.set("selectedView", "Details");
+            break;
+    }
+
     window.location.href = url.href;
 }
 
 function AddComment(pluginId, versionId) {
     let content = event.currentTarget.parentElement;
+    let request = new XMLHttpRequest();
 
-    $.ajax({
-        type: "POST",
-        url: `/Plugins/Edit/${pluginId}/Comments/${versionId}/New`,
-        success: function (response) {
-            content.innerHTML = response;
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            content.innerHTML = request.responseText;
             Init();
         }
-    });
+    }
+
+    request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}/New`);
+    request.send(data);
 }
 
 function SaveComment(pluginId, versionId) {
@@ -42,12 +52,8 @@ function SaveComment(pluginId, versionId) {
     ToggleLoader(button);
 
     request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE) {
-            if (request.status == 200) {
-                DiscardCommentEdit();
-            } else {
-                ToggleLoader(button);
-            }
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            DiscardCommentEdit();
         }
     }
 
@@ -80,7 +86,7 @@ function GenerateChecksum() {
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            AjaxSuccessCallback(request.responseText);
+            HttpRequestCallback(request.responseText);
             document.getElementById("FileHash").value = document.getElementById("GeneratedFileHash").value;
             document.getElementById("FileHash").disabled = false;
             spinner.hidden = true;
@@ -91,22 +97,21 @@ function GenerateChecksum() {
     request.send(data);
 }
 
-function SaveVersion(pluginId, saveAs, saveStatusOnly) {
+function Save(pluginId, action, removeOtherVersions = false) {
     let request = new XMLHttpRequest();
     let data = new FormData(document.getElementById("form"));
+    data.set("RemoveOtherVersions", removeOtherVersions)
     let button = event.currentTarget;
     ToggleLoader(button);
-    data.set("VersionStatus", saveAs);
-    data.set("SaveStatusOnly", saveStatusOnly);
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            AjaxSuccessCallback(request.responseText);
+            HttpRequestCallback(request.responseText);
             ToggleLoader(button);
         }
     }
 
-    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/Save`);
+    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${action}`);
     request.send(data);
 }
 
@@ -121,24 +126,37 @@ function ToggleLoader(element) {
     element.firstElementChild.hidden = false;
 }
 
-function DeleteVersion(pluginId, versionId, deletionApproval) {
-    document.getElementById('confirmationBtn').onclick = function () {
-        ApproveDeletion(pluginId, versionId, deletionApproval);
+function Delete(pluginId, versionId, action, needsConfirmation = true) {
+    if (needsConfirmation) {
+        document.getElementById('confirmationBtn').onclick = function () {
+            RespondDeletionRequest(pluginId, versionId, action)
+        }
+
+        return;
     }
+
+    RespondDeletionRequest(pluginId, versionId, action);
 }
 
-function ApproveDeletion(pluginId, versionId, deletionApproval) {
+function RespondDeletionRequest(pluginId, versionId, action) {
     let request = new XMLHttpRequest();
     var data = new FormData();
-    data.set("DeletionApproval", deletionApproval)
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            window.location.reload();
+            if (request.responseText) {
+                let url = new URL(window.location.href);
+                var response = JSON.parse(request.responseText)
+                url.searchParams.set("selectedView", response.selectedView);
+                url.searchParams.set("selectedVersion", response.selectedVersion);
+                window.location.href = url.href;
+            } else {
+                window.location.reload();
+            }
         }
     }
 
-    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/Delete/${versionId}`);
+    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${action}/${versionId}`);
     request.send(data);
 }
 
@@ -153,21 +171,25 @@ function UpdatePlaceholder() {
     placeholder.innerText = text;
 }
 
-function AjaxSuccessCallback(actionResult) {
-    if (!actionResult.includes("div")) {
-        window.location.reload();
-        return;
+function HttpRequestCallback(response) {
+    if (!response.includes("div")) {
+        let url = new URL(window.location.href);
+        url.searchParams.set("selectedView", JSON.parse(response).selectedView);
+        window.location.href = url.href;
     }
 
-    document.querySelector('.alert').remove();
-    document.getElementById("statusMessageContainer").innerHTML = actionResult;
-    var timeout = new setTimeout(() => {
-        let alert = document.querySelector('.alert')
-        alert.classList.add('slide-up');
+    let alert = document.querySelector('.alert');
+
+    if (alert) {
+        alert.remove();
+    }
+
+    document.getElementById("statusMessageContainer").innerHTML = response;
+    setTimeout(() => {
+        alert = document.querySelector('.alert')
+        alert.classList.add('slide-right');
         alert.addEventListener('animationend', () => {
-            alert.remove();
+            document.querySelector('.alert-container').remove();
         })
     }, 3000);
-
-    clearTimeout(timeout);
 }

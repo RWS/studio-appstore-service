@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using static AppStoreIntegrationServiceCore.Enums;
-using System.Linq;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -44,6 +43,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [Url(ErrorMessage = "Invalid url!")]
         [Display(Name = "Download url")]
         public string DownloadUrl { get; set; }
+        [Display(Name = "Status")]
         public Status Status { get; set; }
 
         public static PluginDetailsBase<T,U> CopyFrom(PluginDetails other)

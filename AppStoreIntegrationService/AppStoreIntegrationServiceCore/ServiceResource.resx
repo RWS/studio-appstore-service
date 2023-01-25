@@ -117,10 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ArrayLogString" xml:space="preserve">
-    <value>&lt;li&gt;The value for &lt;b&gt;{0}&lt;/b&gt; was changed from &lt;i&gt;[{1}]&lt;/i&gt; to &lt;i&gt;[{2}]&lt;/i&gt;&lt;/li&gt;</value>
-    <comment>Used for logging the changes that occured in a plugin collection</comment>
-  </data>
   <data name="BlobName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_BLOBNAME</value>
   </data>
@@ -137,20 +133,8 @@
   <data name="LogsFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_LOGSFILENAME</value>
   </data>
-  <data name="LogString" xml:space="preserve">
-    <value>&lt;li&gt;The value for &lt;b&gt;{0}&lt;/b&gt; was changed from &lt;i&gt;{1}&lt;/i&gt; to &lt;i&gt;{2}&lt;/i&gt;&lt;/li&gt;</value>
-    <comment>Used for logging the changed that occured in a plugin with a base type property (e.g. string)</comment>
-  </data>
   <data name="MappingFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_MAPPINGFILENAME</value>
-  </data>
-  <data name="NewPluginLogString" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; made a change to {1} at {2}&lt;br&gt;&lt;br&gt;&lt;p&gt;The following changes occured:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;</value>
-    <comment>Used for logging a new change in the plugin</comment>
-  </data>
-  <data name="NewVersionLogString" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; made a change to this plugin at {1}&lt;br&gt;&lt;br&gt;&lt;p&gt;The version with number {2} has changed:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;</value>
-    <comment>Used for loggin a new change in the plugin versions</comment>
   </data>
   <data name="PluginsFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_PLUGINSFILENAME</value>

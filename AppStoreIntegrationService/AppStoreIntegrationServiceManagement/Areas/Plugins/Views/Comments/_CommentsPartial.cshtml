@@ -1,18 +1,18 @@
-﻿@model (int pluginId, string versionId, IEnumerable<Comment> comments)
+﻿@model ExtendedPluginVersion
 @{
     var selectedComment = Context.Request.Query["selectedComment"];
 }
 
 <div class="p-3 border-bottom">
-    <partial name="_VersionCommentPartial" model="@(Model.versionId, false)" />
+    <partial name="_VersionSubMenu" model="@Model" />
 
-    @if (!Model.comments.Any())
+    @if (!Model.VersionComments.Any())
     {
         <p class="m-0 py-2">No comments yet for this version.</p>
     }
     else
     {
-        @foreach (var comment in Model.comments)
+        @foreach (var comment in Model.VersionComments)
         {
             if (selectedComment == comment.CommentId.ToString())
             {
@@ -32,7 +32,7 @@
                     {
                         <div class="d-flex">
                             <p class="m-0 me-2 cursor-pointer text-secondary" onclick="EnsurePreserved(() => { EditComment('@comment.CommentId') })">Edit</p>
-                            <p class="m-0 cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteComment('@Model.pluginId', '@Model.versionId', '@comment.CommentId')">Delete</p>
+                            <p class="m-0 cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteComment('@Model.PluginId', '@Model.VersionId', '@comment.CommentId')">Delete</p>
                         </div>
                     }
                 </div>
@@ -43,7 +43,7 @@
     @if (string.IsNullOrEmpty(selectedComment))
     {
         <div class="mt-2">
-            <button class="btn pa-admin-success-btn" id="addCommentBtn" onclick="AddComment('@Model.pluginId', '@Model.versionId')"><i class="fa fa-comment"></i> Add comment</button>
+            <button class="btn pa-admin-success-btn" id="addCommentBtn" onclick="AddComment('@Model.PluginId', '@Model.VersionId')"><i class="fa fa-comment"></i> Add comment</button>
         </div>
     }
 </div>

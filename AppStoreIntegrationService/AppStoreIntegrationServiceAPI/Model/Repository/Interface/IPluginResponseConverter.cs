@@ -4,7 +4,7 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository.Interface
 {
     public interface IPluginResponseConverter
     {
-        PluginResponse<PluginDetailsBase<PluginVersionBase<ProductDetails>, CategoryDetails>> CreateOldResponse(PluginResponse<PluginDetails> newResponse);
-        PluginResponse<PluginDetailsBase<PluginVersionBase<string>, string>> CreateBaseResponse(PluginResponse<PluginDetails> newResponse);
+        List<PluginDetailsBase<PluginVersionBase<ProductDetails>, CategoryDetails>> CreateOldResponse(PluginResponseBase<PluginDetails> newResponse);
+        PluginResponseBase<PluginDetailsBase<PluginVersionBase<string>, string>> CreateBaseResponse(PluginResponseBase<PluginDetails> newResponse);
     }
 }

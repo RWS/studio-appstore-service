@@ -1,16 +1,26 @@
-﻿function Delete(action, id) {
-    document.getElementById('confirmationBtn').onclick = function () {
-        let request = new XMLHttpRequest();
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                HttpRequestCallback(request.responseText);
-            }
+﻿function Delete(action, id, needsConfirmation = true) {
+    if (needsConfirmation) {
+        document.getElementById('confirmationBtn').onclick = function () {
+            RespondDeletionRequest(action, id);
         }
 
-        request.open("POST", `Plugins/Plugins/${action}/${id}`);
-        request.send();
+        return;
     }
+
+    RespondDeletionRequest(action, id);
+}
+
+function RespondDeletionRequest(action, id) {
+    let request = new XMLHttpRequest();
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            HttpRequestCallback(request.responseText);
+        }
+    }
+
+    request.open("POST", `Plugins/Plugins/${action}/${id}`);
+    request.send();
 }
 
 function HttpRequestCallback(response) {

@@ -4,7 +4,6 @@ using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Security.Claims;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -98,22 +97,16 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(id, Status.Active);
             var view = User.IsInRole("StandardUser") && plugin.IsThirdParty ? "ReadonlyDetails" : "Details";
-            return await Render(id, Status.Active, _pluginRepository.GetPluginById, "Pending", view);
+            return await Render(id, Status.Active, Pending, view);
         }
 
         [Route("Plugins/Pending/{id:int}")]
         [Authorize(Roles = "Administrator, Developer")]
-        public async Task<IActionResult> Pending(int id)
-        {
-            return await Render(id, Status.InReview, _pluginRepository.GetPluginById, "Draft", "Pending");
-        }
+        public async Task<IActionResult> Pending(int id) => await Render(id, Status.InReview, Draft, "Pending");
 
         [Route("Plugins/Draft/{id:int}")]
         [Authorize(Roles = "Administrator, Developer")]
-        public async Task<IActionResult> Draft(int id)
-        {
-            return await Render(id, Status.Draft, _pluginRepository.GetPluginById, "Edit", "Draft");
-        }
+        public async Task<IActionResult> Draft(int id) => await Render(id, Status.Draft, Edit, "Draft");
 
         [HttpPost]
         [Authorize(Roles = "Developer")]
@@ -124,11 +117,21 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             {
                 plugin.NeedsDeletionApproval = true;
                 await _pluginRepository.SavePlugin(plugin);
+                await _loggingRepository.Log(User.Identity.Name, id, $"<b>{User.Identity.Name}</b> requested deletion for <b>{plugin.Name}</b> at {DateTime.Now}");
                 TempData["StatusMessage"] = "Success! Plugin deletion request was sent!";
                 return Content(null);
             }
 
-            return RedirectToAction("Delete", new { id });
+            return await Delete(id);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> AcceptDeletion(int id)
+        {
+            var plugin = await _pluginRepository.GetPluginById(id, Status.All, User);
+            await _loggingRepository.Log(User.Identity.Name, id, $"<b>{User.Identity.Name}</b> accepted deletion for <b>{plugin.Name}</b> at {DateTime.Now}");
+            return await Delete(id);
         }
 
         [HttpPost]
@@ -138,7 +141,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var plugin = await _pluginRepository.GetPluginById(id, Status.All, User);
             plugin.NeedsDeletionApproval = false;
             await _pluginRepository.SavePlugin(plugin);
-            await _loggingRepository.Log(User, id, $"<b>{User.Identity.Name}</b> rejected deletion for <b>{plugin.Name}</b> at {DateTime.Now}");
+            await _loggingRepository.Log(User.Identity.Name, id, $"<b>{User.Identity.Name}</b> rejected deletion for <b>{plugin.Name}</b> at {DateTime.Now}");
             TempData["StatusMessage"] = "Success! Plugin deletion request was rejected!";
             return Content(null);
         }
@@ -149,21 +152,27 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var plugin = await _pluginRepository.GetPluginById(id, Status.All, User);
             await _pluginRepository.RemovePlugin(id);
             await _commentsRepository.DeleteComments(id);
-            await _loggingRepository.Log(User, id, $"<b>{User.Identity.Name}</b> removed <b>{plugin.Name}</b> at {DateTime.Now}");
+            await _loggingRepository.Log(User.Identity.Name, id, $"<b>{User.Identity.Name}</b> removed <b>{plugin.Name}</b> at {DateTime.Now}");
             TempData["StatusMessage"] = "Success! Plugin was removed!";
-            return Content("");
+            return Content(null);
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangeStatus(PluginDetails plugin, Status status)
+        public async Task<IActionResult> Activate(PluginDetails plugin, int id)
         {
-            plugin.Status = status;
-            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Active);
-            await _loggingRepository.Log(User, plugin.Id, $"<b>{User.Identity.Name}</b> changed the status of <b>{plugin.Name}</b> from <b>{oldPlugin.Status}</b> to <b>{plugin.Status}</b>");
-            await _pluginRepository.SavePlugin(plugin, false);
-            TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
+            plugin.Status = Status.Active;
+            var old = await _pluginRepository.GetPluginById(id, Status.Active);
+            string log = $"<b>{User.Identity.Name} </b> changed the status to <i>Active</i> for <b> {plugin.Name} </b> at  {DateTime.Now}";
+            return await Save(plugin, old, "Edit", log);
+        }
 
-            return Content($"/Plugins/Edit/{plugin.Id}");
+        [HttpPost]
+        public async Task<IActionResult> Deactivate(PluginDetails plugin, int id)
+        {
+            plugin.Status = Status.Inactive;
+            var old = await _pluginRepository.GetPluginById(id, Status.Active);
+            string log = $"<b>{User.Identity.Name}</b> changed the status to <i>Inactive</i> for <b>{plugin.Name}</b> at {DateTime.Now}";
+            return await Save(plugin, old, "Edit", log);
         }
 
         [HttpPost]
@@ -172,9 +181,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             plugin.Status = Status.InReview;
             plugin.HasAdminConsent = true;
-            string log = "<b>{0}</b> submitted new changes for <b>{1}</b> at {2}";
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.InReview);
-            return await SaveChanges(plugin, oldPlugin, log, "Pending", removeOtherVersions);
+            return await Save(plugin, oldPlugin, "Pending", CreateChangesLog(plugin, oldPlugin), removeOtherVersions, true);
         }
 
         [HttpPost]
@@ -183,9 +191,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             plugin.Status = Status.Active;
             plugin.IsActive = true;
-            string log = "<b>{0}</b> accepted the changes for <b>{1}</b> at {2}";
+            string log = $"<b>{User.Identity.Name}</b> accepted the changes for <b>{plugin.Name}</b> at {DateTime.Now}";
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Active);
-            return await SaveChanges(plugin, oldPlugin, log, "Edit", removeOtherVersions);
+            return await Save(plugin, oldPlugin, "Edit", log, removeOtherVersions, true);
         }
 
         [HttpPost]
@@ -194,9 +202,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             plugin.Status = Status.Draft;
             plugin.HasAdminConsent = true;
-            string log = "<b>{0}</b> rejected the changes for <b>{1}</b> at {2}";
+            string log = $"<b>{User.Identity.Name}</b> rejected the changes for <b>{plugin.Name}</b> at {DateTime.Now}";
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.InReview);
-            return await SaveChanges(plugin, oldPlugin, log, "Draft", removeOtherVersions);
+            return await Save(plugin, oldPlugin, "Draft", log, removeOtherVersions);
         }
 
         [HttpPost]
@@ -205,43 +213,38 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             plugin.Status = Status.Draft;
             plugin.HasAdminConsent = false;
-            string log = "<b>{0}</b> drafted a new version for <b>{1}</b> at {2}";
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Draft);
-            return await SaveChanges(plugin, oldPlugin, log, "Draft");
+            return await Save(plugin, oldPlugin, "Draft", CreateChangesLog(plugin, oldPlugin));
         }
 
         [HttpPost]
         public async Task<IActionResult> Save(PluginDetails plugin)
         {
-            string log = "<b>{0}</b> accepted the changes for <b>{1}</b> at {2}";
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Active);
-            return await SaveChanges(plugin, oldPlugin, log, "Edit");
+            return await Save(plugin, oldPlugin, "Edit", CreateChangesLog(plugin, oldPlugin), compareWithManifest: true);
         }
 
-        private async Task<IActionResult> SaveChanges(PluginDetails plugin, PluginDetails oldPlugin, string log, string successRedirect, bool removeOtherVersions = false)
+        private async Task<IActionResult> Save(PluginDetails plugin, PluginDetails oldPlugin, string successRedirect, string log = null, bool removeOtherVersions = false, bool compareWithManifest = false)
         {
             try
             {
-                if (oldPlugin == null)
+                if (!string.IsNullOrEmpty(log))
                 {
-                    await _loggingRepository.Log(User, plugin.Id, string.Format(log, User.Identity.Name, plugin.Name, DateTime.Now));
-                    await _pluginRepository.SavePlugin(plugin, removeOtherVersions);
-                    TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
-                    return Content($"/Plugins/{successRedirect}/{plugin.Id}");
+                    await _loggingRepository.Log(User.Identity.Name, plugin.Id, log);
                 }
-
-                var oldPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(plugin);
-                var newPluginToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(oldPlugin);
-                TempData["StatusMessage"] = $"Success! Nothing to save, {plugin.Name} is up to date!";
-
-                if (!oldPluginToBase.Equals(newPluginToBase))
+                
+                if (oldPlugin != null)
                 {
-                    await _loggingRepository.Log(User, oldPluginToBase, newPluginToBase);
-                    await _pluginRepository.SavePlugin(plugin, removeOtherVersions);
-                    TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
+                    plugin.Versions = oldPlugin.Versions;
+                }
+                
+                await _pluginRepository.SavePlugin(plugin, removeOtherVersions);
+                if (compareWithManifest)
+                {
                     await CompareWithManifest(plugin);
                 }
-
+               
+                TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
                 return Content($"/Plugins/{successRedirect}/{plugin.Id}");
             }
             catch (Exception e)
@@ -268,7 +271,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             TempData["StatusMessage"] = "Warning! Plugin was saved but there are manifest conflicts!";
         }
 
-        private async Task<IActionResult> Render(int id, Status status, Func<int, Status, ClaimsPrincipal, Task<PluginDetails>> getPluginById, string viewIfNull, string viewIfSuccess)
+        private async Task<IActionResult> Render(int id, Status status, Func<int, Task<IActionResult>> nullRedirect, string viewIfSuccess)
         {
             if (!await _pluginRepository.ExitsPlugin(id))
             {
@@ -276,11 +279,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             var categories = await _categoriesRepository.GetAllCategories();
-            var plugin = await getPluginById(id, status, User);
+            var plugin = await _pluginRepository.GetPluginById(id, status, User);
 
             if (plugin == null)
             {
-                return Redirect($"/Plugins/{viewIfNull}/{id}");
+                return await nullRedirect(id);
             }
 
             var extended = ExtendedPluginDetails.CopyFrom(plugin);
@@ -314,6 +317,65 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             return filters;
+        }
+
+        private string CreateChangesLog(PluginDetails @new, PluginDetails old)
+        {
+            var oldToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(old);
+            var newToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(@new);
+
+            if (oldToBase == null)
+            {
+                return $"<b>{User.Identity.Name}</b> added {@new.Name} at {DateTime.Now}<br><br><p>The plugin properties are:</p><ul>{CreateNewLog(newToBase)}</ul>";
+            }
+
+            if (oldToBase.Equals(newToBase))
+            {
+                return null;
+            }
+
+            return $"<b>{User.Identity.Name}</b> made changes to {@new.Name} at {DateTime.Now}<br><br><p>The following changes occured:</p><ul>{CreateComparisonLog(newToBase, oldToBase)}</ul>";
+        }
+
+        private string CreateNewLog(PluginDetailsBase<PluginVersionBase<string>, string> plugin)
+        {
+            string change = "<li><b>{0}</b> : <i>{1}</i></li>";
+            return string.Format(change, "Plugin name", plugin.Name) +
+                   string.Format(change, "Description", plugin.Description) +
+                   string.Format(change, "Changelog link", plugin.ChangelogLink) +
+                   string.Format(change, "Support URL", plugin.SupportUrl) +
+                   string.Format(change, "Support e-mail", plugin.SupportEmail) +
+                   string.Format(change, "Icon URL", plugin.Icon.MediaUrl) +
+                   string.Format(change, "Pricing", plugin.PaidFor ? "Paid" : "Free") +
+                   string.Format(change, "Developer", plugin.Developer.DeveloperName) +
+                   string.Format(change, "Categories", CreateCategoriesLog(plugin.Categories)) +
+                   string.Format(change, "Status", plugin.Status.ToString());
+        }
+
+        private string CreateComparisonLog(PluginDetailsBase<PluginVersionBase<string>, string> @new, PluginDetailsBase<PluginVersionBase<string>, string> old)
+        {
+            string change = "<li>The property <b>{0}</b> changed from <i>{1}</i> to <i>{2}</i></li>";
+            return (@new.Name == old.Name ? null : string.Format(change, "Plugin name", @new.Name, old.Name)) +
+                   (@new.Status == old.Status ? null : string.Format(change, "Status", @new.Status, old.Status)) +
+                   (@new.PaidFor == old.PaidFor ? null : string.Format(change, "Pricing", @new.PaidFor, old.PaidFor)) +
+                   (@new.Icon.Equals(old.Icon) ? null : string.Format(change, "Icon URL", @new.Icon.MediaUrl, old.Icon.MediaUrl)) +
+                   (@new.SupportUrl == old.SupportUrl ? null : string.Format(change, "Support URL", @new.SupportUrl, old.SupportUrl)) +
+                   (@new.Description == old.Description ? null : string.Format(change, "Description", @new.Description, old.Description)) +
+                   (@new.SupportEmail == old.SupportEmail ? null : string.Format(change, "Support e-mail", @new.SupportEmail, old.SupportEmail)) +
+                   (@new.ChangelogLink == old.ChangelogLink ? null : string.Format(change, "Changelog link", @new.ChangelogLink, old.ChangelogLink)) +
+                   (@new.Developer.Equals(old.Developer) ? null : string.Format(change, "Developer", @new.Developer.DeveloperName, old.Developer.DeveloperName)) +
+                   (@new.Categories.SequenceEqual(old.Categories) ? null : string.Format(change, "Categories", CreateCategoriesLog(@new.Categories), CreateCategoriesLog(@old.Categories)));
+        }
+
+        private string CreateCategoriesLog(List<string> categories)
+        {
+            var categoryDetails = _categoriesRepository.GetAllCategories().Result;
+            if (categories.Count > 1)
+            {
+                return $"[{categories.Aggregate("", (result, next) => $"{result}, {categoryDetails.FirstOrDefault(c => c.Id == next).Name}")}]";
+            }
+
+            return $"[{categoryDetails.FirstOrDefault(c => c.Id == categories[0]).Name}]";
         }
     }
 }

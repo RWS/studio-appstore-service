@@ -1,0 +1,32 @@
+﻿@model ExtendedPluginVersion
+@inject IPluginVersionRepository repository
+@{
+    var selectedView = Context.Request.Query["selectedView"];
+}
+
+<ul class="nav nav-tabs">
+    @if (await repository.HasActiveChanges(Model.PluginId, Model.VersionId))
+    {
+        <li class="nav-item">
+            <a class="nav-link cursor-pointer @(selectedView == "Details" ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.VersionId', 'Details') })">Details</a>
+        </li>
+    }
+
+    @if (await repository.HasPendingChanges(Model.PluginId, Model.VersionId, User))
+    {
+        <li class="nav-item">
+            <a class="nav-link cursor-pointer @(selectedView == "Pending" ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.VersionId', 'Pending') })">Pending</a>
+        </li>
+    }
+
+    @if (await repository.HasDraftChanges(Model.PluginId, Model.VersionId, User))
+    {
+        <li class="nav-item">
+            <a class="nav-link cursor-pointer @(selectedView == "Draft" ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.VersionId', 'Draft') })">Draft</a>
+        </li>
+    }
+
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @(selectedView == "Comments" ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.VersionId', 'Comments') })">Comments</a>
+    </li>
+</ul>

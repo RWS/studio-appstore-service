@@ -35,7 +35,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
 
             if (!Version.TryParse(text, out Version version) || version == new Version(1, 0, 0))
             {
-                return Ok(_converter.CreateOldResponse(response).Value);
+                return Ok(_converter.CreateOldResponse(response));
             }
 
             if (version == new Version(2, 0, 0))

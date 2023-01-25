@@ -14,7 +14,7 @@
     });
 });
 
-function SavePlugin(action, removeOtherVersions = false, status = 'Active') {
+function SavePlugin(action, removeOtherVersions = false) {
     var button = event.currentTarget;
     $("#form").validate();
 
@@ -22,7 +22,6 @@ function SavePlugin(action, removeOtherVersions = false, status = 'Active') {
         let request = new XMLHttpRequest();
         let data = new FormData(document.getElementById("form"));
         data.set("RemoveOtherVersions", removeOtherVersions);
-        data.set("Status", status);
         ToggleLoader(button);
 
         request.onreadystatechange = function () {

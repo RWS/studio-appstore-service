@@ -5,7 +5,7 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
 {
     public class PluginResponseConverter : IPluginResponseConverter
     {
-        public PluginResponse<PluginDetailsBase<PluginVersionBase<ProductDetails>, CategoryDetails>> CreateOldResponse(PluginResponse<PluginDetails> newResponse)
+        public List<PluginDetailsBase<PluginVersionBase<ProductDetails>, CategoryDetails>> CreateOldResponse(PluginResponseBase<PluginDetails> newResponse)
         {
             var plugins = new List<PluginDetailsBase<PluginVersionBase<ProductDetails>, CategoryDetails>>();
             foreach (var plugin in newResponse?.Value)
@@ -13,15 +13,12 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
                 plugins.Add(ConvertToOldPlugin(plugin, newResponse.Categories, newResponse.Products));
             }
 
-            return new PluginResponse<PluginDetailsBase<PluginVersionBase<ProductDetails>, CategoryDetails>>
-            {
-                Value = plugins,
-            };
+            return plugins;
         }
 
-        public PluginResponse<PluginDetailsBase<PluginVersionBase<string>, string>> CreateBaseResponse(PluginResponse<PluginDetails> response)
+        public PluginResponseBase<PluginDetailsBase<PluginVersionBase<string>, string>> CreateBaseResponse(PluginResponseBase<PluginDetails> response)
         {
-            return new PluginResponse<PluginDetailsBase<PluginVersionBase<string>, string>>
+            return new PluginResponseBase<PluginDetailsBase<PluginVersionBase<string>, string>>
             {
                 APIVersion = response.APIVersion,
                 Value = response.Value.Select(p => PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(p)),

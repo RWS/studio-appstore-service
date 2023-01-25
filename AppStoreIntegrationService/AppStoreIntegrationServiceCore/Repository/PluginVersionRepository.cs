@@ -7,48 +7,152 @@ namespace AppStoreIntegrationServiceCore.Repository
 {
     public class PluginVersionRepository : IPluginVersionRepository
     {
-        private readonly IPluginManager _pluginManager;
         private readonly IPluginRepository _pluginRepository;
 
-        public PluginVersionRepository(IPluginManager pluginManager, IPluginRepository pluginRepository)
+        public PluginVersionRepository(IPluginRepository pluginRepository)
         {
-            _pluginManager = pluginManager;
             _pluginRepository = pluginRepository;
         }
 
         public async Task<PluginVersion> GetPluginVersion(int pluginId, string versionId, ClaimsPrincipal user = null)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, user);
-            return plugin.Versions.FirstOrDefault(v => v.VersionId.Equals(versionId));
+            var versions = plugin.Versions.Concat(plugin.Pending).Concat(plugin.Drafts);
+            return versions.FirstOrDefault(v => v.VersionId == versionId);
         }
 
-        public async Task RemovePluginVersion(int id, string versionId)
+        public async Task<bool> HasActiveChanges(int pluginId, string versionId)
         {
-            var plugins = await _pluginManager.ReadPlugins();
-            var plugin = plugins.FirstOrDefault(p => p.Id == id);
-            var version = plugin.Versions.FirstOrDefault(v => v.VersionId == versionId);
-            plugin.Versions.Remove(version);
-            await _pluginManager.SavePlugins(plugins);
+            var plugins = await _pluginRepository.GetAll("asc");
+            var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
+            return plugin.Versions.Any(v => v.VersionId == versionId);
         }
 
-        public async Task UpdatePluginVersion(int id, PluginVersion version)
+        public async Task<bool> HasDraftChanges(int pluginId, string versionId, ClaimsPrincipal user = null)
         {
-            var plugins = await _pluginManager.ReadPlugins();
-            var plugin = plugins.FirstOrDefault(p => p.Id == id);
-            var old = plugin.Versions?.FirstOrDefault(v => v.VersionId == version.VersionId);
+            var plugins = await _pluginRepository.GetAll("asc");
+            var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
+            if (user?.IsInRole("Administrator") ?? false)
+            {
+                return plugin.Drafts.Any(v => v.VersionId == versionId && v.HasAdminConsent);
+            }
+
+            if (user?.IsInRole("Developer") ?? false)
+            {
+                return plugin.Drafts.Any(v => v.VersionId == versionId);
+            }
+
+            return false;
+        }
+
+        public async Task<bool> HasPendingChanges(int pluginId, string versionId, ClaimsPrincipal user = null)
+        {
+            var plugins = await _pluginRepository.GetAll("asc");
+            var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
+
+            if ((user?.IsInRole("Administrator") ?? false) || (user?.IsInRole("Developer") ?? false))
+            {
+                return plugin.Pending.Any(v => v.VersionId == versionId);
+            }
+
+            return false;
+        }
+
+        public async Task RemovePluginVersion(int pluginId, string versionId)
+        {
+            var plugins = await _pluginRepository.GetAll("asc");
+            var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
+
+            plugin.Versions = plugin.Versions.Where(v => v.VersionId != versionId).ToList();
+            plugin.Pending = plugin.Pending.Where(v => v.VersionId != versionId).ToList();
+            plugin.Drafts = plugin.Drafts.Where(v => v.VersionId != versionId).ToList();
+
+            await _pluginRepository.SavePlugin(plugin);
+        }
+
+        public async Task Save(int pluginId, PluginVersion version, bool removeOtherVersions = false)
+        {
+            var plugins = await _pluginRepository.GetAll("asc");
+            var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
+            var versions = version.VersionStatus switch
+            {
+                Status.Draft => plugin.Drafts,
+                Status.InReview => plugin.Pending,
+                _ => plugin.Versions
+            };
+
+            versions = UpdateVersions(version, versions);
+            await SaveDrafts(plugin, version, versions, removeOtherVersions);
+            await SavePending(plugin, version, versions, removeOtherVersions);
+            await SaveActiveVersion(plugin, version, versions, removeOtherVersions);
+        }
+
+        private async Task SaveActiveVersion(PluginDetails plugin, PluginVersion version, List<PluginVersion> versions, bool removeOtherVersions)
+        {
+            if (version.VersionStatus != Status.Active && version.VersionStatus != Status.Inactive)
+            {
+                return;
+            }
+
+            plugin.Versions = versions;
+
+            if (removeOtherVersions)
+            {
+                plugin.Pending = plugin.Pending.Where(p => p.VersionId != version.VersionId).ToList();
+            }
+
+            await _pluginRepository.SavePlugin(plugin);
+        }
+
+        private async Task SavePending(PluginDetails plugin, PluginVersion version, List<PluginVersion> versions, bool removeOtherVersions)
+        {
+            if (version.VersionStatus != Status.InReview)
+            {
+                return;
+            }
+
+            plugin.Pending = versions;
+
+            if (removeOtherVersions)
+            {
+                plugin.Drafts = plugin.Drafts.Where(v => v.VersionId != version.VersionId).ToList();
+            }
+
+            await _pluginRepository.SavePlugin(plugin);
+        }
+
+        private async Task SaveDrafts(PluginDetails plugin, PluginVersion version, List<PluginVersion> versions, bool removeOtherVersions)
+        {
+            if (version.VersionStatus != Status.Draft)
+            {
+                return;
+            }
+
+            plugin.Drafts = versions;
+
+            if (removeOtherVersions)
+            {
+                plugin.Pending = plugin.Pending.Where(v => v.VersionId != version.VersionId).ToList();
+            }
+
+            await _pluginRepository.SavePlugin(plugin);
+        }
+
+        private static List<PluginVersion> UpdateVersions(PluginVersion version, List<PluginVersion> versions)
+        {
+            var old = versions.FirstOrDefault(v => v.VersionId == version.VersionId);
 
             if (old == null)
             {
-                plugin.Versions.Add(version);
+                versions.Add(version);
             }
             else
             {
-                var index = plugin.Versions.IndexOf(old);
-                plugin.Versions[index] = version;
+                var index = versions.IndexOf(old);
+                versions[index] = version;
             }
 
-            plugin.DownloadUrl = version.DownloadUrl;
-            await _pluginRepository.SavePlugin(plugin);
+            return versions;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -74,6 +75,23 @@ namespace AppStoreIntegrationServiceCore.Model
         [Url(ErrorMessage = "Invalid url!")]
         public string DownloadUrl { get; set; }
         public bool IsPrivatePlugin { get; set; }
+        [Display(Name = "Status")]
+        [JsonProperty("Status")]
+        public Status VersionStatus { get; set; }
+
+        public bool Equals(PluginVersionBase<T> other)
+        {
+            return VersionNumber == other.VersionNumber &&
+                   FileHash == other.FileHash &&
+                   SupportedProducts.SequenceEqual(other.SupportedProducts) &&
+                   AppHasStudioPluginInstaller == other.AppHasStudioPluginInstaller &&
+                   MinimumRequiredVersionOfStudio == other.MinimumRequiredVersionOfStudio &&
+                   MaximumRequiredVersionOfStudio == other.MaximumRequiredVersionOfStudio &&
+                   IsNavigationLink == other.IsNavigationLink &&
+                   DownloadUrl == other.DownloadUrl &&
+                   IsPrivatePlugin == other.IsPrivatePlugin &&
+                   VersionStatus == other.VersionStatus;
+        }
 
         public static PluginVersionBase<T> CopyFrom(PluginVersion other)
         {
