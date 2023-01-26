@@ -85,6 +85,29 @@ namespace AppStoreIntegrationServiceCore.Repository
             return (await GetResponse())?.Logs ?? new Dictionary<int, IEnumerable<Log>>();
         }
 
+        public async Task<IEnumerable<PluginDetails>> ReadPending()
+        {
+            return (await GetResponse())?.Pending ?? new List<PluginDetails>();
+        }
+
+        public async Task SavePending(IEnumerable<PluginDetails> plugins)
+        {
+            var response = await GetResponse();
+            response.Pending = plugins;
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
+        }
+
+        public async Task<IEnumerable<PluginDetails>> ReadDrafts()
+        {
+            return (await GetResponse())?.Drafts ?? new List<PluginDetails>();
+        }
+
+        public async Task SaveDrafts(IEnumerable<PluginDetails> plugins)
+        {
+            var response = await GetResponse();
+            response.Drafts = plugins;
+            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
+        }
 
         public async Task SaveNames(IEnumerable<NameMapping> mappings)
         {
@@ -243,26 +266,6 @@ namespace AppStoreIntegrationServiceCore.Repository
                     PublicAccess = BlobContainerPublicAccessType.Blob
                 });
             }
-        }
-
-        public Task<IEnumerable<PluginDetails>> ReadPending()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SavePending(IEnumerable<PluginDetails> plugins)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<PluginDetails>> ReadDrafts()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveDrafts(IEnumerable<PluginDetails> plugins)
-        {
-            throw new NotImplementedException();
         }
     }
 }
