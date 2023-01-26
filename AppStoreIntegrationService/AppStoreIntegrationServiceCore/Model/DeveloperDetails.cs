@@ -14,9 +14,9 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool Equals(DeveloperDetails other)
         {
-            return Equals(DeveloperName, other.DeveloperName) &&
-                   Equals(DeveloperDescription, other.DeveloperDescription) &&
-                   Equals(DeveloperUrl, other.DeveloperUrl);
+            return DeveloperName == other?.DeveloperName &&
+                   DeveloperDescription == other?.DeveloperDescription &&
+                   DeveloperUrl == other?.DeveloperUrl;
         }
     }
 }

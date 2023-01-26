@@ -1,6 +1,4 @@
-﻿using static AppStoreIntegrationServiceCore.Enums;
-
-namespace AppStoreIntegrationServiceCore.Model
+﻿namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginDetails : PluginDetailsBase<PluginVersion, string>, IEquatable<PluginDetails>
     {
@@ -10,6 +8,7 @@ namespace AppStoreIntegrationServiceCore.Model
         public bool IsActive { get; set; }
         public List<PluginVersion> Pending { get; set; } = new List<PluginVersion>();
         public List<PluginVersion> Drafts { get; set; } = new List<PluginVersion>();
+
         public bool Equals(PluginDetails other)
         {
             return Name == other.Name &&

@@ -29,11 +29,11 @@ namespace AppStoreIntegrationServiceCore.Model
         [Display(Name = "Support email")]
         [EmailAddress(ErrorMessage = "Invalid email address!")]
         public string SupportEmail { get; set; }
-        public IconDetails Icon { get; set; }
+        public IconDetails Icon { get; set; } = new IconDetails();
 
         [Display(Name = "Paid for")]
         public bool PaidFor { get; set; }
-        public DeveloperDetails Developer { get; set; }
+        public DeveloperDetails Developer { get; set; } = new DeveloperDetails();
         public List<T> Versions { get; set; } = new List<T>();
 
         [Display(Name = "Plugin categories")]

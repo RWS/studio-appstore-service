@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -13,7 +14,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool Equals(IconDetails other)
         {
-            return Equals(MediaUrl, other.MediaUrl);
+            return MediaUrl == other?.MediaUrl;
         }
     }
 }

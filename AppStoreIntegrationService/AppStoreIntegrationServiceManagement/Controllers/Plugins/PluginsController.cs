@@ -44,6 +44,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             PluginFilter filter = ApplyFilters();
             var plugins = await _pluginRepository.GetAll(filter.SortOrder, User);
             var products = await _productsRepository.GetAllProducts();
+            var parents = await _productsRepository.GetAllParents();
             var status = new List<string> { "Active", "Inactive" }.Concat(User.IsInRole("StandardUser") ? new List<string>() : new[] { "Draft", "InReview" }).Select(x => new FilterItem
             {
                 Id = "Status",
@@ -54,7 +55,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             return View(new ConfigToolModel
             {
-                Plugins = PluginFilter.SearchPlugins(plugins, filter, products).Select(p => ExtendedPluginDetails.CopyFrom(p)),
+                Plugins = PluginFilter.FilterPlugins(plugins, filter, products, parents).Select(p => ExtendedPluginDetails.CopyFrom(p)),
                 StatusListItems = new SelectList(status, nameof(FilterItem.Value), nameof(FilterItem.Label), Request.Query["Status"].FirstOrDefault()),
                 ProductsListItems = new SelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName), Request.Query["Product"].FirstOrDefault()),
                 Filters = status.Concat(products.Select(x => new FilterItem

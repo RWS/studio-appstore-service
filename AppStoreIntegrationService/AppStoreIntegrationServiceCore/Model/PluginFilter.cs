@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
@@ -6,6 +7,7 @@ namespace AppStoreIntegrationServiceCore.Model
     public class PluginFilter
     {
         public string Query { get; set; }
+        public string BaseProduct { get; set; }
         public string StudioVersion { get; set; }
         public string SortOrder { get; set; }
         public string Price { get; set; }
@@ -15,20 +17,20 @@ namespace AppStoreIntegrationServiceCore.Model
 
         private static IEnumerable<PluginDetails> FilterByStatus(IEnumerable<PluginDetails> plugins, Status status)
         {
-            if (status.Equals(Status.Active))
+            if (status == Status.Active)
             {
-                plugins = plugins.Where(x => x.Status.Equals(Status.Active));
+                plugins = plugins.Where(x => x.Status == Status.Active);
                 foreach (var plugin in plugins)
                 {
-                    plugin.Versions = plugin.Versions.Where(v => v.VersionStatus.Equals(Status.Active)).ToList();
+                    plugin.Versions = plugin.Versions.Where(v => v.VersionStatus == Status.Active).ToList();
                 }
             }
 
             return status switch
             {
-                Status.Inactive => plugins.Where(x => x.Status.Equals(Status.Inactive)),
-                Status.Draft => plugins.Where(x => x.Status.Equals(Status.Draft) || x.Versions.Any(v => v.VersionStatus.Equals(Status.Draft))),
-                Status.InReview => plugins.Where(x => x.Status.Equals(Status.InReview) || x.Versions.Any(v => v.VersionStatus.Equals(Status.InReview))),
+                Status.Inactive => plugins.Where(x => x.Status == Status.Inactive),
+                Status.Draft => plugins.Where(x => x.Status == Status.Draft || x.Versions.Any(v => v.VersionStatus == Status.Draft)),
+                Status.InReview => plugins.Where(x => x.Status == Status.InReview || x.Versions.Any(v => v.VersionStatus == Status.InReview)),
                 _ => plugins
             };
         }
@@ -40,16 +42,12 @@ namespace AppStoreIntegrationServiceCore.Model
 
         private static IEnumerable<PluginDetails> FilterByPrice(IEnumerable<PluginDetails> pluginsList, string price)
         {
-            return pluginsList.Where(p => p.PaidFor == (!string.IsNullOrEmpty(price) && price.Equals("paid", StringComparison.CurrentCultureIgnoreCase)));
+            return pluginsList.Where(p => p.PaidFor == price.Equals("paid", StringComparison.CurrentCultureIgnoreCase));
         }
 
-        private static IEnumerable<PluginDetails> FilterByVersion(IEnumerable<PluginDetails> pluginsList, string studioVersion, IEnumerable<ProductDetails> products)
+        private static IEnumerable<PluginDetails> FilterByVersion(IEnumerable<PluginDetails> pluginsList, PluginFilter filter, IEnumerable<ProductDetails> products, IEnumerable<ParentProduct> parents)
         {
             var plugins = new List<PluginDetails>();
-            var expression = new Regex("\\d+", RegexOptions.IgnoreCase);
-            var versionNumber = expression.Match(studioVersion);
-            var oldTradosName = $"SDL Trados Studio {versionNumber.Value}";
-            var rebrandedStudioName = $"Trados Studio {versionNumber.Value}";
 
             foreach (var plugin in pluginsList)
             {
@@ -57,12 +55,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
                 foreach (var version in plugin.Versions)
                 {
-                    var product = version.SupportedProducts.SelectMany(sp => products
-                                                           .Where(p => p.Id == sp))
-                                                           .FirstOrDefault(s => s.ProductName.Equals(oldTradosName) ||
-                                                                                s.ProductName.Equals(rebrandedStudioName) ||
-                                                                                s.ProductName.Equals(rebrandedStudioName + "(SR2)"));
-                    if (product != null)
+                    if (GetSupportedProduct(version, filter, products, parents) != null)
                     {
                         matchingVersions.Add(version);
                         plugin.DownloadUrl = version.DownloadUrl;
@@ -79,14 +72,49 @@ namespace AppStoreIntegrationServiceCore.Model
             return plugins;
         }
 
-        private static IEnumerable<PluginDetails> FilterByCategory(IEnumerable<PluginDetails> pluginsList, IEnumerable<int> categoryIds)
+        private static ProductDetails GetSupportedProduct(PluginVersion version, PluginFilter filter, IEnumerable<ProductDetails> products, IEnumerable<ParentProduct> parents)
         {
-            return categoryIds.SelectMany(c => pluginsList.Where(p => p.Categories.Any(pc => pc.Equals(c))));
+            if (Version.TryParse(filter.StudioVersion, out _))
+            {
+                return version.SupportedProducts.SelectMany(x => products
+                                                .Where(y => y.Id == x))
+                                                .FirstOrDefault(x => filter.BaseProduct == parents
+                                                .FirstOrDefault(y => y.Id == x.ParentProductID).ProductName && IsMatchingVersion(version, filter.StudioVersion));
+            }
+
+            var expression = new Regex("\\d+", RegexOptions.IgnoreCase);
+            var versionNumber = expression.Match(filter.StudioVersion);
+            var oldTradosName = $"SDL Trados Studio {versionNumber.Value}";
+            var rebrandedStudioName = $"Trados Studio {versionNumber.Value}";
+
+            return version.SupportedProducts.SelectMany(x => products
+                                            .Where(y => y.Id == x))
+                                            .FirstOrDefault(x => x.ProductName.Equals(oldTradosName) ||
+                                                                 x.ProductName.Equals(rebrandedStudioName) ||
+                                                                 x.ProductName.Equals(rebrandedStudioName + " (SR2)"));
+
         }
 
-        public static IEnumerable<PluginDetails> SearchPlugins(IEnumerable<PluginDetails> pluginsList, PluginFilter filter, IEnumerable<ProductDetails> products)
+        private static bool IsMatchingVersion(PluginVersion version, string studioVersion)
+        {
+            var parsedStudioVersion = new Version(studioVersion);
+            return new Version(version.MinimumRequiredVersionOfStudio) <= parsedStudioVersion &&
+                   new Version(version.MaximumRequiredVersionOfStudio) >= parsedStudioVersion;
+        }
+
+        private static IEnumerable<PluginDetails> FilterByCategory(IEnumerable<PluginDetails> pluginsList, IEnumerable<int> categoryIds)
+        {
+            return categoryIds.SelectMany(c => pluginsList.Where(p => p.Categories.Any(pc => pc == c.ToString())));
+        }
+
+        public static IEnumerable<PluginDetails> FilterPlugins(IEnumerable<PluginDetails> pluginsList, PluginFilter filter, IEnumerable<ProductDetails> products, IEnumerable<ParentProduct> parents)
         {
             pluginsList ??= new List<PluginDetails>();
+
+            if (filter == null)
+            {
+                return pluginsList;
+            }
 
             var searchedPluginList = FilterByStatus(pluginsList, filter.Status);
             if (!string.IsNullOrEmpty(filter?.SupportedProduct))
@@ -106,7 +134,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
             if (!string.IsNullOrEmpty(filter?.StudioVersion))
             {
-                searchedPluginList = FilterByVersion(searchedPluginList, filter.StudioVersion, products);
+                searchedPluginList = FilterByVersion(searchedPluginList, filter, products, parents);
             }
 
             if (filter?.CategoryId?.Count > 0)
@@ -119,7 +147,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         private static IEnumerable<PluginDetails> FilterByProduct(IEnumerable<PluginDetails> plugins, string product)
         {
-            return plugins.Where(p => p.Versions.Select(v => v.SupportedProducts.Any(p => p.Equals(product))).Any(check => check));
+            return plugins.Where(p => p.Versions.Any(v => v.SupportedProducts.Any(p => p == product)));
         }
     }
 }

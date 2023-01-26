@@ -11,7 +11,7 @@
 
         public bool Equals(Comment other)
         {
-            return Equals(CommentDescription, other.CommentDescription);
+            return CommentDescription == other.CommentDescription;
         }
     }
 }

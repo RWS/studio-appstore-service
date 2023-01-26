@@ -31,7 +31,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             _ = Request.Headers.TryGetValue("apiversion", out StringValues text);
             filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;
             var response = await _manager.GetResponse();
-            response.Value = PluginFilter.SearchPlugins(response.Value, filter, response.Products);
+            response.Value = PluginFilter.FilterPlugins(response.Value, filter, response.Products, response.ParentProducts);
 
             if (!Version.TryParse(text, out Version version) || version == new Version(1, 0, 0))
             {
