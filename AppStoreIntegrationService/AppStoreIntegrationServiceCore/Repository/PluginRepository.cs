@@ -184,7 +184,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<bool> HasDraftChanges(int id, ClaimsPrincipal user = null)
         {
-            var drafts = await GetAll(null, status: Status.Active);
+            var drafts = await GetAll(null, status: Status.Draft);
             if (user?.IsInRole("Administrator") ?? false)
             {
                 return drafts.Any(p => p.Id == id && p.HasAdminConsent);

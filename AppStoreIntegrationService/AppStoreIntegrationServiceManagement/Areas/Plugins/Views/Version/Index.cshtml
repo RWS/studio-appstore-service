@@ -24,7 +24,7 @@
                 @foreach (var version in Model.versions)
                 {
                     <div class="d-flex justify-content-between p-3 border-bottom">
-                        <div class="d-flex cursor-pointer w-100" onclick="Show('@version.VersionId', '@version.VersionStatus.ToString()')">
+                        <div class="d-flex cursor-pointer w-100" onclick="ShowByStatus('@version.VersionId', '@version.VersionStatus.ToString()')">
                             <i class="fa fa-caret-down align-self-center me-2"></i>
                             <p class="m-0 fw-bold version-number-placeholder align-self-center">@(version.IsNewVersion ? "New Version" : version.VersionNumber)</p>
                         </div>
@@ -83,7 +83,7 @@
                     <div>
                         @if (selectedVersion == version.VersionId && selectedView == "Comments")
                         {
-                            <partial name="/Areas/Plugins/Views/Comments/_CommentsPartial.cshtml" model="@(Model.plugin.Id, version.VersionId, version.VersionComments)" />
+                            <partial name="/Areas/Plugins/Views/Comments/_CommentsPartial.cshtml" model="@version" />
                         }
 
                         @if (selectedVersion == version.VersionId && selectedView == "Details")

@@ -78,18 +78,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var categories = await _categoriesRepository.GetAllCategories();
             var plugins = await _pluginRepository.GetAll("asc");
-            var request = _context.HttpContext?.Request;
 
             return View("Details", new ExtendedPluginDetails
             {
                 Id = plugins.MaxBy(x => x.Id)?.Id + 1 ?? 0,
-                Icon = new IconDetails { MediaUrl = $"{request?.Scheme}://{request?.Host.Value}/images/plugin.ico" },
+                Icon = new IconDetails { MediaUrl = GetPluginImage() },
                 Developer = new DeveloperDetails { DeveloperName = User.IsInRole("Developer") ? User.Identity.Name : null },
                 IsEditMode = false,
                 Status = User.IsInRole("Developer") ? Status.Draft : Status.Active,
                 IsThirdParty = User.IsInRole("Developer"),
                 CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
             });
+        }
+
+        private string GetPluginImage()
+        {
+            var request = _context.HttpContext?.Request;
+            var scheme = request?.Scheme;
+            var host = request?.Host.Value;
+
+            return $"{scheme}://{host}/images/plugin.ico";
         }
 
         [Route("Plugins/Edit/{id:int}")]
@@ -158,30 +166,30 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        public async Task<IActionResult> Activate(PluginDetails plugin, int id)
+        public async Task<IActionResult> Activate(PluginDetails plugin)
         {
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, plugin.Status);
             plugin.Status = Status.Active;
-            var old = await _pluginRepository.GetPluginById(id, Status.Active);
             string log = $"<b>{User.Identity.Name} </b> changed the status to <i>Active</i> for <b> {plugin.Name} </b> at  {DateTime.Now}";
-            return await Save(plugin, old, "Edit", log);
+            return await Save(plugin, oldPlugin, "Edit", log);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Deactivate(PluginDetails plugin, int id)
+        public async Task<IActionResult> Deactivate(PluginDetails plugin)
         {
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, plugin.Status);
             plugin.Status = Status.Inactive;
-            var old = await _pluginRepository.GetPluginById(id, Status.Active);
             string log = $"<b>{User.Identity.Name}</b> changed the status to <i>Inactive</i> for <b>{plugin.Name}</b> at {DateTime.Now}";
-            return await Save(plugin, old, "Edit", log);
+            return await Save(plugin, oldPlugin, "Edit", log);
         }
 
         [HttpPost]
         [Authorize(Roles = "Developer")]
         public async Task<IActionResult> Submit(PluginDetails plugin, bool removeOtherVersions)
         {
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, plugin.Status);
             plugin.Status = Status.InReview;
             plugin.HasAdminConsent = true;
-            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.InReview);
             return await Save(plugin, oldPlugin, "Pending", CreateChangesLog(plugin, oldPlugin), removeOtherVersions, true);
         }
 
@@ -189,10 +197,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> Approve(PluginDetails plugin, bool removeOtherVersions = false)
         {
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, plugin.Status);
             plugin.Status = Status.Active;
             plugin.IsActive = true;
             string log = $"<b>{User.Identity.Name}</b> accepted the changes for <b>{plugin.Name}</b> at {DateTime.Now}";
-            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Active);
             return await Save(plugin, oldPlugin, "Edit", log, removeOtherVersions, true);
         }
 
@@ -200,10 +208,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> Reject(PluginDetails plugin, bool removeOtherVersions = false)
         {
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, plugin.Status);
             plugin.Status = Status.Draft;
             plugin.HasAdminConsent = true;
             string log = $"<b>{User.Identity.Name}</b> rejected the changes for <b>{plugin.Name}</b> at {DateTime.Now}";
-            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.InReview);
             return await Save(plugin, oldPlugin, "Draft", log, removeOtherVersions);
         }
 
@@ -211,9 +219,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Authorize(Roles = "Developer")]
         public async Task<IActionResult> SaveAsDraft(PluginDetails plugin)
         {
+            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, plugin.Status);
             plugin.Status = Status.Draft;
             plugin.HasAdminConsent = false;
-            var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, Status.Draft);
             return await Save(plugin, oldPlugin, "Draft", CreateChangesLog(plugin, oldPlugin));
         }
 
@@ -236,6 +244,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 if (oldPlugin != null)
                 {
                     plugin.Versions = oldPlugin.Versions;
+                    plugin.Pending = oldPlugin.Pending;
+                    plugin.Drafts = oldPlugin.Drafts;
                 }
                 
                 await _pluginRepository.SavePlugin(plugin, removeOtherVersions);

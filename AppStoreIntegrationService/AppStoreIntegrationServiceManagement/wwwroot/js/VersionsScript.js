@@ -14,7 +14,14 @@
     }
 })
 
-function Show(versionId, status) {
+function Show(versionId, subView) {
+    let url = new URL(window.location.href);
+    url.searchParams.set("selectedVersion", versionId);
+    url.searchParams.set("selectedView", subView);
+    window.location.href = url.href;
+}
+
+function ShowByStatus(versionId, status) {
     let url = new URL(window.location.href);
     url.searchParams.set("selectedVersion", versionId);
 
