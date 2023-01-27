@@ -1,18 +1,20 @@
-﻿document.addEventListener('DOMContentLoaded', function () {
-    new DropDown(
-        document.querySelector("#categoriesDropdown #dropDownToggle"),
-        document.querySelector("#categoriesDropdown #CategoriesSelect"),
-        $("#categoriesDropdown #Categories"),
-        document.querySelector("#categoriesDropdown .selection-summary"),
-        document.querySelectorAll("#categoriesDropdown .overflow-arrow"),
-        [],
-        isReadOnly
-    ).Init();
+﻿function InitDropDown() {
+    document.addEventListener('DOMContentLoaded', function () {
+        new DropDown(
+            document.querySelector("#categoriesDropdown #dropDownToggle"),
+            document.querySelector("#categoriesDropdown #CategoriesSelect"),
+            $("#categoriesDropdown #Categories"),
+            document.querySelector("#categoriesDropdown .selection-summary"),
+            document.querySelectorAll("#categoriesDropdown .overflow-arrow"),
+            [],
+            isReadOnly
+        ).Init();
 
-    $.validator.setDefaults({
-        ignore: '.ignore'
+        $.validator.setDefaults({
+            ignore: '.ignore'
+        });
     });
-});
+}
 
 function SavePlugin(action, removeOtherVersions = false) {
     var button = event.currentTarget;
@@ -33,6 +35,31 @@ function SavePlugin(action, removeOtherVersions = false) {
         request.open("POST", `/Plugins/Plugins/${action}`);
         request.send(data);
     }
+}
+
+function Delete(action, id, needsConfirmation = true) {
+    if (needsConfirmation) {
+        document.getElementById('confirmationBtn').onclick = function () {
+            RespondDeletionRequest(action, id);
+        }
+
+        return;
+    }
+
+    RespondDeletionRequest(action, id);
+}
+
+function RespondDeletionRequest(action, id) {
+    let request = new XMLHttpRequest();
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            HttpRequestCallback(request.responseText);
+        }
+    }
+
+    request.open("POST", `Plugins/Plugins/${action}/${id}`);
+    request.send();
 }
 
 function HttpRequestCallback(response) {

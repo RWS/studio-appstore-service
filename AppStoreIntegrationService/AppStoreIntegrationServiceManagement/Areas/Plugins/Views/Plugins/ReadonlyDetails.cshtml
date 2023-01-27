@@ -25,6 +25,7 @@
         <input readonly hidden asp-for="IsThirdParty" />
         <input readonly hidden asp-for="NeedsDeletionApproval" />
         <input readonly hidden asp-for="HasAdminConsent" />
+        <input readonly hidden asp-for="IsActive" />
         <input readonly hidden class="ignore" asp-for="DownloadUrl" />
 
         <div class="d-flex align-content-center col-12 p-0 mb-3 mt-3">
@@ -114,11 +115,11 @@
     </div>
 </form>
 
-<script asp-append-version="true">let isReadOnly = true</script>
 <script src="~/js/DropDown.js" asp-append-version="true"></script>
-<script src="~/js/PluginDetailsScript.js" asp-append-version="true"></script>
+<script src="~/js/PluginScript.js" asp-append-version="true"></script>
+
+<script asp-append-version="true">let isReadOnly = true</script>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
-

@@ -2,7 +2,7 @@
     $("#form").data('validator', null);
     $.validator.unobtrusive.parse("#form");
 
-    if (new URL(window.location.href).searchParams.get("selectedView")) {
+    if (new URL(window.location.href).searchParams.get("selectedView") != "Comments") {
         new DropDown(
             document.querySelector("#productsDropdown #dropDownToggle"),
             document.querySelector("#productsDropdown #ProductsSelect"),
@@ -49,7 +49,7 @@ function AddComment(pluginId, versionId) {
     }
 
     request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}/New`);
-    request.send(data);
+    request.send();
 }
 
 function SaveComment(pluginId, versionId) {

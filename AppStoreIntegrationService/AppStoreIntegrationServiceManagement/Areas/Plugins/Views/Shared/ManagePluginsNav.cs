@@ -6,10 +6,8 @@ namespace AppStoreIntegrationServiceManagement.Areas.Plugins.Views.Shared
     {
         public static string PluginDetails => "PluginDetails";
         public static string Versions => "Versions";
-        public static string Reviews => "Reviews";
         public static string PluginDetailsNavClass(ViewContext viewContext) => PageNavClass(viewContext, PluginDetails, "ActivePage", "active");
         public static string VersionsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Versions, "ActivePage", "active");
-        public static string ReviewsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Reviews, "ActivePage", "active");
 
         private static string PageNavClass(ViewContext viewContext, string page, string key, string className)
         {

@@ -3,7 +3,7 @@
 <div class="p-3 border-bottom">
     @if (!Model.IsNewVersion)
     {
-        <partial name="_VersionCommentPartial" model="@(Model.VersionId, true)" />
+        <partial name="_VersionSubMenu" model="@Model" />
     }
 
     <input hidden name="Page" value="@Page.Version" />

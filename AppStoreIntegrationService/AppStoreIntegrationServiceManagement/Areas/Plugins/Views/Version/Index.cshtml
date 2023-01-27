@@ -92,8 +92,7 @@
                             {
                                 <partial name="_ReadonlyVersionPartial" model="@version" />
                             }
-
-                            if (version.IsNewVersion || await repository.HasActiveChanges(version.PluginId, version.VersionId))
+                            else if (version.IsNewVersion || await repository.HasActiveChanges(version.PluginId, version.VersionId))
                             {
                                 <partial name="_Details" model="@version" />
                             }

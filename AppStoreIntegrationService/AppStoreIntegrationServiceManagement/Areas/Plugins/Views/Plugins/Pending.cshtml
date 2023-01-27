@@ -21,7 +21,7 @@
             <partial name="_PluginSubMenu" model="Model.Id" />
         }
 
-        <input readonly hidden name="Page" value="@Page.Pending" />
+        <input readonly hidden name="Page" value="@Page.Details" />
 
         <partial name="_PluginDetailsPartial" model="@Model" />
 
@@ -51,12 +51,16 @@
     </div>
 </form>
 
-<script asp-append-version="true">let isReadOnly = false</script>
-<script src="~/js/PluginDetailsScript.js"></script>
+<script src="~/js/PluginScript.js"></script>
 <script src="~/js/DropDown.js"></script>
 <script src="~/js/RichTextEditor.js"></script>
+
+<script asp-append-version="true">
+    let isReadOnly = false
+    Init();
+    InitDropDown();
+</script>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
-
