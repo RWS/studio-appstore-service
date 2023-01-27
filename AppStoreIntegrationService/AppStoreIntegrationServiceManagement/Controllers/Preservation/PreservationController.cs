@@ -11,6 +11,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
     public class PreservationController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
+        private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly ICommentsRepository _commentsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
         private readonly IProductsRepository _productsRepository;
@@ -18,7 +19,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public PreservationController
         (
-            IPluginRepository pluginRepository, 
+            IPluginRepository pluginRepository,
+            IPluginVersionRepository pluginVersionRepository,
             ICommentsRepository commentsRepository, 
             ICategoriesRepository categoriesRepository, 
             IProductsRepository productsRepository,
@@ -30,6 +32,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             _categoriesRepository = categoriesRepository;
             _productsRepository = productsRepository;
             _userManager = userManager;
+            _pluginVersionRepository = pluginVersionRepository;
         }
 
         [HttpPost("/Preservation/Check")]
@@ -65,10 +68,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public async Task<IActionResult> Check(ExtendedPluginVersion version)
         {
-            var plugin = await _pluginRepository.GetPluginById(version.PluginId, Status.All, User);
-            var saved = plugin?.Versions.FirstOrDefault(v => v.VersionId == version.VersionId);
+            var saved = await _pluginVersionRepository.GetPluginVersion(version.PluginId, version.VersionId);
 
-            if (saved?.Equals(version) ?? true)
+            if (saved?.Equals(version) ?? false)
             {
                 return Content(null);
             }
@@ -81,7 +83,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public async Task<IActionResult> Check(PluginDetails plugin, Status status)
         {
-            var saved = await _pluginRepository.GetPluginById(plugin.Id, Status.All, User);
+            var saved = await _pluginRepository.GetPluginById(plugin.Id, status, User);
             plugin.Status = status;
 
             if (saved?.Equals(plugin) ?? false)

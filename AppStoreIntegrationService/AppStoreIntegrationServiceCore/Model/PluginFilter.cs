@@ -28,9 +28,9 @@ namespace AppStoreIntegrationServiceCore.Model
 
             return status switch
             {
-                Status.Inactive => plugins.Where(x => x.Status == Status.Inactive),
-                Status.Draft => plugins.Where(x => x.Status == Status.Draft || x.Versions.Any(v => v.VersionStatus == Status.Draft)),
-                Status.InReview => plugins.Where(x => x.Status == Status.InReview || x.Versions.Any(v => v.VersionStatus == Status.InReview)),
+                Status.Inactive => plugins.Where(x => x.Status.Equals(Status.Inactive)),
+                Status.Draft => plugins.Where(x => x.Status.Equals(Status.Draft) || x.Drafts.Any(v => v.VersionStatus.Equals(Status.Draft))),
+                Status.InReview => plugins.Where(x => x.Status.Equals(Status.InReview) || x.Pending.Any(v => v.VersionStatus.Equals(Status.InReview))),
                 _ => plugins
             };
         }

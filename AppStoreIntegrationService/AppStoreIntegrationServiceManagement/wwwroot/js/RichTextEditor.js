@@ -195,5 +195,3 @@ function InsertLink() {
     document.querySelector('#linkModal #imageLink').value = '';
     document.querySelector('#linkModal #link').value = ''
 }
-
-window.onload = Init();

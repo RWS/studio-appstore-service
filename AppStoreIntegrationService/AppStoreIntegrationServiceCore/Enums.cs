@@ -9,16 +9,6 @@
             NetworkFilePath
         }
 
-        public enum SortType
-        {
-            None,
-            DownloadCount,
-            ReviewCount,
-            TopRated,
-            LastUpdated,
-            NewlyAdded
-        }
-
         public enum Status
         {
             Active = 0,
@@ -26,15 +16,6 @@
             Draft,
             InReview,
             All
-        }
-
-        public enum FilterType
-        {
-            Status = 0,
-            Product,
-            Query,
-            FromDate,
-            ToDate
         }
 
         public enum ProductType
@@ -47,8 +28,6 @@
         {
             None = 0,
             Details,
-            Draft,
-            Pending,
             Version,
             Comment,
             Categories,
