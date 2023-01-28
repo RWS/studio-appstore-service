@@ -48,22 +48,27 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public static PluginDetailsBase<T,U> CopyFrom(PluginDetails other)
         {
+            if (other == null)
+            {
+                return null;
+            }
+
             return JsonConvert.DeserializeObject<PluginDetailsBase<T, U>>(JsonConvert.SerializeObject(other));
         }
 
         public bool Equals(PluginDetailsBase<T, U> other)
         {
-            return Name == other.Name &&
-                   Description == other.Description &&
-                   ChangelogLink == other.ChangelogLink &&
-                   SupportUrl == other.SupportUrl &&
-                   SupportEmail == other.SupportEmail &&
+            return Name == other?.Name &&
+                   Description == other?.Description &&
+                   ChangelogLink == other?.ChangelogLink &&
+                   SupportUrl == other?.SupportUrl &&
+                   SupportEmail == other?.SupportEmail &&
                    Icon.Equals(other.Icon) &&
-                   PaidFor == other.PaidFor &&
+                   PaidFor == other?.PaidFor &&
                    Developer.Equals(other.Developer) &&
                    Categories.SequenceEqual(other.Categories) &&
-                   DownloadUrl == other.DownloadUrl &&
-                   Status == other.Status;
+                   DownloadUrl == other?.DownloadUrl &&
+                   Status == other?.Status;
         }
     }
 }

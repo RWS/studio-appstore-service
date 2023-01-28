@@ -14,6 +14,7 @@ namespace AppStoreIntegrationServiceCore.Model
         {
             _options = options;
         }
+
         public TOptions Value { get => _options.Value; }
 
         public void SaveOption(TOptions options)

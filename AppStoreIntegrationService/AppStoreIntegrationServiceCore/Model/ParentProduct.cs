@@ -11,7 +11,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool Equals(ParentProduct other)
         {
-            return ProductName == other.ProductName;
+            return ProductName == other?.ProductName;
         }
     }
 }

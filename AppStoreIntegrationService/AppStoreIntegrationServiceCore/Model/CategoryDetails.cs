@@ -10,7 +10,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool Equals(CategoryDetails other)
         {
-            return Name == other.Name;
+            return Name == other?.Name;
         }
     }
 }

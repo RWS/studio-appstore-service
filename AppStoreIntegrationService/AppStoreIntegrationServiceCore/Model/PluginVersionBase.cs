@@ -81,16 +81,16 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool Equals(PluginVersionBase<T> other)
         {
-            return VersionNumber == other.VersionNumber &&
-                   FileHash == other.FileHash &&
+            return VersionNumber == other?.VersionNumber &&
+                   FileHash == other?.FileHash &&
                    SupportedProducts.SequenceEqual(other.SupportedProducts) &&
-                   AppHasStudioPluginInstaller == other.AppHasStudioPluginInstaller &&
-                   MinimumRequiredVersionOfStudio == other.MinimumRequiredVersionOfStudio &&
-                   MaximumRequiredVersionOfStudio == other.MaximumRequiredVersionOfStudio &&
-                   IsNavigationLink == other.IsNavigationLink &&
-                   DownloadUrl == other.DownloadUrl &&
-                   IsPrivatePlugin == other.IsPrivatePlugin &&
-                   VersionStatus == other.VersionStatus;
+                   AppHasStudioPluginInstaller == other?.AppHasStudioPluginInstaller &&
+                   MinimumRequiredVersionOfStudio == other?.MinimumRequiredVersionOfStudio &&
+                   MaximumRequiredVersionOfStudio == other?.MaximumRequiredVersionOfStudio &&
+                   IsNavigationLink == other?.IsNavigationLink &&
+                   DownloadUrl == other?.DownloadUrl &&
+                   IsPrivatePlugin == other?.IsPrivatePlugin &&
+                   VersionStatus == other?.VersionStatus;
         }
 
         public static PluginVersionBase<T> CopyFrom(PluginVersion other)
@@ -100,8 +100,7 @@ namespace AppStoreIntegrationServiceCore.Model
                 return null;
             }
 
-            var otherToString = JsonConvert.SerializeObject(other);
-            return JsonConvert.DeserializeObject<PluginVersionBase<T>>(otherToString);
+            return JsonConvert.DeserializeObject<PluginVersionBase<T>>(JsonConvert.SerializeObject(other));
         }
     }
 }

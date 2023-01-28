@@ -43,12 +43,18 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task<PluginResponse<PluginDetails>> GetResponse()
         {
             string containerContent = await _pluginsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
+
+            if (string.IsNullOrEmpty(containerContent))
+            {
+                return new PluginResponse<PluginDetails>();
+            }
+
             return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(containerContent) ?? new PluginResponse<PluginDetails>();
         }
 
         public async Task<IEnumerable<NameMapping>> ReadNames()
         {
-            return (await GetResponse())?.Names ?? new List<NameMapping>();
+            return (await GetResponse())?.Names;
         }
 
         public async Task<string> GetVersion()
@@ -58,36 +64,36 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<CategoryDetails>> ReadCategories()
         {
-            return (await GetResponse())?.Categories ?? new List<CategoryDetails>();
+            return (await GetResponse())?.Categories;
         }
 
         public async Task<IEnumerable<PluginDetails>> ReadPlugins()
         {
-            return (await GetResponse())?.Value ?? new List<PluginDetails>();
+            return (await GetResponse())?.Value;
         }
 
         public async Task<IEnumerable<ProductDetails>> ReadProducts()
         {
-            return (await GetResponse())?.Products ?? new List<ProductDetails>();
+            return (await GetResponse())?.Products;
         }
 
         public async Task<IEnumerable<ParentProduct>> ReadParents()
         {
-            return (await GetResponse())?.ParentProducts ?? new List<ParentProduct>();
+            return (await GetResponse())?.ParentProducts;
         }
 
         public async Task<IDictionary<int, CommentPackage>> ReadComments()
         {
-            return (await GetResponse())?.Comments ?? new Dictionary<int, CommentPackage>();
+            return (await GetResponse())?.Comments;
         }
         public async Task<IDictionary<int, IEnumerable<Log>>> ReadLogs()
         {
-            return (await GetResponse())?.Logs ?? new Dictionary<int, IEnumerable<Log>>();
+            return (await GetResponse())?.Logs;
         }
 
         public async Task<IEnumerable<PluginDetails>> ReadPending()
         {
-            return (await GetResponse())?.Pending ?? new List<PluginDetails>();
+            return (await GetResponse())?.Pending;
         }
 
         public async Task SavePending(IEnumerable<PluginDetails> plugins)
@@ -99,7 +105,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<PluginDetails>> ReadDrafts()
         {
-            return (await GetResponse())?.Drafts ?? new List<PluginDetails>();
+            return (await GetResponse())?.Drafts;
         }
 
         public async Task SaveDrafts(IEnumerable<PluginDetails> plugins)

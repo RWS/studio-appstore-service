@@ -36,7 +36,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         }
 
         [Fact]
-        public void FilterPluginsTest_PluginFilterStatusIsActive_ReturnsThePluginsThatHaveTheStatusActive()
+        public void FilterPluginsTest_PluginFilterStatusIsActive_ReturnsThePluginsWithStatusActive()
         {
             IEnumerable<PluginDetails> list = new List<PluginDetails>
             {
@@ -51,7 +51,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         }
 
         [Fact]
-        public void FilterPluginsTest_PluginFilterStatusEqualsInactive_ReturnsThePluginsThatHaveStatusInactive()
+        public void FilterPluginsTest_PluginFilterStatusEqualsInactive_ReturnsThePluginsWithStatusInactive()
         {
             IEnumerable<PluginDetails> list = new List<PluginDetails>
             {
@@ -66,7 +66,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         }
 
         [Fact]
-        public void FilterPluginsTest_PluginFilterStatusEqualsInReview_ReturnsThePluginsThatHaveStatusInReview()
+        public void FilterPluginsTest_PluginFilterStatusEqualsInReview_ReturnsThePluginsWithStatusInReview()
         {
             IEnumerable<PluginDetails> list = new List<PluginDetails>
             {
@@ -81,7 +81,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         }
 
         [Fact]
-        public void FilterPluginsTest_PluginFilterStatusEqualsDraft_ReturnsThePluginsThatHaveStatusDraft()
+        public void FilterPluginsTest_PluginFilterStatusEqualsDraft_ReturnsThePluginsWithStatusDraft()
         {
             IEnumerable<PluginDetails> list = new List<PluginDetails>
             {
@@ -116,7 +116,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         }
 
         [Fact]
-        public void FilterPluginsTest_FilterByProduct_ReturnsTheListOfPluginsSupportingTheCorresponginProduct()
+        public void FilterPluginsTest_FilterByProduct_ReturnsTheListOfPluginsSupportingTheCorrespondingProduct()
         {
             IEnumerable<PluginDetails> list = new List<PluginDetails>
             {
@@ -166,7 +166,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         }
 
         [Fact]
-        public void FilterPluginsTest_FilterByQuery_ReturnsTheListOfPluginsWithTheNameMathingTheQuery()
+        public void FilterPluginsTest_FilterByQuery_ReturnsTheListOfPluginsWithTheNameMatchingTheQuery()
         {
             IEnumerable<PluginDetails> list = new List<PluginDetails>
             {
@@ -186,27 +186,43 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         }
 
         [Fact]
-        public void FilterPluginsTest_FilterByPrice_ReturnsTheListOfPluginsThatMatchesThePricing()
+        public void FilterPluginsTest_FilterByPaidPrice_ReturnsTheListOfPluginsThatMatchThePricing()
         {
             IEnumerable<PluginDetails> list = new List<PluginDetails>
             {
-                new PluginDetails { Name = "YourProductivity" },
-                new PluginDetails { Name = "Language Weaver" },
-                new PluginDetails { Name = "Test 3" },
-                new PluginDetails { Name = "CleanUp Tasks" }
+                new PluginDetails { Name = "Test 1", PaidFor = true },
+                new PluginDetails { Name = "Test 2", PaidFor = false },
+                new PluginDetails { Name = "Test 3", PaidFor = false },
+                new PluginDetails { Name = "Test 4", PaidFor = true }
             };
 
-            list = PluginFilter.FilterPlugins(list, new PluginFilter { Query = "ea" }, null, null);
+            list = PluginFilter.FilterPlugins(list, new PluginFilter { Price = "paid" }, null, null);
             Assert.Equal(new List<PluginDetails> {
-                new PluginDetails { Name = "Language Weaver" },
-                new PluginDetails { Name = "CleanUp Tasks" }
+                new PluginDetails { Name = "Test 1", PaidFor = true },
+                new PluginDetails { Name = "Test 4", PaidFor = true }
             }, list);
-
-            Assert.Empty(PluginFilter.FilterPlugins(list, new PluginFilter { Query = "xyz" }, null, null));
         }
 
         [Fact]
-        public void FilterPluginsTest_FilterByCategory_ReturnsTheListOfPluginsThatContainsAtLeastACategory()
+        public void FilterPluginsTest_FilterByFreePrice_ReturnsTheListOfPluginsThatMatchThePricing()
+        {
+            IEnumerable<PluginDetails> list = new List<PluginDetails>
+            {
+                new PluginDetails { Name = "Test 1", PaidFor = true },
+                new PluginDetails { Name = "Test 2", PaidFor = false },
+                new PluginDetails { Name = "Test 3", PaidFor = false },
+                new PluginDetails { Name = "Test 4", PaidFor = true }
+            };
+
+            list = PluginFilter.FilterPlugins(list, new PluginFilter { Price = "free" }, null, null);
+            Assert.Equal(new List<PluginDetails> {
+                new PluginDetails { Name = "Test 2", PaidFor = false },
+                new PluginDetails { Name = "Test 3", PaidFor = false }
+            }, list);
+        }
+
+        [Fact]
+        public void FilterPluginsTest_FilterByCategory_ReturnsThePluginsThatMatchAtLeastACategory()
         {
             IEnumerable<PluginDetails> list = new List<PluginDetails>
             {
@@ -225,7 +241,21 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         }
 
         [Fact]
-        public void FilterPluginsTest_FilterByVersionSupportedProductName_ReturnsThePluginsSupportingTheCorrespondingProduct()
+        public void FilterPluginsTest_FilterByInexistentCategories_ReturnsAnEmptyPluginList()
+        {
+            IEnumerable<PluginDetails> list = new List<PluginDetails>
+            {
+                new PluginDetails { Name = "Test 1", Categories = new List<string> { "1", "2" } },
+                new PluginDetails { Name = "Test 2", Categories = new List<string> { "3", "4" } },
+                new PluginDetails { Name = "Test 3", Categories = new List<string> { "2", "6" } },
+                new PluginDetails { Name = "Test 4", Categories = new List<string> { "1", "5" } }
+            };
+
+            Assert.Empty(PluginFilter.FilterPlugins(list, new PluginFilter { CategoryId = new List<int> { 9, 10 } }, null, null));
+        }
+
+        [Fact]
+        public void FilterPluginsTest_FilterByExistingSupportedProductName_ReturnsThePluginsSupportingTheCorrespondingProduct()
         {
             var products = new List<ProductDetails>
             {
@@ -250,13 +280,34 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         }
 
         [Fact]
-        public void FilterPluginsTest_FilterByMinAndMaxStudioVersion_ReturnsThePluginsWithTheirVersionMathingStudioVersionBoundaries()
+        public void FilterPluginsTest_FilterByInexistentSupportedProductName_ReturnsAnEmptyList()
         {
             var products = new List<ProductDetails>
             {
-                new ProductDetails { ProductName = "SDL Trados Studio 2019", Id = "1", ParentProductID="1" },
-                new ProductDetails { ProductName = "SDL Trados Studio 2021", Id = "2", ParentProductID="1" },
-                new ProductDetails { ProductName = "SDL Trados Studio 2022", Id = "3", ParentProductID="1" },
+                new ProductDetails { ProductName = "SDL Trados Studio 2019", Id = "1" },
+                new ProductDetails { ProductName = "SDL Trados Studio 2021", Id = "2" },
+                new ProductDetails { ProductName = "SDL Trados Studio 2022", Id = "3" },
+            };
+
+            IEnumerable<PluginDetails> list = new List<PluginDetails>
+            {
+                new PluginDetails { Name = "Test 1", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "2" } } } },
+                new PluginDetails { Name = "Test 2", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "1" } } } },
+                new PluginDetails { Name = "Test 3", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "3" } } } },
+                new PluginDetails { Name = "Test 4", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "2" } } } }
+            };
+
+            Assert.Empty(PluginFilter.FilterPlugins(list, new PluginFilter { StudioVersion = "Wrong product" }, products, null));
+        }
+
+        [Fact]
+        public void FilterPluginsTest_FilterByInsideBoundariesMinAndMaxStudioVersion_ReturnsThePluginsWithTheirVersionMatchingStudioVersionBoundaries()
+        {
+            var products = new List<ProductDetails>
+            {
+                new ProductDetails { ProductName = "SDL Trados Studio 2019", Id = "1", ParentProductID = "1" },
+                new ProductDetails { ProductName = "SDL Trados Studio 2021", Id = "2", ParentProductID = "1" },
+                new ProductDetails { ProductName = "SDL Trados Studio 2022", Id = "3", ParentProductID = "1" },
             };
 
             var parents = new List<ParentProduct>
@@ -271,10 +322,48 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
                 new PluginDetails { Name = "Test 3", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "3" }, MinimumRequiredVersionOfStudio = "17.0.0", MaximumRequiredVersionOfStudio = "17.9.0" } } },
             };
 
-            list = PluginFilter.FilterPlugins(list, new PluginFilter { StudioVersion = "17.0.4", BaseProduct = "Trados Studio"}, products, parents);
+            list = PluginFilter.FilterPlugins(list, new PluginFilter { StudioVersion = "17.0.4", BaseProduct = "Trados Studio" }, products, parents);
             Assert.Equal(new List<PluginDetails> {
                 new PluginDetails { Name = "Test 3", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "3" }, MinimumRequiredVersionOfStudio = "17.0.0", MaximumRequiredVersionOfStudio = "17.9.0" } } },
             }, list);
+        }
+
+        [Fact]
+        public void FilterPluginsTest_FilterByOutsideBoundariesMinAndMaxStudioVersion_ReturnsAnEmptyList()
+        {
+            var products = new List<ProductDetails>
+            {
+                new ProductDetails { ProductName = "SDL Trados Studio 2019", Id = "1", ParentProductID = "1" },
+                new ProductDetails { ProductName = "SDL Trados Studio 2021", Id = "2", ParentProductID = "1" },
+                new ProductDetails { ProductName = "SDL Trados Studio 2022", Id = "3", ParentProductID = "1" },
+            };
+
+            var parents = new List<ParentProduct>
+            {
+                new ParentProduct { ProductName = "Trados Studio", Id = "1" }
+            };
+
+            IEnumerable<PluginDetails> list = new List<PluginDetails>
+            {
+                new PluginDetails { Name = "Test 1", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "2" }, MinimumRequiredVersionOfStudio = "16.0.0", MaximumRequiredVersionOfStudio = "16.9.0" } } },
+                new PluginDetails { Name = "Test 2", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "1" }, MinimumRequiredVersionOfStudio = "15.0.0", MaximumRequiredVersionOfStudio = "15.9.0" } } },
+                new PluginDetails { Name = "Test 3", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "3" }, MinimumRequiredVersionOfStudio = "17.0.0", MaximumRequiredVersionOfStudio = "17.9.0" } } },
+            };
+
+            Assert.Empty(PluginFilter.FilterPlugins(list, new PluginFilter { StudioVersion = "14.0.4", BaseProduct = "Trados Studio" }, products, parents));
+        }
+
+        [Fact]
+        public void FilterPluginsTest_FilterByStudioVersionWhenProductListsAreNullOrEmpty_ReturnsAnEmptyList()
+        {
+            IEnumerable<PluginDetails> list = new List<PluginDetails>
+            {
+                new PluginDetails { Name = "Test 1", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "2" }, MinimumRequiredVersionOfStudio = "16.0.0", MaximumRequiredVersionOfStudio = "16.9.0" } } },
+                new PluginDetails { Name = "Test 2", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "1" }, MinimumRequiredVersionOfStudio = "15.0.0", MaximumRequiredVersionOfStudio = "15.9.0" } } },
+                new PluginDetails { Name = "Test 3", Versions = new List<PluginVersion> { new PluginVersion { SupportedProducts = new List<string> { "3" }, MinimumRequiredVersionOfStudio = "17.0.0", MaximumRequiredVersionOfStudio = "17.9.0" } } },
+            };
+
+            Assert.Empty(PluginFilter.FilterPlugins(list, new PluginFilter { StudioVersion = "14.0.4", BaseProduct = "Trados Studio" }, null, null));
         }
     }
 }

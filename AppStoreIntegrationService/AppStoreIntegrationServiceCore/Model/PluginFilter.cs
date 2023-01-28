@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
@@ -134,6 +133,8 @@ namespace AppStoreIntegrationServiceCore.Model
 
             if (!string.IsNullOrEmpty(filter?.StudioVersion))
             {
+                products ??= new List<ProductDetails>();
+                parents ??= new List<ParentProduct>();
                 searchedPluginList = FilterByVersion(searchedPluginList, filter, products, parents);
             }
 

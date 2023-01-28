@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using static AppStoreIntegrationServiceCore.Enums;
-
-namespace AppStoreIntegrationServiceCore.Model
+﻿namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginVersion : PluginVersionBase<string>, IEquatable<PluginVersion>
     {
@@ -12,19 +9,19 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool Equals(PluginVersion other)
         {
-            return VersionNumber == other.VersionNumber &&
-                   FileHash == other.FileHash &&
+            return VersionNumber == other?.VersionNumber &&
+                   FileHash == other?.FileHash &&
                    SupportedProducts.SequenceEqual(other.SupportedProducts) &&
-                   AppHasStudioPluginInstaller == other.AppHasStudioPluginInstaller &&
-                   MinimumRequiredVersionOfStudio == other.MinimumRequiredVersionOfStudio &&
-                   MaximumRequiredVersionOfStudio == other.MaximumRequiredVersionOfStudio &&
-                   IsNavigationLink == other.IsNavigationLink &&
-                   DownloadUrl == other.DownloadUrl &&
-                   IsPrivatePlugin == other.IsPrivatePlugin &&
-                   IsThirdParty == other.IsThirdParty &&
-                   VersionStatus == other.VersionStatus &&
-                   NeedsDeletionApproval == other.NeedsDeletionApproval &&
-                   HasAdminConsent == other.HasAdminConsent;
+                   AppHasStudioPluginInstaller == other?.AppHasStudioPluginInstaller &&
+                   MinimumRequiredVersionOfStudio == other?.MinimumRequiredVersionOfStudio &&
+                   MaximumRequiredVersionOfStudio == other?.MaximumRequiredVersionOfStudio &&
+                   IsNavigationLink == other?.IsNavigationLink &&
+                   DownloadUrl == other?.DownloadUrl &&
+                   IsPrivatePlugin == other?.IsPrivatePlugin &&
+                   IsThirdParty == other?.IsThirdParty &&
+                   VersionStatus == other?.VersionStatus &&
+                   NeedsDeletionApproval == other?.NeedsDeletionApproval &&
+                   HasAdminConsent == other?.HasAdminConsent;
         }
     }
 }

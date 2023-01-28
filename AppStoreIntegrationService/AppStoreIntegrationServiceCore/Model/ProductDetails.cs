@@ -32,7 +32,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public bool Equals(ProductDetails other)
         {
-            return ProductName.Equals(other.ProductName) && MinimumStudioVersion.Equals(other.MinimumStudioVersion);
+            return ProductName == other.ProductName && MinimumStudioVersion == other.MinimumStudioVersion;
         }
     }
 }

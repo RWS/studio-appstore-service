@@ -21,8 +21,12 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public static new ExtendedPluginVersion CopyFrom(PluginVersion other)
         {
-            var toString = JsonConvert.SerializeObject(other);
-            return JsonConvert.DeserializeObject<ExtendedPluginVersion>(toString);
+            if (other == null)
+            {
+                return null;
+            }
+
+            return JsonConvert.DeserializeObject<ExtendedPluginVersion>(JsonConvert.SerializeObject(other));
         }
     }
 }

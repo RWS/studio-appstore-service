@@ -13,6 +13,11 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public static new ExtendedPluginDetails CopyFrom(PluginDetails other)
         {
+            if (other == null)
+            {
+                return null;
+            }
+
             return JsonConvert.DeserializeObject<ExtendedPluginDetails>(JsonConvert.SerializeObject(other));
         }
     }

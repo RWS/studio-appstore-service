@@ -27,9 +27,9 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
 
         public bool Equals(ProfileModel other)
         {
-            return Username.Equals(other.Username) &&
-                   Email.Equals(other.Email) &&
-                   UserRole.Equals(other.UserRole);
+            return Username == other?.Username &&
+                   Email == other?.Email &&
+                   UserRole == other?.UserRole;
         }
     }
 }

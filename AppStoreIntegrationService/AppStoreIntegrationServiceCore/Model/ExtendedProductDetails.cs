@@ -19,8 +19,12 @@ namespace AppStoreIntegrationServiceCore.Model
 
         public static ExtendedProductDetails CopyFrom(ProductDetails other)
         {
-            var toString = JsonConvert.SerializeObject(other);
-            return JsonConvert.DeserializeObject<ExtendedProductDetails>(toString);
+            if (other == null)
+            {
+                return null;
+            }
+
+            return JsonConvert.DeserializeObject<ExtendedProductDetails>(JsonConvert.SerializeObject(other));
         }
     }
 }
