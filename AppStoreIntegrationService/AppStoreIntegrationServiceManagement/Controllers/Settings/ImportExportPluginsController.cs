@@ -12,35 +12,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Area("Settings")]
     public class ImportExportPluginsController : Controller
     {
-        private readonly IPluginManager _pluginManager;
-        private readonly IProductsManager _productsManager;
-        private readonly IVersionManager _versionManager;
-        private readonly ICategoriesManager _categoriesManager;
         private readonly IPluginRepository _pluginRepository;
-        private readonly INamesManager _namesManager;
-        private readonly ILogsManager _logsManager;
-        private readonly ICommentsManager _commentsManager;
+        private readonly IResponseManager _responseManager;
 
-        public ImportExportPluginsController
-        (
-            IProductsManager productsmanager,
-            IVersionManager versionManager,
-            ICategoriesManager categoriesManager,
-            IPluginManager pluginManager,
-            IPluginRepository pluginRepository,
-            INamesManager namesManager,
-            ILogsManager logsManager,
-            ICommentsManager commentsManager
-        )
+        public ImportExportPluginsController(IPluginRepository pluginRepository, IResponseManager responseManager)
         {
-            _productsManager = productsmanager;
-            _versionManager = versionManager;
-            _categoriesManager = categoriesManager;
-            _pluginManager = pluginManager;
             _pluginRepository = pluginRepository;
-            _namesManager = namesManager;
-            _logsManager = logsManager;
-            _commentsManager = commentsManager;
+            _responseManager = responseManager;
         }
 
         [Authorize(Roles = "Administrator, Developer")]
@@ -54,18 +32,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> CreateExport()
         {
-            var response = new PluginResponse<PluginDetails>
-            {
-                APIVersion = await _versionManager.GetVersion(),
-                Value = await _pluginRepository.GetAll("asc", User),
-                Products = await _productsManager.ReadProducts(),
-                ParentProducts = await _productsManager.ReadParents(),
-                Categories = await _categoriesManager.ReadCategories(),
-                Names = await _namesManager.ReadNames(),
-                Logs = await _logsManager.ReadLogs(),
-                Comments = await _commentsManager.ReadComments(),
-            };
-
+            var response = await _responseManager.GetResponse();
+            response.Value = await _pluginRepository.GetAll("asc", User);
             var stream = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
             return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
         }
@@ -92,14 +60,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
             if (success)
             {
-                await _categoriesManager.SaveCategories(response.Categories);
-                await _productsManager.SaveProducts(response.Products);
-                await _productsManager.SaveProducts(response.ParentProducts);
-                await _versionManager.SaveVersion(response.APIVersion);
-                await _pluginManager.SavePlugins(response.Value);
-                await _namesManager.SaveNames(response.Names);
-                await _logsManager.UpdateLogs(response.Logs);
-                await _commentsManager.UpdateComments(response.Comments);
+                await _responseManager.SaveResponse(response);
 
                 modalDetails.RequestPage = "/Plugins";
                 modalDetails.ModalType = ModalType.SuccessMessage;

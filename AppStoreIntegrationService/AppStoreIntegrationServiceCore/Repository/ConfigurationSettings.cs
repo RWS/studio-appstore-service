@@ -48,18 +48,20 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private async Task CreateConfigurationFiles()
         {
-            if (!string.IsNullOrEmpty(ConfigFolderPath))
+            if (string.IsNullOrEmpty(ConfigFolderPath))
             {
-                Directory.CreateDirectory(ConfigFolderPath);
-                if (!string.IsNullOrEmpty(LocalPluginsFilePath) && !File.Exists(LocalPluginsFilePath))
-                {
-                    await File.Create(LocalPluginsFilePath).DisposeAsync();
-                }
+                return;
+            }
 
-                if (!string.IsNullOrEmpty(PluginsFileBackUpPath) && !File.Exists(PluginsFileBackUpPath))
-                {
-                    await File.Create(PluginsFileBackUpPath).DisposeAsync();
-                }
+            Directory.CreateDirectory(ConfigFolderPath);
+            if (!string.IsNullOrEmpty(LocalPluginsFilePath) && !File.Exists(LocalPluginsFilePath))
+            {
+                await File.Create(LocalPluginsFilePath).DisposeAsync();
+            }
+
+            if (!string.IsNullOrEmpty(PluginsFileBackUpPath) && !File.Exists(PluginsFileBackUpPath))
+            {
+                await File.Create(PluginsFileBackUpPath).DisposeAsync();
             }
         }
 

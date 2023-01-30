@@ -10,7 +10,7 @@ using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class AzureRepository : IResponseManager, IPluginManager, IProductsManager, IVersionManager, INamesManager, ICategoriesManager, ISettingsManager, ICommentsManager, ILogsManager
+    public class AzureRepository : IResponseManager, ISettingsManager
     {
         private readonly IConfigurationSettings _configurationSettings;
         private readonly BlobRequestOptions _blobRequestOptions;
@@ -52,73 +52,8 @@ namespace AppStoreIntegrationServiceCore.Repository
             return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(containerContent) ?? new PluginResponse<PluginDetails>();
         }
 
-        public async Task<IEnumerable<NameMapping>> ReadNames()
+        public async Task SaveResponse(PluginResponse<PluginDetails> response)
         {
-            return (await GetResponse())?.Names;
-        }
-
-        public async Task<string> GetVersion()
-        {
-            return (await GetResponse())?.APIVersion ?? "1.0.0";
-        }
-
-        public async Task<IEnumerable<CategoryDetails>> ReadCategories()
-        {
-            return (await GetResponse())?.Categories;
-        }
-
-        public async Task<IEnumerable<PluginDetails>> ReadPlugins()
-        {
-            return (await GetResponse())?.Value;
-        }
-
-        public async Task<IEnumerable<ProductDetails>> ReadProducts()
-        {
-            return (await GetResponse())?.Products;
-        }
-
-        public async Task<IEnumerable<ParentProduct>> ReadParents()
-        {
-            return (await GetResponse())?.ParentProducts;
-        }
-
-        public async Task<IDictionary<int, CommentPackage>> ReadComments()
-        {
-            return (await GetResponse())?.Comments;
-        }
-        public async Task<IDictionary<int, IEnumerable<Log>>> ReadLogs()
-        {
-            return (await GetResponse())?.Logs;
-        }
-
-        public async Task<IEnumerable<PluginDetails>> ReadPending()
-        {
-            return (await GetResponse())?.Pending;
-        }
-
-        public async Task SavePending(IEnumerable<PluginDetails> plugins)
-        {
-            var response = await GetResponse();
-            response.Pending = plugins;
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
-        }
-
-        public async Task<IEnumerable<PluginDetails>> ReadDrafts()
-        {
-            return (await GetResponse())?.Drafts;
-        }
-
-        public async Task SaveDrafts(IEnumerable<PluginDetails> plugins)
-        {
-            var response = await GetResponse();
-            response.Drafts = plugins;
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
-        }
-
-        public async Task SaveNames(IEnumerable<NameMapping> mappings)
-        {
-            var response = await GetResponse();
-            response.Names = mappings;
             await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
@@ -132,55 +67,6 @@ namespace AppStoreIntegrationServiceCore.Repository
         {
             var text = JsonConvert.SerializeObject(settings);
             await _settingsBlockBlob.UploadTextAsync(text);
-        }
-
-        public async Task SavePlugins(IEnumerable<PluginDetails> plugins)
-        {
-            var response = await GetResponse();
-            response.Value = plugins;
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
-        }
-
-        public async Task SaveProducts(IEnumerable<ProductDetails> products)
-        {
-            var response = await GetResponse();
-            response.Products = products;
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
-        }
-
-        public async Task SaveProducts(IEnumerable<ParentProduct> products)
-        {
-            var response = await GetResponse();
-            response.ParentProducts = products;
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
-        }
-
-        public async Task SaveCategories(IEnumerable<CategoryDetails> categories)
-        {
-            var response = await GetResponse();
-            response.Categories = categories;
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
-        }
-
-        public async Task SaveVersion(string version)
-        {
-            var response = await GetResponse();
-            response.APIVersion = version;
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
-        }
-
-        public async Task UpdateComments(IDictionary<int, CommentPackage> comments)
-        {
-            var response = await GetResponse();
-            response.Comments = comments;
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
-        }
-
-        public async Task UpdateLogs(IDictionary<int, IEnumerable<Log>> logs)
-        {
-            var response = await GetResponse();
-            response.Logs = logs;
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
         }
 
         private CloudStorageAccount GetCloudStorageAccount()

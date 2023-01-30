@@ -22,14 +22,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         public async Task<IActionResult> Index()
         {
             var plugins = await _pluginRepository.GetAll("asc", User);
-            var names = await _namesRepository.GetAllNameMappings();
+            var names = await _namesRepository.GetAllNames();
             return View(plugins.SelectMany(p => names.Where(n => n.OldName.Equals(p.Name))));
         }
 
         [HttpPost]
         public async Task<IActionResult> Add() 
         {
-            var mappings = await _namesRepository.GetAllNameMappings();
+            var mappings = await _namesRepository.GetAllNames();
             return PartialView("_NewNameMappingPartial", new NameMapping
             {
                 Id = SetIndex(mappings),

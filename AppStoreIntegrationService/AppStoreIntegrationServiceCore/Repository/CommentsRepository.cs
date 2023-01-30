@@ -5,46 +5,46 @@ namespace AppStoreIntegrationServiceCore.Repository
 {
     public class CommentsRepository : ICommentsRepository
     {
-        private readonly ICommentsManager _commentsManager;
+        private readonly IResponseManager _responseManager;
 
-        public CommentsRepository(ICommentsManager commentsManager)
+        public CommentsRepository(IResponseManager responseManager)
         {
-            _commentsManager = commentsManager;
+            _responseManager = responseManager;
         }
 
         public async Task DeleteComment(int commentId, int pluginId, string versionId = null)
         {
-            var comments = await _commentsManager.ReadComments();
+            var comments = await GetAllComments();
 
             if (comments.TryGetValue(pluginId, out var package))
             {
                 if (Equals(versionId, null))
                 {
-                    comments[pluginId].PluginComments = package.PluginComments.Where(c => !c.CommentId.Equals(commentId));
+                    comments[pluginId].PluginComments = package.PluginComments.Where(c => c.CommentId != commentId);
                 }
                 else if (package.VersionComments.TryGetValue(versionId, out var versionComments))
                 {
-                    comments[pluginId].VersionComments[versionId] = versionComments.Where(c => !c.CommentId.Equals(commentId));
+                    comments[pluginId].VersionComments[versionId] = versionComments.Where(c => c.CommentId != commentId);
                 }
             }
 
-            await _commentsManager.UpdateComments(comments);
+            await UpdateComments(comments);
         }
 
         public async Task<Comment> GetComment(int pluginId, int commentId, string versionId = null)
         {
-            var comments = await _commentsManager.ReadComments();
+            var comments = await GetAllComments();
 
             if (comments.TryGetValue(pluginId, out var package))
             {
                 if (Equals(versionId, null))
                 {
-                    return package.PluginComments?.FirstOrDefault(c => c.CommentId.Equals(commentId));
+                    return package.PluginComments?.FirstOrDefault(c => c.CommentId == commentId);
                 }
 
                 if (package.VersionComments.TryGetValue(versionId, out var versionComments))
                 {
-                    return versionComments.FirstOrDefault(c => c.CommentId.Equals(commentId));
+                    return versionComments.FirstOrDefault(c => c.CommentId == commentId);
                 }
             }
 
@@ -53,7 +53,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task<IEnumerable<Comment>> GetComments(int pluginId, string versionId = null)
         {
-            var comments = await _commentsManager.ReadComments();
+            var comments = await GetAllComments();
 
             if (comments.TryGetValue(pluginId, out var package))
             {
@@ -73,7 +73,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private async Task SavePluginComment(Comment comment, int pluginId)
         {
-            var comments = await _commentsManager.ReadComments();
+            var comments = await GetAllComments();
 
             if (comments.TryGetValue(pluginId, out var package))
             {
@@ -84,11 +84,16 @@ namespace AppStoreIntegrationServiceCore.Repository
                 comments.Add(pluginId, new CommentPackage { PluginComments = new List<Comment> { comment } });
             }
 
-            await _commentsManager.UpdateComments(comments);
+            await UpdateComments(comments);
         }
 
         public async Task SaveComment(Comment comment, int pluginId, string versionId = null)
         {
+            if (comment == null)
+            {
+                return;
+            }
+
             if (Equals(versionId, null))
             {
                 await SavePluginComment(comment, pluginId);
@@ -99,9 +104,28 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
         }
 
+        public async Task DeleteComments(int pluginId, string versionId = null)
+        {
+            var comments = await GetAllComments();
+
+            if (comments.TryGetValue(pluginId, out var package))
+            {
+                if (Equals(versionId, null))
+                {
+                    comments.Remove(pluginId);
+                }
+                else if (package.VersionComments.ContainsKey(versionId))
+                {
+                    comments[pluginId].VersionComments.Remove(versionId);
+                }
+            }
+
+            await UpdateComments(comments);
+        }
+
         private async Task SaveVersionComment(Comment comment, int pluginId, string versionId)
         {
-            var comments = await _commentsManager.ReadComments();
+            var comments = await GetAllComments();
 
             if (comments.TryGetValue(pluginId, out var package))
             {
@@ -125,12 +149,12 @@ namespace AppStoreIntegrationServiceCore.Repository
                 });
             }
 
-            await _commentsManager.UpdateComments(comments);
+            await UpdateComments(comments);
         }
 
         private static List<Comment> Update(List<Comment> comments, Comment comment)
         {
-            var index = comments?.IndexOf(comments.FirstOrDefault(c => c.CommentId.Equals(comment.CommentId))) ?? -1;
+            var index = comments?.IndexOf(comments.FirstOrDefault(c => c.CommentId == comment.CommentId)) ?? -1;
 
             if (index >= 0)
             {
@@ -144,23 +168,17 @@ namespace AppStoreIntegrationServiceCore.Repository
             return comments;
         }
 
-        public async Task DeleteComments(int pluginId, string versionId = null)
+        private async Task<IDictionary<int, CommentPackage>> GetAllComments()
         {
-            var comments = await _commentsManager.ReadComments();
+            var data = await _responseManager.GetResponse();
+            return data.Comments;
+        }
 
-            if (comments.TryGetValue(pluginId, out var package))
-            {
-                if (Equals(versionId, null))
-                {
-                    comments.Remove(pluginId);
-                }
-                else if (package.VersionComments.ContainsKey(versionId))
-                {
-                    comments[pluginId].VersionComments.Remove(versionId);
-                }
-            }
-
-            await _commentsManager.UpdateComments(comments);
+        private async Task UpdateComments(IDictionary<int, CommentPackage> comments)
+        {
+            var data = await _responseManager.GetResponse();
+            data.Comments = comments;
+            await _responseManager.SaveResponse(data);
         }
     }
 }

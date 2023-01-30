@@ -1,7 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mock;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.RepositoryTests
@@ -11,49 +10,62 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Re
         [Fact]
         public async void AzureRepositoryTest_GetPluginResponseWhenBlobIsEmpty_ShouldReturnEmptyResponse()
         {
-            IResponseManager repository = new AzureRepositoryMock(null);
+            IResponseManager repository = new AzureRepositoryMock(data: null);
             var actual = await repository.GetResponse();
             var expected = new PluginResponse<PluginDetails>();
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public async void AzureRepositoryTest_GetAPIVersionWhenBlobIsEmpty_ShouldReturnNull()
+        public async void AzureRepositoryTest_GetPluginResponseWhenBlobIsNotEmpty_ShouldReturnExpectedData()
         {
-            IVersionManager repository = new AzureRepositoryMock(null);
-            Assert.Null(await repository.GetVersion());
+            IResponseManager repository = new AzureRepositoryMock(new PluginResponse<PluginDetails>());
+            var actual = await repository.GetResponse();
+            var expected = new PluginResponse<PluginDetails>();
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public async void AzureRepositoryTest_GetAPIVersionWhenBlobHasData_ShouldReturnTheAPIVersion()
+        public async void AzureRepositoryTest_GetSettingsWhenBlobIsEmpty_ShouldReturnEmptySettings()
         {
-            IVersionManager repository = new AzureRepositoryMock(JsonConvert.SerializeObject(new PluginResponse<PluginDetails> { APIVersion = "1.0.0" }));
-            Assert.Equal("1.0.0", await repository.GetVersion());
+            ISettingsManager repository = new AzureRepositoryMock(settings: null);
+            var actual = await repository.ReadSettings();
+            var expected = new SiteSettings();
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public async void AzureRepositoryTest_GetLogsWhenBlobIsNotEmpty_ShouldReturnNotEmptyList()
+        public async void AzureRepositoryTest_GetSettingsWhenBlobIsNotEmpty_ShouldReturnExpectedSettings()
         {
-            var data = JsonConvert.SerializeObject(new PluginResponse<PluginDetails>
+            ISettingsManager repository = new AzureRepositoryMock(new SiteSettings { Name = "Test" });
+            var actual = await repository.ReadSettings();
+            var expected = new SiteSettings { Name = "Test" };
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public async void AzureRepositoryTest_SaveResponse_DataShouldBeSaved()
+        {
+            IResponseManager repository = new AzureRepositoryMock();
+            var response = new PluginResponse<PluginDetails>
             {
-                Logs = new Dictionary<int, IEnumerable<Log>>
+                Categories = new List<CategoryDetails>
                 {
-                    [0] = new List<Log>
-                    {
-                        new Log { Author = "Test Author", Date = DateTime.Now, Description = "Test description" }
-                    }
+                    new CategoryDetails{ Id = "1", Name = "Test" }
                 }
-            });
+            };
 
-            ILogsManager repository = new AzureRepositoryMock(data);
-            Assert.NotEmpty(await repository.ReadLogs());
+            await repository.SaveResponse(response);
+            Assert.Equal(response, await repository.GetResponse());
         }
 
         [Fact]
-        public async void AzureRepositoryTest_GetLogsWhenBlobIsEmpty_ShouldReturnEmptyList()
+        public async void AzureRepositoryTest_SaveSettings_DataShouldBeSaved()
         {
-            ILogsManager repository = new AzureRepositoryMock(null);
-            Assert.Empty(await repository.ReadLogs());
+            ISettingsManager repository = new AzureRepositoryMock();
+            var settings = new SiteSettings { Name = "Test" };
+            await repository.SaveSettings(settings);
+            Assert.Equal(settings, await repository.ReadSettings());
         }
     }
 }

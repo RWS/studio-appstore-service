@@ -2,7 +2,6 @@
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
@@ -55,7 +54,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
                 return Content(null);
             }
 
-            await _productsRepository.DeleteProduct(id, ProductType.Parent);
+            await _productsRepository.DeleteParent(id);
             TempData["StatusMessage"] = "Success! Paret product was deleted!";
             return Content(null);
         }

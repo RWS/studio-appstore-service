@@ -7,40 +7,40 @@ namespace AppStoreIntegrationServiceCore.Repository
 {
     public class PluginRepository : IPluginRepository
     {
-        private readonly IPluginManager _pluginManager;
+        private readonly IResponseManager _responseManager;
 
-        public PluginRepository(IPluginManager pluginManager)
+        public PluginRepository(IResponseManager responseManager)
         {
-            _pluginManager = pluginManager;
+            _responseManager = responseManager;
         }
 
         public async Task SavePlugin(PluginDetails plugin, bool removeOtherVersions = false)
         {
             var plugins = plugin.Status switch
             {
-                Status.Draft => new List<PluginDetails>(await _pluginManager.ReadDrafts()),
-                Status.InReview => new List<PluginDetails>(await _pluginManager.ReadPending()),
-                _ => new List<PluginDetails>(await _pluginManager.ReadPlugins()),
+                Status.Draft => new List<PluginDetails>(await GetAll(null, status: Status.Draft)),
+                Status.InReview => new List<PluginDetails>(await GetAll(null, status: Status.InReview)),
+                _ => new List<PluginDetails>(await GetAll(null, status: Status.Active)),
             };
 
             plugins = await UpdatePlugins(plugin, plugins);
             await SaveDrafts(plugins, plugin, removeOtherVersions);
             await SavePending(plugins, plugin, removeOtherVersions);
-            await SavePlugins(plugins, plugin, removeOtherVersions);
+            await SaveActive(plugins, plugin, removeOtherVersions);
         }
 
-        private async Task SavePlugins(List<PluginDetails> plugins, PluginDetails plugin, bool removeOtherVersions)
+        private async Task SaveActive(List<PluginDetails> plugins, PluginDetails plugin, bool removeOtherVersions)
         {
             if (plugin.Status != Status.Active && plugin.Status != Status.Inactive)
             {
                 return;
             }
 
-            await _pluginManager.SavePlugins(plugins);
+            await SavePlugins(plugins, Status.Active);
             if (removeOtherVersions)
             {
-                var pending = await _pluginManager.ReadPending();
-                await _pluginManager.SavePending(pending.Where(p => p.Id != plugin.Id));
+                var pending = await GetAll(null, status: Status.InReview);
+                await SavePlugins(pending.Where(p => p.Id != plugin.Id), Status.InReview);
             }
         }
 
@@ -51,11 +51,11 @@ namespace AppStoreIntegrationServiceCore.Repository
                 return;
             }
 
-            await _pluginManager.SavePending(plugins);
+            await SavePlugins(plugins, Status.InReview);
             if (removeOtherVersions)
             {
-                var drafts = await _pluginManager.ReadDrafts();
-                await _pluginManager.SaveDrafts(drafts.Where(p => p.Id != plugin.Id));
+                var drafts = await GetAll(null, status: Status.Draft);
+                await SavePlugins(drafts.Where(p => p.Id != plugin.Id), Status.Draft);
             }
         }
 
@@ -66,12 +66,29 @@ namespace AppStoreIntegrationServiceCore.Repository
                 return;
             }
 
-            await _pluginManager.SaveDrafts(plugins);
+            await SavePlugins(plugins, Status.Draft);
             if (removeOtherVersions)
             {
-                var pending = await _pluginManager.ReadPending();
-                await _pluginManager.SavePending(pending.Where(p => p.Id != plugin.Id));
+                var pending = await GetAll(null, status: Status.InReview);
+                await SavePlugins(pending.Where(p => p.Id != plugin.Id), Status.InReview);
             }
+        }
+
+        private async Task SavePlugins(IEnumerable<PluginDetails> plugins, Status status)
+        {
+            var data = await _responseManager.GetResponse();
+            switch (status)
+            {
+                case Status.Draft: data.Drafts = plugins;
+                    break;
+                case Status.InReview: data.Pending= plugins; 
+                    break;
+                case Status.Active: data.Value= plugins; 
+                    break;
+                default: break;
+            }
+
+            await _responseManager.SaveResponse(data);
         }
 
         private async Task<List<PluginDetails>> UpdatePlugins(PluginDetails plugin, List<PluginDetails> plugins)
@@ -110,20 +127,22 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         public async Task RemovePlugin(int id)
         {
-            var drafts = await _pluginManager.ReadDrafts();
-            var pending = await _pluginManager.ReadPending();
-            var plugins = await _pluginManager.ReadPlugins();
+            var data = await _responseManager.GetResponse();
+            var drafts = data.Drafts;
+            var pending = data.Pending;
+            var plugins = data.Value;
 
-            await _pluginManager.SavePlugins(plugins.Where(p => !p.Id.Equals(id)));
-            await _pluginManager.SavePending(pending.Where(p => !p.Id.Equals(id)));
-            await _pluginManager.SaveDrafts(drafts.Where(p => !p.Id.Equals(id)));
+            await SavePlugins(plugins.Where(p => !p.Id.Equals(id)), Status.Active);
+            await SavePlugins(pending.Where(p => !p.Id.Equals(id)), Status.InReview);
+            await SavePlugins(drafts.Where(p => !p.Id.Equals(id)), Status.Draft);
         }
 
         public async Task<IEnumerable<PluginDetails>> GetAll(string sortOrder, ClaimsPrincipal user = null, Status status = Status.All)
         {
-            var drafts = await _pluginManager.ReadDrafts();
-            var pending = await _pluginManager.ReadPending();
-            var plugins = await _pluginManager.ReadPlugins();
+            var data = await _responseManager.GetResponse();
+            var drafts = data.Drafts;
+            var pending = data.Pending;
+            var plugins = data.Value;
 
             plugins = status switch
             {

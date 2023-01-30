@@ -53,26 +53,12 @@ namespace AppStoreIntegrationServiceManagement
             if (deployMode == DeployMode.AzureBlob)
             {
                 services.AddSingleton<IResponseManager, AzureRepository>();
-                services.AddSingleton<IPluginManager, AzureRepository>();
-                services.AddSingleton<IProductsManager, AzureRepository>();
-                services.AddSingleton<IVersionManager, AzureRepository>();
-                services.AddSingleton<INamesManager, AzureRepository>();
-                services.AddSingleton<ICategoriesManager, AzureRepository>();
                 services.AddSingleton<ISettingsManager, AzureRepository>();
-                services.AddSingleton<ICommentsManager, AzureRepository>();
-                services.AddSingleton<ILogsManager, AzureRepository>();
             }
             else
             {
                 services.AddSingleton<IResponseManager, LocalRepository>();
-                services.AddSingleton<IPluginManager, LocalRepository>();
-                services.AddSingleton<IProductsManager, LocalRepository>();
-                services.AddSingleton<IVersionManager, LocalRepository>();
-                services.AddSingleton<INamesManager, LocalRepository>();
-                services.AddSingleton<ICategoriesManager, LocalRepository>();
                 services.AddSingleton<ISettingsManager, LocalRepository>();
-                services.AddSingleton<ICommentsManager, LocalRepository>();
-                services.AddSingleton<ILogsManager, LocalRepository>();
                 services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
                 services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
             }

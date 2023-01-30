@@ -12,5 +12,10 @@ namespace AppStoreIntegrationServiceCore.Model
         {
             return Name == other?.Name;
         }
+
+        public bool IsDuplicate(CategoryDetails other)
+        {
+            return Name == other?.Name && Id != other?.Id;
+        }
     }
 }

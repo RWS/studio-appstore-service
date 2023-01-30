@@ -4,13 +4,26 @@ using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mock
 {
-    public class AzureRepositoryMock : IResponseManager, IPluginManager, IProductsManager, IVersionManager, INamesManager, ICategoriesManager, ISettingsManager, ICommentsManager, ILogsManager
+    public class AzureRepositoryMock : IResponseManager, ISettingsManager
     {
-        private readonly string _data;
+        private string _data;
+        private string _settings;
 
-        public AzureRepositoryMock(string data) 
+        public AzureRepositoryMock() { }
+
+        public AzureRepositoryMock(PluginResponse<PluginDetails> data)
         {
-            _data = data;
+            if (data == null)
+            {
+                _data = null;
+            }
+
+            _data = JsonConvert.SerializeObject(data);
+        }
+
+        public AzureRepositoryMock(SiteSettings settings)
+        {
+            _settings = JsonConvert.SerializeObject(settings);
         }
 
         public async Task<PluginResponse<PluginDetails>> GetResponse()
@@ -23,116 +36,24 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
             return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(_data) ?? new PluginResponse<PluginDetails>();
         }
 
-        public async Task<string> GetVersion()
+        public async Task<SiteSettings> ReadSettings()
         {
-            var response = await GetResponse();
-            return response.APIVersion;
+            if (_settings == null)
+            {
+                return new SiteSettings();
+            }
+
+            return JsonConvert.DeserializeObject<SiteSettings>(_settings) ?? new SiteSettings();
         }
 
-        public Task<IEnumerable<CategoryDetails>> ReadCategories()
+        public async Task SaveResponse(PluginResponse<PluginDetails> response)
         {
-            throw new NotImplementedException();
+            _data = JsonConvert.SerializeObject(response);
         }
 
-        public Task<IDictionary<int, CommentPackage>> ReadComments()
+        public async Task SaveSettings(SiteSettings settings)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<PluginDetails>> ReadDrafts()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IDictionary<int, IEnumerable<Log>>> ReadLogs()
-        {
-            var response = await GetResponse();
-            return response.Logs;
-        }
-
-        public Task<IEnumerable<NameMapping>> ReadNames()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<ParentProduct>> ReadParents()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<PluginDetails>> ReadPending()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<PluginDetails>> ReadPlugins()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<ProductDetails>> ReadProducts()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<SiteSettings> ReadSettings()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveCategories(IEnumerable<CategoryDetails> categories)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveDrafts(IEnumerable<PluginDetails> plugins)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveNames(IEnumerable<NameMapping> names)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SavePending(IEnumerable<PluginDetails> plugins)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SavePlugins(IEnumerable<PluginDetails> plugins)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveProducts(IEnumerable<ProductDetails> products)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveProducts(IEnumerable<ParentProduct> products)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveSettings(SiteSettings settings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveVersion(string version)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateComments(IDictionary<int, CommentPackage> package)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateLogs(IDictionary<int, IEnumerable<Log>> package)
-        {
-            throw new NotImplementedException();
+            _settings = JsonConvert.SerializeObject(settings);
         }
     }
 }

@@ -18,12 +18,6 @@
             All
         }
 
-        public enum ProductType
-        {
-            Child,
-            Parent
-        }
-
         public enum Page
         {
             None = 0,

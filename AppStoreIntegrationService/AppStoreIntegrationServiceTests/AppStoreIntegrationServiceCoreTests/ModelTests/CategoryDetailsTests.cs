@@ -34,5 +34,17 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         {
             Assert.True(new CategoryDetails { Id = null, Name = null }.Equals(null));
         }
+
+        [Fact]
+        public void CategoryDetailsTest_CheckIfCategoryIsDuplicate_ShouldReturnTrue()
+        {
+            Assert.True(new CategoryDetails { Id = "1", Name = "Test 1" }.IsDuplicate(new CategoryDetails { Id = "2", Name = "Test 1" }));
+        }
+
+        [Fact]
+        public void CategoryDetailsTest_CheckIfCategoryIsNotDuplicate_ShouldReturnTrue()
+        {
+            Assert.False(new CategoryDetails { Id = "1", Name = "Test 1" }.IsDuplicate(new CategoryDetails { Id = "1", Name = "Test 1" }));
+        }
     }
 }

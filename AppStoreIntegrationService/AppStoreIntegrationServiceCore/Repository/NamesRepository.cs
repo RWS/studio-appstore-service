@@ -5,35 +5,35 @@ namespace AppStoreIntegrationServiceCore.Repository
 {
     public class NamesRepository : INamesRepository
     {
-        private readonly INamesManager _namesManager;
+        private readonly IResponseManager _responseManager;
 
-        public NamesRepository(INamesManager namesManager)
+        public NamesRepository(IResponseManager responseManager)
         {
-            _namesManager = namesManager;
+            _responseManager = responseManager;
         }
 
-        public async Task<IEnumerable<NameMapping>> GetAllNameMappings()
+        public async Task<IEnumerable<NameMapping>> GetAllNames()
         {
-            return await _namesManager.ReadNames();
+            var data = await _responseManager.GetResponse();
+            return data.Names;
         }
 
-        public async Task<IEnumerable<NameMapping>> GetAllNameMappings(List<string> pluginsNames)
+        public async Task<IEnumerable<NameMapping>> GetAllNames(List<string> pluginsNames)
         {
-            var nameMappings = await _namesManager.ReadNames();
-            return pluginsNames.Select(pluginName => nameMappings
-                               .FirstOrDefault(n => n.OldName.Equals(pluginName)))
-                               .Where(mapping => mapping != null);
+            pluginsNames ??= new List<string>();
+            var nameMappings = await GetAllNames();
+            return pluginsNames.SelectMany(pluginName => nameMappings.Where(n => n.OldName == pluginName));
         }
 
         public async Task<bool> TryUpdateMapping(NameMapping mapping)
         {
-            var mappings = (await _namesManager.ReadNames()).ToList();
-            if (Exists(mappings, mapping))
+            var mappings = (await GetAllNames()).ToList();
+            if (mapping == null || mappings.Any(x => x.IsDuplicate(mapping)))
             {
                 return false;
             }
 
-            var index = mappings.IndexOf(mappings.FirstOrDefault(c => c.Id.Equals(mapping.Id)));
+            var index = mappings.IndexOf(mappings.FirstOrDefault(c => c.Id == mapping.Id));
             if (index >= 0)
             {
                 mappings[index] = mapping;
@@ -43,22 +43,22 @@ namespace AppStoreIntegrationServiceCore.Repository
                 mappings.Add(mapping);
             }
 
-            await _namesManager.SaveNames(mappings);
+            await SaveNames(mappings);
             return true;
             
         }
 
         public async Task DeleteMapping(string id)
         {
-            var newNames = (await _namesManager.ReadNames()).Where(item => item.Id != id).ToList();
-            await _namesManager.SaveNames(newNames);
+            var names = await GetAllNames();
+            await SaveNames(names.Where(item => item.Id != id));
         }
 
-        private static bool Exists(List<NameMapping> names, NameMapping mapping)
+        private async Task SaveNames(IEnumerable<NameMapping> names)
         {
-            return names.Any(n => n.NewName == mapping.NewName &&
-                             n.OldName == mapping.OldName &&
-                             n.Id != mapping.Id);
+            var data = await _responseManager.GetResponse();
+            data.Names = names;
+            await _responseManager.SaveResponse(data);
         }
     }
 }

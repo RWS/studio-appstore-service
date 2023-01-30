@@ -5,35 +5,42 @@ namespace AppStoreIntegrationServiceCore.Repository
 {
     public class CategoriesRepository : ICategoriesRepository
     {
-        private readonly ICategoriesManager _categoriesManager;
+        private readonly IResponseManager _responseManager;
 
-        public CategoriesRepository(ICategoriesManager categoriesManager)
+        public CategoriesRepository(IResponseManager responseManager)
         {
-            _categoriesManager = categoriesManager;
+            _responseManager = responseManager;
         }
 
         public async Task DeleteCategory(string id)
         {
-            var categories = await _categoriesManager.ReadCategories();
-            categories.ToList().Remove(categories.FirstOrDefault(c => c.Id == id));
-            await _categoriesManager.SaveCategories(categories);
+            var categories = await GetAllCategories();
+            await SaveCategories(categories.Where(c => c.Id != id));
         }
 
         public async Task<IEnumerable<CategoryDetails>> GetAllCategories()
         {
-            return await _categoriesManager.ReadCategories();
+            var data = await _responseManager.GetResponse();
+            return data.Categories;
+        }
+
+        public async Task SaveCategories(IEnumerable<CategoryDetails> categories)
+        {
+            var data = await _responseManager.GetResponse();
+            data.Categories = categories;
+            await _responseManager.SaveResponse(data);
         }
 
         public async Task<CategoryDetails> GetCategoryById(string id)
         {
-            var categories = await _categoriesManager.ReadCategories();
+            var categories = await GetAllCategories();
             return categories.FirstOrDefault(c => c.Id == id);
         }
 
         public async Task<bool> TryUpdateCategory(CategoryDetails category)
         {
-            var categories = (await _categoriesManager.ReadCategories()).ToList();
-            if (categories.Any(c => c.Name == category.Name && c.Id != category.Id))
+            var categories = (await GetAllCategories()).ToList();
+            if (category == null || categories.Any(c => c.IsDuplicate(category)))
             {
                 return false;
             }
@@ -48,7 +55,7 @@ namespace AppStoreIntegrationServiceCore.Repository
                 categories.Add(category);
             }
 
-            await _categoriesManager.SaveCategories(categories);
+            await SaveCategories(categories);
             return true;
         }
     }

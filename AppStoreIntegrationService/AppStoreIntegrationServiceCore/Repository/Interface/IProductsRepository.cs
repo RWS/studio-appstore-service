@@ -1,5 +1,4 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
@@ -11,6 +10,8 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         Task<ProductDetails> GetProductById(string id);
         Task<bool> TryUpdateProduct(ProductDetails products);
         Task<bool> TryUpdateProduct(ParentProduct products);
-        Task DeleteProduct(string id, ProductType type);
+        Task DeleteProduct(string id);
+        Task DeleteParent(string id);
+        Task<bool> IsProductInUse(string id);
     }
 }

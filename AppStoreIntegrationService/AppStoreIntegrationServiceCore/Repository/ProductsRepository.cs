@@ -1,21 +1,22 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
     public class ProductsRepository : IProductsRepository
     {
-        private readonly IProductsManager _productsManager;
+        private readonly IResponseManager _responseManager;
+        private readonly IPluginRepository _pluginRepository;
 
-        public ProductsRepository(IProductsManager productsManager)
+        public ProductsRepository(IResponseManager responseManager, IPluginRepository pluginRepository)
         {
-            _productsManager = productsManager;
+            _responseManager = responseManager;
+            _pluginRepository = pluginRepository;
         }
 
         public async Task<bool> TryUpdateProduct(ProductDetails product)
         {
-            var products = (await _productsManager.ReadProducts()).ToList();
+            var products = (await GetAllProducts()).ToList();
             if (products.Any(p => p.ProductName == product.ProductName && p.Id != product.Id))
             {
                 return false;
@@ -31,13 +32,13 @@ namespace AppStoreIntegrationServiceCore.Repository
                 products.Add(product);
             }
 
-            await _productsManager.SaveProducts(products);
+            await SaveProducts(products);
             return true;
         }
 
         public async Task<bool> TryUpdateProduct(ParentProduct parent)
         {
-            var parents = (await _productsManager.ReadParents()).ToList();
+            var parents = (await GetAllParents()).ToList();
             if (parents.Any(p => p.ProductName == parent.ProductName && p.Id != parent.Id))
             {
                 return false;
@@ -53,49 +54,66 @@ namespace AppStoreIntegrationServiceCore.Repository
                 parents.Add(parent);
             }
 
-            await _productsManager.SaveProducts(parents);
+            await SaveParents(parents);
             return true;
         }
 
-        public async Task DeleteProduct(string id, ProductType type)
+        public async Task DeleteProduct(string id)
         {
-            var (Products, Parents) = await GetProductsFromPossibleLocations();
-            if (type == ProductType.Child)
-            {
-                await _productsManager.SaveProducts(Products.Where(item => item.Id != id).ToList());
-                return;
-            }
+            var products = await GetAllProducts();
+            await SaveProducts(products.Where(item => item.Id != id));
+        }
 
-            await _productsManager.SaveProducts(Parents.Where(item => item.Id != id).ToList());
+        public async Task DeleteParent(string id)
+        {
+            var parents = await GetAllParents();
+            await SaveParents(parents.Where(item => item.Id != id));
+        }
+
+        private async Task SaveProducts(IEnumerable<ProductDetails> products)
+        {
+            var data = await _responseManager.GetResponse();
+            data.Products = products;
+            await _responseManager.SaveResponse(data);
+        }
+
+        private async Task SaveParents(IEnumerable<ParentProduct> products)
+        {
+            var data = await _responseManager.GetResponse();
+            data.ParentProducts = products;
+            await _responseManager.SaveResponse(data);
         }
 
         public async Task<IEnumerable<ProductDetails>> GetAllProducts()
         {
-            var (Products, _) = await GetProductsFromPossibleLocations();
-            return Products;
+            var data = await _responseManager.GetResponse();
+            return data.Products;
         }
 
         public async Task<IEnumerable<ParentProduct>> GetAllParents()
         {
-            var (_, Parents) = await GetProductsFromPossibleLocations();
-            return Parents;
-        }
-
-        private async Task<(IEnumerable<ProductDetails> Products, IEnumerable<ParentProduct> Parents)> GetProductsFromPossibleLocations()
-        {
-            return (Products: await _productsManager.ReadProducts(), Parents: await _productsManager.ReadParents());
+            var data = await _responseManager.GetResponse();
+            return data.ParentProducts;
         }
 
         public async Task<ParentProduct> GetParentById(string id)
         {
-            var parents = await _productsManager.ReadParents();
+            var parents = await GetAllParents();
             return parents.FirstOrDefault(p => p.Id.Equals(id));
         }
 
         public async Task<ProductDetails> GetProductById(string id)
         {
-            var products = await _productsManager.ReadProducts();
+            var products = await GetAllProducts();
             return products.FirstOrDefault(p => p.Id.Equals(id));
+        }
+
+        public async Task<bool> IsProductInUse(string id)
+        {
+            var plugins = await _pluginRepository.GetAll(null);
+            return plugins.SelectMany(x => x.Versions
+                          .SelectMany(y => y.SupportedProducts))
+                          .Any(x => x == id);
         }
     }
 }

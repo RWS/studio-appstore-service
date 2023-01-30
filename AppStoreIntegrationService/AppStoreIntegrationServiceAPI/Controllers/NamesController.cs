@@ -25,7 +25,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
                 return Ok(new List<NameMapping>());
             }
 
-            var nameMappings = await _namesRepository.GetAllNameMappings(pluginNamesRequest.Name);
+            var nameMappings = await _namesRepository.GetAllNames(pluginNamesRequest.Name);
             return Ok(nameMappings);
         }
     }

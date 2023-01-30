@@ -5,5 +5,6 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
     public interface IResponseManager
     {
         Task<PluginResponse<PluginDetails>> GetResponse();
+        Task SaveResponse(PluginResponse<PluginDetails> response);
     }
 }

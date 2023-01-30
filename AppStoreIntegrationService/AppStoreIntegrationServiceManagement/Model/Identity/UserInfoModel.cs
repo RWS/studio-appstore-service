@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace AppStoreIntegrationServiceManagement.Model.Identity
+﻿namespace AppStoreIntegrationServiceManagement.Model.Identity
 {
     public class UserInfoModel
     {

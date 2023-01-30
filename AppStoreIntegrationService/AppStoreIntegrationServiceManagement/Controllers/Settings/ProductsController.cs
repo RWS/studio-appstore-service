@@ -2,7 +2,6 @@
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
@@ -11,12 +10,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     public class ProductsController : Controller
     {
         private readonly IProductsRepository _productsRepository;
-        private readonly IPluginManager _pluginManager;
 
-        public ProductsController(IProductsRepository productsRepository, IPluginManager pluginManager)
+        public ProductsController(IProductsRepository productsRepository)
         {
             _productsRepository = productsRepository;
-            _pluginManager = pluginManager;
         }
 
         public async Task<IActionResult> Index()
@@ -63,14 +60,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
-            var inUse = (await _pluginManager.ReadPlugins()).SelectMany(p => p.Versions.SelectMany(v => v.SupportedProducts));
-            if (inUse.Any(p => p.Equals(id)))
+            if (await _productsRepository.IsProductInUse(id))
             {
                 TempData["StatusMessage"] = "Error! This product is used by plugins!";
                 return Content("/Settings/Products");
             }
 
-            await _productsRepository.DeleteProduct(id, ProductType.Child);
+            await _productsRepository.DeleteProduct(id);
             TempData["StatusMessage"] = "Success! Product was deleted!";
             return Content("/Settings/Products");
         }
