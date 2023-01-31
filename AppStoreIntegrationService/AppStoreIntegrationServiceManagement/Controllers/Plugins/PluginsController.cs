@@ -91,6 +91,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             });
         }
 
+        private string GetPluginImage()
+        {
+            var scheme = _context.HttpContext?.Request?.Scheme;
+            var host = _context.HttpContext?.Request?.Host.Value;
+            return $"{scheme}://{host}/images/plugin.ico";
+        }
+
         [Route("Plugins/Edit/{id:int}")]
         public async Task<IActionResult> Edit(int id)
         {
