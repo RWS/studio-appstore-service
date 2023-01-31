@@ -17,6 +17,25 @@
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.PluginDetailsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id' })">Plugin details</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManagePluginsNav.VersionsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id/Versions' })">Plugin versions</a></li>
     </ul>
+
+    @if (!string.IsNullOrEmpty((string)ViewData["SelectedVersion"]))
+    {
+        <ul class="border-top p-0">
+            @foreach (var version in Model.Versions)
+            {
+                <li class="nav-item d-flex justify-content-between">
+                    <div class="d-flex">
+                        @if ((string)ViewData["SelectedVersion"] == version.VersionId)
+                        {
+                            <i class="fa fa-caret-right align-self-center text-success"></i>
+                        }
+                        <a class="nav-link cursor-pointer option text-black" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Edit/@Model.Id/Versions/Edit/@version.VersionId' })">@version.VersionNumber</a>
+                    </div>
+                    <p class="m-0 align-self-center border px-2 rounded">@version.VersionStatus</p>
+                </li>
+            }
+        </ul>
+    }
 }
 else
 {

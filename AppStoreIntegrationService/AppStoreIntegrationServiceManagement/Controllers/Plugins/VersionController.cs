@@ -4,7 +4,7 @@ using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using NuGet.Protocol.Plugins;
+using System;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -15,7 +15,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     {
         private readonly IPluginRepository _pluginRepository;
         private readonly IProductsRepository _productsRepository;
-        private readonly ICommentsRepository _commentsRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly ILoggingRepository _loggingRepository;
 
@@ -23,102 +22,66 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         (
             IPluginRepository pluginRepository,
             IProductsRepository productsRepository,
-            ICommentsRepository commentsRepository,
             ILoggingRepository loggingRepository,
             IPluginVersionRepository pluginVersionRepository
         )
         {
             _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;
-            _commentsRepository = commentsRepository;
             _loggingRepository = loggingRepository;
             _pluginVersionRepository = pluginVersionRepository;
         }
 
-        [HttpGet("/Plugins/Edit/{pluginId}/Versions")]
+        [Route("/Plugins/Edit/{pluginId}/Versions")]
         public async Task<IActionResult> Index(int pluginId)
         {
-            var versions = new List<ExtendedPluginVersion>();
-            var selectedVersion = Request.Query["selectedVersion"];
-            var products = await _productsRepository.GetAllProducts();
+            var extendedVersions = new List<ExtendedPluginVersion>();
             var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
-            var allVersions = plugin.Versions.Concat(plugin.Pending).Concat(plugin.Drafts).DistinctBy(v => v.VersionId);
-            var productsList = new MultiSelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
             var extendedPlugin = ExtendedPluginDetails.CopyFrom(plugin);
-
-            extendedPlugin.Parents = await _productsRepository.GetAllParents();
             extendedPlugin.IsEditMode = true;
 
-            foreach (var version in allVersions)
+            foreach (var version in await _pluginVersionRepository.GetPluginVersions(pluginId))
             {
                 var extendedVersion = ExtendedPluginVersion.CopyFrom(version);
-                extendedVersion.VersionComments = await _commentsRepository.GetComments(pluginId, version.VersionId);
-                extendedVersion.SupportedProductsListItems = productsList;
                 extendedVersion.PluginId = pluginId;
-                extendedVersion.IsThirdParty = extendedPlugin.IsThirdParty;
-                versions.Add(extendedVersion);
+                extendedVersions.Add(extendedVersion);
             }
 
-            versions.Add(new ExtendedPluginVersion
+            return View((extendedPlugin, extendedVersions.Where(v => !v.IsThirdParty || User.IsInRole("Developer") || User.IsInRole("StandardUser") && v.VersionStatus == Status.Active || User.IsInRole("Administrator") && v.HasAdminConsent)));
+        }
+
+        [Route("/Plugins/Edit/{pluginId}/Versions/Edit/{versionId}")]
+        public async Task<IActionResult> Edit(int pluginId, string versionId) => await Render(pluginId, versionId, Status.Active, Pending, "Details");
+
+        [Route("/Plugins/Edit/{pluginId}/Versions/Pending/{versionId}")]
+        public async Task<IActionResult> Pending(int pluginId, string versionId) => await Render(pluginId, versionId, Status.InReview, Draft, "Pending");
+
+        [Route("/Plugins/Edit/{pluginId}/Versions/Draft/{versionId}")]
+        public async Task<IActionResult> Draft(int pluginId, string versionId) => await Render(pluginId, versionId, Status.Draft, Edit, "Draft");
+
+        [Route("/Plugins/Edit/{pluginId}/Versions/Add")]
+        public async Task<IActionResult> Add(int pluginId)
+        {
+            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
+            var products = await _productsRepository.GetAllProducts();
+            var extendedPlugin = ExtendedPluginDetails.CopyFrom(plugin);
+            var versions = await _pluginVersionRepository.GetPluginVersions(pluginId);
+
+            extendedPlugin.IsEditMode = true;
+            extendedPlugin.Parents = await _productsRepository.GetAllParents();
+            extendedPlugin.Versions = versions.Where(v => !v.IsThirdParty || User.IsInRole("Developer") || User.IsInRole("StandardUser") && v.VersionStatus == Status.Active || User.IsInRole("Administrator") && v.HasAdminConsent).ToList();
+
+            var extendedVersion = new ExtendedPluginVersion
             {
-                VersionId = versions.Any(v => v.VersionId == selectedVersion) || string.IsNullOrEmpty(selectedVersion) ? Guid.NewGuid().ToString() : selectedVersion,
-                SupportedProductsListItems = productsList,
+                VersionId = Guid.NewGuid().ToString(),
+                SupportedProductsListItems = new MultiSelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName)),
                 IsNewVersion = true,
                 PluginId = pluginId,
-                VersionStatus = Status.Inactive,
-                IsThirdParty = extendedPlugin.IsThirdParty
-            });
+                VersionStatus = Status.Draft,
+                IsThirdParty = plugin.IsThirdParty
+            };
 
-            return View((extendedPlugin, versions.Where(v => !v.IsThirdParty || User.IsInRole("Developer") || User.IsInRole("StandardUser") && v.VersionStatus == Status.Active || User.IsInRole("Administrator") && v.HasAdminConsent)));
-        }
-
-        public async Task<IActionResult> Save(int pluginId, PluginVersion version, object jsonResponse, string log = null, bool removeOtherVersions = false, bool compareWithManifest = false)
-        {
-            try
-            {
-                var old = await _pluginVersionRepository.GetPluginVersion(pluginId, version.VersionId, User);
-
-                if (string.IsNullOrEmpty(log))
-                {
-                    await _loggingRepository.Log(User.Identity.Name, pluginId, CreateChangesLog(version, old));
-                }
-                else
-                {
-                    await _loggingRepository.Log(User.Identity.Name, pluginId, log);
-                }
-
-                await _pluginVersionRepository.Save(pluginId, version, removeOtherVersions);
-
-                if (compareWithManifest)
-                {
-                    await CompareWithManifest(version);
-                }
-
-                TempData["StatusMessage"] = "Success! Version was saved!";
-                return Json(jsonResponse);
-            }
-            catch (Exception e)
-            {
-                return PartialView("_StatusMessage", string.Format("Error! {0}!", e.Message));
-            }
-        }
-
-        private async Task CompareWithManifest(PluginVersion version)
-        {
-            var response = await PluginPackage.DownloadPlugin(version.DownloadUrl);
-            var log = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
-
-            TempData["IsVersionMatch"] = log.IsVersionMatch;
-            TempData["IsMinVersionMatch"] = log.IsMinVersionMatch;
-            TempData["IsMaxVersionMatch"] = log.IsMaxVersionMatch;
-            TempData["IsProductMatch"] = log.IsProductMatch;
-
-            if (isFullMatch)
-            {
-                return;
-            }
-
-            TempData["StatusMessage"] = "Warning! Version was saved but there are manifest conflicts!";
+            return View("Details", (extendedPlugin, extendedVersion));
         }
 
         [HttpPost]
@@ -142,7 +105,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             version.VersionStatus = Status.Active;
             string log = $"<b>{User.Identity.Name} </b> changed the status to <i>Active</i> for the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}";
-            return await Save(pluginId, version, new { SelectedView = "Details" }, log);
+            return await Save(pluginId, version, "Edit", log);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Deactivate")]
@@ -150,7 +113,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             version.VersionStatus = Status.Inactive;
             string log = $"<b>{User.Identity.Name} </b> changed the status to <i>Inactive</i> for the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}";
-            return await Save(pluginId, version, new { SelectedView = "Details" }, log);
+            return await Save(pluginId, version, "Edit", log);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Submit")]
@@ -159,7 +122,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             version.VersionStatus = Status.InReview;
             version.HasAdminConsent = true;
-            return await Save(pluginId, version, new { SelectedView = "Pending" }, removeOtherVersions: removeOtherVersions, compareWithManifest: true);
+            return await Save(pluginId, version, "Pending", removeOtherVersions: removeOtherVersions, compareWithManifest: true);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Approve")]
@@ -169,7 +132,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             version.VersionStatus = Status.Active;
             version.IsActive = true;
             string log = $"<b>{User.Identity.Name}</b> approved the changes for the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}";
-            return await Save(pluginId, version, new { SelectedView = "Details" }, log, removeOtherVersions, true);
+            return await Save(pluginId, version, "Edit", log, removeOtherVersions, true);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Reject")]
@@ -179,7 +142,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             version.VersionStatus = Status.Draft;
             version.HasAdminConsent = true;
             string log = $"<b>{User.Identity.Name}</b> rejected the changes for the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}";
-            return await Save(pluginId, version, new { SelectedView = "Draft" }, log, removeOtherVersions);
+            return await Save(pluginId, version, "Draft", log, removeOtherVersions);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/SaveAsDraft")]
@@ -188,13 +151,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             version.VersionStatus = Status.Draft;
             version.HasAdminConsent = false;
-            return await Save(pluginId, version, new { SelectedView = "Draft" });
+            return await Save(pluginId, version, "Draft");
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Save")]
         public async Task<IActionResult> Save(int pluginId, PluginVersion version)
         {
-            return await Save(pluginId, version, new { SelectedView = "Details" }, compareWithManifest: true);
+            return await Save(pluginId, version, "Edit", compareWithManifest: true);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/RequestDeletion/{versionId}")]
@@ -242,7 +205,102 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(User.Identity.Name, pluginId, $"<b>{User.Identity.Name}</b> removed the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}");
             await _pluginVersionRepository.RemovePluginVersion(pluginId, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";
-            return Json(new { SelectedView = string.Empty, SelectedVersion = string.Empty });
+            return Content(null);
+        }
+
+        private async Task<IActionResult> Save(int pluginId, PluginVersion version, string route, string log = null, bool removeOtherVersions = false, bool compareWithManifest = false)
+        {
+            try
+            {
+                var old = await _pluginVersionRepository.GetPluginVersion(pluginId, version.VersionId, User);
+
+                if (string.IsNullOrEmpty(log))
+                {
+                    await _loggingRepository.Log(User.Identity.Name, pluginId, CreateChangesLog(version, old));
+                }
+                else
+                {
+                    await _loggingRepository.Log(User.Identity.Name, pluginId, log);
+                }
+
+                await _pluginVersionRepository.Save(pluginId, version, removeOtherVersions);
+
+                if (compareWithManifest)
+                {
+                    await CompareWithManifest(version);
+                }
+
+                TempData["StatusMessage"] = "Success! Version was saved!";
+                return Content($"/Plugins/Edit/{pluginId}/Versions/{route}/{version.VersionId}");
+            }
+            catch (Exception e)
+            {
+                return PartialView("_StatusMessage", string.Format("Error! {0}!", e.Message));
+            }
+        }
+
+        private async Task CompareWithManifest(PluginVersion version)
+        {
+            var response = await PluginPackage.DownloadPlugin(version.DownloadUrl);
+            var log = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
+
+            TempData["IsVersionMatch"] = log.IsVersionMatch;
+            TempData["IsMinVersionMatch"] = log.IsMinVersionMatch;
+            TempData["IsMaxVersionMatch"] = log.IsMaxVersionMatch;
+            TempData["IsProductMatch"] = log.IsProductMatch;
+
+            if (isFullMatch)
+            {
+                return;
+            }
+
+            TempData["StatusMessage"] = "Warning! Version was saved but there are manifest conflicts!";
+        }
+
+        private async Task<(ExtendedPluginDetails, ExtendedPluginVersion)> LoadDataAsync(int pluginId, PluginVersion version)
+        {
+            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
+            var products = await _productsRepository.GetAllProducts();
+            var extendedPlugin = ExtendedPluginDetails.CopyFrom(plugin);
+            var extendedVersion = ExtendedPluginVersion.CopyFrom(version);
+
+            extendedPlugin.Parents = await _productsRepository.GetAllParents();
+            extendedPlugin.IsEditMode = true;
+            extendedVersion.SupportedProductsListItems = new MultiSelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
+            extendedVersion.PluginId = pluginId;
+            extendedVersion.IsThirdParty = extendedPlugin.IsThirdParty;
+
+            return (extendedPlugin, extendedVersion);
+        }
+
+        private async Task<IActionResult> Render(int pluginId, string versionId, Status status, Func<int, string, Task<IActionResult>> callback, string view)
+        {
+            if (!await _pluginVersionRepository.ExistsVersion(pluginId, versionId))
+            {
+                return NotFound();
+            }
+
+            var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId, status: status);
+
+            if (version == null)
+            {
+                return await callback(pluginId, versionId);
+            }
+
+            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
+            var versions = await _pluginVersionRepository.GetPluginVersions(pluginId);
+            var extendedPlugin = ExtendedPluginDetails.CopyFrom(plugin);
+            var extendedVersion = ExtendedPluginVersion.CopyFrom(version);
+
+            extendedPlugin.Parents = await _productsRepository.GetAllParents();
+            extendedPlugin.IsEditMode = true;
+            extendedPlugin.Versions = versions.Where(v => !v.IsThirdParty || User.IsInRole("Developer") || User.IsInRole("StandardUser") && v.VersionStatus == Status.Active || User.IsInRole("Administrator") && v.HasAdminConsent).ToList();
+
+            extendedVersion.SupportedProductsListItems = new MultiSelectList(await _productsRepository.GetAllProducts(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
+            extendedVersion.PluginId = pluginId;
+            extendedVersion.IsThirdParty = extendedPlugin.IsThirdParty;
+
+            return View(view, (extendedPlugin, extendedVersion));
         }
 
         private string CreateChangesLog(PluginVersion @new, PluginVersion old)

@@ -27,7 +27,7 @@
 <textarea asp-for="CommentDescription" class="text-area-hidden"></textarea>
 <span asp-validation-for="CommentDescription" class="text-danger"></span>
 
-<button class="btn pa-admin-success-btn mt-2" onclick="SaveComment('@Model.PluginId', '@Model.VersionId')">
+<button class="btn pa-admin-success-btn mt-2" onclick="SaveComment()">
     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
     Save
 </button>

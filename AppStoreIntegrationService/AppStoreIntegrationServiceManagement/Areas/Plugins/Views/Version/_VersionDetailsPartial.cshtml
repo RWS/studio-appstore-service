@@ -18,7 +18,7 @@
     <div class="d-flex align-content-center col-12 p-0 mb-3">
         <label class="col-4 m-0 align-self-center form-label" asp-for="VersionNumber">Version Number <span class="text-danger">*</span></label>
         <div class="w-100 d-flex flex-column">
-            <input asp-for="VersionNumber" class="form-control manifest-field fs-inherit" oninput="UpdatePlaceholder()" />
+            <input asp-for="VersionNumber" class="form-control manifest-field fs-inherit" />
             <span asp-validation-for="VersionNumber" class="text-danger"></span>
             <span id="VersionNumberManifestConflict" class="text-danger" @((bool?)TempData["IsVersionMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid version number!</span>
         </div>

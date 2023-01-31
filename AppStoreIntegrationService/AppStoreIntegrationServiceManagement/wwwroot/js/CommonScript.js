@@ -84,39 +84,18 @@ function StopDrag() {
     document.removeEventListener('mouseup', StopDrag);
 };
 
-function EditComment(commentId) {
-    let url = new URL(window.location.href);
-
-    url.searchParams.set("selectedComment", commentId);
-    window.location.href = url.href;
-}
-
-function DiscardCommentEdit() {
-    let url = new URL(window.location.href);
-
-    if (url.searchParams.has("selectedComment")) {
-        url.searchParams.delete("selectedComment");
-        window.location.href = url.href;
-        return;
-    }
-
-    window.location.reload();
-}
-
 function UpdateDescription() {
     var editor = event.target;
     editor.parentElement.nextElementSibling.value = editor.innerHTML;
 }
 
-function AjaxSuccessCallback(actionResult) {
-    if (!actionResult.includes("div")) {
-        window.location.href = actionResult;
+function ToggleLoader(element) {
+    if (element.disabled) {
+        element.disabled = false;
+        element.firstElementChild.hidden = true;
         return;
     }
 
-    $('#statusMessageContainer').html(actionResult);
-    $('#statusMessageContainer').find('.modal').modal('show');
-    $(".alert").fadeTo(3000, 500).slideUp(500, function () {
-        $(this).remove();
-    });
+    element.disabled = true;
+    element.firstElementChild.hidden = false;
 }
