@@ -7,7 +7,6 @@
 
         request.onreadystatechange = function () {
             if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                AjaxSuccessCallback(request.responseText);
                 document.getElementById("modalContainer").innerHTML = request.responseText;
                 $('#modalContainer').find('.modal').modal('show');
             }
