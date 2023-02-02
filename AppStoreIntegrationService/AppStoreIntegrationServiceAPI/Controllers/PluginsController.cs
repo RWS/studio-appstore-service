@@ -21,12 +21,19 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             _manager = manager;
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [AllowAnonymous]
+        [Route("/")]
+        public async Task<IActionResult> Index()
+        {
+            return Ok();
+        }
+
         [ResponseCache(Location = ResponseCacheLocation.Any, NoStore = true, VaryByQueryKeys = new[] { "*" })]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [AllowAnonymous]
         [Route("Plugins")]
-        [Route("/")]
-        public async Task<IActionResult> Index([FromQuery] PluginFilter filter)
+        public async Task<IActionResult> IndexPlugins([FromQuery] PluginFilter filter)
         {
             _ = Request.Headers.TryGetValue("apiversion", out StringValues text);
             filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;

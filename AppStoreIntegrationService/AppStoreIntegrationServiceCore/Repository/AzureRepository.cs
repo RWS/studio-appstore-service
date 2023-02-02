@@ -1,149 +1,120 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using Microsoft.Azure.Storage.Auth;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
-using Microsoft.Azure.Storage.RetryPolicies;
 using Newtonsoft.Json;
-using System.Text;
-using System.Text.RegularExpressions;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using Azure.Identity;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using System.Text;
+using Azure;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
     public class AzureRepository : IResponseManager, ISettingsManager
     {
         private readonly IConfigurationSettings _configurationSettings;
-        private readonly BlobRequestOptions _blobRequestOptions;
-        private CloudBlockBlob _pluginsBlockBlob;
-        private CloudBlockBlob _pluginsBackupBlockBlob;
-        private CloudBlockBlob _settingsBlockBlob;
-        private CloudBlobContainer _cloudBlobContainer;
+        private readonly BlobServiceClient _blobServiceClient;
+        private readonly BlobContainerClient _container;
+        private readonly BlobClient _pluginsBlob;
+        private readonly BlobClient _pluginsBlobBackup;
+        private readonly BlobClient _mappingsBlob;
+        private readonly BlobClient _settingsBlob;
 
         public AzureRepository(IConfigurationSettings configurationSettings)
         {
             _configurationSettings = configurationSettings;
-            _blobRequestOptions = new BlobRequestOptions
-            {
-                MaximumExecutionTime = TimeSpan.FromSeconds(120),
-                RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(3), 3),
-                DisableContentMD5Validation = true,
-                StoreBlobContentMD5 = false
-            };
+            _blobServiceClient = new BlobServiceClient(new Uri($"https://{_configurationSettings.StorageAccountName}.blob.core.windows.net"), new DefaultAzureCredential());
+            _container = _blobServiceClient.GetBlobContainerClient(_configurationSettings.BlobName);
 
-            var cloudStorageAccount = GetCloudStorageAccount();
-            if (cloudStorageAccount != null)
-            {
-                CreateContainer(cloudStorageAccount);
-            }
-
-            SetCloudBlockBlobs();
-            InitializeBlockBlobs();
+            CreateIfNotExists(_container, _configurationSettings.PluginsFileName);
+            CreateIfNotExists(_container, _configurationSettings.PluginsFileBackUpPath);
+            CreateIfNotExists(_container, _configurationSettings.MappingFileName);
+            CreateIfNotExists(_container, _configurationSettings.SettingsFileName);
         }
 
-        public async Task<PluginResponse<PluginDetails>> GetResponse()
+        public async Task<List<T>> GetPluginsFromContainer()
         {
             string containerContent = await _pluginsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
 
-            if (string.IsNullOrEmpty(containerContent))
+        public async Task<PluginResponse<T>> ReadFromContainer()
+        {
+            if (_configurationSettings.PluginsFileName == null)
             {
-                return new PluginResponse<PluginDetails>();
+                return new PluginResponse<T>();
             }
 
-            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(containerContent) ?? new PluginResponse<PluginDetails>();
+            var content = await _pluginsBlob.DownloadContentAsync();
+            return JsonConvert.DeserializeObject<PluginResponse<T>>(content.Value.Content.ToString()) ?? new PluginResponse<T>();
+        }
+
+        public async Task<List<ProductDetails>> GetProductsFromContainer()
+        {
+            return (await ReadFromContainer())?.Products;
         }
 
         public async Task SaveResponse(PluginResponse<PluginDetails> response)
         {
-            await _pluginsBlockBlob.UploadTextAsync(JsonConvert.SerializeObject(response));
+            var response = await ReadFromContainer();
+            response.Value = plugins;
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+            await _pluginsBlob.UploadAsync(content, new BlobUploadOptions());
         }
 
         public async Task<SiteSettings> ReadSettings()
         {
-            var containterContent = await _settingsBlockBlob.DownloadTextAsync(Encoding.UTF8, null, _blobRequestOptions, null);
-            return JsonConvert.DeserializeObject<SiteSettings>(containterContent) ?? new SiteSettings();
+            var response = await ReadFromContainer();
+            response.Value = plugins;
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+            await _pluginsBlobBackup.UploadAsync(content, new BlobUploadOptions());
         }
 
-        public async Task SaveSettings(SiteSettings settings)
+        public async Task UpdateProductsFileBlob(List<ProductDetails> products)
         {
-            var text = JsonConvert.SerializeObject(settings);
-            await _settingsBlockBlob.UploadTextAsync(text);
+            var response = await ReadFromContainer();
+            response.Products = products;
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+            await _pluginsBlob.UploadAsync(content, new BlobUploadOptions());
+        }
+
+        public async Task UpdateParentsFileBlob(List<ParentProduct> products)
+        {
+            var response = await ReadFromContainer();
+            response.ParentProducts = products;
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+            await _pluginsBlob.UploadAsync(content, new BlobUploadOptions());
         }
 
         private CloudStorageAccount GetCloudStorageAccount()
         {
-            if (string.IsNullOrEmpty(_configurationSettings?.StorageAccountName) || string.IsNullOrEmpty(_configurationSettings?.StorageAccountKey))
-            {
-                return null;
-            }
-
-            var storageCredentils = new StorageCredentials(_configurationSettings?.StorageAccountName, _configurationSettings?.StorageAccountKey);
-            return new CloudStorageAccount(storageCredentils, true);
+            var content = await _mappingsBlob.DownloadContentAsync();
+            return JsonConvert.DeserializeObject<List<NameMapping>>(content.Value.Content.ToString()) ?? new List<NameMapping>();
         }
 
-        private string NormalizeBlobName()
+        public async Task<List<ParentProduct>> GetParentProductsFromContainer()
         {
-            if (string.IsNullOrEmpty(_configurationSettings.BlobName))
-            {
-                _configurationSettings.BlobName = "defaultblobname";
-            }
-
-            var regex = new Regex("[A-Za-z0-9]+");
-            var matchCollection = regex.Matches(_configurationSettings.BlobName);
-            var normalizedName = string.Concat(matchCollection.Select(m => m.Value));
-            if (normalizedName.Length < 3)
-            {
-                normalizedName = $"{normalizedName}appstore";
-            }
-
-            return normalizedName.ToLower();
+            return (await ReadFromContainer())?.ParentProducts;
         }
 
-        private static void CreateEmptyFile(CloudBlockBlob cloudBlockBlob)
+        public async Task UpdateMappingsFileBlob(List<NameMapping> mappings)
         {
-            if (cloudBlockBlob is null)
-            {
-                return;
-            }
-
-            if (!cloudBlockBlob.Exists())
-            {
-                cloudBlockBlob.UploadText(string.Empty);
-            }
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(mappings)));
+            await _mappingsBlob.UploadAsync(content, new BlobUploadOptions());
         }
 
-        private CloudBlockBlob GetBlockBlobReference(string fileName)
+        public async Task<SiteSettings> GetSettingsFromContainer()
         {
-            if (string.IsNullOrEmpty(fileName))
-            {
-                return null;
-            }
-
-            var cloudBlob = _cloudBlobContainer.GetBlockBlobReference(fileName);
-            cloudBlob.Properties.ContentType = Path.GetExtension(fileName);
-            return cloudBlob;
+            var content = await _settingsBlob.DownloadContentAsync();
+            return JsonConvert.DeserializeObject<SiteSettings>(content.Value.Content.ToString()) ?? new SiteSettings();
         }
 
-        private void InitializeBlockBlobs()
+        public async Task UpdateSettingsFileBlob(SiteSettings settings)
         {
-            CreateEmptyFile(_pluginsBlockBlob);
-            CreateEmptyFile(_pluginsBackupBlockBlob);
-            CreateEmptyFile(_settingsBlockBlob);
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(settings)));
+            await _settingsBlob.UploadAsync(content, new BlobUploadOptions());
         }
 
-        private void SetCloudBlockBlobs()
+        public async Task<string> GetAPIVersionFromContainer()
         {
-            if (!string.IsNullOrEmpty(_configurationSettings.PluginsFileName))
-            {
-                _pluginsBlockBlob = GetBlockBlobReference(_configurationSettings.PluginsFileName);
-
-                var backupFileName = $"{Path.GetFileNameWithoutExtension(_configurationSettings.PluginsFileName)}_backupFile.json";
-                _pluginsBackupBlockBlob = GetBlockBlobReference(backupFileName);
-            }
-
-            if (!string.IsNullOrEmpty(_configurationSettings.SettingsFileName))
-            {
-                _settingsBlockBlob = GetBlockBlobReference(_configurationSettings.SettingsFileName);
-            }
+            return (await ReadFromContainer())?.APIVersion ?? "1.0.0";
         }
 
         private void CreateContainer(CloudStorageAccount cloudStorageAccount)
@@ -151,13 +122,32 @@ namespace AppStoreIntegrationServiceCore.Repository
             var blobName = NormalizeBlobName();
             _cloudBlobContainer = cloudStorageAccount.CreateCloudBlobClient().GetContainerReference(blobName);
 
-            if (_cloudBlobContainer.CreateIfNotExists())
+        public async Task UpdateCategoriesFileBlob(List<CategoryDetails> categories)
+        {
+            var response = await ReadFromContainer();
+            response.Categories = categories;
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+            await _pluginsBlob.UploadAsync(content, new BlobUploadOptions());
+        }
+
+        public async Task UpdateAPIVersion(string version)
+        {
+            var response = await ReadFromContainer();
+            response.APIVersion = version;
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+            await _pluginsBlob.UploadAsync(content, new BlobUploadOptions());
+        }
+
+        private static void CreateIfNotExists(BlobContainerClient container, string fileName)
+        {
+            var blob = container.GetBlobClient(fileName);
+
+            if (blob.Exists())
             {
-                _cloudBlobContainer.SetPermissionsAsync(new BlobContainerPermissions
-                {
-                    PublicAccess = BlobContainerPublicAccessType.Blob
-                });
+                return;
             }
+
+            container.UploadBlob(fileName, new MemoryStream());
         }
     }
 }
