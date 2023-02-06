@@ -2,40 +2,15 @@
     $("#form").data('validator', null);
     $.validator.unobtrusive.parse("#form");
 
-    if (new URL(window.location.href).searchParams.get("selectedView") != "Comments") {
-        new DropDown(
-            document.querySelector("#productsDropdown #dropDownToggle"),
-            document.querySelector("#productsDropdown #ProductsSelect"),
-            $("#productsDropdown #SupportedProducts"),
-            document.querySelector("#productsDropdown .selection-summary"),
-            document.querySelectorAll("#productsDropdown .overflow-arrow"),
-            parentProducts.map(p => p.parentProductName)
-        ).Init()
-    }
+    new DropDown(
+        document.querySelector("#productsDropdown #dropDownToggle"),
+        document.querySelector("#productsDropdown #ProductsSelect"),
+        $("#productsDropdown #SupportedProducts"),
+        document.querySelector("#productsDropdown .selection-summary"),
+        document.querySelectorAll("#productsDropdown .overflow-arrow"),
+        parentProducts.map(p => p.parentProductName)
+    ).Init()
 })
-
-function Show(versionId, subView) {
-    let url = new URL(window.location.href);
-    url.searchParams.set("selectedVersion", versionId);
-    url.searchParams.set("selectedView", subView);
-    window.location.href = url.href;
-}
-
-function ShowByStatus(versionId, status) {
-    let url = new URL(window.location.href);
-    url.searchParams.set("selectedVersion", versionId);
-
-    switch (status) {
-        case "Draft": url.searchParams.set("selectedView", "Draft");
-            break;
-        case "InReview": url.searchParams.set("selectedView", "Pending");
-            break;
-        default: url.searchParams.set("selectedView", "Details");
-            break;
-    }
-
-    window.location.href = url.href;
-}
 
 function AddComment(pluginId, versionId) {
     let content = event.currentTarget.parentElement;
@@ -151,15 +126,7 @@ function RespondDeletionRequest(pluginId, versionId, action) {
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            if (request.responseText) {
-                let url = new URL(window.location.href);
-                var response = JSON.parse(request.responseText)
-                url.searchParams.set("selectedView", response.selectedView);
-                url.searchParams.set("selectedVersion", response.selectedVersion);
-                window.location.href = url.href;
-            } else {
-                window.location.reload();
-            }
+            window.location.href = request.responseText;
         }
     }
 
@@ -167,22 +134,9 @@ function RespondDeletionRequest(pluginId, versionId, action) {
     request.send(data);
 }
 
-function UpdatePlaceholder() {
-    let placeholder = event.target.closest('.version-details').previousElementSibling.querySelector(".version-number-placeholder");
-    let text = event.target.value;
-    if (text == '') {
-        placeholder.innerText = "Version number"
-        return;
-    }
-
-    placeholder.innerText = text;
-}
-
 function HttpRequestCallback(response) {
     if (!response.includes("div")) {
-        let url = new URL(window.location.href);
-        url.searchParams.set("selectedView", JSON.parse(response).selectedView);
-        window.location.href = url.href;
+        window.location.href = response;
     }
 
     let alert = document.querySelector('.alert');

@@ -12,11 +12,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
     {
         private readonly ICommentsRepository _commentsRepository;
         private readonly IPluginRepository _pluginRepository;
+        private readonly IPluginVersionRepository _pluginVersionRepository;
 
-        public CommentsController(ICommentsRepository commentsRepository, IPluginRepository pluginRepository)
+        public CommentsController(ICommentsRepository commentsRepository, IPluginRepository pluginRepository, IPluginVersionRepository pluginVersionRepository)
         {
             _commentsRepository = commentsRepository;
             _pluginRepository = pluginRepository;
+            _pluginVersionRepository = pluginVersionRepository;
         }
 
         [Route("/Plugins/Edit/{pluginId}/Comments")]
@@ -31,8 +33,21 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return View(extended);
         }
 
-        [HttpPost("/Plugins/Edit/{pluginId}/Comments/{versionId}/New")]
-        [HttpPost("/Plugins/Edit/{pluginId}/Comments/New")]
+        [Route("/Plugins/Edit/{pluginId}/Versions/Edit/{versionId}/Comments")]
+        public async Task<IActionResult> VersionComments(int pluginId, string versionId)
+        {
+            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
+            var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
+            var extendedPlugin = ExtendedPluginDetails.CopyFrom(plugin);
+            var extendedVersion = ExtendedPluginVersion.CopyFrom(version);
+
+            extendedVersion.VersionComments = await _commentsRepository.GetComments(pluginId, versionId);
+            extendedVersion.PluginId = pluginId;
+            extendedPlugin.IsEditMode = true;
+
+            return View((extendedPlugin, extendedVersion));
+        }
+
         public async Task<IActionResult> New(int pluginId, string versionId)
         {
             var comments = await _commentsRepository.GetComments(pluginId, versionId);
@@ -46,8 +61,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             });
         }
 
-        [HttpPost("/Plugins/Edit/{pluginId}/Comments/{versionId}/Update")]
-        [HttpPost("/Plugins/Edit/{pluginId}/Comments/Update")]
         public async Task<IActionResult> Update(Comment comment, int pluginId, string versionId)
         {
             await _commentsRepository.SaveComment(comment, pluginId, versionId);
@@ -55,8 +68,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return Content(null);
         }
 
-        [HttpPost("/Plugins/Edit/{pluginId}/Comments/{versionId}/Delete/{commentId}")]
-        [HttpPost("/Plugins/Edit/{pluginId}/Comments/Delete/{commentId}")]
         public async Task<IActionResult> Delete(int commentId, int pluginId, string versionId)
         {
             await _commentsRepository.DeleteComment(commentId, pluginId, versionId);

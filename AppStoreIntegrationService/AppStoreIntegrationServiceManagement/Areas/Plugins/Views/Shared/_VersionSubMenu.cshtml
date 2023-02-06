@@ -1,32 +1,32 @@
 ﻿@model ExtendedPluginVersion
 @inject IPluginVersionRepository repository
 @{
-    var selectedView = Context.Request.Query["selectedView"];
+    var route = $"/Plugins/Edit/{Model.PluginId}/Versions/{{0}}/{Model.VersionId}";
 }
 
 <ul class="nav nav-tabs">
     @if (await repository.HasActiveChanges(Model.PluginId, Model.VersionId))
     {
         <li class="nav-item">
-            <a class="nav-link cursor-pointer @(selectedView == "Details" ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.VersionId', 'Details') })">Details</a>
+            <a class="nav-link cursor-pointer @ManageVersionTabs.DetailsTabClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '@(string.Format(route, "Edit"))' })">Details</a>
         </li>
     }
 
     @if (await repository.HasPendingChanges(Model.PluginId, Model.VersionId, User))
     {
         <li class="nav-item">
-            <a class="nav-link cursor-pointer @(selectedView == "Pending" ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.VersionId', 'Pending') })">Pending</a>
+            <a class="nav-link cursor-pointer @ManageVersionTabs.PendingTabClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '@(string.Format(route, "Pending"))' })">Pending</a>
         </li>
     }
 
     @if (await repository.HasDraftChanges(Model.PluginId, Model.VersionId, User))
     {
         <li class="nav-item">
-            <a class="nav-link cursor-pointer @(selectedView == "Draft" ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.VersionId', 'Draft') })">Draft</a>
+            <a class="nav-link cursor-pointer @ManageVersionTabs.DraftTabClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '@(string.Format(route, "Draft"))'})">Draft</a>
         </li>
     }
 
     <li class="nav-item">
-        <a class="nav-link cursor-pointer @(selectedView == "Comments" ? "active-tab" : null)" onclick="EnsurePreserved(() => { Show('@Model.VersionId', 'Comments') })">Comments</a>
+        <a class="nav-link cursor-pointer @ManageVersionTabs.CommentsTabClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '@(string.Format($"{route}/Comments", "Edit"))'})">Comments</a>
     </li>
 </ul>

@@ -1,5 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using System;
 using System.Security.Claims;
 using static AppStoreIntegrationServiceCore.Enums;
 
@@ -14,11 +15,23 @@ namespace AppStoreIntegrationServiceCore.Repository
             _pluginRepository = pluginRepository;
         }
 
-        public async Task<PluginVersion> GetPluginVersion(int pluginId, string versionId, ClaimsPrincipal user = null)
+        public async Task<PluginVersion> GetPluginVersion(int pluginId, string versionId, ClaimsPrincipal user = null, Status status = Status.All)
+        {
+            var versions = await GetPluginVersions(pluginId, status: status);
+            return versions.FirstOrDefault(v => v.VersionId == versionId);
+        }
+
+        public async Task<IEnumerable<PluginVersion>> GetPluginVersions(int pluginId, ClaimsPrincipal user = null, Status status = Status.All)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, user);
-            var versions = plugin.Versions.Concat(plugin.Pending).Concat(plugin.Drafts);
-            return versions.FirstOrDefault(v => v.VersionId == versionId);
+            return status switch
+            {
+                Status.Draft => plugin.Drafts,
+                Status.InReview => plugin.Pending,
+                Status.Active => plugin.Versions,
+                Status.Inactive => plugin.Versions,
+                _ => plugin.Versions.Concat(plugin.Pending).Concat(plugin.Drafts).DistinctBy(v => v.VersionId)
+            };
         }
 
         public async Task<bool> HasActiveChanges(int pluginId, string versionId)
@@ -153,6 +166,17 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
 
             return versions;
+        }
+
+        public async Task<bool> ExistsVersion(int pluginId, string versionId)
+        {
+            if (pluginId < 0 || string.IsNullOrEmpty(versionId))
+            {
+                return false;
+            }
+
+            var versions = await GetPluginVersions(pluginId);
+            return versions.Any(v => v.VersionId == versionId);
         }
     }
 }

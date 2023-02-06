@@ -1,0 +1,119 @@
+﻿@model (ExtendedPluginDetails Plugin, ExtendedPluginVersion Version)
+@{
+    ViewData["Title"] = "Versions";
+    ViewData["ActivePage"] = ManagePluginsNav.Versions;
+    ViewData["SelectedVersion"] = Model.Version.VersionId;
+    ViewData["ActiveVersionSubPage"] = ManageVersionTabs.Details;
+}
+
+<form class="row p-2" method="post" id="form" onsubmit="return false">
+    <div class="col-12 col-lg-4">
+        <partial name="_PluginsNavPartial" model="@Model.Plugin" />
+    </div>
+    <div class="col-12 col-lg-8 border-container">
+        @if (!Model.Version.IsNewVersion)
+        {
+            <partial name="_VersionSubMenu" model="@Model.Version" />
+        }
+
+        <input hidden name="Page" value="@Page.Version" />
+        <input hidden asp-for="Version.IsPrivatePlugin" value="true" />
+        <input hidden asp-for="Version.VersionId" />
+        <input hidden asp-for="Version.IsNewVersion" />
+        <input hidden asp-for="Version.PluginId" />
+        <input hidden asp-for="Version.VersionStatus" />
+        <input hidden asp-for="Version.IsThirdParty" />
+        <input hidden asp-for="Version.NeedsDeletionApproval" />
+        <input hidden asp-for="Version.HasAdminConsent" />
+
+        <div id="versionDetails" class="m-0 ml-lg-3 mt-3">
+            @for (int i = 0; i < Model.Version.SupportedProducts?.Count; i++)
+            {
+                <input hidden asp-for="Version.SupportedProducts[i]" />
+            }
+
+            <div class="d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 align-self-center form-label" asp-for="Version.VersionNumber">Version Number <span class="text-danger">*</span></label>
+                <div class="w-100 d-flex flex-column">
+                    <input asp-for="Version.VersionNumber" class="form-control manifest-field fs-inherit" readonly />
+                    <span asp-validation-for="Version.VersionNumber" class="text-danger"></span>
+                    <span id="VersionNumberManifestConflict" class="text-danger" @((bool?)TempData["IsVersionMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid version number!</span>
+                </div>
+            </div>
+            <div class="d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 align-self-center form-label" asp-for="Version.MinimumRequiredVersionOfStudio">Minimum Studio Version </label>
+                <div class="w-100">
+                    <input asp-for="Version.MinimumRequiredVersionOfStudio" class="form-control manifest-field fs-inherit" readonly />
+                    <span asp-validation-for="Version.MinimumRequiredVersionOfStudio" class="text-danger"></span>
+                    <span id="MinVersionManifestConflict" class="text-danger" @((bool?)TempData["IsMinVersionMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid minimum version!</span>
+                </div>
+            </div>
+            <div class="d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 align-self-center form-label" asp-for="Version.MaximumRequiredVersionOfStudio">Maximum Studio Version </label>
+                <div class="w-100">
+                    <input asp-for="Version.MaximumRequiredVersionOfStudio" class="form-control manifest-field fs-inherit" readonly />
+                    <span asp-validation-for="Version.MaximumRequiredVersionOfStudio" class="text-danger"></span>
+                    <span id="MaxVersionManifestConflict" class="text-danger" @((bool?)TempData["IsMaxVersionMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid maximum version!</span>
+                </div>
+            </div>
+            <div class="d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 align-self-center" asp-for="Version.DownloadUrl">Download URL <span class="text-danger">*</span></label>
+                <div class="w-100">
+                    <input asp-for="Version.DownloadUrl" class="form-control fs-inherit" readonly />
+                    <span asp-validation-for="Version.DownloadUrl" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 form-check-label" asp-for="Version.IsNavigationLink">Is navigation link</label>
+                <input asp-for="Version.IsNavigationLink" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" onclick="return false" />
+            </div>
+            <div class="form-check d-flex align-content-center col-12 p-0 mb-3">
+                <label class="col-4 m-0 form-check-label" asp-for="Version.AppHasStudioPluginInstaller">Has plugin extension</label>
+                <input asp-for="Version.AppHasStudioPluginInstaller" type="checkbox" class="m-0 align-self-center p-3 fs-inherit" onclick="return false" />
+            </div>
+            <div class="mb-3 d-flex align-content-center col-12 p-0">
+                <label class="col-4 m-0 align-self-center form-label" asp-for="Version.FileHash">Checksum </label>
+                <div class="d-flex flex-column w-100">
+                    <div class="input-group">
+                        <input asp-for="Version.FileHash" class="form-control ignore fs-inherit border-end-0" readonly />
+                        <span class="input-group-text bg-white">
+                            <span class="spinner-border spinner-border-sm" hidden role="status" aria-hidden="true" />
+                        </span>
+                    </div>
+                    <span asp-validation-for="Version.FileHash" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="d-flex align-content-center col-12 p-0">
+                <label class="col-4 m-0 align-self-center form-label" asp-for="Version.SupportedProducts">Products</label>
+                <div class="col-8">
+                    <div class="dropdown w-100" id="productsDropdown">
+                        <div class="w-100 border rounded p-2 d-flex justify-content-between overflow-auto" role="button" id="dropDownToggle" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="d-flex align-items-center col-12">
+                                <i class="fa fa-chevron-left p-2 overflow-arrow cursor-pointer d-none"></i>
+                                <div class="d-flex selection-summary">
+                                    @foreach (var item in Model.Version.SupportedProductsListItems)
+                                    {
+                                        if (Model.Version.SupportedProducts?.Any(p => p.Equals(item.Value)) ?? false)
+                                        {
+                                            <span class="border-0 rounded px-1 d-flex me-2">
+                                                <p class="m-0 text-nowrap">@item.Text</p>
+                                                <i class="fa fa-circle align-self-center ms-2 p-1" style="font-size:8px;"></i>
+                                            </span>
+                                        }
+                                    }
+                                </div>
+                                <i class="fa fa-chevron-right p-2 overflow-arrow cursor-pointer d-none"></i>
+                            </div>
+                        </div>
+                        <select asp-for="Version.SupportedProducts" hidden multiple="multiple" asp-items="@Model.Version.SupportedProductsListItems"></select>
+                    </div>
+                    <span asp-validation-for="Version.SupportedProducts" class="text-danger"></span>
+                    <span id="ProductManifestConflict" class="text-danger" @((bool?)TempData["IsProductMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid product!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script asp-append-version="true">let isReadOnly = true</script>
+<script src="~/js/DropDown.js" asp-append-version="true"></script>

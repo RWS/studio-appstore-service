@@ -94,10 +94,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private string GetPluginImage()
         {
-            var request = _context.HttpContext?.Request;
-            var scheme = request?.Scheme;
-            var host = request?.Host.Value;
-
+            var scheme = _context.HttpContext?.Request?.Scheme;
+            var host = _context.HttpContext?.Request?.Host.Value;
             return $"{scheme}://{host}/images/plugin.ico";
         }
 
@@ -241,20 +239,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 {
                     await _loggingRepository.Log(User.Identity.Name, plugin.Id, log);
                 }
-                
+
                 if (oldPlugin != null)
                 {
                     plugin.Versions = oldPlugin.Versions;
                     plugin.Pending = oldPlugin.Pending;
                     plugin.Drafts = oldPlugin.Drafts;
                 }
-                
+
                 await _pluginRepository.SavePlugin(plugin, removeOtherVersions);
                 if (compareWithManifest)
                 {
                     await CompareWithManifest(plugin);
                 }
-               
+
                 TempData["StatusMessage"] = $"Success! {plugin.Name} was saved!";
                 return Content($"/Plugins/{successRedirect}/{plugin.Id}");
             }

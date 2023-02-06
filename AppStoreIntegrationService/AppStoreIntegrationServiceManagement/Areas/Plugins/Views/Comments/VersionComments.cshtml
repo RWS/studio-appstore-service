@@ -1,29 +1,32 @@
-﻿@model ExtendedPluginDetails
+﻿@model (ExtendedPluginDetails Plugin, ExtendedPluginVersion Version)
 @{
     ViewData["Title"] = "Comments";
-    ViewData["ActivePage"] = ManagePluginsNav.PluginDetails;
-    ViewData["ActiveSubPage"] = ManagePluginTabs.Comments;
+    ViewData["ActivePage"] = ManagePluginsNav.Versions;
+    ViewData["ActiveVersionSubPage"] = ManageVersionTabs.Comments;
     var selectedComment = Context.Request.Query["selectedComment"];
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this comment?"})" />
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this message?" })" />
 <div id="modalContainer"></div>
 
-<form class="row px-2" method="post" onsubmit="return false" id="form" enctype="multipart/form-data">
+<form class="row p-2" method="post" id="form" onsubmit="return false">
     <div class="col-12 col-lg-4">
-        <partial name="_PluginsNavPartial" model="@Model" />
+        <partial name="_PluginsNavPartial" model="@Model.Plugin" />
     </div>
-
     <div class="col-12 col-lg-8 border-container">
-        <partial name="_PluginSubMenu" model="Model.Id" />
-        @if (!Model.Comments.Any())
+        @if (!Model.Version.IsNewVersion)
         {
-            <p class="m-0 py-2">No comments yet for this Plugin.</p>
+            <partial name="_VersionSubMenu" model="@Model.Version" />
+        }
+
+        @if (!Model.Version.VersionComments.Any())
+        {
+            <p class="m-0 py-2">No comments yet for this version.</p>
         }
         else
         {
-            @foreach (var comment in Model.Comments)
+            @foreach (var comment in Model.Version.VersionComments)
             {
                 if (selectedComment == comment.CommentId.ToString())
                 {
@@ -43,7 +46,7 @@
                         {
                             <div class="d-flex">
                                 <p class="m-0 me-2 cursor-pointer text-secondary" onclick="EnsurePreserved(() => { EditComment('@comment.CommentId') })">Edit</p>
-                                <p class="m-0 cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteComment('@comment.PluginId', '@comment.CommentId')">Delete</p>
+                                <p class="m-0 cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteComment('@Model.Plugin.Id', '@comment.CommentId', '@Model.Version.VersionId')">Delete</p>
                             </div>
                         }
                     </div>
@@ -54,12 +57,11 @@
         @if (string.IsNullOrEmpty(selectedComment))
         {
             <div class="mt-2">
-                <button class="btn pa-admin-success-btn" id="addCommentBtn" onclick="AddComment('@Model.Id')"><i class="fa fa-comment"></i> Add comment</button>
+                <button class="btn pa-admin-success-btn" id="addCommentBtn" onclick="AddComment('@Model.Plugin.Id', '@Model.Version.VersionId')"><i class="fa fa-comment"></i> Add comment</button>
             </div>
         }
     </div>
 </form>
 
-<script src="/js/PluginScript.js" asp-append-version="true"></script>
-<script src="/js/CommentsScript.js" asp-append-version="true"></script>
-<script src="/js/RichTextEditor.js" asp-append-version="true"></script>
+<script asp-append-version="true" src="~/js/CommentsScript.js"></script>
+<script asp-append-version="true" src="~/js/RichTextEditor.js"></script>

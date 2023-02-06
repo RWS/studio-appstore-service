@@ -68,7 +68,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public async Task<IActionResult> Check(ExtendedPluginVersion version)
         {
-            var saved = await _pluginVersionRepository.GetPluginVersion(version.PluginId, version.VersionId);
+            var saved = await _pluginVersionRepository.GetPluginVersion(version.PluginId, version.VersionId, status: version.VersionStatus);
 
             if (saved?.Equals(version) ?? false)
             {

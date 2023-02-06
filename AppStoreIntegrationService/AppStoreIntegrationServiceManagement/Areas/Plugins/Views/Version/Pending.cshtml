@@ -1,0 +1,59 @@
+﻿@model (ExtendedPluginDetails Plugin, ExtendedPluginVersion Version)
+@{
+    ViewData["Title"] = "Versions";
+    ViewData["ActivePage"] = ManagePluginsNav.Versions;
+    ViewData["SelectedVersion"] = Model.Version.VersionId;
+    ViewData["ActiveVersionSubPage"] = ManageVersionTabs.Pending;
+}
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<div id="statusMessageContainer"></div>
+<div id="modalContainer"></div>
+
+<form class="row p-2" method="post" id="form" onsubmit="return false">
+    <div class="col-12 col-lg-4">
+        <partial name="_PluginsNavPartial" model="@Model.Plugin" />
+    </div>
+    <div class="col-12 col-lg-8 border-container">
+        @if (!Model.Version.IsNewVersion)
+        {
+            <partial name="_VersionSubMenu" model="@Model.Version" />
+        }
+
+        <input hidden name="Page" value="@Page.Version" />
+        <partial name="_VersionDetailsPartial" model="@Model.Version" />
+
+        @if (Model.Version.IsThirdParty && User.IsInRole("Developer"))
+        {
+            <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Submit')">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Submit
+            </button>
+            <button class="btn pa-admin-outline-success-btn" onclick="Save('@Model.Plugin.Id', 'SaveAsDraft')">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Save as draft
+            </button>
+        }
+        else if (Model.Version.IsThirdParty && User.IsInRole("Administrator") && Model.Version.VersionStatus.Equals(Status.InReview))
+        {
+            <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Approve', true)">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Approve
+            </button>
+            <button class="btn btn-danger" onclick="Save('@Model.Plugin.Id', 'Reject', true)">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                Reject
+            </button>
+        }
+    </div>
+</form>
+
+<script asp-append-version="true">let isReadOnly = false</script>
+<script src="~/js/DropDown.js" asp-append-version="true"></script>
+<script src="~/js/VersionsScript.js" asp-append-version="true"></script>
+<script asp-append-version="true">
+    let parentProducts = @Html.Raw(Json.Serialize(Model.Plugin.Parents))
+</script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
