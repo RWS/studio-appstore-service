@@ -24,7 +24,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [AllowAnonymous]
         [Route("/")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             return Ok();
         }
@@ -33,7 +33,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [AllowAnonymous]
         [Route("Plugins")]
-        public async Task<IActionResult> IndexPlugins([FromQuery] PluginFilter filter)
+        public async Task<IActionResult> Index([FromQuery] PluginFilter filter)
         {
             _ = Request.Headers.TryGetValue("apiversion", out StringValues text);
             filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;

@@ -10,6 +10,7 @@ using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
+using AppStoreIntegrationServiceManagement.Model.Plugins;
 
 namespace AppStoreIntegrationServiceManagement
 {
@@ -72,6 +73,7 @@ namespace AppStoreIntegrationServiceManagement
             services.AddSingleton<ICommentsRepository, CommentsRepository>();
             services.AddSingleton<ILoggingRepository, LoggingRepository>();
             services.AddSingleton<CustomizationHelper>();
+            services.AddSingleton<NotificationCenter>();
 
             services.AddAuthorization(options =>
             {

@@ -32,7 +32,7 @@ function AddComment(pluginId, versionId = '') {
         }
     }
 
-    request.open("POST", `/Comments/New`);
+    request.open("POST", `/Plugins/Comments/New`);
     request.send(data);
 }
 
@@ -48,7 +48,7 @@ function SaveComment() {
         }
     }
 
-    request.open("POST", `/Comments/Update`);
+    request.open("POST", `/Plugins/Comments/Update`);
     request.send(data);
 }
 
@@ -74,7 +74,7 @@ function DeleteComment(pluginId, commentId, versionId = '') {
             }
         }
 
-        request.open("POST", `/Comments/Delete`);
+        request.open("POST", `/Plugins/Comments/Delete`);
         request.send(data);
     })
 }

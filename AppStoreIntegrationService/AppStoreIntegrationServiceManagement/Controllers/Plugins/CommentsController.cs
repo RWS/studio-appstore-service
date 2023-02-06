@@ -3,6 +3,8 @@ using AppStoreIntegrationServiceCore.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using static AppStoreIntegrationServiceCore.Enums;
+using AppStoreIntegrationServiceManagement.Model.Plugins;
+using System;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -13,12 +15,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly ICommentsRepository _commentsRepository;
         private readonly IPluginRepository _pluginRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;
+        private readonly NotificationCenter _notificationCenter;
 
-        public CommentsController(ICommentsRepository commentsRepository, IPluginRepository pluginRepository, IPluginVersionRepository pluginVersionRepository)
+        public CommentsController
+        (
+            ICommentsRepository commentsRepository,
+            IPluginRepository pluginRepository,
+            IPluginVersionRepository pluginVersionRepository,
+            NotificationCenter notificationCenter
+        )
         {
             _commentsRepository = commentsRepository;
             _pluginRepository = pluginRepository;
             _pluginVersionRepository = pluginVersionRepository;
+            _notificationCenter = notificationCenter;
         }
 
         [Route("/Plugins/Edit/{pluginId}/Comments")]
@@ -63,6 +73,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         public async Task<IActionResult> Update(Comment comment, int pluginId, string versionId)
         {
+            var plugin = await _pluginRepository.GetPluginById(pluginId, user: User);
+            _notificationCenter.SendEmail(_notificationCenter.GetNewCommentNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId), "New plugin comment");
             await _commentsRepository.SaveComment(comment, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was updated!";
             return Content(null);
