@@ -25,6 +25,44 @@ function EnsurePreserved(callback) {
     request.send(data);
 }
 
+function RemoveNotification(id) {
+    event.preventDefault();
+
+    let request = new XMLHttpRequest();
+    let data = new FormData();
+    let button = event.currentTarget;
+    let container = button.parentElement.parentElement;
+    data.set("Id", id);
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+
+            if (button.href) {
+                window.location.href = button.href;
+            }
+
+            button.parentElement.remove();
+
+            if (container.childElementCount < 1) {
+                var div = document.createElement('div');
+                var text = document.createElement('p');
+
+                div.style.width = '400px';
+                div.style.height = '100px';
+                div.classList.add('d-flex', 'justify-content-center', 'align-items-center');
+
+                text.innerText = "You have 0 notifications";
+                text.classList.add('m-0');
+                div.append(text);
+                container.append(div);
+            }
+        }
+    }
+
+    request.open("POST", `/Identity/Notifications/Delete`);
+    request.send(data);
+}
+
 function Collapse(element) {
 
     if (window.innerWidth > 992) {

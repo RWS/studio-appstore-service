@@ -1,4 +1,4 @@
-﻿@inject SignInManager<IdentityUser> manager
+﻿@inject SignInManager<IdentityUserExtended> manager
  
 <div class="col-12 col-md-3">
     <ul class="nav nav-pills flex-column" id="profile-navbar">
@@ -7,6 +7,11 @@
         @if (User.IsInRole("Administrator")){
             <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ManageNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users' })">Users</a></li>
             <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.RegisterNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Register' })">Add another user</a></li>
+        }
+
+        @if (!User.IsInRole("StandardUser"))
+        {
+            <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.NotificationsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Notifications' })">Notifications</a></li>
         }
     </ul>
 </div>

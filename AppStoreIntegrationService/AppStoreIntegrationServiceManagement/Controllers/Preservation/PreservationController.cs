@@ -15,7 +15,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
         private readonly ICommentsRepository _commentsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
         private readonly IProductsRepository _productsRepository;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<IdentityUserExtended> _userManager;
 
         public PreservationController
         (
@@ -24,7 +24,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             ICommentsRepository commentsRepository, 
             ICategoriesRepository categoriesRepository, 
             IProductsRepository productsRepository,
-            UserManager<IdentityUser> userManager
+            UserManager<IdentityUserExtended> userManager
         )
         {
             _pluginRepository = pluginRepository;

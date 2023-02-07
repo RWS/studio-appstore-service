@@ -1,8 +1,10 @@
-﻿using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+﻿using AppStoreIntegrationServiceManagement.Areas.Identity;
+using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-[assembly: HostingStartup(typeof(AppStoreIntegrationServiceManagement.Areas.Identity.IdentityHostingStartup))]
+[assembly: HostingStartup(typeof(IdentityHostingStartup))]
 namespace AppStoreIntegrationServiceManagement.Areas.Identity
 {
     public class IdentityHostingStartup : IHostingStartup
@@ -15,7 +17,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity
                     options.UseSqlServer(
                         context.Configuration.GetConnectionString("AppStoreIntegrationServiceContextConnection")));
 
-                services.AddIdentity<IdentityUser, IdentityRole>(
+                services.AddIdentity<IdentityUserExtended, IdentityRole>(
                     options =>
                     {
                         options.Password.RequireDigit = false;

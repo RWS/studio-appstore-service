@@ -17,6 +17,8 @@ namespace AppStoreIntegrationServiceCore.Repository
         public string LocalPluginsFilePath { get; set; }
         public string PluginsFileBackUpPath { get; set; }
         public string SettingsFileName { get; set; }
+        public string NotificationsFileName { get; set; }
+        public string NotificationsFilePath { get; set; }
 
         public ConfigurationSettings(DeployMode deployMode)
         {
@@ -43,6 +45,11 @@ namespace AppStoreIntegrationServiceCore.Repository
                 PluginsFileBackUpPath = Path.Combine(ConfigFolderPath, $"{Path.GetFileNameWithoutExtension(PluginsFileName)}_backup.json");
             }
 
+            if (!string.IsNullOrEmpty(NotificationsFileName))
+            {
+                NotificationsFilePath = Path.Combine(ConfigFolderPath, NotificationsFileName);
+            }
+
             await CreateConfigurationFiles();
         }
 
@@ -62,6 +69,11 @@ namespace AppStoreIntegrationServiceCore.Repository
             if (!string.IsNullOrEmpty(PluginsFileBackUpPath) && !File.Exists(PluginsFileBackUpPath))
             {
                 await File.Create(PluginsFileBackUpPath).DisposeAsync();
+            }
+
+            if (!string.IsNullOrEmpty(NotificationsFilePath) && !File.Exists(NotificationsFilePath))
+            {
+                await File.Create(NotificationsFilePath).DisposeAsync();
             }
         }
 

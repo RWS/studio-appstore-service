@@ -7,7 +7,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
     {
         public ProfileModel() { }
 
-        public ProfileModel(IdentityUser user, string role)
+        public ProfileModel(IdentityUserExtended user, string role)
         {
             Username = user.UserName;
             Email = user.Email;

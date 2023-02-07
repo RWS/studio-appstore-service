@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using static AppStoreIntegrationServiceCore.Enums;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
-using System;
+using Microsoft.AspNetCore.Identity;
+using AppStoreIntegrationServiceManagement.Model.Identity;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -16,19 +17,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IPluginRepository _pluginRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly NotificationCenter _notificationCenter;
+        private readonly UserManager<IdentityUserExtended> _userManager;
 
         public CommentsController
         (
             ICommentsRepository commentsRepository,
             IPluginRepository pluginRepository,
             IPluginVersionRepository pluginVersionRepository,
-            NotificationCenter notificationCenter
+            NotificationCenter notificationCenter,
+            UserManager<IdentityUserExtended> userManager
         )
         {
             _commentsRepository = commentsRepository;
             _pluginRepository = pluginRepository;
             _pluginVersionRepository = pluginVersionRepository;
             _notificationCenter = notificationCenter;
+            _userManager = userManager;
         }
 
         [Route("/Plugins/Edit/{pluginId}/Comments")]
@@ -74,7 +78,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Update(Comment comment, int pluginId, string versionId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId, user: User);
-            _notificationCenter.SendEmail(_notificationCenter.GetNewCommentNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId), "New plugin comment");
+            var (emailNotification, pushNotification) = _notificationCenter.GetNewCommentNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
+
+            switch (User.IsInRole("Administrator"))
+            {
+                case true:
+                    await _notificationCenter.SendEmail(emailNotification, "New plugin comment", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
+                    await _notificationCenter.Push(pushNotification, User.Identity.Name);
+                    break;
+                default:
+                    await _notificationCenter.Broadcast(emailNotification, "New plugin comment");
+                    await _notificationCenter.Push(pushNotification);
+                    break;
+            }
+
             await _commentsRepository.SaveComment(comment, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was updated!";
             return Content(null);
@@ -85,6 +102,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _commentsRepository.DeleteComment(commentId, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was deleted!";
             return Content(null);
+        }
+
+        private async Task<string> GetCurrentPluginUserEmail(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            return user.Email;
         }
     }
 }

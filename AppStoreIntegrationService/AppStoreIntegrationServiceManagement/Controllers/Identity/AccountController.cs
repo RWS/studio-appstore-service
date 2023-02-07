@@ -9,10 +9,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     [Authorize]
     public class AccountController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUserExtended> _userManager;
+        private readonly SignInManager<IdentityUserExtended> _signInManager;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<IdentityUserExtended> userManager, SignInManager<IdentityUserExtended> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -46,26 +46,24 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         {
             var currentUser = await _userManager.GetUserAsync(User);
             var wantedUser = await _userManager.FindByIdAsync(id);
+            List<IdentityResult> results = new ();
 
             if (!TryValidate(currentUser, id, wantedUser, true, out IActionResult result))
             {
                 return result;
             }
 
-            var (newUsername, newRole, newEmail) = (profileModel.Username, profileModel.UserRole, profileModel.Email);
             if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
             {
-                var identityResult = await _userManager.SetUserNameAsync(currentUser, newUsername);
-                if (!identityResult.Succeeded)
+                results = new List<IdentityResult>
                 {
-                    TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
-                    return RedirectToAction("Profile");
-                }
+                    await _userManager.SetUserNameAsync(currentUser, profileModel.Username),
+                    await _userManager.SetEmailAsync(currentUser, profileModel.Email)
+                };
 
-                identityResult = await _userManager.SetEmailAsync(currentUser, newEmail);
-                if (!identityResult.Succeeded)
+                if (results.Any(x => !x.Succeeded))
                 {
-                    TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
+                    TempData["StatusMessage"] = string.Format("Error! {0}", results.First(x => !x.Succeeded).Errors.First().Description);
                     return RedirectToAction("Profile");
                 }
 
@@ -73,35 +71,30 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return RedirectToAction("Profile");
             }
 
-            var oldUsername = wantedUser.UserName;
-            if (newUsername != wantedUser.UserName)
+            if (profileModel.Username != wantedUser.UserName)
             {
-                var identityResult = await _userManager.SetUserNameAsync(wantedUser, newUsername);
-                if (!identityResult.Succeeded)
-                {
-                    TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
-                    return RedirectToAction("Profile", new { id });
-                }
+                results.Add(await _userManager.SetUserNameAsync(wantedUser, profileModel.Username));
             }
 
-            if (newEmail != wantedUser.Email)
+            if (profileModel.Email != wantedUser.Email)
             {
-                var identityResult = await _userManager.SetEmailAsync(wantedUser, newEmail);
-                if (!identityResult.Succeeded)
-                {
-                    TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
-                    return RedirectToAction("Profile", new { id });
-                }
+                results.Add(await _userManager.SetEmailAsync(wantedUser, profileModel.Email));
             }
 
             var oldRole = (await _userManager.GetRolesAsync(wantedUser))[0];
-            if (newRole != oldRole)
+            if (profileModel.UserRole != oldRole)
             {
                 await _userManager.RemoveFromRoleAsync(wantedUser, oldRole);
-                await _userManager.AddToRoleAsync(wantedUser, newRole);
+                await _userManager.AddToRoleAsync(wantedUser, profileModel.UserRole);
             }
 
-            TempData["StatusMessage"] = string.Format("Success! {0}'s profile was updated!", oldUsername);
+            if (results.Any(x => !x.Succeeded))
+            {
+                TempData["StatusMessage"] = string.Format("Error! {0}", results.First(x => !x.Succeeded).Errors.First().Description);
+                return RedirectToAction("Profile");
+            }
+
+            TempData["StatusMessage"] = string.Format("Success! {0}'s profile was updated!", wantedUser.UserName);
             return RedirectToAction("Profile", new { id });
         }
 
@@ -192,7 +185,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             registerModel.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = registerModel.Input.UserName, Email = registerModel.Input.UserName };
+                var user = new IdentityUserExtended { UserName = registerModel.Input.UserName, Email = registerModel.Input.UserName };
                 var result = await _userManager.CreateAsync(user, registerModel.Input.Password);
                 if (result.Succeeded)
                 {
@@ -231,7 +224,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return Content("");
         }
 
-        private bool TryValidate(IdentityUser currentUser, string id, IdentityUser wantedUser, bool checkModelState, out IActionResult result)
+        private bool TryValidate(IdentityUserExtended currentUser, string id, IdentityUserExtended wantedUser, bool checkModelState, out IActionResult result)
         {
             if (currentUser == null)
             {
@@ -256,7 +249,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return true;
         }
 
-        private async Task<ProfileModel> LoadAsync(IdentityUser user, bool isCurrentUserProfile)
+        private async Task<ProfileModel> LoadAsync(IdentityUserExtended user, bool isCurrentUserProfile)
         {
             var username = await _userManager.GetUserNameAsync(user);
             var role = (await _userManager.GetRolesAsync(user))[0];

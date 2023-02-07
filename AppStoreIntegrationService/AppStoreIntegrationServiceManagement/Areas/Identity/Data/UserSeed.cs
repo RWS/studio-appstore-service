@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AppStoreIntegrationServiceManagement.Model.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
 {
     public class UserSeed : IUserSeed
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<IdentityUserExtended> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<IdentityUserExtended> _signInManager;
 
-        public UserSeed(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<IdentityUser> signInManager)
+        public UserSeed(UserManager<IdentityUserExtended> userManager, RoleManager<IdentityRole> roleManager, SignInManager<IdentityUserExtended> signInManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -35,7 +36,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
                 }
             }
 
-            var defaultAdminUser = new IdentityUser { UserName = "Admin", Email = "admin@sdl.com" };
+            var defaultAdminUser = new IdentityUserExtended { UserName = "Admin", Email = "admin@sdl.com" };
             _userManager.CreateAsync(defaultAdminUser, "administrator").Wait();
             _userManager.AddToRoleAsync(defaultAdminUser, "Administrator").Wait();
             _signInManager.SignInAsync(defaultAdminUser, false).Wait();

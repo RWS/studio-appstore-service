@@ -1,4 +1,8 @@
-﻿@inject SignInManager<IdentityUser> SignInManager
+﻿@inject SignInManager<IdentityUserExtended> SignInManager
+@inject NotificationCenter notificationCenter
+@{
+    var notifications = await notificationCenter.GetNotificationsForUser(User.Identity.Name);
+}
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
@@ -33,6 +37,29 @@
             <form asp-controller="Authentication" asp-action="Logout" asp-area="Identity" method="post">
                 <button class="nav-link btn btn-link cursor-pointer fs-inherit active header-link" type="submit">Sign out</button>
             </form>
+        </li>
+        <li class="nav-item d-flex align-items-center">
+            <div class="btn-group dropstart">
+                <i class="fa fa-bell text-white" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside"></i>
+                <div class="dropdown-menu p-0">
+                    @if (notifications.Any())
+                    {
+                        @foreach (var notification in notifications)
+                        {
+                            <div class="position-relative" contenteditable="false" spellcheck="false">
+                                @Html.Raw(notification.Content)
+                                <i class="fa fa-times position-absolute p-3 text-secondary" style="top: -5px; right:-5px;" onclick="RemoveNotification('@notification.Id')"></i>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div style="width: 400px; height: 100px" class="d-flex justify-content-center align-items-center">
+                            <p class="m-0">You have 0 notifications</p>
+                        </div>
+                    }
+                </div>
+            </div>
         </li>
     }
     else

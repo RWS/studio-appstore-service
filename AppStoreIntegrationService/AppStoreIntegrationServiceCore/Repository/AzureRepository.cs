@@ -8,7 +8,7 @@ using System.Text;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class AzureRepository : IResponseManager, ISettingsManager
+    public class AzureRepository : IResponseManager, ISettingsManager, INotificationsManager
     {
         private readonly IConfigurationSettings _configurationSettings;
         private readonly BlobServiceClient _blobServiceClient;
@@ -70,6 +70,16 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
 
             container.UploadBlob(fileName, new MemoryStream());
+        }
+
+        public Task<IDictionary<string, IEnumerable<Notification>>> GetNotifications()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveNotifications(IDictionary<string, IEnumerable<Notification>> notifications)
+        {
+            throw new NotImplementedException();
         }
     }
 }

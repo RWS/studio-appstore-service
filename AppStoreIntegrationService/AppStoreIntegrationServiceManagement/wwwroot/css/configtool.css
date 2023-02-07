@@ -326,9 +326,17 @@ table {
         font-size: var(--pa-admin-secondary-fontsize)
     }
 
-input {
+input[type="text"] {
     color: var(--pa-admin-input-foreground) !important;
     background-color: var(--pa-admin-input-color) !important;
+    font-size: var(--pa-admin-input-fontsize) !important;
+    font-family: var(--pa-admin-input-fontfamily) !important;
+}
+
+input[type="checkbox"]:checked {
+    color: var(--pa-admin-foreground) !important;
+    background-color: var(--pa-admin-color) !important;
+    border-color: var(--pa-admin-color) !important;
     font-size: var(--pa-admin-input-fontsize) !important;
     font-family: var(--pa-admin-input-fontfamily) !important;
 }

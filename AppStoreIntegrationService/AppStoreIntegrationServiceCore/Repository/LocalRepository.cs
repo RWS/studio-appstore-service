@@ -1,11 +1,12 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using Azure;
 using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
-    public class LocalRepository : IResponseManager, ISettingsManager
+    public class LocalRepository : IResponseManager, ISettingsManager, INotificationsManager
     {
         private readonly IConfigurationSettings _configurationSettings;
         private readonly IWritableOptions<SiteSettings> _options;
@@ -47,6 +48,28 @@ namespace AppStoreIntegrationServiceCore.Repository
         public async Task SaveResponse(PluginResponse<PluginDetails> response)
         {
             await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
+        }
+
+        public async Task<IDictionary<string, IEnumerable<Notification>>> GetNotifications()
+        {
+            if (string.IsNullOrEmpty(_configurationSettings.NotificationsFilePath))
+            {
+                return new Dictionary<string, IEnumerable<Notification>>();
+            }
+
+            var content = await File.ReadAllTextAsync(_configurationSettings.NotificationsFilePath);
+
+            if (content == null)
+            {
+                return new Dictionary<string, IEnumerable<Notification>>();
+            }
+
+            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<Notification>>>(content) ?? new Dictionary<string, IEnumerable<Notification>>();
+        }
+
+        public async Task SaveNotifications(IDictionary<string, IEnumerable<Notification>> notifications)
+        {
+            await File.WriteAllTextAsync(_configurationSettings.NotificationsFilePath, JsonConvert.SerializeObject(notifications));
         }
     }
 }

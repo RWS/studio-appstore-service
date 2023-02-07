@@ -11,6 +11,9 @@ using AppStoreIntegrationServiceManagement.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
+using Microsoft.AspNetCore.Identity;
+using AppStoreIntegrationServiceManagement.Model.Identity;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AppStoreIntegrationServiceManagement
 {
@@ -55,11 +58,13 @@ namespace AppStoreIntegrationServiceManagement
             {
                 services.AddSingleton<IResponseManager, AzureRepository>();
                 services.AddSingleton<ISettingsManager, AzureRepository>();
+                services.AddSingleton<INotificationsManager, AzureRepository>();
             }
             else
             {
                 services.AddSingleton<IResponseManager, LocalRepository>();
                 services.AddSingleton<ISettingsManager, LocalRepository>();
+                services.AddSingleton<INotificationsManager, LocalRepository>();
                 services.AddSingleton<IWritableOptions<SiteSettings>, WritableOptions<SiteSettings>>();
                 services.Configure<SiteSettings>(options => Configuration.GetSection("SiteSettings").Bind(options));
             }
@@ -73,7 +78,7 @@ namespace AppStoreIntegrationServiceManagement
             services.AddSingleton<ICommentsRepository, CommentsRepository>();
             services.AddSingleton<ILoggingRepository, LoggingRepository>();
             services.AddSingleton<CustomizationHelper>();
-            services.AddSingleton<NotificationCenter>();
+            services.AddTransient<NotificationCenter>();
 
             services.AddAuthorization(options =>
             {
