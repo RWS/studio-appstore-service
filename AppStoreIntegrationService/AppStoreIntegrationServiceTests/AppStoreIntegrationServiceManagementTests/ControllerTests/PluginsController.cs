@@ -24,6 +24,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
             var mockCommentsRepository = Substitute.For<ICommentsRepository>();
             var mockLogginRepository = Substitute.For<ILoggingRepository>();
             var mockUserManager = Substitute.For<UserManager<IdentityUserExtended>>();
+            var mockNotificationCenter = Substitute.For<NotificationCenter>();
 
             var pluginsController = new PluginsController
             (
@@ -33,7 +34,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
                 mockCategoriesRepository, 
                 mockCommentsRepository, 
                 mockLogginRepository, 
-                new NotificationCenter(mockContextAccesor, mockUserManager),
+                mockNotificationCenter,
                 mockUserManager
             )
 

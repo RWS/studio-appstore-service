@@ -1,7 +1,9 @@
 ﻿@model NameMapping
 @inject IPluginRepository pluginRepository
 @{
-    var plugins = await pluginRepository.GetAll("asc", User);
+    var username = User.Identity.Name;
+    var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
+    var plugins = await pluginRepository.GetAll("asc", username, userRole);
 }
 
 <tr class="table-row d-flex flex-column d-lg-table-row" id="newDataRow">

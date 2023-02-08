@@ -1,7 +1,9 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
@@ -21,7 +23,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [Route("Settings/PluginsRename")]
         public async Task<IActionResult> Index()
         {
-            var plugins = await _pluginRepository.GetAll("asc", User);
+            var username = User.Identity.Name;
+            var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
+            var plugins = await _pluginRepository.GetAll("asc", username, userRole);
             var names = await _namesRepository.GetAllNames();
             return View(plugins.SelectMany(p => names.Where(n => n.OldName.Equals(p.Name))));
         }

@@ -4,6 +4,8 @@ using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Plugins;
+using System.Security.Claims;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
@@ -83,7 +85,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public async Task<IActionResult> Check(PluginDetails plugin, Status status)
         {
-            var saved = await _pluginRepository.GetPluginById(plugin.Id, status, User);
+            var saved = await _pluginRepository.GetPluginById(plugin.Id, status: status);
             plugin.Status = status;
 
             if (saved?.Equals(plugin) ?? false)

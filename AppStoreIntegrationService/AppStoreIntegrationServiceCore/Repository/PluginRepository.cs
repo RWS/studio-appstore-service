@@ -1,6 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using System.Security.Claims;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository
@@ -27,6 +26,85 @@ namespace AppStoreIntegrationServiceCore.Repository
             await SaveDrafts(plugins, plugin, removeOtherVersions);
             await SavePending(plugins, plugin, removeOtherVersions);
             await SaveActive(plugins, plugin, removeOtherVersions);
+        }
+
+        public async Task<PluginDetails> GetPluginById(int id, string username = null, string userRole = null, Status status = Status.All)
+        {
+            var plugins = await GetAll(null, username, userRole, status);
+            return plugins?.FirstOrDefault(p => p.Id == id);
+        }
+
+        public async Task RemovePlugin(int id)
+        {
+            var data = await _responseManager.GetResponse();
+            var drafts = data.Drafts;
+            var pending = data.Pending;
+            var plugins = data.Value;
+
+            await SavePlugins(plugins.Where(p => p.Id != id), Status.Active);
+            await SavePlugins(pending.Where(p => p.Id != id), Status.InReview);
+            await SavePlugins(drafts.Where(p => p.Id != id), Status.Draft);
+        }
+
+        public async Task<IEnumerable<PluginDetails>> GetAll(string sortOrder, string username = null, string userRole = null, Status status = Status.All)
+        {
+            var data = await _responseManager.GetResponse();
+            var drafts = data.Drafts;
+            var pending = data.Pending;
+            var plugins = data.Value;
+
+            plugins = status switch
+            {
+                Status.Draft => drafts,
+                Status.InReview => pending,
+                Status.Active => plugins,
+                Status.Inactive => plugins,
+                _ => plugins.Concat(pending).Concat(drafts).DistinctBy(p => p.Id)
+            };
+
+            plugins = sortOrder?.Equals("asc", StringComparison.CurrentCultureIgnoreCase) ?? false ? plugins?.OrderByDescending(p => p.Name) : plugins?.OrderBy(p => p.Name);
+
+            return userRole switch
+            {
+                "Developer" => plugins?.Where(p => p.Developer.DeveloperName == username),
+                "Administrator" => plugins.SkipWhile(p => p.Status == Status.Draft && !p.HasAdminConsent),
+                "StandardUser" => plugins?.Where(p => p.Status == Status.Active || p.Status == Status.Inactive),
+                _ => plugins
+            };
+        }
+
+        public async Task<bool> ExitsPlugin(int id)
+        {
+            if (id < 0)
+            {
+                return false;
+            }
+
+            var plugins = await GetAll(null);
+            return plugins.Any(p => p.Id == id);
+        }
+
+        public async Task<bool> HasActiveChanges(int id)
+        {
+            var plugins = await GetAll(null, status: Status.Active);
+            return plugins.Any(p => p.Id == id);
+        }
+
+        public async Task<bool> HasPendingChanges(int id, string userRole = null)
+        {
+            var plugins = await GetAll(null, status: Status.InReview);
+            return userRole != "StandardUser" && plugins.Any(p => p.Id == id);
+        }
+
+        public async Task<bool> HasDraftChanges(int id, string userRole = null)
+        {
+            var drafts = await GetAll(null, status: Status.Draft);
+            return userRole switch
+            {
+                "Administrator" => drafts.Any(p => p.Id == id && p.HasAdminConsent),
+                "Developer" => drafts.Any(p => p.Id == id),
+                _ => false
+            };
         }
 
         private async Task SaveActive(List<PluginDetails> plugins, PluginDetails plugin, bool removeOtherVersions)
@@ -79,11 +157,14 @@ namespace AppStoreIntegrationServiceCore.Repository
             var data = await _responseManager.GetResponse();
             switch (status)
             {
-                case Status.Draft: data.Drafts = plugins;
+                case Status.Draft:
+                    data.Drafts = plugins;
                     break;
-                case Status.InReview: data.Pending= plugins; 
+                case Status.InReview:
+                    data.Pending = plugins;
                     break;
-                case Status.Active: data.Value= plugins; 
+                case Status.Active:
+                    data.Value = plugins;
                     break;
                 default: break;
             }
@@ -117,104 +198,6 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
 
             return plugins;
-        }
-
-        public async Task<PluginDetails> GetPluginById(int id, Status status = Status.All, ClaimsPrincipal user = null)
-        {
-            var plugins = await GetAll(null, user, status);
-            return plugins?.FirstOrDefault(p => p.Id.Equals(id));
-        }
-
-        public async Task RemovePlugin(int id)
-        {
-            var data = await _responseManager.GetResponse();
-            var drafts = data.Drafts;
-            var pending = data.Pending;
-            var plugins = data.Value;
-
-            await SavePlugins(plugins.Where(p => !p.Id.Equals(id)), Status.Active);
-            await SavePlugins(pending.Where(p => !p.Id.Equals(id)), Status.InReview);
-            await SavePlugins(drafts.Where(p => !p.Id.Equals(id)), Status.Draft);
-        }
-
-        public async Task<IEnumerable<PluginDetails>> GetAll(string sortOrder, ClaimsPrincipal user = null, Status status = Status.All)
-        {
-            var data = await _responseManager.GetResponse();
-            var drafts = data.Drafts;
-            var pending = data.Pending;
-            var plugins = data.Value;
-
-            plugins = status switch
-            {
-                Status.Draft => drafts,
-                Status.InReview => pending,
-                Status.Active => plugins,
-                Status.Inactive => plugins,
-                _ => plugins.Concat(pending).Concat(drafts).DistinctBy(p => p.Id)
-            };
-
-            plugins = sortOrder?.Equals("asc", StringComparison.CurrentCultureIgnoreCase) ?? false ? plugins?.OrderByDescending(p => p.Name) : plugins?.OrderBy(p => p.Name);
-
-            if (user?.IsInRole("Developer") ?? false)
-            {
-                return plugins?.Where(p => p.Developer.DeveloperName == user.Identity.Name);
-            }
-
-            if (user?.IsInRole("Administrator") ?? false)
-            {
-                return plugins.SkipWhile(p => p.Status.Equals(Status.Draft) && !p.HasAdminConsent);
-            }
-
-            if (user?.IsInRole("StandardUser") ?? false)
-            {
-                return plugins?.Where(p => p.Status.Equals(Status.Active) || p.Status.Equals(Status.Inactive));
-            }
-
-            return plugins;
-        }
-
-        public async Task<bool> ExitsPlugin(int id)
-        {
-            if (id < 0)
-            {
-                return false;
-            }
-
-            var plugins = await GetAll(null);
-            return plugins.Any(p => p.Id == id);
-        }
-
-        public async Task<bool> HasActiveChanges(int id)
-        {
-            var plugins = await GetAll(null, status: Status.Active);
-            return plugins.Any(p => p.Id == id);
-        }
-
-        public async Task<bool> HasPendingChanges(int id, ClaimsPrincipal user = null)
-        {
-            var plugins = await GetAll(null, status: Status.InReview);
-            if ((user?.IsInRole("Administrator") ?? false) || (user?.IsInRole("Developer") ?? false))
-            {
-                return plugins.Any(p => p.Id == id);
-            }
-
-            return false;
-        }
-
-        public async Task<bool> HasDraftChanges(int id, ClaimsPrincipal user = null)
-        {
-            var drafts = await GetAll(null, status: Status.Draft);
-            if (user?.IsInRole("Administrator") ?? false)
-            {
-                return drafts.Any(p => p.Id == id && p.HasAdminConsent);
-            }
-
-            if (user?.IsInRole("Developer") ?? false)
-            {
-                return drafts.Any(p => p.Id == id);
-            }
-
-            return false;
         }
     }
 }

@@ -70,20 +70,6 @@ namespace AppStoreIntegrationServiceCore.Repository
             await SaveParents(parents.Where(item => item.Id != id));
         }
 
-        private async Task SaveProducts(IEnumerable<ProductDetails> products)
-        {
-            var data = await _responseManager.GetResponse();
-            data.Products = products;
-            await _responseManager.SaveResponse(data);
-        }
-
-        private async Task SaveParents(IEnumerable<ParentProduct> products)
-        {
-            var data = await _responseManager.GetResponse();
-            data.ParentProducts = products;
-            await _responseManager.SaveResponse(data);
-        }
-
         public async Task<IEnumerable<ProductDetails>> GetAllProducts()
         {
             var data = await _responseManager.GetResponse();
@@ -114,6 +100,20 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugins.SelectMany(x => x.Versions
                           .SelectMany(y => y.SupportedProducts))
                           .Any(x => x == id);
+        }
+
+        private async Task SaveProducts(IEnumerable<ProductDetails> products)
+        {
+            var data = await _responseManager.GetResponse();
+            data.Products = products;
+            await _responseManager.SaveResponse(data);
+        }
+
+        private async Task SaveParents(IEnumerable<ParentProduct> products)
+        {
+            var data = await _responseManager.GetResponse();
+            data.ParentProducts = products;
+            await _responseManager.SaveResponse(data);
         }
     }
 }

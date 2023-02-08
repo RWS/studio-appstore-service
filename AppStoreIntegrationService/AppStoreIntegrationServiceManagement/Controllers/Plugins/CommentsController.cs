@@ -6,6 +6,7 @@ using static AppStoreIntegrationServiceCore.Enums;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Identity;
 using AppStoreIntegrationServiceManagement.Model.Identity;
+using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -38,7 +39,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Route("/Plugins/Edit/{pluginId}/Comments")]
         public async Task<IActionResult> Index(int pluginId)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
+            var plugin = await _pluginRepository.GetPluginById(pluginId);
             var comments = await _commentsRepository.GetComments(pluginId);
             var extended = ExtendedPluginDetails.CopyFrom(plugin);
             extended.Comments = comments;
@@ -50,7 +51,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [Route("/Plugins/Edit/{pluginId}/Versions/Edit/{versionId}/Comments")]
         public async Task<IActionResult> VersionComments(int pluginId, string versionId)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, User);
+            var plugin = await _pluginRepository.GetPluginById(pluginId);
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
             var extendedPlugin = ExtendedPluginDetails.CopyFrom(plugin);
             var extendedVersion = ExtendedPluginVersion.CopyFrom(version);
@@ -77,7 +78,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         public async Task<IActionResult> Update(Comment comment, int pluginId, string versionId)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId, user: User);
+            var plugin = await _pluginRepository.GetPluginById(pluginId);
             var (emailNotification, pushNotification) = _notificationCenter.GetNewCommentNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
 
             switch (User.IsInRole("Administrator"))

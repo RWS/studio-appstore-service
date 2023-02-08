@@ -1,10 +1,12 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Security.Claims;
 using System.Text;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
@@ -33,7 +35,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         public async Task<IActionResult> CreateExport()
         {
             var response = await _responseManager.GetResponse();
-            response.Value = await _pluginRepository.GetAll("asc", User);
+            var username = User.Identity.Name;
+            var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
+            response.Value = await _pluginRepository.GetAll("asc", username, userRole);
             var stream = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
             return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
         }

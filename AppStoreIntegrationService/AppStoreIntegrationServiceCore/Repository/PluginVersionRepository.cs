@@ -1,7 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using System;
-using System.Security.Claims;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository
@@ -15,15 +13,15 @@ namespace AppStoreIntegrationServiceCore.Repository
             _pluginRepository = pluginRepository;
         }
 
-        public async Task<PluginVersion> GetPluginVersion(int pluginId, string versionId, ClaimsPrincipal user = null, Status status = Status.All)
+        public async Task<PluginVersion> GetPluginVersion(int pluginId, string versionId, Status status = Status.All)
         {
             var versions = await GetPluginVersions(pluginId, status: status);
             return versions.FirstOrDefault(v => v.VersionId == versionId);
         }
 
-        public async Task<IEnumerable<PluginVersion>> GetPluginVersions(int pluginId, ClaimsPrincipal user = null, Status status = Status.All)
+        public async Task<IEnumerable<PluginVersion>> GetPluginVersions(int pluginId, Status status = Status.All)
         {
-            var plugin = await _pluginRepository.GetPluginById(pluginId, Status.All, user);
+            var plugin = await _pluginRepository.GetPluginById(pluginId);
             return status switch
             {
                 Status.Draft => plugin.Drafts,
@@ -41,34 +39,25 @@ namespace AppStoreIntegrationServiceCore.Repository
             return plugin.Versions.Any(v => v.VersionId == versionId);
         }
 
-        public async Task<bool> HasDraftChanges(int pluginId, string versionId, ClaimsPrincipal user = null)
+        public async Task<bool> HasDraftChanges(int pluginId, string versionId, string userRole = null)
         {
             var plugins = await _pluginRepository.GetAll("asc");
             var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
-            if (user?.IsInRole("Administrator") ?? false)
-            {
-                return plugin.Drafts.Any(v => v.VersionId == versionId && v.HasAdminConsent);
-            }
 
-            if (user?.IsInRole("Developer") ?? false)
+            return userRole switch
             {
-                return plugin.Drafts.Any(v => v.VersionId == versionId);
-            }
-
-            return false;
+                "Administrator" => plugin.Drafts.Any(v => v.VersionId == versionId && v.HasAdminConsent),
+                "Developer" => plugin.Drafts.Any(v => v.VersionId == versionId),
+                _ => false
+            };
         }
 
-        public async Task<bool> HasPendingChanges(int pluginId, string versionId, ClaimsPrincipal user = null)
+        public async Task<bool> HasPendingChanges(int pluginId, string versionId, string userRole = null)
         {
             var plugins = await _pluginRepository.GetAll("asc");
             var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
 
-            if ((user?.IsInRole("Administrator") ?? false) || (user?.IsInRole("Developer") ?? false))
-            {
-                return plugin.Pending.Any(v => v.VersionId == versionId);
-            }
-
-            return false;
+            return userRole != "StandardUser" && plugin.Pending.Any(v => v.VersionId == versionId);
         }
 
         public async Task RemovePluginVersion(int pluginId, string versionId)
