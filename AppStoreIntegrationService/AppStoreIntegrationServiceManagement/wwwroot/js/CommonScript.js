@@ -26,8 +26,6 @@ function EnsurePreserved(callback) {
 }
 
 function RemoveNotification(id) {
-    event.preventDefault();
-
     let request = new XMLHttpRequest();
     let data = new FormData();
     let button = event.currentTarget;
@@ -36,31 +34,49 @@ function RemoveNotification(id) {
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-
-            if (button.href) {
-                window.location.href = button.href;
-            }
-
             button.parentElement.remove();
 
             if (container.childElementCount < 1) {
-                var div = document.createElement('div');
-                var text = document.createElement('p');
-
-                div.style.width = '400px';
-                div.style.height = '100px';
-                div.classList.add('d-flex', 'justify-content-center', 'align-items-center');
-
-                text.innerText = "You have 0 notifications";
-                text.classList.add('m-0');
-                div.append(text);
-                container.append(div);
+                CreateZeroNotificationsMessage(container);
             }
         }
     }
 
     request.open("POST", `/Identity/Notifications/Delete`);
     request.send(data);
+}
+
+function RemoveNotifications() {
+    let request = new XMLHttpRequest();
+    let container = event.currentTarget.parentElement.parentElement;
+    let data = new FormData();
+    data.set("RemoveAll", true);
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            container.innerHTML = "";
+            CreateZeroNotificationsMessage(container);
+        }
+    }
+
+    request.open("POST", `/Identity/Notifications/Delete`);
+    request.send(data);
+}
+
+function CreateZeroNotificationsMessage(container) {
+    var div = document.createElement('div');
+    var text = document.createElement('p');
+
+    div.style.width = '400px';
+    div.style.height = '100px';
+    div.classList.add('d-flex', 'justify-content-center', 'align-items-center');
+
+    text.innerText = "You have 0 notifications";
+    text.classList.add('m-0');
+    div.append(text);
+    container.append(div);
+
+    container.parentElement.querySelector(".fa-exclamation-circle").classList.add("d-none")
 }
 
 function Collapse(element) {

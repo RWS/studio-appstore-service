@@ -4,6 +4,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
 {
     public class IdentityUserExtended : IdentityUser
     {
-        public bool NotificationsEnabled { get; set; }
+        public bool EmailNotificationsEnabled { get; set; }
+        public bool PushNotificationsEnabled { get; set; }
     }
 }

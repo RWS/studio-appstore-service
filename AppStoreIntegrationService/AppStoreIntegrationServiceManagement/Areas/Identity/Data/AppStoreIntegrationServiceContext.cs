@@ -15,6 +15,7 @@ public class AppStoreIntegrationServiceContext : IdentityDbContext<IdentityUserE
         // For example, you can rename the ASP.NET Identity table names and more.
         // Add your customizations after calling base.OnModelCreating(builder);
 
-        builder.Entity<IdentityUserExtended>().Property(e => e.NotificationsEnabled);
+        builder.Entity<IdentityUserExtended>().Property(e => e.EmailNotificationsEnabled);
+        builder.Entity<IdentityUserExtended>().Property(e => e.PushNotificationsEnabled);
     }
 }

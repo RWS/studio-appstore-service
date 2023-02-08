@@ -181,7 +181,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, plugin.Status);
             plugin.Status = Status.Active;
-            string log = $"<b>{User.Identity.Name} </b> changed the status to <i>Active</i> for <b> {plugin.Name} </b> at  {DateTime.Now}";
+            string log = $"<b>{User.Identity.Name}</b> changed the status to <i>Active</i> for <b> {plugin.Name} </b> at {DateTime.Now}";
             return await Save(plugin, oldPlugin, "Edit", log);
         }
 
@@ -355,14 +355,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return filters;
         }
 
-        private string CreateChangesLog(PluginDetails @new, PluginDetails old)
+        private string CreateChangesLog(PluginDetails latest, PluginDetails old)
         {
             var oldToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(old);
-            var newToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(@new);
+            var newToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(latest);
 
             if (oldToBase == null)
             {
-                return $"<b>{User.Identity.Name}</b> added {@new.Name} at {DateTime.Now}<br><br><p>The plugin properties are:</p><ul>{CreateNewLog(newToBase)}</ul>";
+                return $"<b>{User.Identity.Name}</b> added {latest.Name} at {DateTime.Now}<br><br><p>The plugin properties are:</p><ul>{CreateNewLog(newToBase)}</ul>";
             }
 
             if (oldToBase.Equals(newToBase))
@@ -370,7 +370,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 return null;
             }
 
-            return $"<b>{User.Identity.Name}</b> made changes to {@new.Name} at {DateTime.Now}<br><br><p>The following changes occured:</p><ul>{CreateComparisonLog(newToBase, oldToBase)}</ul>";
+            return $"<b>{User.Identity.Name}</b> made changes to {latest.Name} at {DateTime.Now}<br><br><p>The following changes occured:</p><ul>{CreateComparisonLog(newToBase, oldToBase)}</ul>";
         }
 
         private string CreateNewLog(PluginDetailsBase<PluginVersionBase<string>, string> plugin)
@@ -388,19 +388,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                    string.Format(change, "Status", plugin.Status.ToString());
         }
 
-        private string CreateComparisonLog(PluginDetailsBase<PluginVersionBase<string>, string> @new, PluginDetailsBase<PluginVersionBase<string>, string> old)
+        private string CreateComparisonLog(PluginDetailsBase<PluginVersionBase<string>, string> latest, PluginDetailsBase<PluginVersionBase<string>, string> old)
         {
             string change = "<li>The property <b>{0}</b> changed from <i>{1}</i> to <i>{2}</i></li>";
-            return (@new.Name == old.Name ? null : string.Format(change, "Plugin name", @new.Name, old.Name)) +
-                   (@new.Status == old.Status ? null : string.Format(change, "Status", @new.Status, old.Status)) +
-                   (@new.PaidFor == old.PaidFor ? null : string.Format(change, "Pricing", @new.PaidFor, old.PaidFor)) +
-                   (@new.Icon.Equals(old.Icon) ? null : string.Format(change, "Icon URL", @new.Icon.MediaUrl, old.Icon.MediaUrl)) +
-                   (@new.SupportUrl == old.SupportUrl ? null : string.Format(change, "Support URL", @new.SupportUrl, old.SupportUrl)) +
-                   (@new.Description == old.Description ? null : string.Format(change, "Description", @new.Description, old.Description)) +
-                   (@new.SupportEmail == old.SupportEmail ? null : string.Format(change, "Support e-mail", @new.SupportEmail, old.SupportEmail)) +
-                   (@new.ChangelogLink == old.ChangelogLink ? null : string.Format(change, "Changelog link", @new.ChangelogLink, old.ChangelogLink)) +
-                   (@new.Developer.Equals(old.Developer) ? null : string.Format(change, "Developer", @new.Developer.DeveloperName, old.Developer.DeveloperName)) +
-                   (@new.Categories.SequenceEqual(old.Categories) ? null : string.Format(change, "Categories", CreateCategoriesLog(@new.Categories), CreateCategoriesLog(@old.Categories)));
+            return (latest.Name == old.Name ? null : string.Format(change, "Plugin name", latest.Name, old.Name)) +
+                   (latest.Status == old.Status ? null : string.Format(change, "Status", latest.Status, old.Status)) +
+                   (latest.PaidFor == old.PaidFor ? null : string.Format(change, "Pricing", latest.PaidFor, old.PaidFor)) +
+                   (latest.Icon.Equals(old.Icon) ? null : string.Format(change, "Icon URL", latest.Icon.MediaUrl, old.Icon.MediaUrl)) +
+                   (latest.SupportUrl == old.SupportUrl ? null : string.Format(change, "Support URL", latest.SupportUrl, old.SupportUrl)) +
+                   (latest.Description == old.Description ? null : string.Format(change, "Description", latest.Description, old.Description)) +
+                   (latest.SupportEmail == old.SupportEmail ? null : string.Format(change, "Support e-mail", latest.SupportEmail, old.SupportEmail)) +
+                   (latest.ChangelogLink == old.ChangelogLink ? null : string.Format(change, "Changelog link", latest.ChangelogLink, old.ChangelogLink)) +
+                   (latest.Developer.Equals(old.Developer) ? null : string.Format(change, "Developer", latest.Developer.DeveloperName, old.Developer.DeveloperName)) +
+                   (latest.Categories.SequenceEqual(old.Categories) ? null : string.Format(change, "Categories", CreateCategoriesLog(latest.Categories), CreateCategoriesLog(@old.Categories)));
         }
 
         private string CreateCategoriesLog(List<string> categories)

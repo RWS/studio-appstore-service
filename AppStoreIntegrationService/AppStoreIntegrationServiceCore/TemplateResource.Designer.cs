@@ -22,14 +22,14 @@ namespace AppStoreIntegrationServiceCore {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class ServiceResource {
+    public class TemplateResource {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ServiceResource() {
+        internal TemplateResource() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace AppStoreIntegrationServiceCore {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AppStoreIntegrationServiceCore.ServiceResource", typeof(ServiceResource).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AppStoreIntegrationServiceCore.TemplateResource", typeof(TemplateResource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,57 +61,38 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_BLOBNAME.
+        ///   Looks up a localized string similar to &lt;body style=&quot;border: 1px solid lightgray; padding:20px; width: 500px&quot;&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;{0}&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;{1}&quot; width=&quot;250&quot;&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;br&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;{2}&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;a href=&quot;{3}&quot;&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        ///&lt;/body&gt;.
         /// </summary>
-        public static string BlobName {
+        public static string EmailNotificationTemplate {
             get {
-                return ResourceManager.GetString("BlobName", resourceCulture);
+                return ResourceManager.GetString("EmailNotificationTemplate", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
+        ///   Looks up a localized string similar to &lt;div class=&quot;d-flex p-3 border-bottom&quot; style=&quot;width:400px;&quot;&gt;
+        ///&lt;div class=&quot;d-flex flex-column pe-3 border-end&quot;&gt;
+        ///&lt;img src=&quot;{1}&quot; width=&quot;50&quot;&gt;
+        ///&lt;p class=&quot;m-0 text-center fw-bold&quot; style=&quot;font-size:10px;&quot;&gt;{2}&lt;/p&gt;
+        ///&lt;/div&gt;
+        ///&lt;div class=&quot;w-100 ps-3&quot;&gt;
+        ///&lt;p class=&quot;m-0&quot;&gt;{0}&lt;/p&gt;
+        ///&lt;a class=&quot;text-decoration-none&quot; href=&quot;{3}&quot;&gt;View&lt;/a&gt;
+        ///&lt;p class=&quot;m-0 text-end&quot; style=&quot;font-size:12px;&quot;&gt;{4}&lt;/p&gt;
+        ///&lt;/div&gt;
+        ///&lt;/div&gt;.
         /// </summary>
-        public static byte[] FontNames {
+        public static string PushNotificationTemplate {
             get {
-                object obj = ResourceManager.GetObject("FontNames", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_LOCAL_FOLDERPATH.
-        /// </summary>
-        public static string LocalFolderPath {
-            get {
-                return ResourceManager.GetString("LocalFolderPath", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_PLUGINSFILENAME.
-        /// </summary>
-        public static string PluginsFileName {
-            get {
-                return ResourceManager.GetString("PluginsFileName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_SETTINGSFILENAME.
-        /// </summary>
-        public static string SettingsFileName {
-            get {
-                return ResourceManager.GetString("SettingsFileName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_STORAGE_ACCOUNTNAME.
-        /// </summary>
-        public static string StorageAccountName {
-            get {
-                return ResourceManager.GetString("StorageAccountName", resourceCulture);
+                return ResourceManager.GetString("PushNotificationTemplate", resourceCulture);
             }
         }
     }

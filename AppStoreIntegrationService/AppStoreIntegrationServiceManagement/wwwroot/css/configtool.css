@@ -177,9 +177,9 @@ body, html {
     width: max-content;
 }
 
-    .delete-filter:hover {
-        background: var(--pa-admin-color-hover);
-    }
+.delete-filter:hover {
+    background: var(--pa-admin-color-hover);
+}
 
 .delete-filter-active {
     display: inline-block;
@@ -275,6 +275,11 @@ table {
     right: -17px;
 }
 
+.fa-times{
+    top: -12px;
+    right: -10px;
+}
+
 .active-tab {
     border: 1px solid var(--pa-admin-color) !important;
     border-bottom: 0;
@@ -297,13 +302,13 @@ table {
     font-size: var(--pa-admin-danger-fontsize)
 }
 
-    .btn-danger:hover {
-        background-color: var(--pa-admin-danger-color-hover);
-        border-color: var(--pa-admin-danger-color-hover);
-        color: var(--pa-admin-danger-foreground);
-        font-family: var(--pa-admin-danger-fontfamily);
-        font-size: var(--pa-admin-danger-fontsize)
-    }
+.btn-danger:hover {
+    background-color: var(--pa-admin-danger-color-hover);
+    border-color: var(--pa-admin-danger-color-hover);
+    color: var(--pa-admin-danger-foreground);
+    font-family: var(--pa-admin-danger-fontfamily);
+    font-size: var(--pa-admin-danger-fontsize)
+}
 
 .fa-pen-alt {
     color: var(--pa-admin-secondary-color);
@@ -318,13 +323,13 @@ table {
     font-size: var(--pa-admin-secondary-fontsize)
 }
 
-    .btn-secondary:hover {
-        background-color: var(--pa-admin-secondary-color-hover);
-        border: var(--pa-admin-secondary-color-hover);
-        color: var(--pa-admin-secondary-foreground);
-        font-family: var(--pa-admin-secondary-fontfamily);
-        font-size: var(--pa-admin-secondary-fontsize)
-    }
+.btn-secondary:hover {
+    background-color: var(--pa-admin-secondary-color-hover);
+    border: var(--pa-admin-secondary-color-hover);
+    color: var(--pa-admin-secondary-foreground);
+    font-family: var(--pa-admin-secondary-fontfamily);
+    font-size: var(--pa-admin-secondary-fontsize)
+}
 
 input[type="text"] {
     color: var(--pa-admin-input-foreground) !important;
@@ -358,10 +363,10 @@ input[type="checkbox"]:checked {
     font-size: var(--pa-admin-success-fontsize)
 }
 
-    .success-icon:hover {
-        color: var(--pa-admin-success-color-hover);
-        font-size: var(--pa-admin-success-fontsize)
-    }
+.success-icon:hover {
+    color: var(--pa-admin-success-color-hover);
+    font-size: var(--pa-admin-success-fontsize)
+}
 
 .focus-transparent:focus {
     background-color: transparent;
@@ -407,13 +412,13 @@ input[type="checkbox"]:checked {
     font-size: var(--pa-admin-success-fontsize)
 }
 
-    .pa-admin-success-btn:hover {
-        background-color: var(--pa-admin-success-color-hover);
-        border: 1px solid var(--pa-admin-success-color-hover);
-        color: var(--pa-admin-success-foreground);
-        font-family: var(--pa-admin-success-fontfamily);
-        font-size: var(--pa-admin-success-fontsize)
-    }
+.pa-admin-success-btn:hover {
+    background-color: var(--pa-admin-success-color-hover);
+    border: 1px solid var(--pa-admin-success-color-hover);
+    color: var(--pa-admin-success-foreground);
+    font-family: var(--pa-admin-success-fontfamily);
+    font-size: var(--pa-admin-success-fontsize)
+}
 
 .pa-admin-outline-success-btn {
     border: 1px solid var(--pa-admin-success-color);
@@ -423,13 +428,13 @@ input[type="checkbox"]:checked {
     font-size: var(--pa-admin-success-fontsize)
 }
 
-    .pa-admin-outline-success-btn:hover {
-        background-color: var(--pa-admin-success-color);
-        border: 1px solid var(--pa-admin-success-color);
-        color: var(--pa-admin-success-foreground);
-        font-family: var(--pa-admin-success-fontfamily);
-        font-size: var(--pa-admin-success-fontsize)
-    }
+.pa-admin-outline-success-btn:hover {
+    background-color: var(--pa-admin-success-color);
+    border: 1px solid var(--pa-admin-success-color);
+    color: var(--pa-admin-success-foreground);
+    font-family: var(--pa-admin-success-fontfamily);
+    font-size: var(--pa-admin-success-fontsize)
+}
 
 #settings-navbar .nav-link.active,
 #profile-navbar .nav-link.active,

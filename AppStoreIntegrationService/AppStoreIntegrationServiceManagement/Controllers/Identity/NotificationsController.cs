@@ -23,25 +23,23 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
-            return View("Notifications", new NotificationsModel
-            {
-                EmailNotificationsEnabled = user.NotificationsEnabled
-            });
+            return View("Notifications", (user.EmailNotificationsEnabled, user.PushNotificationsEnabled));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(NotificationsModel notifications)
+        public async Task<IActionResult> Update(bool emailNotificationsEnabled, bool pushNotificationsEnabled)
         {
             var user = await _userManager.GetUserAsync(User);
-            user.NotificationsEnabled = notifications.EmailNotificationsEnabled;
+            user.EmailNotificationsEnabled = emailNotificationsEnabled;
+            user.PushNotificationsEnabled = pushNotificationsEnabled;
             await _userManager.UpdateAsync(user);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, bool removeAll = false)
         {
-            await _notificationCenter.DeleteNotification(User.Identity.Name, id);
+            await _notificationCenter.DeleteNotification(User.Identity.Name, id, removeAll);
             return new EmptyResult();
         }
     }

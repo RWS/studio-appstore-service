@@ -20,6 +20,8 @@
 function SwitchNotifications() {
     var data = new FormData(document.getElementById("form"))
     let request = new XMLHttpRequest();
+    data.set("EmailNotificationsEnabled", data.get("Item1"))
+    data.set("PushNotificationsEnabled", data.get("Item2"))
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {

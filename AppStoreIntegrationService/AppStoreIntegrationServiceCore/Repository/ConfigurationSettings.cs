@@ -80,11 +80,9 @@ namespace AppStoreIntegrationServiceCore.Repository
         public void LoadVariables()
         {
             StorageAccountName = GetVariable(ServiceResource.StorageAccountName);
-            StorageAccountKey = GetVariable(ServiceResource.StorageAccountKey);
             BlobName = GetVariable(ServiceResource.BlobName);
             LocalFolderPath = GetVariable(ServiceResource.LocalFolderPath);
             PluginsFileName = GetVariable(ServiceResource.PluginsFileName);
-            InstrumentationKey = GetVariable(ServiceResource.TelemetryInstrumentationKey);
             SettingsFileName = GetVariable(ServiceResource.SettingsFileName);
         }
 

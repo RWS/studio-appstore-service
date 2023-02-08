@@ -40,7 +40,10 @@
         </li>
         <li class="nav-item d-flex align-items-center">
             <div class="btn-group dropstart">
-                <i class="fa fa-bell text-white" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside"></i>
+                <div class="position-relative" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <i class="fa fa-bell text-white"></i>
+                    <i class="fa fa-exclamation-circle text-danger @(notifications.Any() ? null : "d-none")"></i>
+                </div>
                 <div class="dropdown-menu p-0">
                     @if (notifications.Any())
                     {
@@ -48,9 +51,13 @@
                         {
                             <div class="position-relative" contenteditable="false" spellcheck="false">
                                 @Html.Raw(notification.Content)
-                                <i class="fa fa-times position-absolute p-3 text-secondary" style="top: -5px; right:-5px;" onclick="RemoveNotification('@notification.Id')"></i>
+                                <i class="fa fa-times position-absolute p-3 text-secondary cursor-pointer" onclick="RemoveNotification('@notification.Id')"></i>
                             </div>
                         }
+
+                        <div class="d-flex justify-content-center">
+                            <a class="text-decoration-none" href="#" onclick="RemoveNotifications()">Clear all</a>
+                        </div>
                     }
                     else
                     {
