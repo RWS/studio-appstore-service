@@ -62,12 +62,12 @@ namespace AppStoreIntegrationServiceCore.Repository
                 _ => plugins.Concat(pending).Concat(drafts).DistinctBy(p => p.Id)
             };
 
-            plugins = sortOrder?.Equals("asc", StringComparison.CurrentCultureIgnoreCase) ?? false ? plugins?.OrderByDescending(p => p.Name) : plugins?.OrderBy(p => p.Name);
+            plugins = sortOrder?.Equals("asc", StringComparison.CurrentCultureIgnoreCase) ?? false ? plugins?.OrderBy(p => p.Name) : plugins?.OrderByDescending(p => p.Name);
 
             return userRole switch
             {
                 "Developer" => plugins?.Where(p => p.Developer.DeveloperName == username),
-                "Administrator" => plugins.SkipWhile(p => p.Status == Status.Draft && !p.HasAdminConsent),
+                "Administrator" => plugins?.Where(p => p.Status != Status.Draft || p.HasAdminConsent),
                 "StandardUser" => plugins?.Where(p => p.Status == Status.Active || p.Status == Status.Inactive),
                 _ => plugins
             };

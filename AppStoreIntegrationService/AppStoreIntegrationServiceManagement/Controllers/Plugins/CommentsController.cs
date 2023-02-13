@@ -79,20 +79,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Update(Comment comment, int pluginId, string versionId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var (emailNotification, pushNotification) = _notificationCenter.GetNewCommentNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
+            var template = versionId == null ? NotificationTemplate.NewPluginComment : NotificationTemplate.NewVersionComment;
+            var emailNotification = _notificationCenter.GetNotification(template, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
+            var pushNotification = _notificationCenter.GetNotification(template, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
+            var developerEmail = await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName);
 
-            switch (User.IsInRole("Administrator"))
-            {
-                case true:
-                    await _notificationCenter.SendEmail(emailNotification, "New plugin comment", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-                    await _notificationCenter.Push(pushNotification, User.Identity.Name);
-                    break;
-                default:
-                    await _notificationCenter.Broadcast(emailNotification, "New plugin comment");
-                    await _notificationCenter.Push(pushNotification);
-                    break;
-            }
-
+            await _notificationCenter.SendEmail(emailNotification, developerEmail);
+            await _notificationCenter.Push(pushNotification, developerEmail);
+            await _notificationCenter.Broadcast(emailNotification);
+            await _notificationCenter.Push(pushNotification);
             await _commentsRepository.SaveComment(comment, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was updated!";
             return Content(null);

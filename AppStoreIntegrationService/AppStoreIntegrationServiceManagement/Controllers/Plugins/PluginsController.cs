@@ -1,4 +1,5 @@
-﻿using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceCore;
+using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
@@ -128,19 +129,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var username = User.Identity.Name;
             var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
             var plugin = await _pluginRepository.GetPluginById(id, username, userRole);
-            if (plugin.IsActive)
+            var log = string.Format(TemplateResource.DeletionRequestLog, User.Identity.Name, plugin.Name, DateTime.Now);
+
+            if (!plugin.IsActive)
             {
-                var (emailNotification, pushNotification) = _notificationCenter.GetDeletionRequestNotification(plugin.Icon.MediaUrl, plugin.Name);
-                plugin.NeedsDeletionApproval = true;
-                await _notificationCenter.Broadcast(emailNotification, "New deletion request");
-                await _notificationCenter.Push(pushNotification, User.Identity.Name);
-                await _pluginRepository.SavePlugin(plugin);
-                await _loggingRepository.Log(User.Identity.Name, id, $"<b>{User.Identity.Name}</b> requested deletion for <b>{plugin.Name}</b> at {DateTime.Now}");
-                TempData["StatusMessage"] = "Success! Plugin deletion request was sent!";
-                return Content(null);
+                return await Delete(id);
             }
 
-            return await Delete(id);
+            plugin.NeedsDeletionApproval = true;
+            await _pluginRepository.SavePlugin(plugin);
+            await _loggingRepository.Log(User.Identity.Name, id, log);
+            await Notify(NotificationTemplate.PluginDeletionRequest, plugin);
+            TempData["StatusMessage"] = "Success! Plugin deletion request was sent!";
+            return new EmptyResult();
         }
 
         [HttpPost]
@@ -148,10 +149,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> AcceptDeletion(int id)
         {
             var plugin = await _pluginRepository.GetPluginById(id);
-            var (emailNotification, pushNotification) = _notificationCenter.GetDeletionApprovedNotification(plugin.Icon.MediaUrl, plugin.Name);
-            await _notificationCenter.SendEmail(emailNotification, "Deletion request approved", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
-            await _loggingRepository.Log(User.Identity.Name, id, $"<b>{User.Identity.Name}</b> accepted deletion for <b>{plugin.Name}</b> at {DateTime.Now}");
+            var log = string.Format(TemplateResource.DeletionAcceptedLog, User.Identity.Name, plugin.Name, DateTime.Now);
+            await Notify(NotificationTemplate.PluginDeletionApproved, plugin);
+            await _loggingRepository.Log(User.Identity.Name, id, log);
             return await Delete(id);
         }
 
@@ -160,14 +160,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> RejectDeletion(int id)
         {
             var plugin = await _pluginRepository.GetPluginById(id);
-            var (emailNotification, pushNotification) = _notificationCenter.GetDeletionRejectedNotification(plugin.Icon.MediaUrl, plugin.Name);
+            var log = string.Format(TemplateResource.DeletionRejectedLog, User.Identity.Name, plugin.Name, DateTime.Now);
             plugin.NeedsDeletionApproval = false;
-            await _notificationCenter.SendEmail(emailNotification, "Deletion request rejected", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
             await _pluginRepository.SavePlugin(plugin);
-            await _loggingRepository.Log(User.Identity.Name, id, $"<b>{User.Identity.Name}</b> rejected deletion for <b>{plugin.Name}</b> at {DateTime.Now}");
+            await _loggingRepository.Log(User.Identity.Name, id, log);
+            await Notify(NotificationTemplate.PluginDeletionRejected, plugin);
             TempData["StatusMessage"] = "Success! Plugin deletion request was rejected!";
-            return Content(null);
+            return new EmptyResult();
         }
 
         [HttpPost]
@@ -176,11 +175,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var username = User.Identity.Name;
             var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
             var plugin = await _pluginRepository.GetPluginById(id, username: username, userRole: userRole);
+            var log = string.Format(TemplateResource.PluginRemovedLog, User.Identity.Name, plugin.Name, DateTime.Now);
             await _pluginRepository.RemovePlugin(id);
             await _commentsRepository.DeleteComments(id);
-            await _loggingRepository.Log(User.Identity.Name, id, $"<b>{User.Identity.Name}</b> removed <b>{plugin.Name}</b> at {DateTime.Now}");
+            await _loggingRepository.Log(User.Identity.Name, id, log);
             TempData["StatusMessage"] = "Success! Plugin was removed!";
-            return Content(null);
+            return new EmptyResult();
         }
 
         [HttpPost]
@@ -188,8 +188,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Activate(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
-            plugin.Status = Status.Active;
-            string log = $"<b>{User.Identity.Name}</b> changed the status to <i>Active</i> for <b> {plugin.Name} </b> at {DateTime.Now}";
+            string log = string.Format(TemplateResource.PluginActiveLog, User.Identity.Name, plugin.Name, DateTime.Now);
+            plugin.Status = Status.Active;          
             return await Save(plugin, oldPlugin, "Edit", log);
         }
 
@@ -198,8 +198,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Deactivate(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
+            string log = string.Format(TemplateResource.PluginInactiveLog, User.Identity.Name, plugin.Name, DateTime.Now);
             plugin.Status = Status.Inactive;
-            string log = $"<b>{User.Identity.Name}</b> changed the status to <i>Inactive</i> for <b>{plugin.Name}</b> at {DateTime.Now}";
             return await Save(plugin, oldPlugin, "Edit", log);
         }
 
@@ -208,11 +208,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Submit(PluginDetails plugin, bool removeOtherVersions)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
-            var (emailNotification, pushNotification) = _notificationCenter.GetReviewRequestNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
             plugin.Status = Status.InReview;
             plugin.HasAdminConsent = true;
-            await _notificationCenter.Broadcast(emailNotification, "New plugin sent to review");
-            await _notificationCenter.Push(pushNotification);
+            await Notify(NotificationTemplate.PluginReviewRequest, plugin);
             return await Save(plugin, oldPlugin, "Pending", CreateChangesLog(plugin, oldPlugin), removeOtherVersions, true);
         }
 
@@ -221,12 +219,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Approve(PluginDetails plugin, bool removeOtherVersions = false)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
-            var (emailNotification, pushNotification) = _notificationCenter.GetApprovedNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
+            var log = string.Format(TemplateResource.ApprovedPluginLog, User.Identity.Name, plugin.Name, DateTime.Now);
             plugin.Status = Status.Active;
             plugin.IsActive = true;
-            await _notificationCenter.SendEmail(emailNotification, "Your plugin was approved", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
-            string log = $"<b>{User.Identity.Name}</b> accepted the changes for <b>{plugin.Name}</b> at {DateTime.Now}";
+            await Notify(NotificationTemplate.PluginApprovedRequest, plugin);
             return await Save(plugin, oldPlugin, "Edit", log, removeOtherVersions, true);
         }
 
@@ -235,12 +231,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Reject(PluginDetails plugin, bool removeOtherVersions = false)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
-            var (emailNotification, pushNotification) = _notificationCenter.GetRejectedNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
+            string log = string.Format(TemplateResource.RejectedPluginLog, User.Identity.Name, plugin.Name, DateTime.Now);
             plugin.Status = Status.Draft;
             plugin.HasAdminConsent = true;
-            await _notificationCenter.SendEmail(emailNotification, "Your plugin was rejected", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
-            string log = $"<b>{User.Identity.Name}</b> rejected the changes for <b>{plugin.Name}</b> at {DateTime.Now}";
+            await Notify(NotificationTemplate.PluginRejectedRequest, plugin);
             return await Save(plugin, oldPlugin, "Draft", log, removeOtherVersions);
         }
 
@@ -259,6 +253,16 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: Status.Active);
             return await Save(plugin, oldPlugin, "Edit", CreateChangesLog(plugin, oldPlugin), compareWithManifest: true);
+        }
+
+        private async Task Notify(NotificationTemplate notificationTemplate, PluginDetails plugin)
+        {
+            var emailNotification = _notificationCenter.GetNotification(notificationTemplate, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
+            var pushNotification = _notificationCenter.GetNotification(notificationTemplate, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
+            await _notificationCenter.SendEmail(emailNotification, await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
+            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
+            await _notificationCenter.Broadcast(emailNotification);
+            await _notificationCenter.Push(pushNotification);
         }
 
         private async Task<string> GetCurrentPluginUserEmail(string username)
@@ -373,7 +377,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             if (oldToBase == null)
             {
-                return $"<b>{User.Identity.Name}</b> added {latest.Name} at {DateTime.Now}<br><br><p>The plugin properties are:</p><ul>{CreateNewLog(newToBase)}</ul>";
+                return string.Format(TemplateResource.NewPluginLog, User.Identity.Name, latest.Name, DateTime.Now, CreateNewLog(newToBase));
             }
 
             if (oldToBase.Equals(newToBase))
@@ -381,7 +385,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 return null;
             }
 
-            return $"<b>{User.Identity.Name}</b> made changes to {latest.Name} at {DateTime.Now}<br><br><p>The following changes occured:</p><ul>{CreateComparisonLog(newToBase, oldToBase)}</ul>";
+            return string.Format(TemplateResource.PluginUpdateLog, User.Identity.Name, latest.Name, DateTime.Now, CreateComparisonLog(newToBase, oldToBase));
         }
 
         private string CreateNewLog(PluginDetailsBase<PluginVersionBase<string>, string> plugin)

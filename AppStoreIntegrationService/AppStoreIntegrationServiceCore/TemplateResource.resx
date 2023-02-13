@@ -117,27 +117,393 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EmailNotificationTemplate" xml:space="preserve">
+  <data name="ApprovedPluginLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; accepted the changes for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="ApprovedVersionLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; approved the changes for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="DeletionAcceptedLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; accepted deletion for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="DeletionRejectedLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; rejected deletion for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="DeletionRequestLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; requested deletion for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="NewPluginCommentEmailNotification" xml:space="preserve">
     <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;{0}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;New&lt;/b&gt;There is a new comment for a plugin!&lt;/div&gt;
 &lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;img src="{1}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
 &lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;{2}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
 &lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;a href="{3}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Edit/{3}/Comments"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
 &lt;/body&gt;</value>
   </data>
-  <data name="PushNotificationTemplate" xml:space="preserve">
-    <value>&lt;div class="d-flex p-3 border-bottom" style="width:400px;"&gt;
+  <data name="NewPluginCommentPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
 &lt;div class="d-flex flex-column pe-3 border-end"&gt;
-&lt;img src="{1}" width="50"&gt;
-&lt;p class="m-0 text-center fw-bold" style="font-size:10px;"&gt;{2}&lt;/p&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="w-100 ps-3"&gt;
-&lt;p class="m-0"&gt;{0}&lt;/p&gt;
-&lt;a class="text-decoration-none" href="{3}"&gt;View&lt;/a&gt;
-&lt;p class="m-0 text-end" style="font-size:12px;"&gt;{4}&lt;/p&gt;
+&lt;p class="m-0"&gt;There is a new comment for a plugin!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Edit/{3}/Comments"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="NewPluginLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; added {1} at {2}&lt;br&gt;&lt;br&gt;&lt;p&gt;The plugin properties are:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;</value>
+  </data>
+  <data name="NewVersionCommentEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;There is a new comment for a plugin version!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Edit/{3}/Versions/Edit/{4}/Comments"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="NewVersionCommentPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;There is a new comment for a plugin version!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Edit/{3}/Versions/Edit/{4}/Comments"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{5}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="PluginActiveLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; changed the status to &lt;i&gt;Active&lt;/i&gt; for &lt;b&gt; {1} &lt;/b&gt; at {2}</value>
+  </data>
+  <data name="PluginApprovedRequestEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;A new plugin was approved!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Edit/{3}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="PluginApprovedRequestPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;A new plugin was approved!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Edit/{3}"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="PluginDeletionApprovedEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;A plugin deletion request was approved!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins?Query={3}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="PluginDeletionApprovedPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;A plugin deletion request was approved!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins?Query={3}"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="PluginDeletionRejectedEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;A plugin deletion request was rejected!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins?Query={3}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="PluginDeletionRejectedPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;A plugin deletion request was rejected!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins?Query={3}"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="PluginDeletionRequestEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;A new plugin deletion request is awaiting approval!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins?Query={3}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="PluginDeletionRequestPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;A new plugin deletion request is awaiting approval!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins?Query={3}"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="PluginInactiveLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; changed the status to &lt;i&gt;Inactive&lt;/i&gt; for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="PluginRejectedRequestEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;New&lt;/b&gt;Plugin submition rejected!&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Draft/{3}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="PluginRejectedRequestPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;Plugin submition rejected!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Draft/{3}"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="PluginRemovedLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; removed &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="PluginReviewRequestEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;There is a new plugin awaiting approval!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Pending/{3}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="PluginReviewRequestPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;There is a new plugin awaiting approval!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Pending/{3}"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="PluginUpdateLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; made changes to {1} at {2}&lt;br&gt;&lt;br&gt;&lt;p&gt;The following changes occured:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;</value>
+  </data>
+  <data name="RejectedPluginLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; rejected the changes for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="RejectedVersionLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; rejected the changes for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="VersionActiveLog" xml:space="preserve">
+    <value>&lt;b&gt;{0} &lt;/b&gt; changed the status to &lt;i&gt;Active&lt;/i&gt; for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="VersionApprovedRequestEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;A new plugin version was approved!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Edit/{3}/Versions/Edit/{4}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="VersionApprovedRequestPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;A new plugin version was approved!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Edit/{3}/Versions/Edit/{4}"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{5}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="VersionDeletionAcceptedLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; accepted the deletion request for version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="VersionDeletionApprovedEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;A plugin version deletion request was approved!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Edit/{3}/Versions"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="VersionDeletionApprovedPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;A plugin version deletion request was approved!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Edit/{3}/Versions"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="VersionDeletionRejectedEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;A plugin version deletion request was rejected!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Edit/{3}/Versions"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="VersionDeletionRejectedLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; rejected the deletion request for version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="VersionDeletionRejectedPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;A plugin version deletion request was rejected!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Edit/{3}/Versions"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="VersionDeletionRequestEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;A new plugin version deletion request is awaiting approval!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Edit/{3}/Versions"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="VersionDeletionRequestLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; sent a deletion request for version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="VersionDeletionRequestPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;A new plugin version deletion request is awaiting approval!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Edit/{3}/Versions"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{4}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="VersionInactiveLog" xml:space="preserve">
+    <value>&lt;b&gt;{0} &lt;/b&gt; changed the status to &lt;i&gt;Inactive&lt;/i&gt; for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="VersionRejectedRequestEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;Plugin version rejected!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Edit/{3}/Versions/Draft/{4}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="VersionRejectedRequestPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;Plugin version rejected!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Edit/{3}/Versions/Draft/{4}"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{5}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+  </data>
+  <data name="VersionRemovedLog" xml:space="preserve">
+    <value>&lt;b&gt;{0}&lt;/b&gt; removed the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  </data>
+  <data name="VersionReviewRequestEmailNotification" xml:space="preserve">
+    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;There is a new plugin version awaiting approval!&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;img src="{0}" width="250"&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;a href="https://{2}/Plugins/Edit/{3}/Versions/Pending/{4}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+&lt;/body&gt;</value>
+  </data>
+  <data name="VersionReviewRequestPushNotification" xml:space="preserve">
+    <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
+&lt;div class="d-flex flex-column pe-3 border-end"&gt;
+&lt;img src="{0}" width="50" /&gt;
+&lt;p class="m-0 text-center fw-bold" style="font-size: 10px;"&gt;{1}&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="w-100 ps-3"&gt;
+&lt;p class="m-0"&gt;There is a new plugin version awaiting approval!&lt;/p&gt;
+&lt;a class="text-decoration-none" href="https://{2}/Plugins/Edit/{3}/Versions/Pending/{4}"&gt;View&lt;/a&gt;
+&lt;p class="m-0 text-end" style="font-size: 12px;"&gt;{5}&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;</value>
   </data>

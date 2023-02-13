@@ -1,38 +1,83 @@
-﻿using AppStoreIntegrationServiceCore;
-using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Identity;
+using System.Resources;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using System.Reflection;
+using System.Net.Mail;
+using System;
+using AppStoreIntegrationServiceCore;
 
 namespace AppStoreIntegrationServiceManagement.Model.Plugins
 {
+    public enum NotificationTemplate
+    {
+        PluginDeletionRequest = 0,
+        VersionDeletionRequest,
+        PluginDeletionApproved,
+        VersionDeletionApproved,
+        PluginDeletionRejected,
+        VersionDeletionRejected,
+        PluginReviewRequest,
+        VersionReviewRequest,
+        PluginApprovedRequest,
+        VersionApprovedRequest,
+        PluginRejectedRequest,
+        VersionRejectedRequest,
+        NewPluginComment,
+        NewVersionComment
+    }
+
     public class NotificationCenter
     {
         private readonly UserManager<IdentityUserExtended> _userManager;
         private readonly IConfiguration _configuration;
         private readonly INotificationsManager _notificationsManager;
+        private readonly IWebHostEnvironment _environment;
         private readonly string _host;
-        private readonly string _scheme;
 
         public NotificationCenter
         (
             IHttpContextAccessor context,
             UserManager<IdentityUserExtended> userManager,
             IConfiguration configuration,
-            INotificationsManager notificationsManager
+            INotificationsManager notificationsManager,
+            IWebHostEnvironment environment
         )
         {
             _userManager = userManager;
             _configuration = configuration;
             _notificationsManager = notificationsManager;
+            _environment = environment;
             _host = context.HttpContext.Request.Host.Value;
-            _scheme = context.HttpContext.Request.Scheme;
         }
 
-        public async Task SendEmail(string message, string subject, string emailAddress)
+        public async Task SendEmail(string message, string emailAddress)
         {
+            try
+            {
+                var mail = new MailMessage
+                {
+                    From = new MailAddress("noreply@sdl.com"),
+                    Subject = "RWS Plugin update",
+                    Body = message,
+                    IsBodyHtml = true
+                };
+
+                mail.To.Add(emailAddress);
+                var smtp = new SmtpClient
+                {
+                    Host = "mailuk.sdl.corp"
+                };
+
+                smtp.Send(mail);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
             //try
             //{
             //    var client = new SendGridClient(_configuration.GetSection("SendGridApiKey").Value);
@@ -45,8 +90,38 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
             //}
         }
 
-        public async Task Broadcast(string message, string subject)
+        public async Task Broadcast(string message)
         {
+            try
+            {
+                var mail = new MailMessage
+                {
+                    From = new MailAddress("noreply@sdl.com"),
+                    Subject = "RWS Plugin update",
+                    Body = message,
+                    IsBodyHtml = true
+                };
+
+                foreach (var user in _userManager.Users)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (user.EmailNotificationsEnabled && roles[0] == "Administrator")
+                    {
+                        mail.To.Add(user.Email);
+                    }
+                }
+
+                var smtp = new SmtpClient
+                {
+                    Host = "mailuk.sdl.corp"
+                };
+
+                smtp.Send(mail);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
             //try
             //{
             //    var client = new SendGridClient(_configuration.GetSection("SendGridApiKey").Value);
@@ -69,22 +144,22 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
         public async Task Push(string message, string username = null)
         {
             var notifications = await GetAllNotifications();
-
             if (username == null)
             {
-                foreach (var user in _userManager.Users)
+                foreach (var identityUser in _userManager.Users)
                 {
-                    var roles = await _userManager.GetRolesAsync(user);
-                    if (user.PushNotificationsEnabled && roles[0] == "Administrator")
+                    var roles = await _userManager.GetRolesAsync(identityUser);
+                    if (identityUser.PushNotificationsEnabled && roles[0] == "Administrator")
                     {
-                        Push(notifications, message, user.UserName);
+                        Push(notifications, message, identityUser.UserName);
                     }
                 }
 
                 return;
             }
 
-            if (!(await _userManager.FindByNameAsync(username)).PushNotificationsEnabled)
+            var user = await _userManager.FindByNameAsync(username);
+            if (!user.PushNotificationsEnabled)
             {
                 return;
             }
@@ -117,88 +192,30 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
             await _notificationsManager.SaveNotifications(notifications);
         }
 
-        public (string, string) GetDeletionRequestNotification(string icon, string pluginName, int? id = null)
+        public string GetNotification(NotificationTemplate notificationTemplate, bool isEmailNotification, string icon, string pluginName, int pluginId, string versionId = null)
         {
-            if (id == null)
+            var resourceManager = new ResourceManager("AppStoreIntegrationServiceCore.TemplateResource", typeof(TemplateResource).Assembly);
+            var notificationType = isEmailNotification ? "Email" : "Push";
+            var notification = resourceManager.GetString($"{notificationTemplate}{notificationType}Notification");
+
+            return notificationTemplate switch
             {
-                return (string.Format(TemplateResource.EmailNotificationTemplate, "There is a new deletion request for a plugin!", icon, pluginName, $"{_scheme}://{_host}/Plugins?Query={pluginName}"),
-                        string.Format(TemplateResource.PushNotificationTemplate, "There is a new deletion request for a plugin!", icon, pluginName, $"{_scheme}://{_host}/Plugins?Query={pluginName}", DateTime.Now));
-            }
-
-            return (string.Format(TemplateResource.EmailNotificationTemplate, "There is a new deletion request for a plugin version!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions"),
-                    string.Format(TemplateResource.PushNotificationTemplate, "There is a new deletion request for a plugin!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions", DateTime.Now));
-        }
-
-        public (string, string) GetDeletionApprovedNotification(string icon, string pluginName, int? id = null)
-        {
-            if (id == null)
-            {
-                return (string.Format(TemplateResource.EmailNotificationTemplate, "Plugin deletion request was accepted!", icon, pluginName, $"{_scheme}://{_host}/Plugins?Query={pluginName}"),
-                        string.Format(TemplateResource.PushNotificationTemplate, "Plugin deletion request was accepted!", icon, pluginName, $"{_scheme}://{_host}/Plugins?Query={pluginName}", DateTime.Now));
-            }
-
-            return (string.Format(TemplateResource.EmailNotificationTemplate, "Plugin version deletion request was accepted!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions"),
-                    string.Format(TemplateResource.PushNotificationTemplate, "Plugin version deletion request was accepted!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions"));
-        }
-
-        public (string, string) GetDeletionRejectedNotification(string icon, string pluginName, int? id = null)
-        {
-            if (id == null)
-            {
-                return (string.Format(TemplateResource.EmailNotificationTemplate, "Plugin deletion request was rejected!", icon, pluginName, $"{_scheme}://{_host}/Plugins?Query={pluginName}"),
-                        string.Format(TemplateResource.PushNotificationTemplate, "Plugin deletion request was rejected!", icon, pluginName, $"{_scheme}://{_host}/Plugins?Query={pluginName}", DateTime.Now));
-            }
-
-            return (string.Format(TemplateResource.EmailNotificationTemplate, "Plugin version deletion request was rejected!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions"),
-                    string.Format(TemplateResource.PushNotificationTemplate, "Plugin version deletion request was rejected!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions", DateTime.Now));
-        }
-
-        public (string, string) GetReviewRequestNotification(string icon, string pluginName, int id, string versionId = null)
-        {
-            if (versionId == null)
-            {
-                return (string.Format(TemplateResource.EmailNotificationTemplate, "There is a new plugin awaiting approval!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Pending/{id}"),
-                        string.Format(TemplateResource.PushNotificationTemplate, "There is a new plugin awaiting approval!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Pending/{id}", DateTime.Now));
-            }
-
-            return (string.Format(TemplateResource.EmailNotificationTemplate, "There is a new plugin version awaiting approval!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions/Pending/{versionId}"),
-                    string.Format(TemplateResource.PushNotificationTemplate, "There is a new plugin version awaiting approval!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions/Pending/{versionId}", DateTime.Now));
-        }
-
-        public (string, string) GetApprovedNotification(string icon, string pluginName, int id, string versionId = null)
-        {
-            if (versionId == null)
-            {
-                return (string.Format(TemplateResource.EmailNotificationTemplate, "Your submitted plugin was approved!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}"),
-                        string.Format(TemplateResource.PushNotificationTemplate, "Your submitted plugin was approved!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}", DateTime.Now));
-            }
-
-            return (string.Format(TemplateResource.EmailNotificationTemplate, "Your submitted plugin version was approved!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions/Details/{versionId}"),
-                    string.Format(TemplateResource.PushNotificationTemplate, "Your submitted plugin version was approved!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions/Details/{versionId}", DateTime.Now));
-        }
-
-        public (string, string) GetRejectedNotification(string icon, string pluginName, int id, string versionId = null)
-        {
-            if (versionId == null)
-            {
-                return (string.Format(TemplateResource.EmailNotificationTemplate, "Your submitted plugin was rejected!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Draft/{id}"),
-                        string.Format(TemplateResource.PushNotificationTemplate, "Your submitted plugin was rejected!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Draft/{id}", DateTime.Now));
-            }
-
-            return (string.Format(TemplateResource.EmailNotificationTemplate, "Your submitted plugin version was rejected!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions/Draft/{versionId}"),
-                    string.Format(TemplateResource.PushNotificationTemplate, "Your submitted plugin version was rejected!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions/Draft/{versionId}", DateTime.Now));
-        }
-
-        public (string, string) GetNewCommentNotification(string icon, string pluginName, int id, string versionId = null)
-        {
-            if (versionId == null)
-            {
-                return (string.Format(TemplateResource.EmailNotificationTemplate, "There are new comments for plugin!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Comments"),
-                        string.Format(TemplateResource.PushNotificationTemplate, "There are new comments for plugin!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Comments", DateTime.Now));
-            }
-
-            return (string.Format(TemplateResource.EmailNotificationTemplate, "There are new comments for plugin version!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions/Edit/{versionId}/Comments"),
-                    string.Format(TemplateResource.PushNotificationTemplate, "There are new comments for plugin version!", icon, pluginName, $"{_scheme}://{_host}/Plugins/Edit/{id}/Versions/Edit/{versionId}/Comments", DateTime.Now));
+                NotificationTemplate.PluginDeletionRequest => string.Format(notification, icon, pluginName, _host, pluginName, DateTime.Now),
+                NotificationTemplate.PluginDeletionApproved => string.Format(notification, icon, pluginName, _host, pluginName, DateTime.Now),
+                NotificationTemplate.PluginDeletionRejected => string.Format(notification, icon, pluginName, _host, pluginName, DateTime.Now),
+                NotificationTemplate.VersionReviewRequest => string.Format(notification, icon, pluginName, _host, pluginId, versionId, DateTime.Now),
+                NotificationTemplate.VersionApprovedRequest => string.Format(notification, icon, pluginName, _host, pluginId, versionId, DateTime.Now),
+                NotificationTemplate.VersionRejectedRequest => string.Format(notification, icon, pluginName, _host, pluginId, versionId, DateTime.Now),
+                NotificationTemplate.NewVersionComment => string.Format(notification, icon, pluginName, _host, pluginId, versionId, DateTime.Now),
+                NotificationTemplate.VersionDeletionRequest => string.Format(notification, icon, pluginName, _host, pluginId, DateTime.Now),
+                NotificationTemplate.VersionDeletionApproved => string.Format(notification, icon, pluginName, _host, pluginId, DateTime.Now),
+                NotificationTemplate.VersionDeletionRejected => string.Format(notification, icon, pluginName, _host, pluginId, DateTime.Now),
+                NotificationTemplate.PluginReviewRequest => string.Format(notification, icon, pluginName, _host, pluginId, DateTime.Now),
+                NotificationTemplate.PluginApprovedRequest => string.Format(notification, icon, pluginName, _host, pluginId, DateTime.Now),
+                NotificationTemplate.PluginRejectedRequest => string.Format(notification, icon, pluginName, _host, pluginId, DateTime.Now),
+                NotificationTemplate.NewPluginComment => string.Format(notification, icon, pluginName, _host, pluginId, DateTime.Now),
+                _ => null
+            };
         }
 
         private async Task<IDictionary<string, IEnumerable<Notification>>> GetAllNotifications()

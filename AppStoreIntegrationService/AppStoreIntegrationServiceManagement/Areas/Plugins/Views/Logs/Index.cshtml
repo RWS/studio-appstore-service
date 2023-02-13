@@ -6,6 +6,7 @@
     var dateFrom = Context.Request.Query["FromDate"];
     var dateTo = Context.Request.Query["ToDate"];
     var query = Context.Request.Query["Query"];
+    var isUserAdmin = User.IsInRole("Administrator");
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
@@ -32,7 +33,7 @@
                             </div>
                             <button onclick="this.form.submit()" class="border-0 ms-2 bg-transparent"><i aria-label="Submit search" class="fa fa-search filter-search-submit bg-white"></i></button>
                         </div>
-                        <div class="col-5 d-flex">
+                        <div class="@(isUserAdmin ? "col-3" : "col-5") d-flex">
                             <div class="input-group">
                                 <input type="text" class="form-control form-control-sm" name="Query" autocomplete="off" value="@query" placeholder="Search plugin" aria-label="Search plugin">
                                 <span class="input-group-text p-1 bg-light">
@@ -40,6 +41,12 @@
                                 </span>
                             </div>
                         </div>
+                        @if (isUserAdmin)
+                        {
+                            <div class="col-2">
+                                <a class="btn pa-admin-success-btn" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="ClearLogs('@Model.plugin.Id')">Clear All</a>
+                            </div>
+                        }
                     </div>
                 </div>
             </form>
@@ -79,3 +86,7 @@
         </div>
     </div>
 </div>
+
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you to remove all logs?" })" />
+
+<script src="~/js/PluginScript.js"></script>

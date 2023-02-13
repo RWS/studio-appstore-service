@@ -45,6 +45,18 @@ namespace AppStoreIntegrationServiceCore.Repository
             return filtered.Where(x => Regex.IsMatch(x.Description, query, RegexOptions.IgnoreCase));
         }
 
+        public async Task ClearLogs(int pluginId)
+        {
+            var logs = await GetAllLogs();
+
+            if (logs.ContainsKey(pluginId))
+            {
+                logs[pluginId] = new List<Log>();
+            }
+
+            await UpdateLogs(logs);
+        }
+
         private async Task Save(Log log, int pluginId)
         {
             var logs = await GetAllLogs();

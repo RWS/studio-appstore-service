@@ -16,6 +16,24 @@
     });
 }
 
+function ClearLogs(id) {
+    document.getElementById('confirmationBtn').onclick = function () {
+        var data = new FormData();
+        data.set("Id", id);
+
+        let request = new XMLHttpRequest();
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                HttpRequestCallback(request.responseText);
+            }
+        }
+
+        request.open("POST", `/Plugins/Logs/ClearAll`);
+        request.send(data)
+    }
+}
+
 function SavePlugin(action, removeOtherVersions = false) {
     var button = event.currentTarget;
     $("#form").validate();

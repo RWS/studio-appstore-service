@@ -1,4 +1,5 @@
-﻿using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceCore;
+using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Security.Claims;
 using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
@@ -112,7 +112,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Activate(int pluginId, PluginVersion version)
         {
             version.VersionStatus = Status.Active;
-            string log = $"<b>{User.Identity.Name} </b> changed the status to <i>Active</i> for the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}";
+            string log = string.Format(TemplateResource.VersionActiveLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             return await Save(pluginId, version, "Edit", log);
         }
 
@@ -120,7 +120,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Deactivate(int pluginId, PluginVersion version)
         {
             version.VersionStatus = Status.Inactive;
-            string log = $"<b>{User.Identity.Name} </b> changed the status to <i>Inactive</i> for the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}";
+            string log = string.Format(TemplateResource.VersionInactiveLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             return await Save(pluginId, version, "Edit", log);
         }
 
@@ -129,11 +129,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Submit(int pluginId, PluginVersion version, bool removeOtherVersions)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var (emailNotification, pushNotification) = _notificationCenter.GetReviewRequestNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id, version.VersionId);
             version.VersionStatus = Status.InReview;
             version.HasAdminConsent = true;
-            await _notificationCenter.Broadcast(emailNotification, "New plugin version sent to review");
-            await _notificationCenter.Push(pushNotification);
+            await Notify(NotificationTemplate.VersionReviewRequest, plugin, version.VersionId);
             return await Save(pluginId, version, "Pending", removeOtherVersions: removeOtherVersions, compareWithManifest: true);
         }
 
@@ -142,12 +140,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Approve(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var (emailNotification, pushNotification) = _notificationCenter.GetApprovedNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id, version.VersionId);
+            string log = string.Format(TemplateResource.ApprovedVersionLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             version.VersionStatus = Status.Active;
             version.IsActive = true;
-            await _notificationCenter.SendEmail(emailNotification, "Plugin version approved", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
-            string log = $"<b>{User.Identity.Name}</b> approved the changes for the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}";
+            await Notify(NotificationTemplate.VersionApprovedRequest, plugin, version.VersionId);
             return await Save(pluginId, version, "Edit", log, removeOtherVersions, true);
         }
 
@@ -156,12 +152,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Reject(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var (emailNotification, pushNotification) = _notificationCenter.GetRejectedNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id, version.VersionId);
+            var log = string.Format(TemplateResource.RejectedVersionLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             version.VersionStatus = Status.Draft;
             version.HasAdminConsent = true;
-            await _notificationCenter.SendEmail(emailNotification, "Plugin version rejected", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
-            string log = $"<b>{User.Identity.Name}</b> rejected the changes for the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}";
+            await Notify(NotificationTemplate.VersionRejectedRequest, plugin, version.VersionId);
             return await Save(pluginId, version, "Draft", log, removeOtherVersions);
         }
 
@@ -186,20 +180,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> RequestDeletion(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
-            if (version.IsActive)
+            if (!version.IsActive)
             {
-                var plugin = await _pluginRepository.GetPluginById(pluginId);
-                var (emailNotification, pushNotification) = _notificationCenter.GetDeletionRequestNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
-                version.NeedsDeletionApproval = true;
-                await _notificationCenter.SendEmail(emailNotification, "New plugin version deletion request", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-                await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
-                await _pluginVersionRepository.Save(pluginId, version);
-                await _loggingRepository.Log(User.Identity.Name, pluginId, $"<b>{User.Identity.Name}</b> sent a deletion request for version with number <b>{version.VersionNumber}</b> at {DateTime.Now}");
-                TempData["StatusMessage"] = "Success! Version deletion request was sent!";
-                return Content(null);
+                return await Delete(pluginId, versionId);
             }
 
-            return await Delete(pluginId, versionId);
+            var plugin = await _pluginRepository.GetPluginById(pluginId);
+            var log = string.Format(TemplateResource.VersionDeletionRequestLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
+            version.NeedsDeletionApproval = true;
+            await _pluginVersionRepository.Save(pluginId, version);
+            await Notify(NotificationTemplate.VersionDeletionRequest, plugin, version.VersionId);
+            await _loggingRepository.Log(User.Identity.Name, pluginId, log);
+            TempData["StatusMessage"] = "Success! Version deletion request was sent!";
+            return new EmptyResult();
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/AcceptDeletion/{versionId}")]
@@ -208,10 +201,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
-            var (emailNotification, pushNotification) = _notificationCenter.GetDeletionApprovedNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
-            await _notificationCenter.SendEmail(emailNotification, "Plugin version deletion approved", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
-            await _loggingRepository.Log(User.Identity.Name, pluginId, $"<b>{User.Identity.Name}</b> accepted the deletion request for version with number <b>{version.VersionNumber}</b> at {DateTime.Now}");
+            var log = string.Format(TemplateResource.VersionDeletionAcceptedLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
+            await Notify(NotificationTemplate.VersionDeletionApproved, plugin, version.VersionId);
+            await _loggingRepository.Log(User.Identity.Name, pluginId, log);
             return await Delete(pluginId, versionId);
         }
 
@@ -221,11 +213,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var (emailNotification, pushNotification) = _notificationCenter.GetDeletionRejectedNotification(plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
+            var log = string.Format(TemplateResource.VersionDeletionRejectedLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             version.NeedsDeletionApproval = false;
-            await _notificationCenter.SendEmail(emailNotification, "Plugin version deletion rejected", await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
-            await _loggingRepository.Log(User.Identity.Name, pluginId, $"<b>{User.Identity.Name}</b> rejected the deletion request for version with number <b>{version.VersionNumber}</b> at {DateTime.Now}");
+            await Notify(NotificationTemplate.VersionDeletionRejected, plugin, version.VersionId);
+            await _loggingRepository.Log(User.Identity.Name, pluginId, log);
             await _pluginVersionRepository.Save(pluginId, version);
             TempData["StatusMessage"] = "Success! Version deletion request was rejected!";
             return Content(null);
@@ -235,10 +226,21 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Delete(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
-            await _loggingRepository.Log(User.Identity.Name, pluginId, $"<b>{User.Identity.Name}</b> removed the version with number <b>{version.VersionNumber}</b> at {DateTime.Now}");
+            var log = string.Format(TemplateResource.VersionRemovedLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
+            await _loggingRepository.Log(User.Identity.Name, pluginId, log);
             await _pluginVersionRepository.RemovePluginVersion(pluginId, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";
             return Content(null);
+        }
+
+        private async Task Notify(NotificationTemplate notificationTemplate, PluginDetails plugin, string versionId)
+        {
+            var emailNotification = _notificationCenter.GetNotification(notificationTemplate, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
+            var pushNotification = _notificationCenter.GetNotification(notificationTemplate, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
+            await _notificationCenter.SendEmail(emailNotification, await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
+            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
+            await _notificationCenter.Broadcast(emailNotification);
+            await _notificationCenter.Push(pushNotification);
         }
 
         private async Task<string> GetCurrentPluginUserEmail(string username)
@@ -294,24 +296,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             TempData["StatusMessage"] = "Warning! Version was saved but there are manifest conflicts!";
-        }
-
-        private async Task<(ExtendedPluginDetails, ExtendedPluginVersion)> LoadDataAsync(int pluginId, PluginVersion version)
-        {
-            var username = User.Identity.Name;
-            var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
-            var plugin = await _pluginRepository.GetPluginById(pluginId, username: username, userRole: userRole);
-            var products = await _productsRepository.GetAllProducts();
-            var extendedPlugin = ExtendedPluginDetails.CopyFrom(plugin);
-            var extendedVersion = ExtendedPluginVersion.CopyFrom(version);
-
-            extendedPlugin.Parents = await _productsRepository.GetAllParents();
-            extendedPlugin.IsEditMode = true;
-            extendedVersion.SupportedProductsListItems = new MultiSelectList(products, nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
-            extendedVersion.PluginId = pluginId;
-            extendedVersion.IsThirdParty = extendedPlugin.IsThirdParty;
-
-            return (extendedPlugin, extendedVersion);
         }
 
         private async Task<IActionResult> Render(int pluginId, string versionId, Status status, Func<int, string, Task<IActionResult>> callback, string view)

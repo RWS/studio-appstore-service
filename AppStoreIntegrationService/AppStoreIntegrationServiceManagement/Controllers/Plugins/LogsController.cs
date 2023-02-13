@@ -36,6 +36,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return View((extended, ApplyFilters()));
         }
 
+        [HttpPost]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> ClearAll(int id)
+        {
+            await _loggingRepository.ClearLogs(id);
+            return new EmptyResult();
+        }
+
         private IEnumerable<FilterItem> ApplyFilters()
         {
             return new List<FilterItem>
