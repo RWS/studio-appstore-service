@@ -1,17 +1,26 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Identity;
 using System.Resources;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using System.Reflection;
-using System.Net.Mail;
-using System;
-using AppStoreIntegrationServiceCore;
+using System.Data;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using AppStoreIntegrationServiceManagement.Model.Identity;
 
-namespace AppStoreIntegrationServiceManagement.Model.Plugins
+namespace AppStoreIntegrationServiceCore.Repository
 {
+    public enum NotificationStatus
+    {
+        Active = 0,
+        Complete,
+        Acknowledged,
+        Inactive,
+        All
+    }
+
     public enum NotificationTemplate
     {
         PluginDeletionRequest = 0,
@@ -30,27 +39,24 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
         NewVersionComment
     }
 
-    public class NotificationCenter
+    public class NotificationCenter : INotificationCenter
     {
         private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly IConfiguration _configuration;
+        private readonly IConfigurationSettings _configurationSettings;
         private readonly INotificationsManager _notificationsManager;
-        private readonly IWebHostEnvironment _environment;
         private readonly string _host;
 
         public NotificationCenter
         (
             IHttpContextAccessor context,
             UserManager<IdentityUserExtended> userManager,
-            IConfiguration configuration,
-            INotificationsManager notificationsManager,
-            IWebHostEnvironment environment
+            IConfigurationSettings configurationSettings,
+            INotificationsManager notificationsManager
         )
         {
             _userManager = userManager;
-            _configuration = configuration;
+            _configurationSettings = configurationSettings;
             _notificationsManager = notificationsManager;
-            _environment = environment;
             _host = context.HttpContext.Request.Host.Value;
         }
 
@@ -58,87 +64,47 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
         {
             try
             {
-                var mail = new MailMessage
+                var sendGridKey = _configurationSettings.SendGridAPIKey;
+                if (string.IsNullOrEmpty(sendGridKey))
                 {
-                    From = new MailAddress("noreply@sdl.com"),
-                    Subject = "RWS Plugin update",
-                    Body = message,
-                    IsBodyHtml = true
-                };
+                    return;
+                }
 
-                mail.To.Add(emailAddress);
-                var smtp = new SmtpClient
-                {
-                    Host = "mailuk.sdl.corp"
-                };
-
-                smtp.Send(mail);
+                var client = new SendGridClient(sendGridKey);
+                var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(emailAddress), "RWS Plugin update", null, message);
+                var response = await client.SendEmailAsync(email);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }
-            //try
-            //{
-            //    var client = new SendGridClient(_configuration.GetSection("SendGridApiKey").Value);
-            //    var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(emailAddress), subject, null, message);
-            //    var response = await client.SendEmailAsync(email);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex.ToString());
-            //}
         }
 
         public async Task Broadcast(string message)
         {
             try
             {
-                var mail = new MailMessage
+                var sendGridKey = _configurationSettings.SendGridAPIKey;
+                if (string.IsNullOrEmpty(sendGridKey))
                 {
-                    From = new MailAddress("noreply@sdl.com"),
-                    Subject = "RWS Plugin update",
-                    Body = message,
-                    IsBodyHtml = true
-                };
+                    return;
+                }
 
+                var client = new SendGridClient(sendGridKey);
                 foreach (var user in _userManager.Users)
                 {
                     var roles = await _userManager.GetRolesAsync(user);
                     if (user.EmailNotificationsEnabled && roles[0] == "Administrator")
                     {
-                        mail.To.Add(user.Email);
+                        var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(user.Email), "RWS Plugin update", null, message);
+                        var response = await client.SendEmailAsync(email);
                     }
                 }
-
-                var smtp = new SmtpClient
-                {
-                    Host = "mailuk.sdl.corp"
-                };
-
-                smtp.Send(mail);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }
-            //try
-            //{
-            //    var client = new SendGridClient(_configuration.GetSection("SendGridApiKey").Value);
-            //    foreach (var user in _userManager.Users)
-            //    {
-            //        var roles = await _userManager.GetRolesAsync(user);
-            //        if (user.NotificationsEnabled && roles[0] == "Administrator")
-            //        {
-            //            var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(user.Email), subject, null, message);
-            //            var response = await client.SendEmailAsync(email);
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex.ToString());
-            //}
         }
 
         public async Task Push(string message, string username = null)
@@ -146,15 +112,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
             var notifications = await GetAllNotifications();
             if (username == null)
             {
-                foreach (var identityUser in _userManager.Users)
-                {
-                    var roles = await _userManager.GetRolesAsync(identityUser);
-                    if (identityUser.PushNotificationsEnabled && roles[0] == "Administrator")
-                    {
-                        Push(notifications, message, identityUser.UserName);
-                    }
-                }
-
+                Push(notifications, message, "Administrator");
                 return;
             }
 
@@ -167,19 +125,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
             Push(notifications, message, username);
         }
 
-        public async Task<IEnumerable<Notification>> GetNotificationsForUser(string username)
-        {
-            var notifications = await GetAllNotifications();
-
-            if (notifications.TryGetValue(username, out var userNotifications))
-            {
-                return userNotifications;
-            }
-
-            return Enumerable.Empty<Notification>();
-        }
-
-        public async Task DeleteNotification(string username, int id, bool removeAll = false)
+        public async Task ChangeStatus(string username, int id, NotificationStatus status)
         {
             var notifications = await GetAllNotifications();
 
@@ -188,8 +134,71 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
                 return;
             }
 
-            notifications[username] = removeAll ? new List<Notification>() : userNotifications.Where(x => x.Id != id);
+            userNotifications.FirstOrDefault(x => x.Id == id).Status = status;
+            notifications[username] = userNotifications;
             await _notificationsManager.SaveNotifications(notifications);
+        }
+
+        public async Task<IEnumerable<Notification>> GetNotificationsForUser(string username, string role = null)
+        {
+            var notifications = await GetAllNotifications();
+
+            if (notifications.TryGetValue(role ?? username, out var userNotifications))
+            {
+                var user = await _userManager.FindByNameAsync(username);
+                if (user.PushNotificationsEnabled)
+                {
+                    return userNotifications;
+                }
+
+                return Enumerable.Empty<Notification>();
+            }
+
+            return Enumerable.Empty<Notification>();
+        }
+
+        public async Task<bool> HasNewNotifications(string username, string role = null)
+        {
+            var notifications = await GetAllNotifications();
+
+            if (notifications.TryGetValue(role ?? username, out var userNotifications))
+            {
+                var user = await _userManager.FindByNameAsync(username);
+                if (user.PushNotificationsEnabled)
+                {
+                    return userNotifications.Any(x => x.Status == NotificationStatus.Active);
+                }
+            }
+
+            return false;
+        }
+
+        public async Task DeleteNotification(string username, int id)
+        {
+            var notifications = await GetAllNotifications();
+
+            if (!notifications.TryGetValue(username, out var userNotifications))
+            {
+                return;
+            }
+
+            notifications[username] = userNotifications.Where(x => x.Id != id);
+            await _notificationsManager.SaveNotifications(notifications);
+        }
+
+        public IEnumerable<Notification> FilterNotifications(IEnumerable<Notification> notifications, NotificationStatus status = NotificationStatus.All, string query = null)
+        {
+            if (status != NotificationStatus.All)
+            {
+                notifications = notifications.Where(x => x.Status == status);
+            }
+
+            if (string.IsNullOrEmpty(query))
+            {
+                return notifications;
+            }
+
+            return notifications.Where(x => Regex.IsMatch(x.Content, query, RegexOptions.IgnoreCase));
         }
 
         public string GetNotification(NotificationTemplate notificationTemplate, bool isEmailNotification, string icon, string pluginName, int pluginId, string versionId = null)

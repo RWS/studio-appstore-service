@@ -1,8 +1,12 @@
-﻿using AppStoreIntegrationServiceManagement.Model.Identity;
+﻿using AppStoreIntegrationServiceCore.Repository;
+using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
@@ -11,9 +15,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     public class NotificationsController : Controller
     {
         private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly NotificationCenter _notificationCenter;
+        private readonly INotificationCenter _notificationCenter;
 
-        public NotificationsController(UserManager<IdentityUserExtended> userManager, NotificationCenter notificationCenter)
+        public NotificationsController(UserManager<IdentityUserExtended> userManager, INotificationCenter notificationCenter)
         {
             _userManager = userManager;
             _notificationCenter = notificationCenter;
@@ -37,10 +41,36 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(int id, bool removeAll = false)
+        [Authorize(Roles = "Developer, Administrator")]
+        public async Task<IActionResult> ChangeStatus(int id, NotificationStatus status)
         {
-            await _notificationCenter.DeleteNotification(User.Identity.Name, id, removeAll);
+            await _notificationCenter.ChangeStatus(User.IsInRole("Administrator") ? "Administrator" : User.Identity.Name, id, status);
             return new EmptyResult();
+        }
+
+        public static async Task<NotificationModel> PrepareNotifications(ClaimsPrincipal user, IQueryCollection query, INotificationCenter notificationCenter)
+        {
+            var status = new List<string> { "Active", "Complete", "Acknowledged", "Inactive" }.Select(x => new FilterItem
+            {
+                Id = "Status",
+                Label = x,
+                Value = $"{(int)Enum.Parse(typeof(NotificationStatus), x)}",
+                IsSelected = query["Status"].Any(y => y == $"{(int)Enum.Parse(typeof(NotificationStatus), x)}")
+            });
+            var notifications = await notificationCenter.GetNotificationsForUser(user.Identity.Name, user.IsInRole("Administrator") ? "Administrator" : null);
+
+            return new NotificationModel
+            {
+                Notifications = notificationCenter.FilterNotifications(notifications, (NotificationStatus)Enum.Parse(typeof(NotificationStatus), query["Status"].FirstOrDefault() ?? "All"), query["Query"].FirstOrDefault()),
+                StatusListItems = new SelectList(status, nameof(FilterItem.Value), nameof(FilterItem.Label), query["Status"].FirstOrDefault()),
+                Filters = status.Append(new FilterItem
+                {
+                    Id = "Notification",
+                    Label = query["Query"],
+                    Value = query["Query"],
+                    IsSelected = !string.IsNullOrEmpty(query["Query"].FirstOrDefault())
+                })
+            };
         }
     }
 }

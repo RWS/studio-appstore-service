@@ -2,11 +2,9 @@
 using AppStoreIntegrationServiceCore.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using static AppStoreIntegrationServiceCore.Enums;
-using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Identity;
 using AppStoreIntegrationServiceManagement.Model.Identity;
-using System.Security.Claims;
+using AppStoreIntegrationServiceCore.Repository;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -17,7 +15,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly ICommentsRepository _commentsRepository;
         private readonly IPluginRepository _pluginRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;
-        private readonly NotificationCenter _notificationCenter;
+        private readonly INotificationCenter _notificationCenter;
         private readonly UserManager<IdentityUserExtended> _userManager;
 
         public CommentsController
@@ -25,7 +23,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             ICommentsRepository commentsRepository,
             IPluginRepository pluginRepository,
             IPluginVersionRepository pluginVersionRepository,
-            NotificationCenter notificationCenter,
+            INotificationCenter notificationCenter,
             UserManager<IdentityUserExtended> userManager
         )
         {

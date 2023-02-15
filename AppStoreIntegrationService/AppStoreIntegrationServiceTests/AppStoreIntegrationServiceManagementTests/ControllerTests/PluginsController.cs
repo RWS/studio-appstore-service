@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Identity;
 using AppStoreIntegrationServiceManagement.Model.Identity;
+using AppStoreIntegrationServiceCore.Repository;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTests.ControllerTests
 {

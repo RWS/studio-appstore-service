@@ -127,8 +127,14 @@
   <data name="LocalFolderPath" xml:space="preserve">
     <value>APPSTOREINTEGRATION_LOCAL_FOLDERPATH</value>
   </data>
+  <data name="NotificationsFileName" xml:space="preserve">
+    <value>APPSTOREINTEGRATION_LOCAL_NOTIFICATIONSFILENAME</value>
+  </data>
   <data name="PluginsFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_PLUGINSFILENAME</value>
+  </data>
+  <data name="SendGridAPIKey" xml:space="preserve">
+    <value>SENDGRID_APIKEY</value>
   </data>
   <data name="SettingsFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_SETTINGSFILENAME</value>

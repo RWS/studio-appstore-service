@@ -15,6 +15,7 @@
             Inactive,
             Draft,
             InReview,
+            Complete,
             All
         }
 

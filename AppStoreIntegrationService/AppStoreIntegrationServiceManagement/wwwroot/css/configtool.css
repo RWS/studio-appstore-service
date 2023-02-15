@@ -275,9 +275,10 @@ table {
     right: -17px;
 }
 
-.fa-times{
-    top: -12px;
-    right: -10px;
+.action-container
+{
+    top: 2px;
+    right: 2px;
 }
 
 .active-tab {

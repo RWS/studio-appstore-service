@@ -89,11 +89,29 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_LOCAL_NOTIFICATIONSFILENAME.
+        /// </summary>
+        public static string NotificationsFileName {
+            get {
+                return ResourceManager.GetString("NotificationsFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to APPSTOREINTEGRATION_PLUGINSFILENAME.
         /// </summary>
         public static string PluginsFileName {
             get {
                 return ResourceManager.GetString("PluginsFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SENDGRID_APIKEY.
+        /// </summary>
+        public static string SendGridAPIKey {
+            get {
+                return ResourceManager.GetString("SendGridAPIKey", resourceCulture);
             }
         }
         

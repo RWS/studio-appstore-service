@@ -19,6 +19,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public string SettingsFileName { get; set; }
         public string NotificationsFileName { get; set; }
         public string NotificationsFilePath { get; set; }
+        public string SendGridAPIKey { get; set; }
 
         public ConfigurationSettings(DeployMode deployMode)
         {
@@ -84,6 +85,8 @@ namespace AppStoreIntegrationServiceCore.Repository
             LocalFolderPath = GetVariable(ServiceResource.LocalFolderPath);
             PluginsFileName = GetVariable(ServiceResource.PluginsFileName);
             SettingsFileName = GetVariable(ServiceResource.SettingsFileName);
+            SendGridAPIKey = GetVariable(ServiceResource.SendGridAPIKey);
+            NotificationsFileName = GetVariable(ServiceResource.NotificationsFileName);
         }
 
         private static string GetVariable(string key)

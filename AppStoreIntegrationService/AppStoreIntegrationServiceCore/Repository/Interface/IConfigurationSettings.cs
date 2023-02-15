@@ -18,6 +18,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         public string LocalPluginsFilePath { get; set; }
         public string PluginsFileBackUpPath { get; set; }
         public string NotificationsFilePath { get; set; }
+        public string SendGridAPIKey { get; set; }
         public Task SetFilePathsProperties(IWebHostEnvironment environment);
     }
 }

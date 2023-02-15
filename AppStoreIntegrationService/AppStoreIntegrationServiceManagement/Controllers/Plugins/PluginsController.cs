@@ -1,5 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore;
 using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
@@ -21,7 +22,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly ICategoriesRepository _categoriesRepository;
         private readonly ICommentsRepository _commentsRepository;
         private readonly ILoggingRepository _loggingRepository;
-        private readonly NotificationCenter _notificationCenter;
+        private readonly INotificationCenter _notificationCenter;
         private readonly UserManager<IdentityUserExtended> _userManager;
         private readonly string _host;
         private readonly string _scheme;
@@ -34,7 +35,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             ICategoriesRepository categoriesRepository,
             ICommentsRepository commentsRepository,
             ILoggingRepository loggingRepository,
-            NotificationCenter notificationCenter,
+            INotificationCenter notificationCenter,
             UserManager<IdentityUserExtended> userManager
         )
         {

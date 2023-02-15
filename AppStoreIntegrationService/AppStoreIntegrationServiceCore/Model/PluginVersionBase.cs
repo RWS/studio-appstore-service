@@ -29,6 +29,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [Display(Name = "App Has Studio Plugin Installer")]
         public bool AppHasStudioPluginInstaller { get; set; }
 
+        [Required]
         [Display(Name = "Minimum Required Studio Version")]
         [RegularExpression(@"^(\d{1,2}\.)?(\d{1}\.)?(\d{1})$", ErrorMessage = "Invalid version number!")]
         public string MinimumRequiredVersionOfStudio
@@ -48,6 +49,7 @@ namespace AppStoreIntegrationServiceCore.Model
             }
         }
 
+        [Required]
         [Display(Name = "Maximum Required Studio Version")]
         [RegularExpression(@"^(\d{1,2}\.)?(\d{1}\.)?(\d{1})$", ErrorMessage = "Invalid version number!")]
         public string MaximumRequiredVersionOfStudio

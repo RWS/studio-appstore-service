@@ -1,5 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore;
 using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
@@ -19,7 +20,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IProductsRepository _productsRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly ILoggingRepository _loggingRepository;
-        private readonly NotificationCenter _notificationCenter;
+        private readonly INotificationCenter _notificationCenter;
         private readonly UserManager<IdentityUserExtended> _userManager;
 
         public VersionController
@@ -29,7 +30,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             ILoggingRepository loggingRepository,
             IPluginVersionRepository pluginVersionRepository,
             UserManager<IdentityUserExtended> userManager,
-            NotificationCenter notificationCenter
+            INotificationCenter notificationCenter
         )
         {
             _pluginRepository = pluginRepository;

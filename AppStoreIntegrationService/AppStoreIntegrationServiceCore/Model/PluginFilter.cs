@@ -97,8 +97,8 @@ namespace AppStoreIntegrationServiceCore.Model
         private static bool IsMatchingVersion(PluginVersion version, string studioVersion)
         {
             var parsedStudioVersion = new Version(studioVersion);
-            return new Version(version.MinimumRequiredVersionOfStudio) <= parsedStudioVersion &&
-                   new Version(version.MaximumRequiredVersionOfStudio) >= parsedStudioVersion;
+            return new Version(version.MinimumRequiredVersionOfStudio ?? "0.0.0") <= parsedStudioVersion &&
+                   new Version(version.MaximumRequiredVersionOfStudio ?? "0.0.0") >= parsedStudioVersion;
         }
 
         private static IEnumerable<PluginDetails> FilterByCategory(IEnumerable<PluginDetails> pluginsList, IEnumerable<int> categoryIds)

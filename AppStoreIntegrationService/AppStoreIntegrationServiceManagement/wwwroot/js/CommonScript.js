@@ -25,58 +25,32 @@ function EnsurePreserved(callback) {
     request.send(data);
 }
 
-function RemoveNotification(id) {
+function AttachNotificationQuery() {
+    let url = new URL(window.location.href);
+
+    if (url.searchParams.has("notifications")) {
+        url.searchParams.delete("notifications");
+    } else {
+        url.searchParams.set("notifications", "open");
+    }
+
+    window.location.href = url.href;
+}
+
+function ChangeStatus(id, status) {
     let request = new XMLHttpRequest();
     let data = new FormData();
-    let button = event.currentTarget;
-    let container = button.parentElement.parentElement;
     data.set("Id", id);
+    data.set("Status", status)
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            button.parentElement.remove();
-
-            if (container.childElementCount < 1) {
-                CreateZeroNotificationsMessage(container);
-            }
+            window.location.reload();
         }
     }
 
-    request.open("POST", `/Identity/Notifications/Delete`);
+    request.open("POST", `/Identity/Notifications/ChangeStatus`);
     request.send(data);
-}
-
-function RemoveNotifications() {
-    let request = new XMLHttpRequest();
-    let container = event.currentTarget.parentElement.parentElement;
-    let data = new FormData();
-    data.set("RemoveAll", true);
-
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            container.innerHTML = "";
-            CreateZeroNotificationsMessage(container);
-        }
-    }
-
-    request.open("POST", `/Identity/Notifications/Delete`);
-    request.send(data);
-}
-
-function CreateZeroNotificationsMessage(container) {
-    var div = document.createElement('div');
-    var text = document.createElement('p');
-
-    div.style.width = '400px';
-    div.style.height = '100px';
-    div.classList.add('d-flex', 'justify-content-center', 'align-items-center');
-
-    text.innerText = "You have 0 notifications";
-    text.classList.add('m-0');
-    div.append(text);
-    container.append(div);
-
-    container.parentElement.querySelector(".fa-exclamation-circle").classList.add("d-none")
 }
 
 function Collapse(element) {
