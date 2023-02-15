@@ -185,7 +185,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             registerModel.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new IdentityUserExtended { UserName = registerModel.Input.UserName, Email = registerModel.Input.UserName };
+                var user = new IdentityUserExtended { UserName = registerModel.Input.UserName, Email = registerModel.Input.Email };
                 var result = await _userManager.CreateAsync(user, registerModel.Input.Password);
                 if (result.Succeeded)
                 {

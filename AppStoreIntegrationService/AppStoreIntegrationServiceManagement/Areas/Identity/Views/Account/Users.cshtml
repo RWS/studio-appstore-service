@@ -42,7 +42,7 @@
                                 @if (!user.IsCurrentUser)
                                 {
                                     <td class="align-middle px-3 d-none d-lg-table-cell">
-                                        <i class="fa fa-trash-alt cursor-pointer delete-user-btn" data-bs-toggle="modal" data-bs-target="confirmationModal" onclick="DeleteUser('@user.Id')"></i>
+                                        <i class="fa fa-trash-alt cursor-pointer delete-user-btn" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteUser('@user.Id')"></i>
                                     </td>
                                 }
                             }
