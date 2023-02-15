@@ -15,6 +15,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         private readonly BlobContainerClient _container;
         private readonly BlobClient _pluginsBlob;
         private readonly BlobClient _settingsBlob;
+        private readonly BlobClient _notificationsBlob;
 
         public AzureRepository(IConfigurationSettings configurationSettings)
         {
@@ -24,6 +25,7 @@ namespace AppStoreIntegrationServiceCore.Repository
 
             CreateIfNotExists(_container, _configurationSettings.PluginsFileName);
             CreateIfNotExists(_container, _configurationSettings.SettingsFileName);
+            CreateIfNotExists(_container, _configurationSettings.NotificationsFileName);
         }
 
         public async Task<PluginResponse<PluginDetails>> GetResponse()
@@ -62,6 +64,11 @@ namespace AppStoreIntegrationServiceCore.Repository
 
         private static void CreateIfNotExists(BlobContainerClient container, string fileName)
         {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return;
+            }
+
             var blob = container.GetBlobClient(fileName);
 
             if (blob.Exists())
@@ -72,14 +79,27 @@ namespace AppStoreIntegrationServiceCore.Repository
             container.UploadBlob(fileName, new MemoryStream());
         }
 
-        public Task<IDictionary<string, IEnumerable<Notification>>> GetNotifications()
+        public async Task<IDictionary<string, IEnumerable<Notification>>> GetNotifications()
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(_configurationSettings.NotificationsFileName))
+            {
+                return new Dictionary<string, IEnumerable<Notification>>();
+            }
+
+            var content = await _notificationsBlob.DownloadContentAsync();
+
+            if (content == null)
+            {
+                return new Dictionary<string, IEnumerable<Notification>>();
+            }
+
+            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<Notification>>>(content.Value.Content.ToString()) ?? new Dictionary<string, IEnumerable<Notification>>();
         }
 
-        public Task SaveNotifications(IDictionary<string, IEnumerable<Notification>> notifications)
+        public async Task SaveNotifications(IDictionary<string, IEnumerable<Notification>> notifications)
         {
-            throw new NotImplementedException();
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(notifications)));
+            await _notificationsBlob.UploadAsync(content, new BlobUploadOptions());
         }
     }
 }
