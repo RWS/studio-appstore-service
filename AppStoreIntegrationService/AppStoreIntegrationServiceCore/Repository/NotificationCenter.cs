@@ -125,7 +125,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             Push(notifications, message, username);
         }
 
-        public async Task ChangeStatus(string username, int id, NotificationStatus status)
+        public async Task ChangeStatus(string username, int? id, NotificationStatus status)
         {
             var notifications = await GetAllNotifications();
 
@@ -134,7 +134,18 @@ namespace AppStoreIntegrationServiceCore.Repository
                 return;
             }
 
-            userNotifications.FirstOrDefault(x => x.Id == id).Status = status;
+            if (id == null)
+            {
+                foreach (var notification in userNotifications)
+                {
+                    notification.Status = status;
+                }
+            }
+            else
+            {
+                userNotifications.FirstOrDefault(x => x.Id == id).Status = status;
+            }
+
             notifications[username] = userNotifications;
             await _notificationsManager.SaveNotifications(notifications);
         }
@@ -186,7 +197,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _notificationsManager.SaveNotifications(notifications);
         }
 
-        public IEnumerable<Notification> FilterNotifications(IEnumerable<Notification> notifications, NotificationStatus status = NotificationStatus.All, string query = null)
+        public IEnumerable<Notification> FilterNotifications(IEnumerable<Notification> notifications, NotificationStatus status = NotificationStatus.Active, string query = null)
         {
             if (status != NotificationStatus.All)
             {

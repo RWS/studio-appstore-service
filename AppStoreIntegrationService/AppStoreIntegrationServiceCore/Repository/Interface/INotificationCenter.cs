@@ -7,7 +7,7 @@ namespace AppStoreIntegrationServiceCore.Repository.Interface
         Task SendEmail(string message, string emailAddress);
         Task Broadcast(string message);
         Task Push(string message, string username = null);
-        Task ChangeStatus(string username, int id, NotificationStatus status);
+        Task ChangeStatus(string username, int? id, NotificationStatus status);
         Task<IEnumerable<Notification>> GetNotificationsForUser(string username, string role = null);
         Task<bool> HasNewNotifications(string username, string role = null);
         Task DeleteNotification(string username, int id);

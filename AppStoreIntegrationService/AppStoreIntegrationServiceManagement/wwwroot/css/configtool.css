@@ -268,8 +268,16 @@ table {
 
 /* Notifications modal */
 
-.fa-exclamation-circle {
+.notifications .notifications-count {
+    width: 20px;
+    height: 20px;
     position: absolute;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: lighter;
     top: -10px;
     right: -17px;
 }
@@ -282,6 +290,10 @@ table {
 .notifications-container{
     max-height: 80vh;
     overflow-y: auto;
+}
+
+.notifications .dropdown-menu{
+    z-index: 1021;
 }
 
 /* Generic */

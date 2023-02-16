@@ -42,7 +42,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         [HttpPost]
         [Authorize(Roles = "Developer, Administrator")]
-        public async Task<IActionResult> ChangeStatus(int id, NotificationStatus status)
+        public async Task<IActionResult> ChangeStatus(int? id, NotificationStatus status)
         {
             await _notificationCenter.ChangeStatus(User.IsInRole("Administrator") ? "Administrator" : User.Identity.Name, id, status);
             return new EmptyResult();
@@ -50,7 +50,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         public static async Task<NotificationModel> PrepareNotifications(ClaimsPrincipal user, IQueryCollection query, INotificationCenter notificationCenter)
         {
-            var status = new List<string> { "Active", "Complete", "Acknowledged", "Inactive" }.Select(x => new FilterItem
+            var status = new List<string> { "Active", "Complete", "Acknowledged", "Inactive", "All" }.Select(x => new FilterItem
             {
                 Id = "Status",
                 Label = x,
@@ -61,7 +61,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             return new NotificationModel
             {
-                Notifications = notificationCenter.FilterNotifications(notifications, (NotificationStatus)Enum.Parse(typeof(NotificationStatus), query["Status"].FirstOrDefault() ?? "All"), query["Query"].FirstOrDefault()),
+                Notifications = notificationCenter.FilterNotifications(notifications, (NotificationStatus)Enum.Parse(typeof(NotificationStatus), query["Status"].FirstOrDefault() ?? "Active"), query["Query"].FirstOrDefault()),
                 StatusListItems = new SelectList(status, nameof(FilterItem.Value), nameof(FilterItem.Label), query["Status"].FirstOrDefault()),
                 Filters = status.Append(new FilterItem
                 {

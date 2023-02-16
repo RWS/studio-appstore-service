@@ -25,10 +25,13 @@
 
         @if (Model.Version.IsThirdParty && User.IsInRole("Developer"))
         {
-            <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Submit', true)">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Submit
-            </button>
+            if (Model.Plugin.Status != Status.Draft)
+            {
+                <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Submit', true)">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Submit
+                </button>
+            }
             <button class="btn pa-admin-outline-success-btn" onclick="Save('@Model.Plugin.Id', 'SaveAsDraft')">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                 Save as draft

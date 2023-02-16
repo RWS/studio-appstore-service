@@ -37,7 +37,7 @@ function AttachNotificationQuery() {
     window.location.href = url.href;
 }
 
-function ChangeStatus(id, status) {
+function ChangeNotificationStatus(status, id) {
     let request = new XMLHttpRequest();
     let data = new FormData();
     data.set("Id", id);
