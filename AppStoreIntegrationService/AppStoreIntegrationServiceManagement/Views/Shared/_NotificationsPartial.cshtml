@@ -12,7 +12,6 @@
         <i class="fa fa-exclamation-circle text-danger @(hasNewNotifications ? null : "d-none")"></i>
     </div>
     <div class="dropdown-menu p-0 @(isNotificationsOpen ? "show" : null)" data-bs-popper="@(isNotificationsOpen ? "none" : null)">
-
         <div class="container-fluid py-2 px-3 border-bottom">
             <form method="get" class="row py-2">
                 <input hidden name="notifications" value="open" />
@@ -31,7 +30,6 @@
                 </div>
             </form>
         </div>
-
         <div class="container-fluid px-2 border-bottom @(model.Filters.Any(x => x.IsSelected) ? "" : "d-none")">
             <form method="get" asp-route="/Plugins?notifications=open" class="m-0 px-1 py-2 d-flex">
                 <input hidden name="notifications" value="open" />
@@ -52,44 +50,46 @@
                 }
             </form>
         </div>
-        @if (model.Notifications.Any())
-        {
-            @foreach (var notification in model.Notifications)
+        <div class="notifications-container">
+            @if (model.Notifications.Any())
             {
-                <div class="position-relative" contenteditable="false" spellcheck="false">
-                    @Html.Raw(notification.Content)
-                    <div class="position-absolute action-container d-flex justify-content-between">
-                        @if (notification.Status == NotificationStatus.Active)
-                        {
-                            <i class="fa fa-check-circle text-secondary cursor-pointer text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Complete" onclick="ChangeStatus('@notification.Id', 'Complete')"></i>
-                            <i class="fa fa-exclamation-triangle text-secondary cursor-pointer text-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Acknowledge" onclick="ChangeStatus('@notification.Id', 'Acknowledged')"></i>
-                            <i class="fa fa-ban text-secondary cursor-pointer text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove" onclick="ChangeStatus('@notification.Id', 'Inactive')"></i>
-                        }
+                @foreach (var notification in model.Notifications)
+                {
+                    <div class="position-relative my-1" contenteditable="false" spellcheck="false">
+                        @Html.Raw(notification.Content)
+                        <div class="position-absolute action-container d-flex justify-content-between">
+                            @if (notification.Status == NotificationStatus.Active)
+                            {
+                                <i class="fa fa-check-circle text-secondary cursor-pointer text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Complete" onclick="ChangeStatus('@notification.Id', 'Complete')"></i>
+                                <i class="fa fa-exclamation-triangle text-secondary cursor-pointer text-warning mx-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Acknowledge" onclick="ChangeStatus('@notification.Id', 'Acknowledged')"></i>
+                                <i class="fa fa-ban text-secondary cursor-pointer text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove" onclick="ChangeStatus('@notification.Id', 'Inactive')"></i>
+                            }
 
-                        @if (notification.Status == NotificationStatus.Complete)
-                        {
-                            <i class="fa fa-check-circle text-secondary cursor-pointer text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Complete"></i>
-                        }
+                            @if (notification.Status == NotificationStatus.Complete)
+                            {
+                                <i class="fa fa-check-circle text-secondary cursor-pointer text-success"></i>
+                            }
 
-                        @if (notification.Status == NotificationStatus.Acknowledged)
-                        {
-                            <i class="fa fa-exclamation-triangle text-secondary cursor-pointer text-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Acknowledge"></i>
-                        }
+                            @if (notification.Status == NotificationStatus.Acknowledged)
+                            {
+                                <i class="fa fa-exclamation-triangle text-secondary cursor-pointer text-warning"></i>
+                            }
 
-                        @if (notification.Status == NotificationStatus.Inactive)
-                        {
-                            <i class="fa fa-ban text-secondary cursor-pointer text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove"></i>
-                        }
+                            @if (notification.Status == NotificationStatus.Inactive)
+                            {
+                                <i class="fa fa-ban text-secondary cursor-pointer text-danger"></i>
+                            }
+                        </div>
+
                     </div>
-                    
+                }
+            }
+            else
+            {
+                <div style="width: 400px; height: 100px" class="d-flex justify-content-center align-items-center">
+                    <p class="m-0">You have 0 active notifications</p>
                 </div>
             }
-        }
-        else
-        {
-            <div style="width: 400px; height: 100px" class="d-flex justify-content-center align-items-center">
-                <p class="m-0">You have 0 active notifications</p>
-            </div>
-        }
+        </div>
     </div>
 </div>

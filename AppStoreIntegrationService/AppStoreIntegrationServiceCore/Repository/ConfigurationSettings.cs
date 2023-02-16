@@ -82,7 +82,6 @@ namespace AppStoreIntegrationServiceCore.Repository
         {
             StorageAccountName = GetVariable(ServiceResource.StorageAccountName);
             BlobName = GetVariable(ServiceResource.BlobName);
-            LocalFolderPath = GetVariable(ServiceResource.LocalFolderPath);
             PluginsFileName = GetVariable(ServiceResource.PluginsFileName);
             SettingsFileName = GetVariable(ServiceResource.SettingsFileName);
             SendGridAPIKey = GetVariable(ServiceResource.SendGridAPIKey);

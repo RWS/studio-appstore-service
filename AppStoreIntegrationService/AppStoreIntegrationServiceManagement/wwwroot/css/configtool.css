@@ -266,19 +266,30 @@ table {
     background-color: var(--pa-admin-table-color) !important;
 }
 
-/* Generic */
+/* Notifications modal */
 
-.fa-clock,
 .fa-exclamation-circle {
     position: absolute;
     top: -10px;
     right: -17px;
 }
 
-.action-container
-{
+.action-container {
     top: 2px;
     right: 2px;
+}
+
+.notifications-container{
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Generic */
+
+.fa-clock {
+    position: absolute;
+    top: -10px;
+    right: -17px;
 }
 
 .active-tab {

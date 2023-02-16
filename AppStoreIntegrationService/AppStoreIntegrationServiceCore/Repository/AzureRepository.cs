@@ -23,9 +23,9 @@ namespace AppStoreIntegrationServiceCore.Repository
             _blobServiceClient = new BlobServiceClient(new Uri($"https://{_configurationSettings.StorageAccountName}.blob.core.windows.net"), new DefaultAzureCredential());
             _container = _blobServiceClient.GetBlobContainerClient(_configurationSettings.BlobName);
 
-            CreateIfNotExists(_container, _configurationSettings.PluginsFileName);
-            CreateIfNotExists(_container, _configurationSettings.SettingsFileName);
-            CreateIfNotExists(_container, _configurationSettings.NotificationsFileName);
+            _pluginsBlob = CreateIfNotExists(_container, _configurationSettings.PluginsFileName);
+            _settingsBlob = CreateIfNotExists(_container, _configurationSettings.SettingsFileName);
+            _notificationsBlob = CreateIfNotExists(_container, _configurationSettings.NotificationsFileName);
         }
 
         public async Task<PluginResponse<PluginDetails>> GetResponse()
@@ -62,21 +62,17 @@ namespace AppStoreIntegrationServiceCore.Repository
             await _settingsBlob.UploadAsync(content, new BlobUploadOptions());
         }
 
-        private static void CreateIfNotExists(BlobContainerClient container, string fileName)
+        private static BlobClient CreateIfNotExists(BlobContainerClient container, string fileName)
         {
-            if (string.IsNullOrEmpty(fileName))
-            {
-                return;
-            }
-
             var blob = container.GetBlobClient(fileName);
 
             if (blob.Exists())
             {
-                return;
+                return blob;
             }
 
             container.UploadBlob(fileName, new MemoryStream());
+            return container.GetBlobClient(fileName);
         }
 
         public async Task<IDictionary<string, IEnumerable<Notification>>> GetNotifications()

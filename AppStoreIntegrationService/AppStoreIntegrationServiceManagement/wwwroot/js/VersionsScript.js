@@ -80,21 +80,26 @@ function GenerateChecksum() {
 }
 
 function Save(pluginId, action, removeOtherVersions = false) {
-    let request = new XMLHttpRequest();
-    let data = new FormData(document.getElementById("form"));
-    data.set("RemoveOtherVersions", removeOtherVersions)
     let button = event.currentTarget;
-    ToggleLoader(button);
 
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText);
-            ToggleLoader(button);
+    $("#form").validate();
+
+    if ($("#form").valid()) {
+        let request = new XMLHttpRequest();
+        let data = new FormData(document.getElementById("form"));
+        data.set("RemoveOtherVersions", removeOtherVersions)
+        ToggleLoader(button);
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                HttpRequestCallback(request.responseText);
+                ToggleLoader(button);
+            }
         }
-    }
 
-    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${action}`);
-    request.send(data);
+        request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${action}`);
+        request.send(data);
+    }
 }
 
 function ToggleLoader(element) {

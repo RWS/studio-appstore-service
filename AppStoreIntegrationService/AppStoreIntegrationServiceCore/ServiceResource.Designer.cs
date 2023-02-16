@@ -80,16 +80,7 @@ namespace AppStoreIntegrationServiceCore {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_LOCAL_FOLDERPATH.
-        /// </summary>
-        public static string LocalFolderPath {
-            get {
-                return ResourceManager.GetString("LocalFolderPath", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to APPSTOREINTEGRATION_LOCAL_NOTIFICATIONSFILENAME.
+        ///   Looks up a localized string similar to APPSTOREINTEGRATION_NOTIFICATIONSFILENAME.
         /// </summary>
         public static string NotificationsFileName {
             get {

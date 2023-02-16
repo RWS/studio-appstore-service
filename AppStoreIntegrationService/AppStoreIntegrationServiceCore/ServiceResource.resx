@@ -124,11 +124,8 @@
   <data name="FontNames" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\fonts.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="LocalFolderPath" xml:space="preserve">
-    <value>APPSTOREINTEGRATION_LOCAL_FOLDERPATH</value>
-  </data>
   <data name="NotificationsFileName" xml:space="preserve">
-    <value>APPSTOREINTEGRATION_LOCAL_NOTIFICATIONSFILENAME</value>
+    <value>APPSTOREINTEGRATION_NOTIFICATIONSFILENAME</value>
   </data>
   <data name="PluginsFileName" xml:space="preserve">
     <value>APPSTOREINTEGRATION_PLUGINSFILENAME</value>
