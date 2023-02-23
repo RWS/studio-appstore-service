@@ -25,7 +25,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
 
             if (!_roleManager.Roles.Any())
             {
-                var roles = new[] { "Administrator", "StandardUser", "Developer" };
+                var roles = new[] { "Administrator", "StandardUser", "Developer", "DeveloperAdmin" };
                 for (var i = 0; i < roles.Length; i++)
                 {
                     _roleManager.CreateAsync(new IdentityRole
@@ -36,7 +36,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
                 }
             }
 
-            var defaultAdminUser = new IdentityUserExtended { UserName = "Admin", Email = "admin@sdl.com" };
+            var defaultAdminUser = new IdentityUserExtended { UserName = "admin@sdl.com" };
             _userManager.CreateAsync(defaultAdminUser, "administrator").Wait();
             _userManager.AddToRoleAsync(defaultAdminUser, "Administrator").Wait();
             _signInManager.SignInAsync(defaultAdminUser, false).Wait();

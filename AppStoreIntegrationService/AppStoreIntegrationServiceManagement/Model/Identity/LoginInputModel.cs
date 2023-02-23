@@ -5,7 +5,8 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
     public class LoginInputModel
     {
         [Required]
-        [Display(Name = "Username")]
+        [EmailAddress(ErrorMessage = "E-mail address is in wrong format!")]
+        [Display(Name = "Email")]
         public string UserName { get; set; }
 
         [Required]

@@ -15,14 +15,9 @@
         <form asp-controller="Account" asp-action="PostRegister" method="post" id="form">
             <input hidden name="Page" value="@Page.Register" />
             <div class="mb-3">
-                <label asp-for="Input.UserName" class="form-label"></label>
+                <label asp-for="Input.UserName" class="form-label">Email</label>
                 <input asp-for="Input.UserName" class="form-control fs-inherit" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Input.Email" class="form-label"></label>
-                <input asp-for="Input.Email" class="form-control fs-inherit" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Input.Password" class="form-label"></label>
@@ -40,6 +35,7 @@
                     <option value="StandardUser" selected>Standard</option>
                     <option value="Administrator">Administrator</option>
                     <option value="Developer">Developer</option>
+                    <option value="DeveloperAdmin">DeveloperAdmin</option>
                 </select>
             </div>
             <button type="submit" class="btn pa-admin-success-btn fs-inherit">Register</button>

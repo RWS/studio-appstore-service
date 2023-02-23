@@ -46,7 +46,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         {
             var currentUser = await _userManager.GetUserAsync(User);
             var wantedUser = await _userManager.FindByIdAsync(id);
-            List<IdentityResult> results = new ();
+            List<IdentityResult> results = new();
 
             if (!TryValidate(currentUser, id, wantedUser, true, out IActionResult result))
             {
@@ -57,8 +57,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             {
                 results = new List<IdentityResult>
                 {
-                    await _userManager.SetUserNameAsync(currentUser, profileModel.Username),
-                    await _userManager.SetEmailAsync(currentUser, profileModel.Email)
+                    await _userManager.SetUserNameAsync(currentUser, profileModel.UserName),
+                    await _userManager.SetEmailAsync(currentUser, profileModel.UserName)
                 };
 
                 if (results.Any(x => !x.Succeeded))
@@ -71,14 +71,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return RedirectToAction("Profile");
             }
 
-            if (profileModel.Username != wantedUser.UserName)
+            if (profileModel.UserName != wantedUser.UserName)
             {
-                results.Add(await _userManager.SetUserNameAsync(wantedUser, profileModel.Username));
+                results.Add(await _userManager.SetUserNameAsync(wantedUser, profileModel.UserName));
             }
 
-            if (profileModel.Email != wantedUser.Email)
+            if (profileModel.UserName != wantedUser.UserName)
             {
-                results.Add(await _userManager.SetEmailAsync(wantedUser, profileModel.Email));
+                results.Add(await _userManager.SetEmailAsync(wantedUser, profileModel.UserName));
             }
 
             var oldRole = (await _userManager.GetRolesAsync(wantedUser))[0];
@@ -160,7 +160,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 {
                     Id = user.Id,
                     Name = user.UserName,
-                    Email = user.Email,
                     Role = (await _userManager.GetRolesAsync(user))[0],
                     IsCurrentUser = user == (await _userManager.GetUserAsync(User))
                 });
@@ -183,22 +182,16 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         public async Task<IActionResult> PostRegister(RegisterModel registerModel)
         {
             registerModel.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (ModelState.IsValid)
+            var user = new IdentityUserExtended { UserName = registerModel.Input.UserName };
+            var result = await _userManager.CreateAsync(user, registerModel.Input.Password);
+            if (result.Succeeded)
             {
-                var user = new IdentityUserExtended { UserName = registerModel.Input.UserName, Email = registerModel.Input.Email };
-                var result = await _userManager.CreateAsync(user, registerModel.Input.Password);
-                if (result.Succeeded)
-                {
-                    await _userManager.AddToRoleAsync(user, registerModel.Input.UserRole);
-                    TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.UserName);
-                    return RedirectToAction("Users");
-                }
-
-                TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
-                return RedirectToAction("Register");
+                await _userManager.AddToRoleAsync(user, registerModel.Input.UserRole);
+                TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.UserName);
+                return RedirectToAction("Users");
             }
 
-            TempData["StatusMessage"] = "Error! Model state is invalid!";
+            TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
             return RedirectToAction("Register");
         }
 
@@ -256,8 +249,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             return new ProfileModel
             {
-                Username = username,
-                Email= user.Email,
+                UserName = user.UserName,
                 UserRole = role,
                 IsUsernameEditable = !isCurrentUserProfile || (username != "Admin" && role == "Administrator"),
                 IsUserRoleEditable = !isCurrentUserProfile,

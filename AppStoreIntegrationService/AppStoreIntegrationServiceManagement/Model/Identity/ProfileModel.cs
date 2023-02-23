@@ -8,16 +8,13 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
 
         public ProfileModel(IdentityUserExtended user, string role)
         {
-            Username = user.UserName;
-            Email = user.Email;
+            UserName = user.UserName;
             UserRole = role;
         }
 
         [Required]
-        public string Username { get; set; }
-        [Required]
         [EmailAddress(ErrorMessage = "Invalid email address!")]
-        public string Email { get; set; }
+        public string UserName { get; set; }
         [Display(Name = "User role")]
         public string UserRole { get; set; }
         public string Id { get; set; }
@@ -26,9 +23,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
 
         public bool Equals(ProfileModel other)
         {
-            return Username == other?.Username &&
-                   Email == other?.Email &&
-                   UserRole == other?.UserRole;
+            return UserName == other?.UserName && UserRole == other?.UserRole;
         }
     }
 }
