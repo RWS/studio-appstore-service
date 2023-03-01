@@ -8,13 +8,16 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
 
         public ProfileModel(IdentityUserExtended user, string role)
         {
+            Email = user.Email;
             UserName = user.UserName;
             UserRole = role;
         }
 
         [Required]
-        [EmailAddress(ErrorMessage = "Invalid email address!")]
         public string UserName { get; set; }
+        [Required]
+        [EmailAddress(ErrorMessage = "Invalid email address!")]
+        public string Email { get; set; }
         [Display(Name = "User role")]
         public string UserRole { get; set; }
         public string Id { get; set; }

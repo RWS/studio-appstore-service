@@ -7,7 +7,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         [Required]
         [EmailAddress(ErrorMessage = "E-mail address is in wrong format!")]
         [Display(Name = "Email")]
-        public string UserName { get; set; }
+        public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

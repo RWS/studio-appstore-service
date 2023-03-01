@@ -1,5 +1,6 @@
 ﻿using AppStoreIntegrationServiceManagement.Areas.Identity;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity
                         options.Password.RequireUppercase = false;
                         options.Password.RequireNonAlphanumeric = false;
                         options.SignIn.RequireConfirmedAccount = false;
+                        options.User.RequireUniqueEmail = true;
                     })
                     .AddEntityFrameworkStores<AppStoreIntegrationServiceContext>();
 
@@ -33,6 +35,8 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity
                     options.LoginPath = "/Identity/Authentication/Login";
                 });
                 services.AddTransient<IUserSeed, UserSeed>();
+                services.AddTransient<UserAccountsManager>();
+                services.AddTransient<AccountsManager>();
             });
         }
     }

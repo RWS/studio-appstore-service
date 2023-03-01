@@ -8,6 +8,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         public bool EmailNotificationsEnabled { get; set; }
         public bool PushNotificationsEnabled { get; set; }
         public bool IsBuiltInAdmin { get; set; }
+        public string SelectedAccountId { get; set; }
 
         public static string GetUserRole(ClaimsIdentity identity)
         {

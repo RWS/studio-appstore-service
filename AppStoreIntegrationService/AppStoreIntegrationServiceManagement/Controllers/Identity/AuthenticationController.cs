@@ -1,6 +1,8 @@
 ﻿using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,23 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     public class AuthenticationController : Controller
     {
         private readonly SignInManager<IdentityUserExtended> _signInManager;
+        private readonly UserManager<IdentityUserExtended> _userManager;
+        private readonly UserAccountsManager _userAccountManager;
+        private readonly AccountsManager _accountManager;
 
-        public AuthenticationController(SignInManager<IdentityUserExtended> signInManager, IUserSeed userSeed)
+        public AuthenticationController
+        (
+            SignInManager<IdentityUserExtended> signInManager, 
+            IUserSeed userSeed,
+            UserManager<IdentityUserExtended> userManager,
+            UserAccountsManager userAccountsManager,
+            AccountsManager accountManager
+        )
         {
             _signInManager = signInManager;
+            _userManager = userManager;
+            _userAccountManager = userAccountsManager;
+            _accountManager = accountManager;
             userSeed.EnsureAdminExistance();
         }
 
@@ -30,25 +45,50 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [HttpPost]
         public async Task<IActionResult> PostLogin(LoginModel loginModel, string returnUrl = null)
         {
-            if (!ModelState.IsValid)
+            var user = await _userManager.FindByEmailAsync(loginModel.Input.Email);
+
+            if (user == null)
             {
-                TempData["StatusMessage"] = "Error! Model state is invalid!";
+                TempData["StatusMessage"] = "Error! Something went wrong!";
                 return View("Login", loginModel);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(loginModel.Input.UserName, loginModel.Input.Password, loginModel.Input.RememberMe, false);
+            var result = await _signInManager.PasswordSignInAsync(user, loginModel.Input.Password, loginModel.Input.RememberMe, false);
+            user.SelectedAccountId = null;
+            await _userManager.UpdateAsync(user);
+
             if (result.Succeeded)
             {
-                return LocalRedirect(returnUrl);
+                return Redirect(returnUrl);
             }
 
             TempData["StatusMessage"] = "Error! Something went wrong!";
             return View("Login", loginModel);
         }
 
+        [Authorize]
+        public async Task<IActionResult> Accounts(string returnUrl = null)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var accounts = _userAccountManager.GetUserAccounts(user);
+            return View((accounts, returnUrl));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SelectAccount(string accountId, string returnUrl = null)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            user.SelectedAccountId = accountId;
+            await _userManager.UpdateAsync(user);
+            return Redirect(returnUrl ?? "/Plugins");
+        }
+
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
+            var user = await _userManager.GetUserAsync(User);
+            user.SelectedAccountId = null;
+            await _userManager.UpdateAsync(user);
             await _signInManager.SignOutAsync();
             TempData["StatusMessage"] = "Success! You were logged out!";
             return RedirectToAction("Login");

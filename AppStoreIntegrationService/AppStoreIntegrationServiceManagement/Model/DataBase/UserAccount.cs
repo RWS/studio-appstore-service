@@ -16,5 +16,7 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
         public string RoleId { get; set; }
         [Required]
         public bool IsOwner { get; set; }
+        [Required]
+        public bool IsDefault { get; set; }
     }
 }

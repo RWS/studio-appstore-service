@@ -5,9 +5,11 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
     public class RegisterInputModel
     {
         [Required]
+        public string UserName { get; set; }
+
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "Invalid e-mail address!")]
-        public string UserName { get; set; }
+        public string Email { get;set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
@@ -19,7 +21,6 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
-
         [Display(Name = "User role")]
         public string UserRole { get; set; }
 

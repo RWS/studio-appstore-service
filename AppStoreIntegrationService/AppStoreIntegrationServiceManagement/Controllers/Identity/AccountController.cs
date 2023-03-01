@@ -1,4 +1,6 @@
-﻿using AppStoreIntegrationServiceManagement.Model.Identity;
+﻿using AppStoreIntegrationServiceManagement.Filters;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
+using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,15 +9,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
     [Area("Identity")]
     [Authorize]
+    [AccountSelected]
     public class AccountController : Controller
     {
         private readonly UserManager<IdentityUserExtended> _userManager;
         private readonly SignInManager<IdentityUserExtended> _signInManager;
+        private readonly UserAccountsManager _userAccountsManager;
+        private readonly AccountsManager _accountsManager;
 
-        public AccountController(UserManager<IdentityUserExtended> userManager, SignInManager<IdentityUserExtended> signInManager)
+        public AccountController
+        (
+            UserManager<IdentityUserExtended> userManager,
+            SignInManager<IdentityUserExtended> signInManager,
+            UserAccountsManager userAccountsManager,
+            AccountsManager accountsManager
+        )
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _userAccountsManager = userAccountsManager;
+            _accountsManager = accountsManager;
         }
 
         public async Task<IActionResult> Profile(string id)
@@ -150,25 +163,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return RedirectToAction("Profile", new { id });
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator, Developer")]
+        [Owner]
         public async Task<IActionResult> Users()
         {
-            var users = new List<UserInfoModel>();
-            foreach (var user in _userManager.Users.ToList())
-            {
-                users.Add(new UserInfoModel
-                {
-                    Id = user.Id,
-                    Name = user.UserName,
-                    Role = (await _userManager.GetRolesAsync(user))[0],
-                    IsCurrentUser = user == (await _userManager.GetUserAsync(User))
-                });
-            }
+            var user = await _userManager.GetUserAsync(User);
+            var users = _userManager.Users.ToList();
+            var identityUsers = User.IsInRole("Administrator") ? users : users.Where(x => _userAccountsManager.BelongsTo(user, x));
 
-            return View(users);
+            return View(identityUsers.Select(x => new UserInfoModel
+            {
+                Id = x.Id,
+                Name = x.UserName,
+                Role = _userManager.GetRolesAsync(x).Result.FirstOrDefault(),
+                IsCurrentUser = x == user,
+                IsBuiltInAdmin = x.IsBuiltInAdmin
+            }));
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator, Developer")]
+        [Owner]
         public async Task<IActionResult> Register()
         {
             return View(new RegisterModel
@@ -178,20 +192,37 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [HttpPost]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator, Developer")]
+        [Owner]
         public async Task<IActionResult> PostRegister(RegisterModel registerModel)
         {
             registerModel.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            var user = new IdentityUserExtended { UserName = registerModel.Input.UserName };
-            var result = await _userManager.CreateAsync(user, registerModel.Input.Password);
-            if (result.Succeeded)
+            var user = new IdentityUserExtended { UserName = registerModel.Input.UserName, Email = registerModel.Input.Email };
+            var results = new List<IdentityResult>
             {
-                await _userManager.AddToRoleAsync(user, registerModel.Input.UserRole);
+                await _userManager.CreateAsync(user, registerModel.Input.Password),
+                await _userManager.AddToRoleAsync(user, registerModel.Input.UserRole)
+            };
+
+            if (User.IsInRole("Administrator"))
+            {
+                results.Add(await _userAccountsManager.TryAddUserToAccount(user));
+            }
+
+            if (User.IsInRole("Developer"))
+            {
+                var developer = await _userManager.GetUserAsync(User);
+                var account = _accountsManager.GetAccountById(developer.SelectedAccountId);
+                results.Add(await _userAccountsManager.TryAddUserToAccount(user, account.AccountName));
+            }
+
+            if (results.All(x => x.Succeeded))
+            {
                 TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.UserName);
                 return RedirectToAction("Users");
             }
 
-            TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
+            TempData["StatusMessage"] = string.Format("Error! {0}", results.FirstOrDefault(x => !x.Succeeded).Errors.First().Description);
             return RedirectToAction("Register");
         }
 
@@ -209,12 +240,71 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             if (user == currentUser)
             {
                 TempData["StatusMessage"] = "Error! You cannot delete your account!";
-                return Content("");
+                return Content(null);
             }
 
             await _userManager.DeleteAsync(user);
+            _userAccountsManager.RemoveUserFromAccounts(user);
             TempData["StatusMessage"] = string.Format("Success! {0} was deleted!", user.UserName);
-            return Content("");
+            return Content(null);
+        }
+
+        [Authorize(Roles = "Developer")]
+        [Owner]
+        public async Task<IActionResult> Dismiss(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var account = _accountsManager.GetAccountById(currentUser.SelectedAccountId);
+            var result = _userAccountsManager.RemoveUserFromAccount(user, account);
+
+            if (result.Succeeded)
+            {
+                TempData["StatusMessage"] = string.Format("{0} was dismissed succesfully", user.UserName);
+                return RedirectToAction("Users");
+            }
+
+            TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
+            return RedirectToAction("Users");
+        }
+
+        [Authorize(Roles = "Developer")]
+        [Owner]
+        public async Task<IActionResult> Assign(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var result = await _userAccountsManager.TryAddUserToAccount(user, currentUser.SelectedAccountId);
+
+            if (result.Succeeded)
+            {
+                TempData["StatusMessage"] = string.Format("{0} was assigned succesfully", user.UserName);
+                return Content("/Identity/Accounts/Users");
+            }
+
+            TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
+            return new EmptyResult();
+        }
+
+        [Authorize(Roles = "Developer")]
+        [Owner]
+        public async Task<IActionResult> CheckUserExistance(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+
+            if (user == null)
+            {
+                return Json(new { Message = "The user does not exits!", IsErrorMessage = false });
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles.FirstOrDefault() != "Developer")
+            {
+                return Json(new { Message = "The user exists and cannot be assigned!", IsErrorMessage = true });
+            }
+
+            return PartialView("_ExistentUserPartial", user.Id);
         }
 
         private bool TryValidate(IdentityUserExtended currentUser, string id, IdentityUserExtended wantedUser, bool checkModelState, out IActionResult result)
@@ -244,14 +334,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         private async Task<ProfileModel> LoadAsync(IdentityUserExtended user, bool isCurrentUserProfile)
         {
-            var username = await _userManager.GetUserNameAsync(user);
-            var role = (await _userManager.GetRolesAsync(user))[0];
+            var roles = await _userManager.GetRolesAsync(user);
 
             return new ProfileModel
             {
                 UserName = user.UserName,
-                UserRole = role,
-                IsUsernameEditable = !isCurrentUserProfile || (username != "Admin" && role == "Administrator"),
+                Email = user.Email,
+                UserRole = roles.FirstOrDefault(),
+                IsUsernameEditable = !isCurrentUserProfile || (!user.IsBuiltInAdmin && roles.FirstOrDefault() == "Administrator"),
                 IsUserRoleEditable = !isCurrentUserProfile,
                 Id = isCurrentUserProfile ? null : user.Id
             };

@@ -1,0 +1,20 @@
+﻿@model string
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-inherit" id="exampleModalLabel">Users exists!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                This user exists in our database! Do you want to assign it under your account?
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="AddUserToAccount('@Model')" class="btn btn-success fs-inherit" data-bs-dismiss="modal">Yes</button>
+                <button type="button" class="btn btn-secondary fs-inherit" onclick="$('#confirmationModal').remove()" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+

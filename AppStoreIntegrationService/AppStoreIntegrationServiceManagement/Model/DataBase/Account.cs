@@ -7,7 +7,7 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
     public class Account
     {
         [Required]
-        public string AccountId { get; set; }
+        public string Id { get; set; }
         [Required]
         public string AccountName { get; set; }
     }

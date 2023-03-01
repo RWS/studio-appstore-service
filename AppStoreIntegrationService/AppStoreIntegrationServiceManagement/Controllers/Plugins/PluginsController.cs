@@ -2,6 +2,7 @@
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
@@ -13,8 +14,9 @@ using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
-    [Authorize]
     [Area("Plugins")]
+    [Authorize]
+    [AccountSelected]
     public class PluginsController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
@@ -50,6 +52,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             _scheme = context.HttpContext.Request.Scheme;
         }
 
+        [AccountSelected]
         [Route("Plugins")]
         [Route("/")]
         public async Task<IActionResult> Index()
