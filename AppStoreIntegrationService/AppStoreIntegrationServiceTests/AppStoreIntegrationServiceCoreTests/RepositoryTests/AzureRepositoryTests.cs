@@ -1,5 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
 using AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mock;
 using Xunit;
 

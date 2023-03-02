@@ -1,6 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
+using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static AppStoreIntegrationServiceCore.Enums;

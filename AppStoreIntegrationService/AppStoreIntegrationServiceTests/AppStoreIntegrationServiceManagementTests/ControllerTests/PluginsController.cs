@@ -1,14 +1,14 @@
 ﻿using Xunit;
 using AppStoreIntegrationServiceManagement.Controllers.Plugins;
 using NSubstitute;
-using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Identity;
-using AppStoreIntegrationServiceManagement.Model.Identity;
-using AppStoreIntegrationServiceCore.Repository;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
+using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model.Repository;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTests.ControllerTests
 {
@@ -26,6 +26,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
             var mockLogginRepository = Substitute.For<ILoggingRepository>();
             var mockUserManager = Substitute.For<UserManager<IdentityUserExtended>>();
             var mockNotificationCenter = Substitute.For<NotificationCenter>();
+            var mockAccountsManager= Substitute.For<AccountsManager>();
 
             var pluginsController = new PluginsController
             (
@@ -36,7 +37,8 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
                 mockCommentsRepository, 
                 mockLogginRepository, 
                 mockNotificationCenter,
-                mockUserManager
+                mockUserManager,
+                mockAccountsManager
             )
 
             {

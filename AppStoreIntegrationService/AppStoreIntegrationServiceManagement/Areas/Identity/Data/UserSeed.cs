@@ -1,5 +1,4 @@
 ﻿using AppStoreIntegrationServiceManagement.Model.DataBase;
-using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Identity;
 
 namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data

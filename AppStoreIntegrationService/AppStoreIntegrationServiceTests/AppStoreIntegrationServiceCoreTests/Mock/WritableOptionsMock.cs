@@ -1,4 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.Model.Common.Interface;
+﻿using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
 using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mock

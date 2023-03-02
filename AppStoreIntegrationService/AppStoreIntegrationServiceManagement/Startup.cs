@@ -4,12 +4,13 @@ using static AppStoreIntegrationServiceCore.Enums;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceCore.Model.Common.Interface;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
+using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model.Repository;
 
 namespace AppStoreIntegrationServiceManagement
 {

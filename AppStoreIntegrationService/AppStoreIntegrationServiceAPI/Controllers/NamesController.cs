@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using AppStoreIntegrationServiceAPI.Model;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,9 @@ namespace AppStoreIntegrationServiceAPI.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     public class NamesController : ControllerBase
     {
-        private readonly INamesRepository _namesRepository;
+        private readonly INamesRepositoryReadonly _namesRepository;
 
-        public NamesController(INamesRepository namesRepository)
+        public NamesController(INamesRepositoryReadonly namesRepository)
         {
             _namesRepository = namesRepository;
         }
@@ -20,7 +21,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
         [HttpGet("/mapNames")]
         public async Task<IActionResult> Get([FromQuery] PluginNamesRequest pluginNamesRequest)
         {
-            if (!(pluginNamesRequest?.Name?.Count > 0))
+            if (!(bool)pluginNamesRequest.Name?.Any())
             {
                 return Ok(new List<NameMapping>());
             }

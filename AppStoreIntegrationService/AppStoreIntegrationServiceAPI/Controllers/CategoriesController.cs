@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {
-    
+
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoriesRepository _categoriesRepository;
+        private readonly ICategoriesRepositoryReadonly _categoriesRepository;
 
-        public CategoriesController(ICategoriesRepository categoriesRepository)
+        public CategoriesController(ICategoriesRepositoryReadonly categoriesRepository)
         {
             _categoriesRepository = categoriesRepository;
         }

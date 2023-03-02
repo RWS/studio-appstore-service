@@ -1,7 +1,9 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
+using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Plugins;

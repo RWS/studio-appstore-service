@@ -1,5 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
 using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mock
@@ -24,6 +24,11 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         public AzureRepositoryMock(SiteSettings settings)
         {
             _settings = JsonConvert.SerializeObject(settings);
+        }
+
+        public async Task<PluginResponseBase<PluginDetails>> GetBaseResponse()
+        {
+            return await GetResponse();
         }
 
         public async Task<PluginResponse<PluginDetails>> GetResponse()

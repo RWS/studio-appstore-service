@@ -1,10 +1,10 @@
-﻿using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceCore.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using AppStoreIntegrationServiceManagement.Model.Identity;
-using AppStoreIntegrationServiceCore.Repository;
+using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model.Repository;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {

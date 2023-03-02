@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.Helpers;
 using System.IO.Compression;
 using System.Text;
 using System.Xml;

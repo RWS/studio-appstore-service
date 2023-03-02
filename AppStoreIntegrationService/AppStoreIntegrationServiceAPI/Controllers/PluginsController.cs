@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Authorization;
-using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceAPI.Model.Repository.Interface;
+using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
@@ -13,9 +13,9 @@ namespace AppStoreIntegrationServiceAPI.Controllers
     public class PluginsController : Controller
     {
         private readonly IPluginResponseConverter _converter;
-        private readonly IResponseManager _manager;
+        private readonly IResponseManagerBase _manager;
 
-        public PluginsController(IPluginResponseConverter converter, IResponseManager manager)
+        public PluginsController(IPluginResponseConverter converter, IResponseManagerBase manager)
         {
             _converter = converter;
             _manager = manager;
@@ -37,7 +37,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
         {
             _ = Request.Headers.TryGetValue("apiversion", out StringValues text);
             filter.SortOrder = string.IsNullOrEmpty(filter?.SortOrder) ? "asc" : filter.SortOrder;
-            var response = await _manager.GetResponse();
+            var response = await _manager.GetBaseResponse();
             response.Value = PluginFilter.FilterPlugins(response.Value, filter, response.Products, response.ParentProducts);
 
             if (!Version.TryParse(text, out Version version) || version == new Version(1, 0, 0))

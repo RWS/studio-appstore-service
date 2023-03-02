@@ -1,9 +1,10 @@
 ﻿using AppStoreIntegrationServiceCore;
 using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository;
-using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model.Identity;
+using AppStoreIntegrationServiceManagement.Helpers;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
+using AppStoreIntegrationServiceManagement.Model.Repository;
+using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

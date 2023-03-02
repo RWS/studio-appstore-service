@@ -42,21 +42,15 @@ namespace AppStoreIntegrationServiceAPI
 
             if (deployMode == DeployMode.AzureBlob)
             {
-                services.AddSingleton<IResponseManager, AzureRepository>();
-                services.AddSingleton<ISettingsManager, AzureRepository>();
+                services.AddSingleton<IResponseManagerBase, AzureRepositoryBase>();
             }
             else
             {
-                services.AddSingleton<IResponseManager, LocalRepository>();
-                services.AddSingleton<ISettingsManager, LocalRepository>();
+                services.AddSingleton<IResponseManagerBase, LocalRepositoryBase>();
             }
 
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
-            services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
-            services.AddSingleton<IPluginRepository, PluginRepository>();
-            services.AddSingleton<IProductsRepository, ProductsRepository>();
             services.AddSingleton<IPluginResponseConverter, PluginResponseConverter>();
-            services.AddSingleton<INamesRepository, NamesRepository>();
         }
 
         private static ServiceProvider GetServiceProvider(IServiceCollection services)
