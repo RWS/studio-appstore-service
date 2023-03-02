@@ -5,7 +5,7 @@
     #additionRoute;
     #deletionRoute;
 
-    constructor(field, updateRoute, additionRoute, deletionRoute) {
+    constructor(field, updateRoute, additionRoute = "", deletionRoute = "") {
         this.#field = field;
         this.#updateRoute = updateRoute;
         this.#additionRoute = additionRoute;
@@ -42,14 +42,10 @@
             let request = new XMLHttpRequest();
             let data = new FormData(document.getElementById("form"));
 
-            for (const pair of data.entries()) {
-                console.log(`${pair[0]}, ${pair[1]}`);
-            }
-
             request.onreadystatechange = () => {
                 if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
                     if (request.responseText.includes('div')) {
-                        this.AjaxSuccessCallback(request.responseText);
+                        this.HttpSuccessCallback(request.responseText);
                         return;
                     }
 
@@ -57,7 +53,7 @@
                 }
             }
 
-            request.open("POST", `/Settings/${this.#updateRoute}`);
+            request.open("POST", this.#updateRoute);
             request.send(data);
         }
     }
@@ -90,12 +86,24 @@
         })
     }
 
-    AjaxSuccessCallback(actionResult) {
-        $('.alert').remove();
-        $('#statusMessageContainer').html(actionResult);
-        $('#statusMessageContainer').find('.modal').modal('show');
-        $(".alert").fadeTo(3000, 500).slideUp(500, function () {
-            $(this).remove();
-        });
+    HttpSuccessCallback(response) {
+        if (!response.includes("div")) {
+            window.location.href = response;
+        }
+
+        let alert = document.querySelector('.alert');
+
+        if (alert) {
+            alert.remove();
+        }
+
+        document.getElementById("statusMessageContainer").innerHTML = response;
+        setTimeout(() => {
+            alert = document.querySelector('.alert')
+            alert.classList.add('slide-right');
+            alert.addEventListener('animationend', () => {
+                document.querySelector('.alert-container').remove();
+            })
+        }, 3000);
     }
 }

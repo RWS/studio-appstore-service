@@ -62,10 +62,20 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
                 var userAccounts = _context.UserAccounts;
                 var accounts = _accountsManager.GetAllAccounts();
 
-                userAccounts.RemoveRange(userAccounts.Where(x => x.UserId == user.Id));
+                foreach (var userAccount in userAccounts.Where(x => x.UserId == user.Id))
+                {
+                    if (userAccount.IsOwner)
+                    {
+                        _accountsManager.RemoveAccountById(userAccount.AccountId);
+                        userAccounts.RemoveRange(userAccounts.Where(x => x.AccountId == userAccount.AccountId));
+                    }
+                    else
+                    {
+                        userAccounts.Remove(userAccount);
+                    }
+                }
+
                 _context.SaveChanges();
-                var toRemove = accounts.Where(x => !userAccounts.ToList().Any(y => y.AccountId == x.Id));
-                _accountsManager.RemoveRange(toRemove);
                 return IdentityResult.Success;
             }
             catch (Exception ex)
@@ -82,15 +92,16 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             return userAccount.IsOwner;
         }
 
+        public bool IsOwner(IdentityUserExtended user, Account account)
+        {
+            var userAccounts = _context.UserAccounts.ToList();
+            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && x.AccountId == account.Id);
+            return userAccount.IsOwner;
+        }
+
         public bool BelongsTo(IdentityUserExtended owner, IdentityUserExtended member)
         {
             var account = _accountsManager.GetAccountById(owner.SelectedAccountId);
-            var userAccounts = _context.UserAccounts.ToList();
-            return userAccounts.Any(x => x.AccountId == account.Id && x.UserId == member.Id);
-        }
-
-        public bool BelongsTo(Account account, IdentityUserExtended member)
-        {
             var userAccounts = _context.UserAccounts.ToList();
             return userAccounts.Any(x => x.AccountId == account.Id && x.UserId == member.Id);
         }

@@ -181,6 +181,29 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             }));
         }
 
+        [Authorize(Roles = "Developer")]
+        public async Task<IActionResult> Accounts()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            return View(_userAccountsManager.GetUserAccounts(user));
+        }
+
+        [Authorize(Roles = "Developer")]
+        public async Task<IActionResult> UpdateAccount(Account account)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (!_userAccountsManager.IsOwner(user, account))
+            {
+                TempData["StatusMessage"] = "Error! You cannot edit this account!";
+                return new EmptyResult();
+            }
+
+            _accountsManager.UpdateAccount(account);
+            TempData["StatusMessage"] = "Success! The account was updated!";
+            return new EmptyResult();
+        }
+
         [Authorize(Roles = "Administrator, Developer")]
         [Owner]
         public async Task<IActionResult> Register()
@@ -274,12 +297,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         {
             var user = await _userManager.FindByIdAsync(id);
             var currentUser = await _userManager.GetUserAsync(User);
-            var result = await _userAccountsManager.TryAddUserToAccount(user, currentUser.SelectedAccountId);
+            var account = _accountsManager.GetAccountById(currentUser.SelectedAccountId);
+            var result = await _userAccountsManager.TryAddUserToAccount(user, account.AccountName);
 
             if (result.Succeeded)
             {
-                TempData["StatusMessage"] = string.Format("{0} was assigned succesfully", user.UserName);
-                return Content("/Identity/Accounts/Users");
+                TempData["StatusMessage"] = string.Format("Success! {0} was assigned succesfully", user.UserName);
+                return Content("/Identity/Account/Users");
             }
 
             TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);

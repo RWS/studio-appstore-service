@@ -11,7 +11,7 @@ using System.Security.Claims;
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
     [Area("Identity")]
-    [Authorize(Roles = "Administrator,Developer")]
+    [Authorize(Roles = "Administrator, Developer")]
     public class NotificationsController : Controller
     {
         private readonly UserManager<IdentityUserExtended> _userManager;

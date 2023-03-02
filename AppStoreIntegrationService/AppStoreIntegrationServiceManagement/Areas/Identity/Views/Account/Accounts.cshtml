@@ -1,0 +1,71 @@
+﻿@model IEnumerable<Account>
+@inject UserManager<IdentityUserExtended> userManager
+@inject UserAccountsManager userAccountsManager
+@{
+    ViewData["Title"] = "Accounts";
+    ViewData["ActivePage"] = ManageNavPages.Accounts;
+    var user = await userManager.GetUserAsync(User);
+    var selectedAccount = Context.Request.Query["selectedAccount"];
+}
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<h1 class="fs1-inherit">@ViewData["Title"]</h1>
+<h2 class="fs2-inherit">Manage accounts</h2>
+<hr class="w-100">
+<div class="row justify-content-center">
+    <partial name="_ProfileNav" />
+    <div class="col-12 col-md-9">
+        <form id="form" onsubmit="return false">
+            <p class="fw-bold fs4-inherit">Accounts</p>
+            <table class="table table-bordered" id="usersTable">
+                <thead>
+                    <tr class="text-center d-none d-lg-table-row">
+                        <th>Account name</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="tbody-stripped">
+                    @foreach (var account in Model)
+                    {
+                        if (selectedAccount == account.Id.ToString())
+                        {
+                            <partial name="_NewAccountPartial" model="account" />
+                        }
+                        else
+                        {
+                            <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
+                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@account.AccountName</p></td>
+                                @if (userAccountsManager.IsOwner(user, account))
+                                {
+                                    <td class="text-center align-middle d-none d-lg-table-cell" colspan="2">
+                                        <i class="fa fa-pen-alt cursor-pointer" title="Edit @account.AccountName" onclick="EnsurePreserved(() => table.Edit('@account.Id'))"></i>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="align-middle px-3 d-none d-lg-table-cell" colspan="2">
+                                        <i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="You are not the owner of this account!"></i>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+
+<script src="~/js/TableCRUD.js"></script>
+<script asp-append-version="true">
+    const table = new TableCrud("Account", "/Identity/Account/UpdateAccount")
+</script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+
+
+
+

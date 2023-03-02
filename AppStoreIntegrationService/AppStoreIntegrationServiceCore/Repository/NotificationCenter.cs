@@ -80,7 +80,7 @@ namespace AppStoreIntegrationServiceCore.Repository
             }
         }
 
-        public async Task Broadcast(string message)
+        public async Task Broadcast(string message, string developerName = null)
         {
             try
             {

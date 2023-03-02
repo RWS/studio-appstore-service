@@ -27,6 +27,14 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             return account;
         }
 
+        public void UpdateAccount(Account account)
+        {
+            var accounts = _context.Accounts;
+            var oldAccount = accounts.FirstOrDefault(x => x.Id == account.Id);
+            oldAccount.AccountName = account.AccountName;
+           _context.SaveChanges();
+        }
+
         public Account GetAccountById(string id)
         {
             return _context.Accounts.ToList().FirstOrDefault(x => x.Id == id);
@@ -37,11 +45,10 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             return _context.Accounts.ToList();
         }
 
-        public void RemoveRange(IEnumerable<Account> toRemove)
+        public void RemoveAccountById(string id)
         {
             var accounts = _context.Accounts;
-            accounts.RemoveRange(accounts.Where(x => toRemove.Any(y => y.Id == x.Id)));
-            _context.SaveChanges();
+            accounts.Remove(accounts.FirstOrDefault(x => x.Id == id));
         }
     }
 }

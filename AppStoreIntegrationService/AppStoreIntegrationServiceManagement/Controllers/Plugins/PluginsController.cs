@@ -3,6 +3,7 @@ using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Filters;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using Microsoft.AspNetCore.Authorization;
@@ -26,6 +27,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly ILoggingRepository _loggingRepository;
         private readonly INotificationCenter _notificationCenter;
         private readonly UserManager<IdentityUserExtended> _userManager;
+        private readonly AccountsManager _accountsManager;
         private readonly string _host;
         private readonly string _scheme;
 
@@ -38,7 +40,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             ICommentsRepository commentsRepository,
             ILoggingRepository loggingRepository,
             INotificationCenter notificationCenter,
-            UserManager<IdentityUserExtended> userManager
+            UserManager<IdentityUserExtended> userManager,
+            AccountsManager accountsManager
         )
         {
             _pluginRepository = pluginRepository;
@@ -48,11 +51,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             _loggingRepository = loggingRepository;
             _notificationCenter = notificationCenter;
             _userManager = userManager;
+            _accountsManager = accountsManager;
             _host = context.HttpContext.Request.Host.Value;
             _scheme = context.HttpContext.Request.Scheme;
         }
 
-        [AccountSelected]
         [Route("Plugins")]
         [Route("/")]
         public async Task<IActionResult> Index()
@@ -97,12 +100,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var categories = await _categoriesRepository.GetAllCategories();
             var plugins = await _pluginRepository.GetAll("asc");
+            var user = await _userManager.GetUserAsync(User);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
 
             return View("Details", new ExtendedPluginDetails
             {
                 Id = plugins.MaxBy(x => x.Id)?.Id + 1 ?? 0,
                 Icon = new IconDetails { MediaUrl = $"{_scheme}://{_host}/images/plugin.ico" },
-                Developer = new DeveloperDetails { DeveloperName = User.IsInRole("Developer") ? User.Identity.Name : null },
+                Developer = new DeveloperDetails { DeveloperName = User.IsInRole("Developer") ? account.AccountName : null },
                 IsEditMode = false,
                 Status = User.IsInRole("Developer") ? Status.Draft : Status.Active,
                 IsThirdParty = User.IsInRole("Developer"),
@@ -193,7 +198,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
             string log = string.Format(TemplateResource.PluginActiveLog, User.Identity.Name, plugin.Name, DateTime.Now);
-            plugin.Status = Status.Active;          
+            plugin.Status = Status.Active;
             return await Save(plugin, oldPlugin, "Edit", log);
         }
 
@@ -263,16 +268,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var emailNotification = _notificationCenter.GetNotification(notificationTemplate, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
             var pushNotification = _notificationCenter.GetNotification(notificationTemplate, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
-            await _notificationCenter.SendEmail(emailNotification, await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
+            await _notificationCenter.SendEmail(emailNotification, plugin.Developer.DeveloperName);
             await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
             await _notificationCenter.Broadcast(emailNotification);
             await _notificationCenter.Push(pushNotification);
-        }
-
-        private async Task<string> GetCurrentPluginUserEmail(string username)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            return user.Email;
         }
 
         private async Task<IActionResult> Save(PluginDetails plugin, PluginDetails oldPlugin, string successRedirect, string log = null, bool removeOtherVersions = false, bool compareWithManifest = false)
