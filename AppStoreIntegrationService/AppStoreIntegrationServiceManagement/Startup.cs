@@ -1,16 +1,15 @@
 using System.IO.Compression;
 using Microsoft.AspNetCore.ResponseCompression;
-using static AppStoreIntegrationServiceCore.Enums;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
-using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
-using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model.Repository;
+using AppStoreIntegrationServiceManagement.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Repository;
+using AppStoreIntegrationServiceManagement.Model.Customization;
+using AppStoreIntegrationServiceManagement.Model.Settings;
 
 namespace AppStoreIntegrationServiceManagement
 {

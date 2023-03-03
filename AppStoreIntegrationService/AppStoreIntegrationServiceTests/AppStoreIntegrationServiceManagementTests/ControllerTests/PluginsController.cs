@@ -6,9 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Identity;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
-using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model.Repository;
-using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Repository;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTests.ControllerTests
 {

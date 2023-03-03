@@ -9,6 +9,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="Resources\fonts.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Resources\fonts.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
 		<PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
@@ -25,5 +33,20 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\AppStoreIntegrationServiceCore\AppStoreIntegrationServiceCore.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="TemplateResource.Designer.cs">
+	    <DependentUpon>TemplateResource.resx</DependentUpon>
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="TemplateResource.resx">
+	    <LastGenOutput>TemplateResource.Designer.cs</LastGenOutput>
+	    <Generator>PublicResXFileCodeGenerator</Generator>
+	  </EmbeddedResource>
 	</ItemGroup>
 </Project>

@@ -1,8 +1,8 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
-using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Settings;
+using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

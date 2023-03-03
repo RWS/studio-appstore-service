@@ -1,15 +1,13 @@
-﻿using AppStoreIntegrationServiceCore;
-using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Helpers;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
-using AppStoreIntegrationServiceManagement.Model.Repository;
-using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Repository;
+using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {

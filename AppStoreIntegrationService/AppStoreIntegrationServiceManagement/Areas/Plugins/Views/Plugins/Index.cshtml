@@ -18,7 +18,6 @@
                     <option disabled hidden selected>Products</option>
                 </select>
             </div>
-
             <div class="col-12 col-lg-4">
                 <div class="input-group">
                     <input type="text" class="form-control form-control-sm" name="Query" autocomplete="off" placeholder="Search plugin" aria-label="Search plugin">
@@ -28,20 +27,21 @@
                 </div>
             </div>
         </form>
-
     </div>
-
     <div id="newAppButton" class="col-12 col-lg-4 d-flex justify-content-start justify-content-lg-end order-0 order-lg-1 p-0">
         <a class="btn pa-admin-success-btn fs-inherit" asp-controller="Plugins" asp-action="New">
             <i class="fas fa-puzzle-piece"></i>
             New app
         </a>
     </div>
-
 </div>
 
 
 <form id="form" class="m-0 px-1 py-3 d-flex">
+    <div class="d-flex align-items-center me-2">
+        <p class="m-0">@Model.Plugins.Count() Resources available</p>
+    </div>
+    
     <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white @(Model.Filters.Any(x => x.IsSelected) ? "" : "d-none")" href="@Url.Action("Index")">
         <i class="fa fa-times-circle"></i>
         Clear all

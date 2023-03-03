@@ -1,8 +1,17 @@
 ﻿using System.Text.RegularExpressions;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
+    public enum Status
+    {
+        Active = 0,
+        Inactive,
+        Draft,
+        InReview,
+        Complete,
+        All
+    }
+
     public class PluginFilter
     {
         public string Query { get; set; }

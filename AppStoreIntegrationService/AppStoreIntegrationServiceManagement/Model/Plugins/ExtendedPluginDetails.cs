@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using AppStoreIntegrationServiceManagement.Model.Comments;
+using AppStoreIntegrationServiceManagement.Model.Logs;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceCore.Model

@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using static AppStoreIntegrationServiceCore.Enums;
+﻿using AppStoreIntegrationServiceCore.Model;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AppStoreIntegrationServiceManagement.Areas.Plugins.Views.Shared
 {

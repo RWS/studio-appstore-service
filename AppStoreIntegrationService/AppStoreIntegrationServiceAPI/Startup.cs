@@ -1,6 +1,5 @@
 using System.IO.Compression;
 using Microsoft.AspNetCore.ResponseCompression;
-using static AppStoreIntegrationServiceCore.Enums;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceAPI.Model.Repository.Interface;

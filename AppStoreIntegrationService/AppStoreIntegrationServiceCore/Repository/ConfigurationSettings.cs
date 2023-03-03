@@ -1,9 +1,14 @@
 ﻿using AppStoreIntegrationServiceCore.Repository.Interface;
 using Microsoft.AspNetCore.Hosting;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository
 {
+    public enum DeployMode
+    {
+        AzureBlob,
+        ServerFilePath,
+        NetworkFilePath
+    }
     public class ConfigurationSettings : IConfigurationSettings
     {
         public string StorageAccountName { get; set; }

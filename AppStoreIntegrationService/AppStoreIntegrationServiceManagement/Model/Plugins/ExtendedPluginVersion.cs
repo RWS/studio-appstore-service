@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using AppStoreIntegrationServiceManagement.Model.Comments;
 
 namespace AppStoreIntegrationServiceCore.Model
 {

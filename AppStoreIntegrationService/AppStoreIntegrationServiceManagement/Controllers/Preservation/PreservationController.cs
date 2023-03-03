@@ -1,17 +1,28 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.Comments;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
-using AppStoreIntegrationServiceManagement.Model.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol.Plugins;
-using System.Security.Claims;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 {
+    public enum Page
+    {
+        None = 0,
+        Details,
+        Version,
+        Comment,
+        Categories,
+        ParentProducts,
+        Products,
+        Profile,
+        Password,
+        Register
+    }
+
     public class PreservationController : Controller
     {
         private readonly IPluginRepository _pluginRepository;

@@ -1,6 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using Xunit;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Model
 {

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using static AppStoreIntegrationServiceCore.Enums;
 
 namespace AppStoreIntegrationServiceCore.Repository.Interface
 {
