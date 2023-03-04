@@ -81,10 +81,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var template = versionId == null ? NotificationTemplate.NewPluginComment : NotificationTemplate.NewVersionComment;
             var emailNotification = _notificationCenter.GetNotification(template, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
             var pushNotification = _notificationCenter.GetNotification(template, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
-            var developerEmail = await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName);
 
-            await _notificationCenter.SendEmail(emailNotification, developerEmail);
-            await _notificationCenter.Push(pushNotification, developerEmail);
+            await _notificationCenter.Broadcast(emailNotification, plugin.Developer.DeveloperName);
+            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
             await _notificationCenter.Broadcast(emailNotification);
             await _notificationCenter.Push(pushNotification);
             await _commentsRepository.SaveComment(comment, pluginId, versionId);
@@ -97,12 +96,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _commentsRepository.DeleteComment(commentId, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was deleted!";
             return Content(null);
-        }
-
-        private async Task<string> GetCurrentPluginUserEmail(string username)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            return user.Email;
         }
     }
 }

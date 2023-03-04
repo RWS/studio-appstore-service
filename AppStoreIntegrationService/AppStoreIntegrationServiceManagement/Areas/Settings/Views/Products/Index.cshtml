@@ -89,7 +89,7 @@
 
 <script src="~/js/TableCrud.js"></script>
 <script asp-append-version="true">
-    const table = new TableCrud("Product", "Products/Update", "Products/Add", "Products/Delete");
+    const table = new TableCrud("Product", "/Settings/Products/Update", "Products/Add", "Products/Delete");
 </script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

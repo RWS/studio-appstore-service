@@ -1,0 +1,73 @@
+﻿@inject CustomizationHelper Helper
+@{
+    ViewData["Title"] = "Settings";
+    ViewData["ActivePage"] = ManageSettingsNav.Preferences;
+    var cookies = Context.Request.Cookies;
+    var defaults = new[] { "navbar", "success", "select" };
+}
+
+<h1 class="fs1-inherit">Settings</h1>
+<h2 class="fs2-inherit">Change site settings</h2>
+<hr class="w-100">
+<div class="row d-flex" id="settings-page">
+    <partial name="_SettingsNavPartial" />
+    <div class="col-12 col-md-9">
+        <div class="settings-details">
+            <partial name="_PreferencesTabPartial" model="false" />
+            <form class="row mb-2" id="form">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Target</th>
+                            <th>Background</th>
+                            <th>Foreground</th>
+                            <th>Fontsize</th>
+                            <th>FontFamily</th>
+                        </tr>
+                    </thead>
+                    <tbody class="tbody-stripped">
+                        @foreach (var field in Helper.Fields)
+                        {
+                            <tr>
+                                <td class="align-middle">@field.Name</td>
+                                <td class="text-center align-middle">
+                                    <input onchange="ChangeBackground('-@field.Tag')" type="color" data-override="@string.IsNullOrEmpty(cookies[$"{field.Tag}BackgroundColor"])"
+                                       id="@($"{field.Tag}Background")" value="@(Helper.GetBackgroundForField(field.Tag, field.DefaultBackground))" />
+                                </td>
+                                <td class="text-center align-middle">
+                                    <input onchange="ChangeForeground('-@field.Tag')" type="color" data-override="@string.IsNullOrEmpty(cookies[$"{field.Tag}ForegroundColor"])"
+                                       id="@($"{field.Tag}Foreground")" value="@(Helper.GetForegroundForField(field.Tag, field.DefaultForeground))" />
+                                </td>
+                                <td class="align-middle">
+                                    <input class="form-control form-control-sm" type="number" onchange="ChangeFontSize('-@field.Tag')" min="16" max="36" id="@($"{field.Tag}Fontsize")"
+                                       data-override="@string.IsNullOrEmpty(cookies[$"{field.Tag}Fontsize"])" value="@(Helper.GetFontSizeForField(field.Tag, "16"))" />
+                                </td>
+                                <td class="align-middle">
+                                    <div class="dropdown">
+                                        <div class="border rounded p-2" role="button" id="dropDownToggle@(field.Tag)" data-bs-toggle="dropdown" aria-expanded="false" onclick="ApplyFonts()" data-override="@string.IsNullOrEmpty(cookies[$"{field.Tag}FontFamily"])">
+                                            @(Helper.GetFontFamilyForField(field.Tag, "Select family..."))
+                                        </div>
+                                        <ul class="dropdown-menu custom-select p-0 w-100 fs-inherit" onscroll="ApplyFonts()" onclick="ChangeFontFamily('-@field.Tag')" aria-labelledby="dropDownToggle@(field.Tag)">
+                                            @foreach (var font in Helper.FontFamilies)
+                                            {
+                                                if (cookies[$"{field.Tag}FontFamily"]?.Replace('+', ' ') == font || (defaults.Any(x => x == field.Tag) && cookies["FontFamily"]?.Replace('+', ' ') == font))
+                                                {
+                                                    <li class="dropdown-item" selected>@font</li>
+                                                }
+                                                else
+                                                {
+                                                    <li class="dropdown-item">@font</li>
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+

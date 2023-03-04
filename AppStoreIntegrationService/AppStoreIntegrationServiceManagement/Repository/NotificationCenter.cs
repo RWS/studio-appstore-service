@@ -5,10 +5,10 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using System.Data;
 using System.Text.RegularExpressions;
-using AppStoreIntegrationServiceCore;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
+using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Repository
 {
@@ -42,8 +42,10 @@ namespace AppStoreIntegrationServiceManagement.Repository
     public class NotificationCenter : INotificationCenter
     {
         private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly IConfigurationSettings _configurationSettings;
         private readonly INotificationsManager _notificationsManager;
+        private readonly AccountsManager _accountsManager;
+        private readonly UserAccountsManager _userAccountsManager;
+        private readonly SendGridClient _sendGridClient;
         private readonly string _host;
 
         public NotificationCenter
@@ -51,53 +53,60 @@ namespace AppStoreIntegrationServiceManagement.Repository
             IHttpContextAccessor context,
             UserManager<IdentityUserExtended> userManager,
             IConfigurationSettings configurationSettings,
-            INotificationsManager notificationsManager
+            INotificationsManager notificationsManager,
+            AccountsManager accountsManager,
+            UserAccountsManager userAccountsManager
         )
         {
             _userManager = userManager;
-            _configurationSettings = configurationSettings;
             _notificationsManager = notificationsManager;
+            _accountsManager = accountsManager;
+            _userAccountsManager = userAccountsManager;
             _host = context.HttpContext.Request.Host.Value;
+            var sendGridKey = configurationSettings.SendGridAPIKey;
+            if (string.IsNullOrEmpty(sendGridKey))
+            {
+                return;
+            }
+
+            _sendGridClient = new SendGridClient(configurationSettings.SendGridAPIKey);
         }
 
-        public async Task SendEmail(string message, string emailAddress)
+        private async Task SendEmail(string message, string emailAddress)
         {
-            try
+            var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(emailAddress), "RWS Plugin update", null, message);
+            if (_sendGridClient == null)
             {
-                var sendGridKey = _configurationSettings.SendGridAPIKey;
-                if (string.IsNullOrEmpty(sendGridKey))
-                {
-                    return;
-                }
+                return;
+            }
 
-                var client = new SendGridClient(sendGridKey);
-                var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(emailAddress), "RWS Plugin update", null, message);
-                var response = await client.SendEmailAsync(email);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+            _ = await _sendGridClient.SendEmailAsync(email);
         }
 
         public async Task Broadcast(string message, string developerName = null)
         {
             try
             {
-                var sendGridKey = _configurationSettings.SendGridAPIKey;
-                if (string.IsNullOrEmpty(sendGridKey))
+                if (developerName == null)
                 {
+                    foreach (var user in _userManager.Users)
+                    {
+                        var roles = await _userManager.GetRolesAsync(user);
+                        if (user.EmailNotificationsEnabled && roles[0] == "Administrator")
+                        {
+                            await SendEmail(message, user.Email);
+                        }
+                    }
+
                     return;
                 }
 
-                var client = new SendGridClient(sendGridKey);
+                var account = _accountsManager.GetAccountByName(developerName);
                 foreach (var user in _userManager.Users)
                 {
-                    var roles = await _userManager.GetRolesAsync(user);
-                    if (user.EmailNotificationsEnabled && roles[0] == "Administrator")
+                    if (user.EmailNotificationsEnabled && _userAccountsManager.BelongsTo(user, account.Id))
                     {
-                        var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(user.Email), "RWS Plugin update", null, message);
-                        var response = await client.SendEmailAsync(email);
+                        await SendEmail(message, user.Email);
                     }
                 }
             }
@@ -107,22 +116,24 @@ namespace AppStoreIntegrationServiceManagement.Repository
             }
         }
 
-        public async Task Push(string message, string username = null)
+        public async Task Push(string message, string developerName = null)
         {
+            developerName ??= "Administrator";
             var notifications = await GetAllNotifications();
-            if (username == null)
+            if (notifications.TryGetValue(developerName, out var userNotifications))
             {
-                Push(notifications, message, "Administrator");
+                notifications[developerName] = userNotifications.Append(new Notification
+                {
+                    Id = userNotifications.Count() + 1,
+                    Content = message,
+                });
+
+                await _notificationsManager.SaveNotifications(notifications);
                 return;
             }
 
-            var user = await _userManager.FindByNameAsync(username);
-            if (!user.PushNotificationsEnabled)
-            {
-                return;
-            }
-
-            Push(notifications, message, username);
+            notifications.TryAdd(developerName, new List<Notification> { new Notification { Content = message } });
+            await _notificationsManager.SaveNotifications(notifications);
         }
 
         public async Task ChangeStatus(string username, int? id, NotificationStatus status)
@@ -150,13 +161,16 @@ namespace AppStoreIntegrationServiceManagement.Repository
             await _notificationsManager.SaveNotifications(notifications);
         }
 
-        public async Task<IEnumerable<Notification>> GetNotificationsForUser(string username, string role = null)
+        public async Task<IEnumerable<Notification>> GetNotificationsForUser(ClaimsPrincipal principal)
         {
             var notifications = await GetAllNotifications();
+            var user = await _userManager.GetUserAsync(principal);
+            var roles = await _userManager.GetRolesAsync(user);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+            var username = roles.FirstOrDefault() == "Administrator" ? roles.FirstOrDefault() : account.AccountName;
 
-            if (notifications.TryGetValue(role ?? username, out var userNotifications))
+            if (notifications.TryGetValue(username, out var userNotifications))
             {
-                var user = await _userManager.FindByNameAsync(username);
                 if (user.PushNotificationsEnabled)
                 {
                     return userNotifications;
@@ -168,13 +182,16 @@ namespace AppStoreIntegrationServiceManagement.Repository
             return Enumerable.Empty<Notification>();
         }
 
-        public async Task<bool> HasNewNotifications(string username, string role = null)
+        public async Task<bool> HasNewNotifications(ClaimsPrincipal principal)
         {
             var notifications = await GetAllNotifications();
+            var user = await _userManager.GetUserAsync(principal);
+            var roles = await _userManager.GetRolesAsync(user);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+            var username = roles.FirstOrDefault() == "Administrator" ? roles.FirstOrDefault() : account.AccountName;
 
-            if (notifications.TryGetValue(role ?? username, out var userNotifications))
+            if (notifications.TryGetValue(username, out var userNotifications))
             {
-                var user = await _userManager.FindByNameAsync(username);
                 if (user.PushNotificationsEnabled)
                 {
                     return userNotifications.Any(x => x.Status == NotificationStatus.Active);
@@ -214,7 +231,7 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
         public string GetNotification(NotificationTemplate notificationTemplate, bool isEmailNotification, string icon, string pluginName, int pluginId, string versionId = null)
         {
-            var resourceManager = new ResourceManager("AppStoreIntegrationServiceCore.TemplateResource", typeof(TemplateResource).Assembly);
+            var resourceManager = new ResourceManager("AppStoreIntegrationServiceManagement.TemplateResource", typeof(TemplateResource).Assembly);
             var notificationType = isEmailNotification ? "Email" : "Push";
             var notification = resourceManager.GetString($"{notificationTemplate}{notificationType}Notification");
 
@@ -241,24 +258,6 @@ namespace AppStoreIntegrationServiceManagement.Repository
         private async Task<IDictionary<string, IEnumerable<Notification>>> GetAllNotifications()
         {
             return await _notificationsManager.GetNotifications();
-        }
-
-        private void Push(IDictionary<string, IEnumerable<Notification>> notifications, string message, string username)
-        {
-            if (notifications.TryGetValue(username, out var userNotifications))
-            {
-                notifications[username] = userNotifications.Append(new Notification
-                {
-                    Id = userNotifications.Count() + 1,
-                    Content = message,
-                });
-
-                _notificationsManager.SaveNotifications(notifications);
-                return;
-            }
-
-            notifications.TryAdd(username, new List<Notification> { new Notification { Content = message } });
-            _notificationsManager.SaveNotifications(notifications);
         }
     }
 }

@@ -13,10 +13,8 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
         [Required]
         public string UserId { get; set; }
         [Required]
-        public string RoleId { get; set; }
+        public bool HasFullAccess { get; set; }
         [Required]
         public bool IsOwner { get; set; }
-        [Required]
-        public bool IsDefault { get; set; }
     }
 }

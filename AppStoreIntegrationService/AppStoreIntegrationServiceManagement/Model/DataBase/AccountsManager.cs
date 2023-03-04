@@ -40,6 +40,11 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             return _context.Accounts.ToList().FirstOrDefault(x => x.Id == id);
         }
 
+        public Account GetAccountByName(string accountName)
+        {
+            return _context.Accounts.ToList().FirstOrDefault(x => x.AccountName == accountName);
+        }
+
         public IEnumerable<Account> GetAllAccounts()
         {
             return _context.Accounts.ToList();

@@ -8,10 +8,19 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                This user exists in our database! Do you want to assign it under your account?
+                <p class="m-0 mb-3">This user exists in our database! Do you want to assign it under your account?</p>
+                <form id="assignmentForm" onsubmit="return false">
+                    <input hidden name="UserId" value="@Model"/>
+                    <div class="form-check">
+                        <label class="form-label">
+                            <input name="HasFullAccess" type="checkbox" class="form-check-input" />
+                            Grant full access to your account
+                        </label>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" onclick="AddUserToAccount('@Model')" class="btn btn-success fs-inherit" data-bs-dismiss="modal">Yes</button>
+                <button type="button" onclick="AddUserToAccount()" class="btn btn-success fs-inherit" data-bs-dismiss="modal">Yes</button>
                 <button type="button" class="btn btn-secondary fs-inherit" onclick="$('#confirmationModal').remove()" data-bs-dismiss="modal">No</button>
             </div>
         </div>

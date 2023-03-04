@@ -16,12 +16,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     public class NotificationsController : Controller
     {
         private readonly UserManager<IdentityUserExtended> _userManager;
+        private readonly AccountsManager _accountsManager;
         private readonly INotificationCenter _notificationCenter;
 
-        public NotificationsController(UserManager<IdentityUserExtended> userManager, INotificationCenter notificationCenter)
+        public NotificationsController
+        (
+            UserManager<IdentityUserExtended> userManager, 
+            INotificationCenter notificationCenter,
+            AccountsManager accountsManager)
         {
             _userManager = userManager;
             _notificationCenter = notificationCenter;
+            _accountsManager = accountsManager;
         }
 
         [Route("Identity/Account/Notifications")]
@@ -45,11 +51,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Authorize(Roles = "Developer, Administrator")]
         public async Task<IActionResult> ChangeStatus(int? id, NotificationStatus status)
         {
-            await _notificationCenter.ChangeStatus(User.IsInRole("Administrator") ? "Administrator" : User.Identity.Name, id, status);
+            var user = await _userManager.GetUserAsync(User);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+            await _notificationCenter.ChangeStatus(User.IsInRole("Administrator") ? "Administrator" : account.AccountName, id, status);
             return new EmptyResult();
         }
 
-        public static async Task<NotificationModel> PrepareNotifications(ClaimsPrincipal user, IQueryCollection query, INotificationCenter notificationCenter)
+        public static async Task<NotificationModel> PrepareNotifications(ClaimsPrincipal principal, IQueryCollection query, INotificationCenter notificationCenter)
         {
             var status = new List<string> { "Active", "Complete", "Acknowledged", "Inactive", "All" }.Select(x => new FilterItem
             {
@@ -58,7 +66,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 Value = $"{(int)Enum.Parse(typeof(NotificationStatus), x)}",
                 IsSelected = query["Status"].Any(y => y == $"{(int)Enum.Parse(typeof(NotificationStatus), x)}")
             });
-            var notifications = await notificationCenter.GetNotificationsForUser(user.Identity.Name, user.IsInRole("Administrator") ? "Administrator" : null);
+            var notifications = await notificationCenter.GetNotificationsForUser(principal);
 
             return new NotificationModel
             {

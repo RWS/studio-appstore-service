@@ -211,7 +211,8 @@ namespace AppStoreIntegrationServiceManagement {
         ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;br&gt;&lt;/div&gt;
         ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;{1}&lt;/b&gt;&lt;/div&gt;
         ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;a href=&quot;https://{2}/Plugins/Edit/{3}&quot;&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;        /// [rest of string was truncated]&quot;;.
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;a href=&quot;https://{2}/Plugins/Edit/{3}&quot;&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         public static string PluginApprovedRequestEmailNotification {
             get {

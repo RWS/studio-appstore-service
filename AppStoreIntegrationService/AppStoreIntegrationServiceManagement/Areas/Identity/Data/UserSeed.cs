@@ -39,7 +39,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
                     _roleManager.CreateAsync(new IdentityRole
                     {
                         Name = roles[i],
-                        Id = $"{i + 1}"
+                        Id = Guid.NewGuid().ToString()
                     }).Wait();
                 }
             }

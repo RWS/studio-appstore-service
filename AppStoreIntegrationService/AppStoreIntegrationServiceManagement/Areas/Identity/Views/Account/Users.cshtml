@@ -1,4 +1,4 @@
-﻿@model IEnumerable<UserInfoModel>
+﻿@model (IEnumerable<UserInfoModel> CurrentAccountUsers, IEnumerable<UserInfoModel> AllUsers)
 @{
     ViewData["Title"] = "Manage";
     ViewData["ActivePage"] = ManageNavPages.Manage;
@@ -14,29 +14,29 @@
     <partial name="_ProfileNav" />
     <div class="col-12 col-md-9">
         <form id="form" onsubmit="return false">
-            <p class="fw-bold fs4-inherit">Users</p>
-            <table class="table table-bordered" id="usersTable">
-                <thead>
-                    <tr class="text-center d-none d-lg-table-row">
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody class="tbody-stripped">
-                    @foreach (var user in Model)
-                    {
-                        <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
-                            <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
-                            <td class="align-middle px-3 d-none d-lg-table-cell">@user.Role</td>
-                            @if (user.IsBuiltInAdmin)
-                            {
-                                <td class="align-middle px-3 d-none d-lg-table-cell" colspan="2"><i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Built in Admin not editable!"></i> </td>
-                            }
-                            else
-                            {
-                                if (User.IsInRole("Administrator"))
+            @if (Model.AllUsers.Any())
+            {
+                <p class="fw-bold fs4-inherit">All users</p>
+                <table class="table table-bordered" id="usersTable">
+                    <thead>
+                        <tr class="text-center d-none d-lg-table-row">
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="tbody-stripped">
+                        @foreach (var user in Model.AllUsers)
+                        {
+                            <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
+                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
+                                <td class="align-middle px-3 d-none d-lg-table-cell">@user.Role</td>
+                                @if (user.IsBuiltInAdmin)
+                                {
+                                    <td class="align-middle px-3 d-none d-lg-table-cell" colspan="2"><i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Built in Admin not editable!"></i> </td>
+                                }
+                                else
                                 {
                                     <td class="align-middle px-3 d-none d-lg-table-cell" colspan="@(user.IsCurrentUser ? "2" : "1")">
                                         <a asp-controller="Account" asp-action="Profile" asp-route-id="@user.Id">
@@ -51,26 +51,44 @@
                                         </td>
                                     }
                                 }
-                                else
-                                {
-                                    <td class="align-middle px-3 d-none d-lg-table-cell" colspan="2">
-                                        @if (user.IsCurrentUser)
-                                        {
-                                            <a asp-controller="Account" asp-action="Profile" asp-route-id="@user.Id">
-                                                <i class="fa fa-pen-alt cursor-pointer"></i>
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <i class="fa fa-user-minus cursor-pointer delete-user-btn text-warning" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@user.Id')"></i>
-                                        }
-                                    </td>
-                                }
-                            }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            @if (Model.CurrentAccountUsers.Any())
+            {
+                <p class="fw-bold fs4-inherit">Current account users</p>
+                <table class="table table-bordered" id="usersTable">
+                    <thead>
+                        <tr class="text-center d-none d-lg-table-row">
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th></th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="tbody-stripped">
+                        @foreach (var user in Model.CurrentAccountUsers)
+                        {
+                            <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
+                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
+                                <td class="align-middle px-3 d-none d-lg-table-cell">@user.Role</td>
+                                <td class="align-middle px-3 d-none d-lg-table-cell">
+                                    @if (user.IsOwner || user.IsCurrentUser)
+                                    {
+                                        <i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="@(user.IsOwner ? "The owner cannot be dissmissed!" : "You cannot dissmiss yourself!")"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-user-minus cursor-pointer delete-user-btn text-warning" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@user.Id')"></i>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
         </form>
     </div>
 </div>

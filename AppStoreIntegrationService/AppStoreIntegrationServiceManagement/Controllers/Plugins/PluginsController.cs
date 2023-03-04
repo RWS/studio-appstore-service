@@ -58,9 +58,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index()
         {
             PluginFilter filter = ApplyFilters();
-            var username = User.Identity.Name;
+            var user = await _userManager.GetUserAsync(User);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
             var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
-            var plugins = await _pluginRepository.GetAll(filter.SortOrder, username, userRole);
+            var plugins = await _pluginRepository.GetAll(filter.SortOrder, account.AccountName, userRole);
             var products = await _productsRepository.GetAllProducts();
             var parents = await _productsRepository.GetAllParents();
             var status = new List<string> { "Active", "Inactive" }.Concat(User.IsInRole("StandardUser") ? new List<string>() : new[] { "Draft", "InReview" }).Select(x => new FilterItem
@@ -265,7 +266,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var emailNotification = _notificationCenter.GetNotification(notificationTemplate, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
             var pushNotification = _notificationCenter.GetNotification(notificationTemplate, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
-            await _notificationCenter.SendEmail(emailNotification, plugin.Developer.DeveloperName);
+            await _notificationCenter.Broadcast(emailNotification, plugin.Developer.DeveloperName);
             await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
             await _notificationCenter.Broadcast(emailNotification);
             await _notificationCenter.Push(pushNotification);
@@ -328,9 +329,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             var categories = await _categoriesRepository.GetAllCategories();
-            var username = User.Identity.Name;
+            var user = await _userManager.GetUserAsync(User);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
             var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
-            var plugin = await _pluginRepository.GetPluginById(id, username, userRole, status);
+            var plugin = await _pluginRepository.GetPluginById(id, account.AccountName, userRole, status);
 
             if (plugin == null)
             {

@@ -10,12 +10,14 @@ namespace AppStoreIntegrationServiceManagement.Areas.Settings.Views.Shared
         public static string PluginsRename => "PluginRename";
         public static string Products => "Products";
         public static string Categories => "Categories";
+        public static string Preferences => "Preferences";
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
         public static string ImportPluginsNavClass(ViewContext viewContext) => PageNavClass(viewContext, ImportPlugins);
         public static string ExportPluginsNavClass(ViewContext viewContext) => PageNavClass(viewContext, ExportPlugins);
         public static string PluginsRenameNavClass(ViewContext viewContext) => PageNavClass(viewContext, PluginsRename);
         public static string ProductsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Products);
         public static string CategoriesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Categories);
+        public static string PreferencesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Preferences);
 
         private static string PageNavClass(ViewContext viewContext, string page)
         {

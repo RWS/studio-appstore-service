@@ -4,10 +4,6 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a class="nav-link cursor-pointer active header-link" data-bs-toggle="modal" data-bs-target="#preferencesModal">Preferences</a>
-        </li>
-
-        <li class="nav-item">
             <a onclick="EnsurePreserved(() => { window.location.href = '/Plugins' })" class="nav-link cursor-pointer active header-link">Plugins List</a>
         </li>
 
@@ -24,20 +20,28 @@
                 <a onclick="EnsurePreserved(() => { window.location.href = '/Settings/ExportPlugins' })" class="nav-link active cursor-pointer header-link">Settings</a>
             </li>
         }
-
         <li class="nav-item">
-            <a onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Profile' })" class="active nav-link cursor-pointer header-link">Profile</a>
+            <div class="dropdown">
+                <a class="nav-link active cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false">
+                    Account
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Profile' })" class="dropdown-item cursor-pointer">Profile</a>
+                    </li>
+                    <li>
+                        <form asp-controller="Authentication" asp-action="Logout" asp-area="Identity" method="post">
+                            <button class="cursor-pointer fs-inherit dropdown-item" type="submit">Sign out</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </li>
 
-        <li class="nav-item">
-            <form asp-controller="Authentication" asp-action="Logout" asp-area="Identity" method="post">
-                <button class="nav-link btn btn-link cursor-pointer fs-inherit active header-link" type="submit">Sign out</button>
-            </form>
-        </li>
         @if (!User.IsInRole("StandardUser"))
         {
             <li class="nav-item d-flex align-items-center">
-                <partial name="_NotificationsPartial"/>
+                <partial name="_NotificationsPartial" />
             </li>
         }
     }
@@ -48,5 +52,3 @@
         </li>
     }
 </ul>
-
-<partial name="_CustomizationPartial" />

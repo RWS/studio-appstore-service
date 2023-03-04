@@ -1,0 +1,11 @@
+﻿@model bool
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @(Model ? "active-tab" : null)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/Preferences'})">Basic</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @(!Model ? "active-tab" : null)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/Preferences/Advanced'})">Advanced</a>
+    </li>
+</ul>
+

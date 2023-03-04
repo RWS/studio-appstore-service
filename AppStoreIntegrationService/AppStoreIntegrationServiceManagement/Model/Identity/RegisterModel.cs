@@ -7,7 +7,6 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
     {
         [BindProperty]
         public RegisterInputModel Input { get; set; }
-
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
     }
 }

@@ -6,10 +6,10 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
     {
         [Required]
         public string UserName { get; set; }
-
+        [Required]
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "Invalid e-mail address!")]
-        public string Email { get;set; }
+        public string Email { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
@@ -23,6 +23,8 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         public string ConfirmPassword { get; set; }
         [Display(Name = "User role")]
         public string UserRole { get; set; }
+        public bool AssignToAccount { get; set; }
+        public bool HasFullAccess { get; set; }
 
         public bool IsEmpty()
         {

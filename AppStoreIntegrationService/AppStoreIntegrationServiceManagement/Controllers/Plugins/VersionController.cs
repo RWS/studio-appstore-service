@@ -237,16 +237,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var emailNotification = _notificationCenter.GetNotification(notificationTemplate, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
             var pushNotification = _notificationCenter.GetNotification(notificationTemplate, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
-            await _notificationCenter.SendEmail(emailNotification, await GetCurrentPluginUserEmail(plugin.Developer.DeveloperName));
+            await _notificationCenter.Broadcast(emailNotification, plugin.Developer.DeveloperName);
             await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
             await _notificationCenter.Broadcast(emailNotification);
             await _notificationCenter.Push(pushNotification);
-        }
-
-        private async Task<string> GetCurrentPluginUserEmail(string username)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            return user.Email;
         }
 
         private async Task<IActionResult> Save(int pluginId, PluginVersion version, string route, string log = null, bool removeOtherVersions = false, bool compareWithManifest = false)

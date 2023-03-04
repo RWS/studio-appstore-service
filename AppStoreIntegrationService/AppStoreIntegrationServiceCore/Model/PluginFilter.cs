@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using FuzzySharp;
+using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 namespace AppStoreIntegrationServiceCore.Model
 {
@@ -45,7 +47,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         private static IEnumerable<PluginDetails> FilterByQuery(IEnumerable<PluginDetails> pluginsList, string query)
         {
-            return pluginsList.Where(p => Regex.IsMatch(p.Name, query, RegexOptions.IgnoreCase));
+            return pluginsList.Where(p => Fuzz.PartialRatio(p.Name, query) >= 70 || Fuzz.PartialRatio(p.Developer.DeveloperName, query) >= 70);
         }
 
         private static IEnumerable<PluginDetails> FilterByPrice(IEnumerable<PluginDetails> pluginsList, string price)

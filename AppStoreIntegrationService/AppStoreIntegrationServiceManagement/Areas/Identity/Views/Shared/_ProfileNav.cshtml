@@ -2,22 +2,19 @@
 @inject UserAccountsManager userAccountsManager
 @{
     var user = await userManager.GetUserAsync(User);
-    var isOwner = userAccountsManager.IsOwner(user);
+    var isOwner = userAccountsManager.HasFullAccess(user);
 }
 
 <div class="col-12 col-md-3">
     <ul class="nav nav-pills flex-column" id="profile-navbar">
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ProfileNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Profile' })">Profile</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ChangePasswordNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/ChangePassword' })">Password</a></li>
-        @if (User.IsInRole("Developer"))
-        {
-            <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.AccountsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Accounts' })">Accounts</a></li>
-        }
 
         @if (isOwner)
         {
+            <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.AccountsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Accounts' })">Accounts</a></li>
             <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ManageNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users' })">Users</a></li>
-            <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.RegisterNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Register' })">Add another user</a></li>
+            <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.RegisterNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Register' })">Register</a></li>
         }
 
         @if (!User.IsInRole("StandardUser"))

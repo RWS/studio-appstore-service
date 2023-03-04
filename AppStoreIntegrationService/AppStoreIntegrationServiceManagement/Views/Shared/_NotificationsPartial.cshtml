@@ -1,19 +1,18 @@
 ﻿@inject INotificationCenter notificationCenter
 @{
     var model = await NotificationsController.PrepareNotifications(User, Context.Request.Query, notificationCenter);
-    var isNotificationsOpen = Context.Request.Query["notifications"] == "open";
-    var userRole = User.IsInRole("Administrator") ? "Administrator" : null;
-    var hasNewNotifications = await notificationCenter.HasNewNotifications(User.Identity.Name, userRole);
+    var areNotificationsOpen = Context.Request.Query["notifications"] == "open";
+    var hasNewNotifications = await notificationCenter.HasNewNotifications(User);
 }
 
 <div class="btn-group dropstart notifications">
-    <div class="position-relative cursor-pointer @(isNotificationsOpen ? "show" : null)" data-bs-toggle="dropdown" aria-expanded="@isNotificationsOpen" data-bs-auto-close="outside" onclick="AttachNotificationQuery()">
+    <div class="position-relative cursor-pointer @(areNotificationsOpen ? "show" : null)" data-bs-toggle="dropdown" aria-expanded="@areNotificationsOpen" data-bs-auto-close="outside" onclick="AttachNotificationQuery()">
         <i class="fa fa-bell text-white"></i>
         <div class="notifications-count bg-danger @(hasNewNotifications ? null : "d-none")">
             <p class="m-0">@(model.Notifications.Count())</p>
         </div>
     </div>
-    <div class="dropdown-menu p-0 @(isNotificationsOpen ? "show" : null)" data-bs-popper="@(isNotificationsOpen ? "none" : null)">
+    <div class="dropdown-menu p-0 @(areNotificationsOpen ? "show" : null)" data-bs-popper="@(areNotificationsOpen ? "none" : null)">
         <div class="container-fluid py-2 px-3 border-bottom">
             <form method="get" class="row py-2">
                 <input hidden name="notifications" value="open" />

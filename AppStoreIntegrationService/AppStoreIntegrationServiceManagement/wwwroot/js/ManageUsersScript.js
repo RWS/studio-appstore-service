@@ -28,6 +28,21 @@ function DismissUser(userId) {
     }
 }
 
+function HideUserDetails() {
+    let userInfo = event.currentTarget.parentElement.parentElement.nextElementSibling;
+    let feedSpan = document.getElementById("userCheckMessage");
+
+    if (userInfo.classList.contains("d-none")) {
+        return;
+    }
+
+    if (!feedSpan.classList.contains("d-none")) {
+        feedSpan.classList.add("d-none");
+    }
+    
+    userInfo.classList.add("d-none");
+}
+
 function CheckUserExistance() {
     $("#Input_UserName").validate();
 
@@ -66,10 +81,8 @@ function CheckUserExistance() {
     request.send(data);
 }
 
-function AddUserToAccount(userId) {
-    let data = new FormData();
-    data.set("Id", userId);
-
+function AddUserToAccount() {
+    let data = new FormData(document.getElementById("assignmentForm"));
     let request = new XMLHttpRequest();
 
     request.onreadystatechange = function () {
@@ -80,6 +93,22 @@ function AddUserToAccount(userId) {
 
     request.open("POST", `/Identity/Account/Assign`);
     request.send(data);
+}
+
+function ToggleAccessCheckbox() {
+    let input = event.currentTarget;
+    let accessInput = input.parentElement.nextElementSibling;
+
+    if (input.checked) {
+        accessInput.classList.remove("d-none");
+        return;
+    }
+
+    if (!input.checked) {
+        accessInput.classList.add("d-none");
+        accessInput.firstElementChild.checked = false;
+        return;
+    }
 }
 
 function HttpRequestCallback(response) {
