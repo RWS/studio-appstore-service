@@ -33,7 +33,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
 
             if (!_roleManager.Roles.Any())
             {
-                var roles = new[] { "Administrator", "StandardUser", "Developer" };
+                var roles = new[] { "Administrator", "StandardUser", "Developer", "DeveloperAdmin" };
                 for (var i = 0; i < roles.Length; i++)
                 {
                     _roleManager.CreateAsync(new IdentityRole
@@ -51,9 +51,10 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
                 IsBuiltInAdmin = true 
             };
 
+            var roleId = _roleManager.FindByNameAsync("Administrator").Result.Id;
+
             _userManager.CreateAsync(defaultAdminUser, "administrator").Wait();
-            _userManager.AddToRoleAsync(defaultAdminUser, "Administrator").Wait();
-            _userAccountsManager.TryAddUserToAccount(defaultAdminUser).Wait();
+            _userAccountsManager.TryAddUserToAccount(defaultAdminUser, roleId).Wait();
             _signInManager.SignInAsync(defaultAdminUser, false).Wait();
         }
     }

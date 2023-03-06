@@ -44,9 +44,9 @@ function HideUserDetails() {
 }
 
 function CheckUserExistance() {
-    $("#Input_UserName").validate();
+    $("#UserName").validate();
 
-    if (!$("#Input_UserName").valid()) {
+    if (!$("#UserName").valid()) {
         return;
     }
 

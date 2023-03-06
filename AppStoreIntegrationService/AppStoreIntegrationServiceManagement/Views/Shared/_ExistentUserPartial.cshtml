@@ -1,4 +1,4 @@
-﻿@model string
+﻿@inherits CustomRazorPage<(string Id, SelectList Roles)>
 
 <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -10,13 +10,8 @@
             <div class="modal-body">
                 <p class="m-0 mb-3">This user exists in our database! Do you want to assign it under your account?</p>
                 <form id="assignmentForm" onsubmit="return false">
-                    <input hidden name="UserId" value="@Model"/>
-                    <div class="form-check">
-                        <label class="form-label">
-                            <input name="HasFullAccess" type="checkbox" class="form-check-input" />
-                            Grant full access to your account
-                        </label>
-                    </div>
+                    <input hidden name="UserId" value="@Model.Id"/>
+                    <select class="fs-inherit pa-admin-select w-100" name="RoleId" asp-items="@Model.Roles"></select>
                 </form>
             </div>
             <div class="modal-footer">

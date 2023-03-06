@@ -14,21 +14,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         private readonly SignInManager<IdentityUserExtended> _signInManager;
         private readonly UserManager<IdentityUserExtended> _userManager;
         private readonly UserAccountsManager _userAccountManager;
-        private readonly AccountsManager _accountManager;
 
         public AuthenticationController
         (
             SignInManager<IdentityUserExtended> signInManager, 
             IUserSeed userSeed,
             UserManager<IdentityUserExtended> userManager,
-            UserAccountsManager userAccountsManager,
-            AccountsManager accountManager
+            UserAccountsManager userAccountsManager
         )
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _userAccountManager = userAccountsManager;
-            _accountManager = accountManager;
             userSeed.EnsureAdminExistance();
         }
 

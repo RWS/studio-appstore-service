@@ -1,4 +1,4 @@
-﻿@model (ExtendedPluginDetails Plugin, ExtendedPluginVersion Version)
+﻿@inherits CustomRazorPage<(ExtendedPluginDetails Plugin, ExtendedPluginVersion Version)>
 @{
     ViewData["Title"] = "Versions";
     ViewData["ActivePage"] = ManagePluginsNav.Versions;
@@ -23,7 +23,7 @@
         <input hidden name="Page" value="@Page.Version" />
         <partial name="_VersionDetailsPartial" model="@Model.Version" />
 
-        @if (Model.Version.IsThirdParty && User.IsInRole("Developer"))
+        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
         {
             if (Model.Plugin.Status != Status.Draft)
             {

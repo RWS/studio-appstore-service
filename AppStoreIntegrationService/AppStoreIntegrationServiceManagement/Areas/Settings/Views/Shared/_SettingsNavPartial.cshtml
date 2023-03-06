@@ -1,4 +1,6 @@
-﻿@if (User.IsInRole("Administrator"))
+﻿@inherits CustomRazorPage<object>
+
+@if (ExtendedUser.IsInRoles("Administrator"))
 {
     <div class="col-12 col-md-3">
         <ul class="nav nav-pills flex-column" id="settings-navbar">
@@ -13,7 +15,7 @@
     </div>
 }
 
-@if (User.IsInRole("Developer"))
+@if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
 {
     <div class="col-12 col-md-3">
         <ul class="nav nav-pills flex-column" id="settings-navbar">

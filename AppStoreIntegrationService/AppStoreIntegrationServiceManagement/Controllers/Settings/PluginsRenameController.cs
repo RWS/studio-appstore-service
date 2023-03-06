@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +9,8 @@ using System.Security.Claims;
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
-    [Authorize(Roles = "Administrator, Developer")]
+    [Authorize]
+    [RoleAuthorize("Administrator", "Developer", "DeveloperAdmin")]
     public class PluginsRenameController : Controller
     {
         private readonly INamesRepository _namesRepository;

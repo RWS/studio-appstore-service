@@ -24,18 +24,18 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             _roleManager = roleManager;
         }
 
-        public async Task<IdentityResult> TryAddUserToAccount(IdentityUserExtended user, string accountName = null, bool hasFullAccess = false)
+        public async Task<IdentityResult> TryAddUserToAccount(IdentityUserExtended user, string roleId, string accountName = null)
         {
             try
             {
-                await AddUserToAccount(user, user.UserName);
+                await AddUserToAccount(user, user.UserName, roleId);
 
                 if (string.IsNullOrEmpty(accountName))
                 {
                     return IdentityResult.Success;
                 }
 
-                await AddUserToAccount(user, accountName, hasFullAccess);
+                await AddUserToAccount(user, accountName, roleId);
                 return IdentityResult.Success;
             }
             catch (Exception ex)
@@ -88,7 +88,7 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             var userAccounts = _context.UserAccounts.ToList();
             var account = _accountsManager.GetAccountById(user.SelectedAccountId);
             var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && x.AccountId == account.Id);
-            return userAccount.IsOwner || userAccount.HasFullAccess;
+            return userAccount.IsOwner;
         }
 
         public bool IsOwner(IdentityUserExtended user, Account account)
@@ -111,6 +111,20 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             return userAccounts.Any(x => x.AccountId == accountId && x.UserId == user.Id);
         }
 
+        public bool IsInRole(IdentityUserExtended user, string roleId)
+        {
+            var userAccounts = _context.UserAccounts.ToList();
+            return userAccounts.Any(x => x.AccountId == user.SelectedAccountId && x.UserId == user.Id && x.RoleId == roleId);
+        }
+
+        public async Task<IdentityRole> GetUserRoleForAccount(IdentityUserExtended user, Account account)
+        {
+            var userAccounts = _context.UserAccounts.ToList();
+            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && x.AccountId == account.Id);
+            var identityRole = await _roleManager.FindByIdAsync(userAccount.RoleId);
+            return identityRole;
+        }
+
         public IdentityResult RemoveUserFromAccount(IdentityUserExtended user, Account account)
         {
             try
@@ -127,26 +141,23 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             }
         }
 
-        private async Task AddUserToAccount(IdentityUserExtended user, string accountName, bool hasFullAccess = false)
+        private async Task AddUserToAccount(IdentityUserExtended user, string accountName, string roleId)
         {
             var account = _accountsManager.TryAddAccount(accountName);
             var userAccounts = _context.UserAccounts;
-            var roles = await _userManager.GetRolesAsync(user);
-            var role = await _roleManager.FindByNameAsync(roles.FirstOrDefault());
 
             if (userAccounts.ToList().Any(x => x.AccountId == account.Id && x.UserId == user.Id))
             {
                 return;
             }
 
-            var isOwner = !userAccounts.Any(x => x.AccountId == account.Id);
             userAccounts.Add(new UserAccount
             {
                 Id = Guid.NewGuid().ToString(),
                 AccountId = account.Id,
                 UserId = user.Id,
-                HasFullAccess = isOwner || hasFullAccess,
-                IsOwner = isOwner
+                RoleId = roleId,
+                IsOwner = !userAccounts.Any(x => x.AccountId == account.Id)
             });
 
             _context.SaveChanges();

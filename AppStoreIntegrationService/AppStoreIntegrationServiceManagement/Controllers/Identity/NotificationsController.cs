@@ -1,4 +1,6 @@
-﻿using AppStoreIntegrationServiceManagement.Model.DataBase;
+﻿using AppStoreIntegrationServiceManagement.Filters;
+using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using AppStoreIntegrationServiceManagement.Repository;
@@ -6,14 +8,14 @@ using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
     [Area("Identity")]
-    [Authorize(Roles = "Administrator, Developer")]
-    public class NotificationsController : Controller
+    [Authorize]
+    [AccountSelected]
+    [RoleAuthorize("Administrator", "DeveloperAdmin", "Developer")]
+    public class NotificationsController : CustomController
     {
         private readonly UserManager<IdentityUserExtended> _userManager;
         private readonly AccountsManager _accountsManager;
@@ -48,38 +50,37 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [HttpPost]
-        [Authorize(Roles = "Developer, Administrator")]
         public async Task<IActionResult> ChangeStatus(int? id, NotificationStatus status)
         {
             var user = await _userManager.GetUserAsync(User);
             var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            await _notificationCenter.ChangeStatus(User.IsInRole("Administrator") ? "Administrator" : account.AccountName, id, status);
+            await _notificationCenter.ChangeStatus(ExtendedUser.IsInRoles("Administrator") ? "Administrator" : account.AccountName, id, status);
             return new EmptyResult();
         }
 
-        public static async Task<NotificationModel> PrepareNotifications(ClaimsPrincipal principal, IQueryCollection query, INotificationCenter notificationCenter)
+        [HttpPost]
+        public async Task<IActionResult> LoadNotifications(NotificationStatus notificationStatus, string notificationQuery)
         {
-            var status = new List<string> { "Active", "Complete", "Acknowledged", "Inactive", "All" }.Select(x => new FilterItem
+            var statusItems = new List<string> { "Active", "Complete", "Acknowledged", "Inactive", "All" }.Select(x => new FilterItem
             {
                 Id = "Status",
                 Label = x,
                 Value = $"{(int)Enum.Parse(typeof(NotificationStatus), x)}",
-                IsSelected = query["Status"].Any(y => y == $"{(int)Enum.Parse(typeof(NotificationStatus), x)}")
+                IsSelected = notificationStatus == (NotificationStatus)Enum.Parse(typeof(NotificationStatus), x)
             });
-            var notifications = await notificationCenter.GetNotificationsForUser(principal);
+            var notifications = await _notificationCenter.GetNotificationsForUser(User);
 
-            return new NotificationModel
+            return PartialView("_NotificationsPartial", new NotificationModel
             {
-                Notifications = notificationCenter.FilterNotifications(notifications, (NotificationStatus)Enum.Parse(typeof(NotificationStatus), query["Status"].FirstOrDefault() ?? "Active"), query["Query"].FirstOrDefault()),
-                StatusListItems = new SelectList(status, nameof(FilterItem.Value), nameof(FilterItem.Label), query["Status"].FirstOrDefault()),
-                Filters = status.Append(new FilterItem
+                Notifications = _notificationCenter.FilterNotifications(notifications, notificationStatus == NotificationStatus.None ? NotificationStatus.Active : notificationStatus, notificationQuery),
+                Filters = statusItems.Append(new FilterItem
                 {
                     Id = "Notification",
-                    Label = query["Query"],
-                    Value = query["Query"],
-                    IsSelected = !string.IsNullOrEmpty(query["Query"].FirstOrDefault())
+                    Label = notificationQuery,
+                    Value = notificationQuery,
+                    IsSelected = !string.IsNullOrEmpty(notificationQuery)
                 })
-            };
+            });
         }
     }
 }

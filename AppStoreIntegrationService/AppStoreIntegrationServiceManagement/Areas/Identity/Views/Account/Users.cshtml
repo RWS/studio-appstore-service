@@ -1,4 +1,5 @@
-﻿@model (IEnumerable<UserInfoModel> CurrentAccountUsers, IEnumerable<UserInfoModel> AllUsers)
+﻿@inherits CustomRazorPage<(IEnumerable<UserInfoModel> CurrentAccountUsers, IEnumerable<IdentityUserExtended> AllUsers)>
+@inject UserManager<IdentityUserExtended> UserManager
 @{
     ViewData["Title"] = "Manage";
     ViewData["ActivePage"] = ManageNavPages.Manage;
@@ -20,8 +21,8 @@
                 <table class="table table-bordered" id="usersTable">
                     <thead>
                         <tr class="text-center d-none d-lg-table-row">
+                            <th>Username</th>
                             <th>Email</th>
-                            <th>Role</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -29,22 +30,23 @@
                     <tbody class="tbody-stripped">
                         @foreach (var user in Model.AllUsers)
                         {
+                            var isCurrentUser = UserManager.GetUserAsync(User).Result == user;
                             <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
-                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
-                                <td class="align-middle px-3 d-none d-lg-table-cell">@user.Role</td>
+                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.UserName</p></td>
+                                <td class="align-middle px-3 d-none d-lg-table-cell">@user.Email</td>
                                 @if (user.IsBuiltInAdmin)
                                 {
                                     <td class="align-middle px-3 d-none d-lg-table-cell" colspan="2"><i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Built in Admin not editable!"></i> </td>
                                 }
                                 else
                                 {
-                                    <td class="align-middle px-3 d-none d-lg-table-cell" colspan="@(user.IsCurrentUser ? "2" : "1")">
+                                    <td class="align-middle px-3 d-none d-lg-table-cell" colspan="@(isCurrentUser ? "2" : "1")">
                                         <a asp-controller="Account" asp-action="Profile" asp-route-id="@user.Id">
                                             <i class="fa fa-pen-alt cursor-pointer"></i>
                                         </a>
                                     </td>
 
-                                    if (!user.IsCurrentUser)
+                                    if (!isCurrentUser)
                                     {
                                         <td class="align-middle px-3 d-none d-lg-table-cell">
                                             <i class="fa fa-trash-alt cursor-pointer delete-user-btn" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteUser('@user.Id')"></i>
@@ -63,7 +65,7 @@
                 <table class="table table-bordered" id="usersTable">
                     <thead>
                         <tr class="text-center d-none d-lg-table-row">
-                            <th>Email</th>
+                            <th>Username</th>
                             <th>Role</th>
                             <th></th>
                         </tr>

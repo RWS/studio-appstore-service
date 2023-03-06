@@ -1,13 +1,15 @@
-﻿@inject ICompositeViewEngine Engine
+﻿@inherits CustomRazorPage<object>
+@inject ICompositeViewEngine Engine
 @inject ISettingsManager manager
 @inject UserManager<IdentityUserExtended> userManager
 @inject AccountsManager accountsManager
+@inject UserAccountsManager userAccountsManager
 @{
-    var role = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
+    
     var user = await userManager.GetUserAsync(User);
-    var accountName = accountsManager.GetAccountById(user?.SelectedAccountId)?.AccountName;
+    var account = accountsManager.GetAccountById(user?.SelectedAccountId);
     var siteSettings = await manager.ReadSettings();
-    var siteName = role == "Developer" ? accountName : siteSettings.Name;
+    var siteName = ExtendedUser.IsInRoles("Developer", "DeveloperAdmin") ? account?.AccountName : siteSettings.Name;
     var logoImage = Context.Request.Cookies["LogoImage"];
     var engine = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
 }

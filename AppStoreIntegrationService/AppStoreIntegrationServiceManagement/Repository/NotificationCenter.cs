@@ -14,7 +14,8 @@ namespace AppStoreIntegrationServiceManagement.Repository
 {
     public enum NotificationStatus
     {
-        Active = 0,
+        None = 0,
+        Active,
         Complete,
         Acknowledged,
         Inactive,
@@ -182,23 +183,23 @@ namespace AppStoreIntegrationServiceManagement.Repository
             return Enumerable.Empty<Notification>();
         }
 
-        public async Task<bool> HasNewNotifications(ClaimsPrincipal principal)
+        public async Task<int> GetNotificationsCount(ClaimsPrincipal principal)
         {
             var notifications = await GetAllNotifications();
             var user = await _userManager.GetUserAsync(principal);
-            var roles = await _userManager.GetRolesAsync(user);
             var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            var username = roles.FirstOrDefault() == "Administrator" ? roles.FirstOrDefault() : account.AccountName;
+            var role = await _userAccountsManager.GetUserRoleForAccount(user, account);
+            var username = role.Name == "Administrator" ? role.Name : account.AccountName;
 
             if (notifications.TryGetValue(username, out var userNotifications))
             {
                 if (user.PushNotificationsEnabled)
                 {
-                    return userNotifications.Any(x => x.Status == NotificationStatus.Active);
+                    return userNotifications.Count(x => x.Status == NotificationStatus.Active);
                 }
             }
 
-            return false;
+            return 0;
         }
 
         public async Task DeleteNotification(string username, int id)

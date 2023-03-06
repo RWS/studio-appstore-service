@@ -1,4 +1,4 @@
-﻿@model (ExtendedPluginDetails Plugin, IEnumerable<ExtendedPluginVersion> Versions)
+﻿@inherits CustomRazorPage<(ExtendedPluginDetails Plugin, IEnumerable<ExtendedPluginVersion> Versions)>
 @inject IPluginVersionRepository repository
 @{
     ViewData["Title"] = "Versions";
@@ -24,11 +24,11 @@
                     {
                         <div class="d-flex justify-content-between">
                             <div class="px-2 py-1 border rounded me-2">@version.VersionStatus</div>
-                            @if (version.IsThirdParty && !User.IsInRole("StandardUser"))
+                            @if (version.IsThirdParty && !ExtendedUser.IsInRoles("StandardUser"))
                             {
                                 if (version.NeedsDeletionApproval)
                                 {
-                                    if (User.IsInRole("Administrator"))
+                                    if (ExtendedUser.IsInRoles("Administrator"))
                                     {
                                         <div class="position-relative">
                                             <div class="btn-group">
@@ -44,7 +44,7 @@
                                         </div>
                                     }
 
-                                    if (User.IsInRole("Developer"))
+                                    if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
                                     {
                                         <div class="position-relative cursor-pointer">
                                             <i class="fa fa-trash-alt align-self-center"></i>
@@ -54,7 +54,7 @@
                                 }
                                 else
                                 {
-                                    if (User.IsInRole("Developer") && version.IsActive)
+                                    if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin") && version.IsActive)
                                     {
                                         <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('@Model.Plugin.Id', '@version.VersionId', 'RequestDeletion')"></i>
                                     }
@@ -74,7 +74,7 @@
                 </div>
             }
 
-            @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && User.IsInRole("Developer"))
+            @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
             {
                 <a class="btn pa-admin-success-btn mt-2" asp-controller="Version" asp-action="Add" asp-route-pluginId="@Model.Plugin.Id">Add version</a>
             }

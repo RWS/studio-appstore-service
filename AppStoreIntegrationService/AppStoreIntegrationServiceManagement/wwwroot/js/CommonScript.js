@@ -25,6 +25,28 @@ function EnsurePreserved(callback) {
     request.send(data);
 }
 
+function LoadNotifications(clearAll, clearStatus, clearQuery) {
+    let request = new XMLHttpRequest();
+    let data = clearAll ? new FormData() : new FormData(document.getElementById("form"));
+    if (clearStatus) {
+        data.set("NotificationStatus", 0);
+        document.getElementById("NotificationStatus").value = "";
+    }
+
+    if (clearQuery) {
+        data.set("NotificationQuery", "");
+        document.getElementById("NotificationQuery").value = null;
+    }
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            document.getElementById("notificationsContainer").innerHTML = request.responseText;
+        }
+    }
+
+    request.open("POST", `/Identity/Notifications/LoadNotifications`);
+    request.send(data);
+}
 function AttachNotificationQuery() {
     let url = new URL(window.location.href);
 

@@ -1,20 +1,21 @@
-﻿@inject SignInManager<IdentityUserExtended> SignInManager
+﻿@inherits CustomRazorPage<object>
+@inject SignInManager<IdentityUserExtended> SignInManager
 
 <ul class="navbar-nav">
-    @if (SignInManager.IsSignedIn(User))
+    @if (SignInManager.IsSignedIn(User) && ExtendedUser.HasSelectedAccount())
     {
         <li class="nav-item">
             <a onclick="EnsurePreserved(() => { window.location.href = '/Plugins' })" class="nav-link cursor-pointer active header-link">Plugins List</a>
         </li>
 
-        if (User.IsInRole("Administrator"))
+        if (ExtendedUser.IsInRoles("Administrator"))
         {
             <li class="nav-item">
                 <a onclick="EnsurePreserved(() => { window.location.href = '/Settings' })" class="nav-link active cursor-pointer header-link">Settings</a>
             </li>
         }
 
-        if (User.IsInRole("Developer"))
+        if (ExtendedUser.IsInRoles("DeveloperAdmin"))
         {
             <li class="nav-item">
                 <a onclick="EnsurePreserved(() => { window.location.href = '/Settings/ExportPlugins' })" class="nav-link active cursor-pointer header-link">Settings</a>
@@ -38,10 +39,10 @@
             </div>
         </li>
 
-        @if (!User.IsInRole("StandardUser"))
+        @if (!ExtendedUser.IsInRoles("StandardUser"))
         {
             <li class="nav-item d-flex align-items-center">
-                <partial name="_NotificationsPartial" />
+                <partial name="_NotificationsModalPartial" />
             </li>
         }
     }

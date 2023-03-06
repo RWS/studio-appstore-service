@@ -1,106 +1,73 @@
-﻿@inject INotificationCenter notificationCenter
-@{
-    var model = await NotificationsController.PrepareNotifications(User, Context.Request.Query, notificationCenter);
-    var areNotificationsOpen = Context.Request.Query["notifications"] == "open";
-    var hasNewNotifications = await notificationCenter.HasNewNotifications(User);
-}
+﻿@model NotificationModel
 
-<div class="btn-group dropstart notifications">
-    <div class="position-relative cursor-pointer @(areNotificationsOpen ? "show" : null)" data-bs-toggle="dropdown" aria-expanded="@areNotificationsOpen" data-bs-auto-close="outside" onclick="AttachNotificationQuery()">
-        <i class="fa fa-bell text-white"></i>
-        <div class="notifications-count bg-danger @(hasNewNotifications ? null : "d-none")">
-            <p class="m-0">@(model.Notifications.Count())</p>
+<div class="container-fluid px-2 border-bottom @(Model.Filters.Any(x => x.IsSelected) ? "" : "d-none")">
+    <form method="post" onsubmit="return false" class="m-0 px-1 py-2 d-flex">
+        <input hidden name="notifications" value="open" />
+        <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white" onclick="LoadNotifications(true, true, true)">
+            <i class="fa fa-times-circle"></i>
+            Clear all
+        </a>
+        @foreach (var item in Model.Filters)
+        {
+            if (item.IsSelected)
+            {
+                <label for="@item.Id" class="delete-filter me-1 delete-filter-active">
+                    <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear @item.Id filter"></i>
+                    @item.Label
+                    <input hidden type="checkbox" id="@item.Id" name="@item.Id" value="@item.Value" checked
+                   onchange="LoadNotifications(false, @Json.Serialize(item.Id == "Status"), @Json.Serialize(item.Id == "Notification"))" />
+                </label>
+            }
+        }
+    </form>
+</div>
+@if (Model.Notifications.Any(x => x.Status != NotificationStatus.Complete))
+{
+    <div class="container-fluid px-2 border-bottom">
+        <div class="d-flex p-2 align-items-center">
+            <i class="fa fa-check-circle cursor-pointer text-success align-middle" onclick="ChangeNotificationStatus('Complete')"></i>
+            <p class="m-0 ms-2">Complete all</p>
         </div>
     </div>
-    <div class="dropdown-menu p-0 @(areNotificationsOpen ? "show" : null)" data-bs-popper="@(areNotificationsOpen ? "none" : null)">
-        <div class="container-fluid py-2 px-3 border-bottom">
-            <form method="get" class="row py-2">
-                <input hidden name="notifications" value="open" />
-                <div class="col-5">
-                    <select name="Status" asp-items="model.StatusListItems" class="pa-admin-select w-100" onchange="this.form.submit()">
-                        <option disabled hidden selected>Status</option>
-                    </select>
-                </div>
-                <div class="col-7">
-                    <div class="input-group">
-                        <input type="text" class="form-control form-control-sm" name="Query" autocomplete="off" placeholder="Search notification" aria-label="Search notification">
-                        <span class="input-group-text p-1 bg-light">
-                            <button onclick="this.form.submit()" class="border-0 bg-white"><i aria-label="Submit search" class="fa fa-search filter-search-submit"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="container-fluid px-2 border-bottom @(model.Filters.Any(x => x.IsSelected) ? "" : "d-none")">
-            <form method="get" asp-route="/Plugins?notifications=open" class="m-0 px-1 py-2 d-flex">
-                <input hidden name="notifications" value="open" />
-                <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white" href="@Url.Content("?notifications=open")">
-                    <i class="fa fa-times-circle"></i>
-                    Clear all
-                </a>
-                @foreach (var item in model.Filters)
-                {
-                    if (item.IsSelected)
-                    {
-                        <label for="@item.Id" class="delete-filter me-1 delete-filter-active">
-                            <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear @item.Id filter"></i>
-                            @item.Label
-                            <input hidden type="checkbox" id="@item.Id" name="@item.Id" value="@item.Value" onchange="this.form.submit()" checked />
-                        </label>
-                    }
-                }
-            </form>
-        </div>
-        @if (model.Notifications.Any(x => x.Status != NotificationStatus.Complete))
+}
+
+<div class="notifications-container">
+    @if (Model.Notifications.Any())
+    {
+        @foreach (var notification in Model.Notifications)
         {
-            <div class="container-fluid px-2 border-bottom">
-                <div class="d-flex p-2 align-items-center">
-                    <i class="fa fa-check-circle cursor-pointer text-success align-middle" onclick="ChangeNotificationStatus('Complete')"></i>
-                    <p class="m-0 ms-2">Complete all</p>
+            <div class="position-relative" contenteditable="false" spellcheck="false">
+                @Html.Raw(notification.Content)
+                <div class="position-absolute action-container d-flex justify-content-between">
+                    @if (notification.Status == NotificationStatus.Active)
+                    {
+                        <i class="fa fa-check-circle cursor-pointer text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Complete" onclick="ChangeNotificationStatus('Complete', '@notification.Id')"></i>
+                        <i class="fa fa-exclamation-triangle cursor-pointer text-warning mx-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Acknowledge" onclick="ChangeNotificationStatus('Acknowledged', '@notification.Id')"></i>
+                        <i class="fa fa-ban cursor-pointer text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove" onclick="ChangeNotificationStatus('Inactive', '@notification.Id')"></i>
+                    }
+
+                    @if (notification.Status == NotificationStatus.Complete)
+                    {
+                        <i class="fa fa-check-circle cursor-pointer text-success"></i>
+                    }
+
+                    @if (notification.Status == NotificationStatus.Acknowledged)
+                    {
+                        <i class="fa fa-exclamation-triangle cursor-pointer text-warning"></i>
+                    }
+
+                    @if (notification.Status == NotificationStatus.Inactive)
+                    {
+                        <i class="fa fa-ban cursor-pointer text-danger"></i>
+                    }
                 </div>
             </div>
         }
-
-        <div class="notifications-container">
-            @if (model.Notifications.Any())
-            {
-                @foreach (var notification in model.Notifications)
-                {
-                    <div class="position-relative" contenteditable="false" spellcheck="false">
-                        @Html.Raw(notification.Content)
-                        <div class="position-absolute action-container d-flex justify-content-between">
-                            @if (notification.Status == NotificationStatus.Active)
-                            {
-                                <i class="fa fa-check-circle cursor-pointer text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Complete" onclick="ChangeNotificationStatus('Complete', '@notification.Id')"></i>
-                                <i class="fa fa-exclamation-triangle cursor-pointer text-warning mx-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Acknowledge" onclick="ChangeNotificationStatus('Acknowledged', '@notification.Id')"></i>
-                                <i class="fa fa-ban cursor-pointer text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove" onclick="ChangeNotificationStatus('Inactive', '@notification.Id')"></i>
-                            }
-
-                            @if (notification.Status == NotificationStatus.Complete)
-                            {
-                                <i class="fa fa-check-circle cursor-pointer text-success"></i>
-                            }
-
-                            @if (notification.Status == NotificationStatus.Acknowledged)
-                            {
-                                <i class="fa fa-exclamation-triangle cursor-pointer text-warning"></i>
-                            }
-
-                            @if (notification.Status == NotificationStatus.Inactive)
-                            {
-                                <i class="fa fa-ban cursor-pointer text-danger"></i>
-                            }
-                        </div>
-
-                    </div>
-                }
-            }
-            else
-            {
-                <div style="width: 400px; height: 100px" class="d-flex justify-content-center align-items-center">
-                    <p class="m-0">You have 0 active notifications</p>
-                </div>
-            }
+    }
+    else
+    {
+        <div style="width: 400px; height: 100px" class="d-flex justify-content-center align-items-center">
+            <p class="m-0">You have 0 active notifications</p>
         </div>
-    </div>
+    }
 </div>

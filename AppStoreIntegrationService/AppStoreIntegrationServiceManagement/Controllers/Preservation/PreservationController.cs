@@ -1,9 +1,11 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Comments;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +25,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
         Register
     }
 
+    [Authorize]
+    [AccountSelected]
     public class PreservationController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
@@ -177,9 +181,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             var editedUser = await _userManager.FindByIdAsync(profile.Id);
             var currentUser = await _userManager.GetUserAsync(User);
             var user = editedUser ?? currentUser;
-            var roles = await _userManager.GetRolesAsync(user);
 
-            if (profile?.Equals(new ProfileModel(user, roles[0])) ?? true)
+            if (profile?.Equals(new ProfileModel(user)) ?? true)
             {
                 return Content(null);
             }
@@ -205,7 +208,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public IActionResult Check(RegisterModel model)
         {
-            if (model.Input.IsEmpty())
+            if (model.IsEmpty())
             {
                 return Content(null);
             }

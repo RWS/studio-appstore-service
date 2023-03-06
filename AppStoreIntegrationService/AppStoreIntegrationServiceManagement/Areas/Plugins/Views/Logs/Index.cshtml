@@ -1,4 +1,4 @@
-﻿@model (ExtendedPluginDetails plugin, IEnumerable<FilterItem> filters)
+﻿@inherits CustomRazorPage<(ExtendedPluginDetails plugin, IEnumerable<FilterItem> filters)>
 @{
     ViewData["Title"] = "Log";
     ViewData["ActivePage"] = ManagePluginsNav.PluginDetails;
@@ -6,7 +6,7 @@
     var dateFrom = Context.Request.Query["FromDate"];
     var dateTo = Context.Request.Query["ToDate"];
     var query = Context.Request.Query["Query"];
-    var isUserAdmin = User.IsInRole("Administrator");
+    var isUserAdmin = ExtendedUser.IsInRoles("Administrator");
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />

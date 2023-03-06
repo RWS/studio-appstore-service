@@ -17,22 +17,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IPluginRepository _pluginRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly INotificationCenter _notificationCenter;
-        private readonly UserManager<IdentityUserExtended> _userManager;
 
         public CommentsController
         (
             ICommentsRepository commentsRepository,
             IPluginRepository pluginRepository,
             IPluginVersionRepository pluginVersionRepository,
-            INotificationCenter notificationCenter,
-            UserManager<IdentityUserExtended> userManager
+            INotificationCenter notificationCenter
         )
         {
             _commentsRepository = commentsRepository;
             _pluginRepository = pluginRepository;
             _pluginVersionRepository = pluginVersionRepository;
             _notificationCenter = notificationCenter;
-            _userManager = userManager;
         }
 
         [Route("/Plugins/Edit/{pluginId}/Comments")]

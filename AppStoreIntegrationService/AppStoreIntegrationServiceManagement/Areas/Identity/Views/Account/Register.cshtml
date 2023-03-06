@@ -1,4 +1,4 @@
-﻿@model RegisterModel
+﻿@inherits CustomRazorPage<RegisterModel>
 @{
     ViewData["Title"] = "Manage";
     ViewData["ActivePage"] = ManageNavPages.Register;
@@ -15,76 +15,37 @@
         <form asp-controller="Account" asp-action="PostRegister" method="post" id="form">
             <input hidden name="Page" value="@Page.Register" />
             <div class="mb-3">
-                <label asp-for="Input.UserName" class="form-label">Username</label>
+                <label asp-for="UserName" class="form-label">Username</label>
                 <div class="input-group">
-                    <input asp-for="Input.UserName" class="form-control fs-inherit border-end-0" oninput="HideUserDetails()" />
+                    <input asp-for="UserName" class="form-control fs-inherit border-end-0" oninput="HideUserDetails()" />
                     <a class="btn pa-admin-success-btn text-nowrap" onclick="CheckUserExistance()">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                         Check user
                     </a>
                 </div>
-                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                <span asp-validation-for="UserName" class="text-danger"></span>
                 <span id="userCheckMessage"></span>
             </div>
             <div class="d-none">
                 <div class="mb-3">
-                    <label asp-for="Input.Email" class="form-label">Email</label>
-                    <input asp-for="Input.Email" class="form-control fs-inherit" />
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control fs-inherit" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
-                    <label asp-for="Input.Password" class="form-label"></label>
-                    <input asp-for="Input.Password" class="form-control fs-inherit" />
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control fs-inherit" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
-                    <label asp-for="Input.ConfirmPassword" class="form-label"></label>
-                    <input asp-for="Input.ConfirmPassword" class="form-control fs-inherit" />
-                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control fs-inherit" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
-                    <label asp-for="Input.UserRole" class="form-label"></label>
-                    @if (User.IsInRole("Administrator"))
-                    {
-                        <select class="fs-inherit pa-admin-select w-100" asp-for="Input.UserRole">
-                            <option value="StandardUser">Standard</option>
-                            <option value="Administrator">Administrator</option>
-                            <option value="Developer">Developer</option>
-                        </select>
-                    }
-
-                    @if (User.IsInRole("Developer"))
-                    {
-                        <input asp-for="Input.UserRole" readonly value="Developer" class="form-control fs-inherit" />
-                    }
-
-                    @if (User.IsInRole("StandardUser"))
-                    {
-                        <input asp-for="Input.UserRole" readonly value="StandardUser" class="form-control fs-inherit" />
-                    }
+                    <label asp-for="RoleId" class="form-label"></label>
+                    <select class="fs-inherit pa-admin-select w-100" asp-for="RoleId" asp-items="@Model.Roles"></select>
                 </div>
-                @if (User.IsInRole("Developer") || User.IsInRole("StandardUser"))
-                {
-                    <div class="form-check">
-                        <input asp-for="Input.AssignToAccount" type="checkbox" checked onclick="return false" class="form-check-input" />
-                        <label asp-for="Input.AssignToAccount" class="form-label">Assign user to your account</label>
-                    </div>
-                    <div class="form-check">
-                        <input asp-for="Input.HasFullAccess" type="checkbox" class="form-check-input" />
-                        <label asp-for="Input.HasFullAccess" class="form-label">Grant full access to your account</label>
-                    </div>
-                }
-                else
-                {
-                    <div class="form-check">
-                        <input asp-for="Input.AssignToAccount" type="checkbox" class="form-check-input" onchange="ToggleAccessCheckbox()" />
-                        <label asp-for="Input.AssignToAccount" class="form-label">Assign user to your account</label>
-                    </div>
-                    <div class="form-check d-none">
-                        <input asp-for="Input.HasFullAccess" type="checkbox" class="form-check-input" />
-                        <label asp-for="Input.HasFullAccess" class="form-label">Grant full access to your account</label>
-                    </div>
-                }
                 <button type="submit" class="btn pa-admin-success-btn fs-inherit">Register</button>
             </div>
         </form>

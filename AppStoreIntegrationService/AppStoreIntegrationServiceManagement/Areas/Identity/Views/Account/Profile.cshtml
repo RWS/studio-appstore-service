@@ -9,7 +9,6 @@
 <h2 class="fs2-inherit">Account settings</h2>
 <hr class="w-100">
 <div class="row">
-
     @if (Model.Id != null)
     {
         <partial name="_EditNav" model="@Model.Id" />
@@ -23,34 +22,23 @@
         <p class="text-break fw-bold fs4-inherit">@string.Format("Edit profile {0}", Model.Id != null ? $"for {Model.UserName}" : null)</p>
         <form asp-controller="Account" asp-action="Update" asp-route-id="@Model.Id" method="post" id="form">
             <input hidden asp-for="Id" />
-            <input hidden name="Page" value="@Page.Profile"/>
+            <input hidden name="Page" value="@Page.Profile" />
             <div class="mb-3">
                 <label asp-for="UserName" class="form-label">Username</label>
-                <input asp-for="UserName" class="form-control fs-inherit" />
+                @if (Model.IsUsernameEditable)
+                {
+                    <input asp-for="UserName" class="form-control fs-inherit" />
+                }
+                else
+                {
+                    <input asp-for="UserName" readonly class="form-control fs-inherit" />
+                }
                 <span asp-validation-for="UserName" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Email" class="form-label">Email</label>
                 <input asp-for="Email" class="form-control fs-inherit" />
                 <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                @if (Model.IsUserRoleEditable)
-                {
-                    <label class="form-label" asp-for="UserRole">Role</label>
-                    <select class="fs-inherit pa-admin-select w-100" asp-for="UserRole">
-                        <option value="StandardUser" selected>Standard</option>
-                        <option value="Administrator">Administrator</option>
-                        <option value="Developer">Developer</option>
-                        <option value="DeveloperAdmin">Developer</option>
-                    </select>
-                }
-                else
-                {
-                    <label asp-for="UserRole" class="form-check-label mb-2"></label>
-                    <input asp-for="UserRole" class="form-control fs-inherit" readonly />
-                }
-
             </div>
             <button type="submit" class="btn pa-admin-success-btn fs-inherit">Save</button>
         </form>

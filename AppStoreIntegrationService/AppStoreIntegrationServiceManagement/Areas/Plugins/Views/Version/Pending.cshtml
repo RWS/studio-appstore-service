@@ -1,4 +1,4 @@
-﻿@model (ExtendedPluginDetails Plugin, ExtendedPluginVersion Version)
+﻿@inherits CustomRazorPage<(ExtendedPluginDetails Plugin, ExtendedPluginVersion Version)>
 @{
     ViewData["Title"] = "Versions";
     ViewData["ActivePage"] = ManagePluginsNav.Versions;
@@ -23,7 +23,7 @@
         <input hidden name="Page" value="@Page.Version" />
         <partial name="_VersionDetailsPartial" model="@Model.Version" />
 
-        @if (Model.Version.IsThirdParty && User.IsInRole("Developer"))
+        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
         {
             <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Submit')">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
@@ -34,7 +34,7 @@
                 Save as draft
             </button>
         }
-        else if (Model.Version.IsThirdParty && User.IsInRole("Administrator") && Model.Version.VersionStatus.Equals(Status.InReview))
+        else if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Administrator") && Model.Version.VersionStatus.Equals(Status.InReview))
         {
             <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Approve', true)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>

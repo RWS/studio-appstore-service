@@ -1,4 +1,4 @@
-﻿@model ConfigToolModel
+﻿@inherits CustomRazorPage<ConfigToolModel>
 @{
     ViewData["Title"] = "Plugins";
 }
@@ -89,12 +89,12 @@
 
                             <div class="col-6 d-flex justify-content-end">
 
-                                @if (plugin.IsThirdParty && !User.IsInRole("StandardUser"))
+                                @if (plugin.IsThirdParty && !ExtendedUser.IsInRoles("StandardUser"))
                                 {
                                     <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-pen-alt"></i></a>
                                     if (plugin.NeedsDeletionApproval)
                                     {
-                                        if (User.IsInRole("Administrator"))
+                                        if (ExtendedUser.IsInRoles("Administrator"))
                                         {
                                             <div class="btn p-0 fs-inherit position-relative d-flex">
                                                 <div class="btn-group">
@@ -110,7 +110,7 @@
                                             </div>
                                         }
 
-                                        if (User.IsInRole("Developer"))
+                                        if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
                                         {
                                             <div class="btn p-0 fs-inherit position-relative d-flex">
                                                 <i class="fa fa-trash-alt align-self-center"></i>
@@ -120,7 +120,7 @@
                                     }
                                     else
                                     {
-                                        if (User.IsInRole("Developer") && plugin.IsActive)
+                                        if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin") && plugin.IsActive)
                                         {
                                             <div class="btn p-0 fs-inherit position-relative d-flex">
                                                 <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('RequestDeletion', '@plugin.Id')"></i>
@@ -136,7 +136,7 @@
                                     }
                                 }
 
-                                @if (plugin.IsThirdParty && User.IsInRole("StandardUser"))
+                                @if (plugin.IsThirdParty && ExtendedUser.IsInRoles("StandardUser"))
                                 {
                                     <div class="btn p-0 fs-inherit position-relative d-flex">
                                         <a class="focus-transparent text-secondary" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-eye"></i></a>
@@ -167,5 +167,4 @@
 </div>
 
 <partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this plugin?" })" />
-
 <script src="~/js/PluginScript.js"></script>

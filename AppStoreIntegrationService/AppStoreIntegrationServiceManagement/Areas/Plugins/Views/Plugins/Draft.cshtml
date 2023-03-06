@@ -1,4 +1,4 @@
-﻿@model ExtendedPluginDetails
+﻿@inherits CustomRazorPage<ExtendedPluginDetails>
 @{
     ViewData["Title"] = "Edit";
     ViewData["ActivePage"] = ManagePluginsNav.PluginDetails;
@@ -25,7 +25,7 @@
 
         <partial name="_PluginDetailsPartial" model="@Model" />
 
-        @if (User.IsInRole("Developer"))
+        @if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
         {
             <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit', true)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>

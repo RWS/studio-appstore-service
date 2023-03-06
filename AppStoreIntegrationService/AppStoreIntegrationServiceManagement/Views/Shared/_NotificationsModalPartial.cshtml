@@ -1,0 +1,43 @@
+﻿@inject INotificationCenter notificationCenter
+@{
+    var count = await notificationCenter.GetNotificationsCount(User);
+}
+
+<div class="btn-group dropstart notifications">
+    <div class="position-relative cursor-pointer" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="outside" onclick="LoadNotifications(false, false, false)">
+        <i class="fa fa-bell text-white"></i>
+        <div class="notifications-count bg-danger @(count > 0 ? null : "d-none")">
+            <p class="m-0">@count</p>
+        </div>
+    </div>
+    <div class="dropdown-menu p-0">
+        <div class="container-fluid py-2 px-3 border-bottom">
+            <form method="post" class="row py-2" id="form" onsubmit="return false">
+                <input hidden name="notifications" value="open" />
+                <div class="col-5">
+                    <select name="NotificationStatus" id="NotificationStatus" class="pa-admin-select w-100" onchange="LoadNotifications(false, false, false)">
+                        <option disabled hidden selected value="">Status</option>
+                        <option value="1">Active</option>
+                        <option value="2">Complete</option>
+                        <option value="3">Acknowledged</option>
+                        <option value="4">Inactive</option>
+                        <option value="5">All</option>
+                    </select>
+                </div>
+                <div class="col-7">
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-sm" name="NotificationQuery" id="NotificationQuery" autocomplete="off" placeholder="Search notification" aria-label="Search notification">
+                        <span class="input-group-text p-1 bg-light">
+                            <button onclick="LoadNotifications(false, false, false)" class="border-0 bg-white"><i aria-label="Submit search" class="fa fa-search filter-search-submit"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div id="notificationsContainer">
+            <div style="width:400px; height: 300px" class="d-flex justify-content-center align-items-center">
+                <div class="spinner-border text-success" role="status"></div>
+            </div>
+        </div>
+    </div>
+</div>

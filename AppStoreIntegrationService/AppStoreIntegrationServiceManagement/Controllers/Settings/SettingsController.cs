@@ -1,12 +1,14 @@
-﻿using AppStoreIntegrationServiceManagement.Model.Settings;
+﻿using AppStoreIntegrationServiceManagement.Filters;
+using AppStoreIntegrationServiceManagement.Model.Settings;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
-    [Authorize(Policy = "IsAdmin")]
     [Area("Settings")]
+    [Authorize]
+    [RoleAuthorize("Administrator")]
     public class SettingsController : Controller
     {
         private readonly ISettingsManager _settingsManager;

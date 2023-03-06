@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Helpers;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
@@ -125,7 +126,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Submit")]
-        [Authorize(Roles = "Developer")]
+        [RoleAuthorize("Developer", "DeveloperAdmin")]
         public async Task<IActionResult> Submit(int pluginId, PluginVersion version, bool removeOtherVersions)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -136,7 +137,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Approve")]
-        [Authorize(Policy = "IsAdmin")]
+        [RoleAuthorize("Administrator")]
         public async Task<IActionResult> Approve(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -148,7 +149,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Reject")]
-        [Authorize(Policy = "IsAdmin")]
+        [RoleAuthorize("Administrator")]
         public async Task<IActionResult> Reject(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -160,7 +161,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/SaveAsDraft")]
-        [Authorize(Roles = "Developer")]
+        [RoleAuthorize("Administrator")]
         public async Task<IActionResult> SaveAsDraft(int pluginId, PluginVersion version)
         {
             version.VersionStatus = Status.Draft;
@@ -176,7 +177,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/RequestDeletion/{versionId}")]
-        [Authorize(Roles = "Developer")]
+        [RoleAuthorize("Developer", "DeveloperAdmin")]
         public async Task<IActionResult> RequestDeletion(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
@@ -196,7 +197,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/AcceptDeletion/{versionId}")]
-        [Authorize(Roles = "Administrator")]
+        [RoleAuthorize("Administrator")]
         public async Task<IActionResult> AcceptDeletion(int pluginId, string versionId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -208,7 +209,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/RejectDeletion/{versionId}")]
-        [Authorize(Roles = "Administrator")]
+        [RoleAuthorize("Administrator")]
         public async Task<IActionResult> RejectDeletion(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);

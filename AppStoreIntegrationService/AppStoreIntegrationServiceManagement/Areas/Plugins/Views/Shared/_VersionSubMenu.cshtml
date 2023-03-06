@@ -1,8 +1,8 @@
-﻿@model ExtendedPluginVersion
+﻿@inherits CustomRazorPage<ExtendedPluginVersion>
 @inject IPluginVersionRepository repository
 @{
     var route = $"/Plugins/Edit/{Model.PluginId}/Versions/{{0}}/{Model.VersionId}";
-    var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
+    var userRole = ExtendedUser.GetRole();
 }
 
 <ul class="nav nav-tabs">
