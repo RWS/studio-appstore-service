@@ -217,39 +217,6 @@ body, html {
     visibility: hidden;
 }
 
-.rich-text-editor {
-    resize: both;
-    overflow: auto;
-    color: var(--pa-admin-input-foreground);
-    background-color: var(--pa-admin-input-color);
-    font-size: var(--pa-admin-input-fontsize);
-    font-family: var(--pa-admin-input-fontfamily);
-}
-
-    .rich-text-editor i:hover,
-    .rich-text-editor .dropdown-toggle:hover,
-    .active {
-        background-color: lightgray;
-    }
-
-.edit-area {
-    height: 200px;
-    outline: 0px solid transparent;
-    word-break: normal;
-}
-
-.editor-toolbar {
-    color: var(--pa-admin-input-foreground);
-    background-color: var(--pa-admin-input-color);
-    font-size: var(--pa-admin-input-fontsize);
-    font-family: var(--pa-admin-input-fontfamily);
-}
-
-.selector-cell {
-    width: 15px;
-    height: 15px;
-}
-
 /* Table striped */
 
 table {
@@ -297,6 +264,10 @@ table {
 }
 
 /* Generic */
+
+#fr-logo{
+    display: none;
+}
 
 .fa-clock {
     position: absolute;

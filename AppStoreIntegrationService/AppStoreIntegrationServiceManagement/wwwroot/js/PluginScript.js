@@ -36,6 +36,7 @@ function ClearLogs(id) {
 
 function SavePlugin(action, removeOtherVersions = false) {
     var button = event.currentTarget;
+    document.getElementById("Description").innerText = document.querySelector(".fr-box .fr-element").innerHTML;
     $("#form").validate();
 
     if ($("#form").valid()) {

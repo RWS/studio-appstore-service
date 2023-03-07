@@ -3,22 +3,18 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "bootstrap@5.2.0",
-      "destination": "wwwroot/lib/bootstrap/"
+      "provider": "cdnjs",
+      "library": "froala-editor@4.0.17",
+      "destination": "wwwroot/lib/froala-editor/"
     },
     {
-      "library": "bootstrap@5.1.0",
-      "destination": "wwwroot/lib/bootstrap/"
-    },
-    {
-      "provider": "jsdelivr",
-      "library": "bootstrap@5.1.0",
-      "destination": "wwwroot/bootstrap/"
-    },
-    {
-      "provider": "jsdelivr",
-      "library": "bootstrap@5.2.1",
-      "destination": "wwwroot/lib/bootstrap/"
+      "provider": "cdnjs",
+      "library": "bootstrap@5.0.0",
+      "destination": "wwwroot/lib/bootstrap/",
+      "files": [
+        "js/bootstrap.bundle.min.js",
+        "css/bootstrap.min.css"
+      ]
     }
   ]
 }

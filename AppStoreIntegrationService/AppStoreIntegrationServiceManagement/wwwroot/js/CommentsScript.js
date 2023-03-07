@@ -28,7 +28,7 @@ function AddComment(pluginId, versionId = '') {
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
             content.innerHTML = request.responseText;
-            Init();
+            editor = new FroalaEditor('#example', { height: 250 });
         }
     }
 
@@ -39,6 +39,7 @@ function AddComment(pluginId, versionId = '') {
 function SaveComment() {
     let button = event.currentTarget;
     let request = new XMLHttpRequest();
+    document.getElementById("CommentDescription").innerText = document.querySelector(".fr-box .fr-element").innerHTML;
     let data = new FormData(document.getElementById("form"));
     ToggleLoader(button);
 
@@ -50,13 +51,6 @@ function SaveComment() {
 
     request.open("POST", `/Plugins/Comments/Update`);
     request.send(data);
-}
-
-function EditComment(commentId) {
-    let url = new URL(window.location.href);
-
-    url.searchParams.set("selectedComment", commentId);
-    window.location.href = url.href;
 }
 
 function DeleteComment(pluginId, commentId, versionId = '') {

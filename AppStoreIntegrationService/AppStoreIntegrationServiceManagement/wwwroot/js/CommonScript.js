@@ -3,6 +3,11 @@ let y;
 let draggable;
 
 function EnsurePreserved(callback) {
+    var textArea = document.querySelector(".text-area-hidden");
+    if (textArea) {
+        textArea.innerText = document.querySelector(".fr-box .fr-element").innerHTML;
+    }
+
     let data = new FormData(document.getElementById("form"));
     let request = new XMLHttpRequest();
 
@@ -27,7 +32,7 @@ function EnsurePreserved(callback) {
 
 function LoadNotifications(clearAll, clearStatus, clearQuery) {
     let request = new XMLHttpRequest();
-    let data = clearAll ? new FormData() : new FormData(document.getElementById("form"));
+    let data = clearAll ? new FormData() : new FormData(document.getElementById("NotificationForm"));
     if (clearStatus) {
         data.set("NotificationStatus", 0);
         document.getElementById("NotificationStatus").value = "";
@@ -108,36 +113,12 @@ document.addEventListener('DOMContentLoaded', function () {
             })
         }, 3000);
     }
+
+    document.querySelector(".fr-box .fr-element").addEventListener('input', () => {
+        console.log("Changed!")
+    })
+    //document.getElementById("Description").innerText = document.querySelector(".fr-box .fr-element").innerHTML;
 });
-
-function BeginDrag() {
-    x = event.clientX;
-    y = event.clientY;
-    draggable = event.currentTarget.parentElement;
-    document.addEventListener('mousemove', Drag);
-    document.addEventListener('mouseup', StopDrag);
-}
-
-function Drag(e) {
-    const dx = e.clientX - x;
-    const dy = e.clientY - y;
-
-    draggable.style.top = `${draggable.offsetTop + dy}px`;
-    draggable.style.left = `${draggable.offsetLeft + dx}px`;
-
-    x = e.clientX;
-    y = e.clientY;
-};
-
-function StopDrag() {
-    document.removeEventListener('mousemove', Drag);
-    document.removeEventListener('mouseup', StopDrag);
-};
-
-function UpdateDescription() {
-    var editor = event.target;
-    editor.parentElement.nextElementSibling.value = editor.innerHTML;
-}
 
 function ToggleLoader(element) {
     if (element.disabled) {
