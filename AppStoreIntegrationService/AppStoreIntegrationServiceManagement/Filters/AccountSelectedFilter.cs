@@ -24,7 +24,7 @@ namespace AppStoreIntegrationServiceManagement.Filters
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             var user = await _userManager.GetUserAsync(context.HttpContext.User);
-            var accounts = _userAccountsManager.GetUserAccounts(user);
+            var accounts = _userAccountsManager.GetUserParentAccounts(user);
 
             if (accounts.Count() <= 1)
             {

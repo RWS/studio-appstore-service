@@ -1,9 +1,13 @@
 ﻿@model NameMapping
 @inject IPluginRepository pluginRepository
+@inject UserManager<IdentityUserExtended> _userManager;
+@inject AccountsManager _accountsManager;
+@inject UserAccountsManager _userAccountsManager;
 @{
-    var username = User.Identity.Name;
-    var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
-    var plugins = await pluginRepository.GetAll("asc", username, userRole);
+    var user = await _userManager.GetUserAsync(User);
+    var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+    var role = await _userAccountsManager.GetUserRoleForAccount(user, account);
+    var plugins = await pluginRepository.GetAll("asc", user.UserName, role.Name);
 }
 
 <tr class="table-row d-flex flex-column d-lg-table-row" id="newDataRow">
@@ -19,7 +23,7 @@
         <datalist id="datalistOptions">
             @foreach (var plugin in plugins)
             {
-                if (Model.OldName.Equals(plugin.Name))
+                if (Model.OldName == plugin.Name)
                 {
                     <option value="@plugin.Name" selected />
                 }

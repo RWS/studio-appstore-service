@@ -26,8 +26,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         public string ConfirmPassword { get; set; }
 
         [Display(Name = "User role")]
-        public string RoleId { get; set; }
-        public SelectList Roles { get; set; }
+        public string UserRole { get; set; }
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
         public bool IsEmpty()
         {

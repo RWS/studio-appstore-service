@@ -23,7 +23,7 @@ namespace AppStoreIntegrationServiceManagement.Filters
         {
             var user = await _userManager.GetUserAsync(context.HttpContext.User);
 
-            if (_userAccountsManager.HasFullAccess(user))
+            if (_userAccountsManager.IsOwner(user))
             {
                 return;
             }

@@ -9,7 +9,7 @@
     var user = await userManager.GetUserAsync(User);
     var account = accountsManager.GetAccountById(user?.SelectedAccountId);
     var siteSettings = await manager.ReadSettings();
-    var siteName = ExtendedUser.IsInRoles("Developer", "DeveloperAdmin") ? account?.AccountName : siteSettings.Name;
+    var siteName = siteSettings.Name ?? account?.AccountName;
     var logoImage = Context.Request.Cookies["LogoImage"];
     var engine = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
 }

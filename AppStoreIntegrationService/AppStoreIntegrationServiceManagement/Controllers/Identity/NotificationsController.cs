@@ -14,7 +14,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     [Area("Identity")]
     [Authorize]
     [AccountSelected]
-    [RoleAuthorize("Administrator", "DeveloperAdmin", "Developer")]
+    [RoleAuthorize("Administrator", "Developer")]
     public class NotificationsController : CustomController
     {
         private readonly UserManager<IdentityUserExtended> _userManager;

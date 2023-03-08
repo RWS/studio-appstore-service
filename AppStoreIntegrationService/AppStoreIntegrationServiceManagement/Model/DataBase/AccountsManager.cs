@@ -11,8 +11,13 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             _context = context;
         }
 
-        public Account TryAddAccount(string accountName)
+        public Account TryAddAccount(string accountName, bool isAppStoreAccount = false)
         {
+            if (string.IsNullOrEmpty(accountName))
+            {
+                return null;
+            }
+
             var accounts = _context.Accounts;
             var account = accounts.ToList().FirstOrDefault(x => x.AccountName == accountName);
 
@@ -21,7 +26,12 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
                 return account;
             }
 
-            account = new Account { Id = Guid.NewGuid().ToString(), AccountName = accountName };
+            account = new Account 
+            { 
+                Id = Guid.NewGuid().ToString(), 
+                AccountName = accountName,
+                IsAppStoreAccount = isAppStoreAccount
+            };
             accounts.Add(account);
             _context.SaveChanges();
             return account;

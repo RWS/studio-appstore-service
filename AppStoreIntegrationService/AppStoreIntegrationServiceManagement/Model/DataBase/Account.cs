@@ -10,5 +10,7 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
         public string Id { get; set; }
         [Required]
         public string AccountName { get; set; }
+        [Required]
+        public bool IsAppStoreAccount { get; set; }
     }
 }

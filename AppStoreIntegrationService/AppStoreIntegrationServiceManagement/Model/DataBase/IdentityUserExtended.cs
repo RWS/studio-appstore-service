@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Model.DataBase
 {
@@ -9,10 +8,5 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
         public bool PushNotificationsEnabled { get; set; }
         public bool IsBuiltInAdmin { get; set; }
         public string SelectedAccountId { get; set; }
-
-        public static string GetUserRole(ClaimsIdentity identity)
-        {
-            return identity.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).FirstOrDefault();
-        }
     }
 }

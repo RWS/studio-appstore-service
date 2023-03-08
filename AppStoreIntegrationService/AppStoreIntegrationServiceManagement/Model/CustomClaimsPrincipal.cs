@@ -1,5 +1,4 @@
-﻿using AppStoreIntegrationServiceManagement.Controllers.Identity;
-using AppStoreIntegrationServiceManagement.Model.DataBase;
+﻿using AppStoreIntegrationServiceManagement.Model.DataBase;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -60,6 +59,12 @@ namespace AppStoreIntegrationServiceManagement.Model
             return false;
         }
 
+        public bool IsOwner()
+        {
+            var user = _userManager.GetUserAsync(this).Result;
+            return _userAccountsManager.IsOwner(user);
+        }
+
         public bool HasSelectedAccount()
         {
             var user = _userManager.GetUserAsync(this).Result;
@@ -72,6 +77,25 @@ namespace AppStoreIntegrationServiceManagement.Model
             var account = _accountsManager.GetAccountById(user.SelectedAccountId);
             var role = _userAccountsManager.GetUserRoleForAccount(user, account).Result;
             return role.Name;
+        }
+
+        public bool HasFullOwnership()
+        {
+            var user = _userManager.GetUserAsync(this).Result;
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            var identityRole = _roleManager.FindByNameAsync("Administrator").Result;
+
+            if (identityRole == null)
+            {
+                return false;
+            }
+
+            return _userAccountsManager.HasFullOwnership(user, identityRole.Id);
         }
     }
 }

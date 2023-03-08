@@ -5,6 +5,7 @@ using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Settings;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Claims;
@@ -18,11 +19,25 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     {
         private readonly IPluginRepository _pluginRepository;
         private readonly IResponseManager _responseManager;
+        private readonly UserManager<IdentityUserExtended> _userManager;
+        private readonly AccountsManager _accountsManager;
+        private readonly UserAccountsManager _userAccountsManager;
 
-        public ImportExportPluginsController(IPluginRepository pluginRepository, IResponseManager responseManager)
+        public ImportExportPluginsController
+        (
+            IPluginRepository pluginRepository, 
+            IResponseManager responseManager,
+            UserManager<IdentityUserExtended> userManager,
+            AccountsManager accountsManager,
+            UserAccountsManager userAccountsManager
+        )
         {
             _pluginRepository = pluginRepository;
             _responseManager = responseManager;
+            _userManager = userManager;
+            _accountsManager = accountsManager;
+            _userAccountsManager = userAccountsManager;
+
         }
 
         [RoleAuthorize("Administrator", "Developer", "DeveloperAdmin")]
@@ -37,9 +52,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         public async Task<IActionResult> CreateExport()
         {
             var response = await _responseManager.GetResponse();
-            var username = User.Identity.Name;
-            var userRole = IdentityUserExtended.GetUserRole((ClaimsIdentity)User.Identity);
-            response.Value = await _pluginRepository.GetAll("asc", username, userRole);
+            var user = await _userManager.GetUserAsync(User);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+            var role = await _userAccountsManager.GetUserRoleForAccount(user, account);
+            response.Value = await _pluginRepository.GetAll("asc", user.UserName, role.Name);
             var stream = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
             return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
         }

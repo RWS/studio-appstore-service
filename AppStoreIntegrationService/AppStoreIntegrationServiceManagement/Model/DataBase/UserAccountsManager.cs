@@ -1,5 +1,7 @@
 ﻿using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
+using System.Data;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace AppStoreIntegrationServiceManagement.Model.DataBase
 {
@@ -24,34 +26,25 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             _roleManager = roleManager;
         }
 
-        public async Task<IdentityResult> TryAddUserToAccount(IdentityUserExtended user, string roleId, string accountName = null)
-        {
-            try
-            {
-                await AddUserToAccount(user, user.UserName, roleId);
-
-                if (string.IsNullOrEmpty(accountName))
-                {
-                    return IdentityResult.Success;
-                }
-
-                await AddUserToAccount(user, accountName, roleId);
-                return IdentityResult.Success;
-            }
-            catch (Exception ex)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
-            }
-        }
-
-        public IEnumerable<Account> GetUserAccounts(IdentityUserExtended user)
+        public IEnumerable<Account> GetUserParentAccounts(IdentityUserExtended user)
         {
             var userAccounts = _context.UserAccounts.ToList();
+            var currentUserAccounts = userAccounts.Where(x => x.UserId == user.Id);
 
-            foreach (var userAccount in userAccounts.Where(x => x.UserId == user.Id))
+            currentUserAccounts = (currentUserAccounts.Count() > 1) switch
             {
-                yield return _accountsManager.GetAccountById(userAccount.AccountId);
-            }
+                true => currentUserAccounts.Where(x => x.AccountId != x.ParentAccountId || x.IsOwner),
+                false => currentUserAccounts
+            };
+
+            return currentUserAccounts.Select(x => _accountsManager.GetAccountById(x.ParentAccountId));
+        }
+
+        public Account GetUserAccount(IdentityUserExtended user)
+        {
+            var userAccounts = _context.UserAccounts.ToList();
+            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id);
+            return _accountsManager.GetAccountById(userAccount.AccountId);
         }
 
         public IdentityResult RemoveUserFromAccounts(IdentityUserExtended user)
@@ -83,11 +76,11 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             }
         }
 
-        public bool HasFullAccess(IdentityUserExtended user)
+        public bool IsOwner(IdentityUserExtended user)
         {
             var userAccounts = _context.UserAccounts.ToList();
             var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && x.AccountId == account.Id);
+            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && (x.AccountId == account.Id || x.ParentAccountId == account.Id));
             return userAccount.IsOwner;
         }
 
@@ -100,27 +93,33 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
 
         public bool BelongsTo(IdentityUserExtended owner, IdentityUserExtended member)
         {
-            var account = _accountsManager.GetAccountById(owner.SelectedAccountId);
+            var account = GetUserAccount(owner);
             var userAccounts = _context.UserAccounts.ToList();
-            return userAccounts.Any(x => x.AccountId == account.Id && x.UserId == member.Id);
+            return userAccounts.Any(x => (x.ParentAccountId == account.Id || x.AccountId == account.Id) && x.UserId == member.Id);
         }
 
         public bool BelongsTo(IdentityUserExtended user, string accountId)
         {
             var userAccounts = _context.UserAccounts.ToList();
-            return userAccounts.Any(x => x.AccountId == accountId && x.UserId == user.Id);
+            return userAccounts.Any(x => x.ParentAccountId == accountId && x.UserId == user.Id);
         }
 
         public bool IsInRole(IdentityUserExtended user, string roleId)
         {
             var userAccounts = _context.UserAccounts.ToList();
-            return userAccounts.Any(x => x.AccountId == user.SelectedAccountId && x.UserId == user.Id && x.RoleId == roleId);
+            return userAccounts.Any(x => x.IsInRole(user, roleId));
+        }
+
+        public bool HasFullOwnership(IdentityUserExtended user, string roleId)
+        {
+            var userAccounts = _context.UserAccounts.ToList();
+            return userAccounts.Any(x => x.HasFullOwnership(user, roleId));
         }
 
         public async Task<IdentityRole> GetUserRoleForAccount(IdentityUserExtended user, Account account)
         {
             var userAccounts = _context.UserAccounts.ToList();
-            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && x.AccountId == account.Id);
+            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && (x.AccountId == account.Id || x.ParentAccountId == account.Id));
             var identityRole = await _roleManager.FindByIdAsync(userAccount.RoleId);
             return identityRole;
         }
@@ -130,7 +129,7 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             try
             {
                 var userAccounts = _context.UserAccounts;
-                var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && x.AccountId == account.Id);
+                var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && x.ParentAccountId == account.Id);
                 userAccounts.Remove(userAccount);
                 _context.SaveChanges();
                 return IdentityResult.Success;
@@ -141,26 +140,43 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             }
         }
 
-        private async Task AddUserToAccount(IdentityUserExtended user, string accountName, string roleId)
+        public async Task<IdentityResult> TryAddUserToAccount(string userId, string role, string accountName, string entryAccountName = null, bool isAppStoreAccount = false)
         {
-            var account = _accountsManager.TryAddAccount(accountName);
-            var userAccounts = _context.UserAccounts;
-
-            if (userAccounts.ToList().Any(x => x.AccountId == account.Id && x.UserId == user.Id))
+            try
             {
-                return;
+                var account = _accountsManager.TryAddAccount(accountName, isAppStoreAccount);
+                var userAccounts = _context.UserAccounts;
+                var identityRole = await _roleManager.FindByNameAsync(role);
+                var userAccount = new UserAccount
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    AccountId = account.Id,
+                    ParentAccountId = account.Id,
+                    UserId = userId,
+                    RoleId = identityRole.Id,
+                    IsOwner = account.IsAppStoreAccount
+                };
+
+                if (!string.IsNullOrEmpty(entryAccountName))
+                {
+                    var entryAccount = _accountsManager.TryAddAccount(entryAccountName);
+                    userAccount.ParentAccountId = entryAccount.Id;
+                    userAccount.IsOwner = entryAccount.IsAppStoreAccount;
+                }
+
+                if (userAccounts.ToList().Any(x => x.IsAssigned(userAccount)))
+                {
+                    return IdentityResult.Failed(new IdentityError { Description = "Warning! The user is already assigned to this account" });
+                }
+
+                userAccounts.Add(userAccount);
+                _context.SaveChanges();
+                return IdentityResult.Success;
             }
-
-            userAccounts.Add(new UserAccount
+            catch (Exception ex)
             {
-                Id = Guid.NewGuid().ToString(),
-                AccountId = account.Id,
-                UserId = user.Id,
-                RoleId = roleId,
-                IsOwner = !userAccounts.Any(x => x.AccountId == account.Id)
-            });
-
-            _context.SaveChanges();
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
+            }
         }
     }
 }

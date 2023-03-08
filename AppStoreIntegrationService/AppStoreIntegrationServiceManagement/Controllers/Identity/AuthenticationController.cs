@@ -67,7 +67,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         public async Task<IActionResult> Accounts(string returnUrl = null)
         {
             var user = await _userManager.GetUserAsync(User);
-            var accounts = _userAccountManager.GetUserAccounts(user);
+            var accounts = _userAccountManager.GetUserParentAccounts(user);
             return View((accounts, returnUrl));
         }
 
