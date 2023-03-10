@@ -1,15 +1,10 @@
 ﻿@inherits CustomRazorPage<object>
 @inject ICompositeViewEngine Engine
 @inject ISettingsManager manager
-@inject UserManager<IdentityUserExtended> userManager
-@inject AccountsManager accountsManager
-@inject UserAccountsManager userAccountsManager
 @{
     
-    var user = await userManager.GetUserAsync(User);
-    var account = accountsManager.GetAccountById(user?.SelectedAccountId);
     var siteSettings = await manager.ReadSettings();
-    var siteName = siteSettings.Name ?? account?.AccountName;
+    var siteName = string.IsNullOrEmpty(siteSettings.Name) ? ExtendedUser.AccountName : siteSettings.Name;
     var logoImage = Context.Request.Cookies["LogoImage"];
     var engine = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
 }
@@ -28,6 +23,7 @@
 </head>
 
 <script src="~/js/CustomizationScript.js" asp-append-version="true"></script>
+<script src="~/lib/froala-editor/js/froala_editor.pkgd.min.js"></script>
 
 <body class="d-flex flex-column min-vh-100">
     <header class="border-bottom box-shadow mb-3">

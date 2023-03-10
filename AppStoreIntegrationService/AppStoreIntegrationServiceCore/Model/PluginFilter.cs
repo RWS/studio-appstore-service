@@ -1,5 +1,4 @@
 ﻿using FuzzySharp;
-using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
 namespace AppStoreIntegrationServiceCore.Model

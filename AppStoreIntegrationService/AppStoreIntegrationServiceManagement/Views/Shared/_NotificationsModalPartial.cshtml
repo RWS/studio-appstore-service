@@ -1,13 +1,14 @@
-﻿@inject INotificationCenter notificationCenter
+﻿@inherits CustomRazorPage<object>
+@inject INotificationCenter notificationCenter
 @{
-    var count = await notificationCenter.GetNotificationsCount(User);
+    var count = !ExtendedUser.PushNotificationsEnabled ? 0 : await notificationCenter.GetNotificationsCount(ExtendedUser.HasFullOwnership() ? ExtendedUser.AccountName : User.Identity.Name);
 }
 
 <div class="btn-group dropstart notifications">
     <div class="position-relative cursor-pointer" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="outside" onclick="LoadNotifications(false, false, false)">
         <i class="fa fa-bell text-white"></i>
         <div class="notifications-count bg-danger @(count > 0 ? null : "d-none")">
-            <p class="m-0">@count</p>
+            <p class="m-0 d-flex justify-content-center align-items-center">@count</p>
         </div>
     </div>
     <div class="dropdown-menu p-0">

@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
-using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Repository
 {
@@ -44,8 +43,6 @@ namespace AppStoreIntegrationServiceManagement.Repository
     {
         private readonly UserManager<IdentityUserExtended> _userManager;
         private readonly INotificationsManager _notificationsManager;
-        private readonly AccountsManager _accountsManager;
-        private readonly UserAccountsManager _userAccountsManager;
         private readonly SendGridClient _sendGridClient;
         private readonly string _host;
 
@@ -54,15 +51,11 @@ namespace AppStoreIntegrationServiceManagement.Repository
             IHttpContextAccessor context,
             UserManager<IdentityUserExtended> userManager,
             IConfigurationSettings configurationSettings,
-            INotificationsManager notificationsManager,
-            AccountsManager accountsManager,
-            UserAccountsManager userAccountsManager
+            INotificationsManager notificationsManager
         )
         {
             _userManager = userManager;
             _notificationsManager = notificationsManager;
-            _accountsManager = accountsManager;
-            _userAccountsManager = userAccountsManager;
             _host = context.HttpContext.Request.Host.Value;
             var sendGridKey = configurationSettings.SendGridAPIKey;
             if (string.IsNullOrEmpty(sendGridKey))
@@ -73,9 +66,16 @@ namespace AppStoreIntegrationServiceManagement.Repository
             _sendGridClient = new SendGridClient(configurationSettings.SendGridAPIKey);
         }
 
-        private async Task SendEmail(string message, string emailAddress)
+        public async Task SendEmail(string message, string username)
         {
-            var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(emailAddress), "RWS Plugin update", null, message);
+            var user = await _userManager.FindByNameAsync(username);
+
+            if (!user.EmailNotificationsEnabled)
+            {
+                return;
+            }
+
+            var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(user.Email), "RWS Plugin update", null, message);
             if (_sendGridClient == null)
             {
                 return;
@@ -84,30 +84,22 @@ namespace AppStoreIntegrationServiceManagement.Repository
             _ = await _sendGridClient.SendEmailAsync(email);
         }
 
-        public async Task Broadcast(string message, string developerName = null)
+        public async Task Broadcast(string message)
         {
+            if (_sendGridClient == null)
+            {
+                return;
+            }
+
             try
             {
-                if (developerName == null)
-                {
-                    foreach (var user in _userManager.Users)
-                    {
-                        var roles = await _userManager.GetRolesAsync(user);
-                        if (user.EmailNotificationsEnabled && roles[0] == "Administrator")
-                        {
-                            await SendEmail(message, user.Email);
-                        }
-                    }
-
-                    return;
-                }
-
-                var account = _accountsManager.GetAccountByName(developerName);
                 foreach (var user in _userManager.Users)
                 {
-                    if (user.EmailNotificationsEnabled && _userAccountsManager.BelongsTo(user, account.Id))
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (user.EmailNotificationsEnabled && roles[0] == "Administrator")
                     {
-                        await SendEmail(message, user.Email);
+                        var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(user.Email), "RWS Plugin update", null, message);
+                        _ = await _sendGridClient.SendEmailAsync(email);
                     }
                 }
             }
@@ -119,7 +111,6 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
         public async Task Push(string message, string developerName = null)
         {
-            developerName ??= "Administrator";
             var notifications = await GetAllNotifications();
             if (notifications.TryGetValue(developerName, out var userNotifications))
             {
@@ -127,13 +118,21 @@ namespace AppStoreIntegrationServiceManagement.Repository
                 {
                     Id = userNotifications.Count() + 1,
                     Content = message,
+                    Status = NotificationStatus.Active
                 });
 
                 await _notificationsManager.SaveNotifications(notifications);
                 return;
             }
 
-            notifications.TryAdd(developerName, new List<Notification> { new Notification { Content = message } });
+            notifications.TryAdd(developerName, new List<Notification>
+            {
+                new Notification
+                {
+                    Content = message,
+                    Status = NotificationStatus.Active
+                }
+            });
             await _notificationsManager.SaveNotifications(notifications);
         }
 
@@ -162,41 +161,25 @@ namespace AppStoreIntegrationServiceManagement.Repository
             await _notificationsManager.SaveNotifications(notifications);
         }
 
-        public async Task<IEnumerable<Notification>> GetNotificationsForUser(ClaimsPrincipal principal)
+        public async Task<IEnumerable<Notification>> GetNotificationsForUser(string username)
         {
             var notifications = await GetAllNotifications();
-            var user = await _userManager.GetUserAsync(principal);
-            var roles = await _userManager.GetRolesAsync(user);
-            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            var username = roles.FirstOrDefault() == "Administrator" ? roles.FirstOrDefault() : account.AccountName;
 
             if (notifications.TryGetValue(username, out var userNotifications))
             {
-                if (user.PushNotificationsEnabled)
-                {
-                    return userNotifications;
-                }
-
-                return Enumerable.Empty<Notification>();
+                return userNotifications;
             }
 
             return Enumerable.Empty<Notification>();
         }
 
-        public async Task<int> GetNotificationsCount(ClaimsPrincipal principal)
+        public async Task<int> GetNotificationsCount(string username)
         {
             var notifications = await GetAllNotifications();
-            var user = await _userManager.GetUserAsync(principal);
-            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            var role = await _userAccountsManager.GetUserRoleForAccount(user, account);
-            var username = role.Name == "Administrator" ? role.Name : account.AccountName;
 
             if (notifications.TryGetValue(username, out var userNotifications))
             {
-                if (user.PushNotificationsEnabled)
-                {
-                    return userNotifications.Count(x => x.Status == NotificationStatus.Active);
-                }
+                return userNotifications.Count(x => x.Status == NotificationStatus.Active);
             }
 
             return 0;

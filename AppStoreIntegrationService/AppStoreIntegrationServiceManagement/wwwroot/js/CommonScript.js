@@ -114,10 +114,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 3000);
     }
 
-    document.querySelector(".fr-box .fr-element").addEventListener('input', () => {
-        console.log("Changed!")
-    })
-    //document.getElementById("Description").innerText = document.querySelector(".fr-box .fr-element").innerHTML;
+    let editor = document.querySelector(".fr-box .fr-element");
+
+    if (editor) {
+        editor.addEventListener('input', () => {
+            console.log("Changed!")
+        })
+    }
 });
 
 function ToggleLoader(element) {

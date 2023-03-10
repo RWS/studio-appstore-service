@@ -90,8 +90,8 @@
                     }
                 </ul>
                 <select asp-for="SupportedProducts" hidden multiple="multiple" asp-items="@Model.SupportedProductsListItems"></select>
+                <span asp-validation-for="SupportedProducts" class="text-danger"></span>
             </div>
-            <span asp-validation-for="SupportedProducts" class="text-danger"></span>
             <span id="ProductManifestConflict" class="text-danger" @((bool?)TempData["IsProductMatch"] ?? true ? "hidden" : null)>Plugin manifest conflict! Invalid product!</span>
         </div>
     </div>

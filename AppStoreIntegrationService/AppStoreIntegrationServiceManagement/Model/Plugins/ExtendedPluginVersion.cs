@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using AppStoreIntegrationServiceManagement.Model.Comments;
+using AppStoreIntegrationServiceCore.Model;
 
-namespace AppStoreIntegrationServiceCore.Model
+namespace AppStoreIntegrationServiceManagement.Model.Plugins
 {
     public class ExtendedPluginVersion : PluginVersion
     {

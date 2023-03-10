@@ -6,7 +6,6 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<partial name="_LinkPartial" />
 <div id="modalContainer"></div>
 <div id="statusMessageContainer"></div>
 
@@ -25,29 +24,31 @@
 
         <partial name="_PluginDetailsPartial" model="@Model" />
 
-        @if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
-        {
-            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit')">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Submit
-            </button>
-            <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('SaveAsDraft')">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Save as draft
-            </button>
-        }
+        <div class="mb-2">
+            @if (ExtendedUser.IsInRole("Developer"))
+            {
+                <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit')">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Submit
+                </button>
+                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('SaveAsDraft')">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Save as draft
+                </button>
+            }
 
-        @if (ExtendedUser.IsInRoles("Administrator") && Model.Status.Equals(Status.InReview))
-        {
-            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Approve', true)">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Approve
-            </button>
-            <button class="btn btn-danger" onclick="SavePlugin('Reject', true)">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Reject
-            </button>
-        }
+            @if (ExtendedUser.HasFullOwnership() && Model.Status == Status.InReview)
+            {
+                <button class="btn pa-admin-success-btn" onclick="SavePlugin('Approve', true)">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Approve
+                </button>
+                <button class="btn btn-danger" onclick="SavePlugin('Reject', true)">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Reject
+                </button>
+            }
+        </div>
     </div>
 </form>
 

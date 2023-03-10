@@ -35,6 +35,8 @@ namespace AppStoreIntegrationServiceCore.Model
         public DeveloperDetails Developer { get; set; } = new DeveloperDetails();
         public List<T> Versions { get; set; } = new List<T>();
 
+        [Required(ErrorMessage = "Categories field is required!")]
+        [MinLength(1)]
         [Display(Name = "Plugin categories")]
         public List<U> Categories { get; set; } = new List<U>();
 

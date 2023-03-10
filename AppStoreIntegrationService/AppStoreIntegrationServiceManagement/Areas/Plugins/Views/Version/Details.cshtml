@@ -23,7 +23,7 @@
         <input hidden name="Page" value="@Page.Version" />
         <partial name="_VersionDetailsPartial" model="@Model.Version" />
 
-        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
+        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRole("Developer"))
         {
             if (Model.Plugin.Status != Status.Draft)
             {
@@ -44,7 +44,7 @@
                 Save
             </button>
 
-            @if (Model.Version.VersionStatus.Equals(Status.Active))
+            @if (Model.Version.VersionStatus == Status.Active)
             {
                 <button class="btn btn-outline-secondary" onclick="Save('@Model.Plugin.Id', 'Deactivate')">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
@@ -52,7 +52,7 @@
                 </button>
             }
 
-            @if (Model.Version.VersionStatus.Equals(Status.Inactive))
+            @if (Model.Version.VersionStatus == Status.Inactive)
             {
                 <button class="btn pa-admin-outline-success-btn" onclick="Save('@Model.Plugin.Id', 'Activate')">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
@@ -63,12 +63,15 @@
     </div>
 </form>
 
-<script asp-append-version="true">
-    let parentProducts = @Html.Raw(Json.Serialize(Model.Plugin.Parents))
-</script>
-<script asp-append-version="true">let isReadOnly = false</script>
 <script src="~/js/DropDown.js" asp-append-version="true"></script>
 <script src="~/js/VersionsScript.js" asp-append-version="true"></script>
+
+<script>
+    let parentProducts = @Html.Raw(Json.Serialize(Model.Plugin.Parents));
+    let isReadOnly = false;
+    InitDropDown();
+</script>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

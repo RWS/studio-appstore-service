@@ -55,9 +55,9 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             return _context.Accounts.ToList().FirstOrDefault(x => x.AccountName == accountName);
         }
 
-        public IEnumerable<Account> GetAllAccounts()
+        public Account GetAppStoreAccount()
         {
-            return _context.Accounts.ToList();
+            return _context.Accounts.ToList().FirstOrDefault(x => x.IsAppStoreAccount);
         }
 
         public void RemoveAccountById(string id)

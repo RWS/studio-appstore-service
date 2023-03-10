@@ -19,16 +19,16 @@
             @foreach (var version in Model.Versions)
             {
                 <div class="d-flex justify-content-between p-3 border-bottom">
-                    <a class="m-0 fw-bold version-number-placeholder align-self-center text-decoration-none text-black w-100" asp-controller="Version" asp-action="@ManageVersionTabs.GetAction(version.VersionStatus)" asp-route-pluginId="@version.PluginId" asp-route-versionId="@version.VersionId">@version.VersionNumber</a>
-                    @if (!version.IsNewVersion)
+                    <a class="m-0 fw-bold align-self-center text-decoration-none text-black-50 w-100" asp-controller="Version" asp-action="@ManageVersionTabs.GetAction(version.VersionStatus)" asp-route-pluginId="@version.PluginId" asp-route-versionId="@version.VersionId">@version.VersionNumber</a>
+                    @if (!version.IsNewVersion) 
                     {
                         <div class="d-flex justify-content-between">
                             <div class="px-2 py-1 border rounded me-2">@version.VersionStatus</div>
-                            @if (version.IsThirdParty && !ExtendedUser.IsInRoles("StandardUser"))
+                            @if (version.IsThirdParty)
                             {
                                 if (version.NeedsDeletionApproval)
                                 {
-                                    if (ExtendedUser.IsInRoles("Administrator"))
+                                    if (ExtendedUser.HasFullOwnership())
                                     {
                                         <div class="position-relative">
                                             <div class="btn-group">
@@ -44,7 +44,7 @@
                                         </div>
                                     }
 
-                                    if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
+                                    if (ExtendedUser.IsInRole("Developer"))
                                     {
                                         <div class="position-relative cursor-pointer">
                                             <i class="fa fa-trash-alt align-self-center"></i>
@@ -54,7 +54,7 @@
                                 }
                                 else
                                 {
-                                    if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin") && version.IsActive)
+                                    if (ExtendedUser.IsInRole("Developer") && version.IsActive)
                                     {
                                         <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('@Model.Plugin.Id', '@version.VersionId', 'RequestDeletion')"></i>
                                     }
@@ -74,7 +74,7 @@
                 </div>
             }
 
-            @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
+            @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && ExtendedUser.IsInRole("Developer"))
             {
                 <a class="btn pa-admin-success-btn mt-2" asp-controller="Version" asp-action="Add" asp-route-pluginId="@Model.Plugin.Id">Add version</a>
             }
@@ -84,7 +84,7 @@
             <div class="d-flex flex-column align-items-center">
                 <img src="~/images/empty-result.png" width="200" height="200" />
                 <h5 class="mt-2">No versions found!</h5>
-                @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && User.IsInRole("Developer"))
+                @if (Model.Plugin.IsThirdParty && ExtendedUser.IsInRole("Developer"))
                 {
                     <a class="btn pa-admin-success-btn" asp-controller="Version" asp-action="Add" asp-route-pluginId="@Model.Plugin.Id">Add version</a>
                 }
@@ -94,7 +94,6 @@
 </form>
 
 <script src="~/js/VersionsScript.js" asp-append-version="true"></script>
-<script src="~/js/RichTextEditor.js" asp-append-version="true"></script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

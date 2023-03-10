@@ -5,7 +5,6 @@ using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
@@ -18,22 +17,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         private readonly SignInManager<IdentityUserExtended> _signInManager;
         private readonly UserAccountsManager _userAccountsManager;
         private readonly AccountsManager _accountsManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountController
         (
             UserManager<IdentityUserExtended> userManager,
             SignInManager<IdentityUserExtended> signInManager,
             UserAccountsManager userAccountsManager,
-            AccountsManager accountsManager,
-            RoleManager<IdentityRole> roleManager
+            AccountsManager accountsManager
         )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _userAccountsManager = userAccountsManager;
             _accountsManager = accountsManager;
-            _roleManager = roleManager;
         }
 
         public async Task<IActionResult> Profile(string id)
@@ -51,7 +47,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return View(Load(currentUser, true));
             }
 
-            if (ExtendedUser.IsInRoles("Administrator") && !wantedUser.IsBuiltInAdmin)
+            if (ExtendedUser.IsInRole("Administrator") && !wantedUser.IsBuiltInAdmin)
             {
                 return View(Load(wantedUser, false));
             }
@@ -171,14 +167,45 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return RedirectToAction("Profile", new { id });
         }
 
+        [Route("/Identity/Account/Users/All")]
+        [RoleAuthorize("Administrator")]
         [Owner]
         public async Task<IActionResult> Users()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var account = _userAccountsManager.GetUserAccount(currentUser);
             var users = _userManager.Users.ToList();
+
+            return View(users.Select(x => new UserInfoModel
+            {
+                Id = x.Id,
+                Name = x.UserName,
+                Role = _userAccountsManager.GetUserRoleForAccount(x, account).Result.Name,
+                IsCurrentUser = x == currentUser,
+                IsBuiltInAdmin = x.IsBuiltInAdmin,
+                IsOwner = _userAccountsManager.IsOwner(x, account)
+            }));
+        }
+
+        [Route("/Identity/Account/Users/Assigned")]
+        [Owner]
+        public async Task<IActionResult> Assigned()
+        {
+            var users = _userManager.Users.ToList();
+            var user = await _userManager.GetUserAsync(User);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var account = _userAccountsManager.GetUserAccount(currentUser);
             var assignedUsers = users.Where(x => _userAccountsManager.BelongsTo(user, x));
-            var allUsers = ExtendedUser.IsInRole("Administrator") ? users : Enumerable.Empty<IdentityUserExtended>();
-            return View((assignedUsers.Select(x => ToUserInfo(x).Result), allUsers));
+
+            return View(assignedUsers.Select(x => new UserInfoModel
+            {
+                Id = x.Id,
+                Name = x.UserName,
+                Role = _userAccountsManager.GetUserRoleForAccount(x, account).Result.Name,
+                IsCurrentUser = x == currentUser,
+                IsBuiltInAdmin = x.IsBuiltInAdmin,
+                IsOwner = _userAccountsManager.IsOwner(x, account)
+            }));
         }
 
         [Owner]
@@ -217,17 +244,21 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Owner]
         public async Task<IActionResult> PostRegister(RegisterModel registerModel)
         {
-            registerModel.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             var user = new IdentityUserExtended { UserName = registerModel.UserName, Email = registerModel.Email };
             var currentUser = await _userManager.GetUserAsync(User);
             var account = _userAccountsManager.GetUserAccount(currentUser);
+            var results = new List<IdentityResult> { await _userManager.CreateAsync(user, registerModel.Password) };
 
-            var results = new List<IdentityResult>
+            if (account.IsAppStoreAccount)
             {
-                await _userManager.CreateAsync(user, registerModel.Password),
-                await _userAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole, $"{user.UserName} Account"),
-                await _userAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole, $"{user.UserName} Account", account.AccountName),
-            };
+                results.Add(await _userAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", account.AccountName));
+            }
+            else
+            {
+                var appStoreAccount = _accountsManager.GetAppStoreAccount();
+                results.Add(await _userAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", appStoreAccount.AccountName));
+                results.Add(await _userAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", account.AccountName));
+            }
 
             if (results.All(x => x.Succeeded))
             {
@@ -258,7 +289,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             }
 
             await _userManager.DeleteAsync(user);
-            _userAccountsManager.RemoveUserFromAccounts(user);
+            _userAccountsManager.RemoveUserAccounts(user);
             TempData["StatusMessage"] = string.Format("Success! {0} was deleted!", user.UserName);
             return Content(null);
         }
@@ -284,13 +315,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         [Authorize]
         [Owner]
-        public async Task<IActionResult> Assign(string userId, string roleId)
+        public async Task<IActionResult> Assign(string userId, string roleName)
         {
             var user = await _userManager.FindByIdAsync(userId);
             var account = _userAccountsManager.GetUserAccount(user);
-            var currentUser = await _userManager.GetUserAsync(User);
-            var entryAccount = _userAccountsManager.GetUserAccount(currentUser);
-            var result = await _userAccountsManager.TryAddUserToAccount(user.Id, roleId, account.AccountName, entryAccount.AccountName);
+            var entryAccount = _userAccountsManager.GetUserAccount(await _userManager.GetUserAsync(User));
+            var result = await _userAccountsManager.TryAddUserToAccount(user.Id, roleName ?? "Developer", account.AccountName, entryAccount.AccountName);
 
             if (result.Succeeded)
             {
@@ -314,22 +344,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             }
 
             return PartialView("_ExistentUserPartial", user.Id);
-        }
-
-        private async Task<UserInfoModel> ToUserInfo(IdentityUserExtended user)
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var account = _userAccountsManager.GetUserAccount(currentUser);
-
-            return new UserInfoModel
-            {
-                Id = user.Id,
-                Name = user.UserName,
-                Role = _userAccountsManager.GetUserRoleForAccount(user, account).Result.Name,
-                IsCurrentUser = user == currentUser,
-                IsBuiltInAdmin = user.IsBuiltInAdmin,
-                IsOwner = _userAccountsManager.IsOwner(user, account)
-            };
         }
 
         private bool TryValidate(IdentityUserExtended currentUser, string id, IdentityUserExtended wantedUser, out IActionResult result)
@@ -356,7 +370,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             {
                 UserName = user.UserName,
                 Email = user.Email,
-                IsUsernameEditable = !isCurrentUserProfile || !user.IsBuiltInAdmin,
+                IsUsernameEditable = !isCurrentUserProfile && user.IsBuiltInAdmin,
                 Id = isCurrentUserProfile ? null : user.Id
             };
         }

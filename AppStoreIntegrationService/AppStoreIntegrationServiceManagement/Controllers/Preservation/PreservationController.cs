@@ -4,6 +4,7 @@ using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Comments;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
+using AppStoreIntegrationServiceManagement.Model.Plugins;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

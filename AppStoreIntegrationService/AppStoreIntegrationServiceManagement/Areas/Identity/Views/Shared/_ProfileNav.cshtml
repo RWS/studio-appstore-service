@@ -8,7 +8,7 @@
         @if (ExtendedUser.IsOwner())
         {
             <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.AccountsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Accounts' })">Accounts</a></li>
-            <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ManageNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users' })">Users</a></li>
+            <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ManageNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users/Assigned' })">Users</a></li>
             <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.RegisterNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Register' })">Register</a></li>
         }
 

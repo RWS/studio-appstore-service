@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Security.Claims;
 using System.Text;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
-    public class ImportExportPluginsController : Controller
+    [AccountSelected]
+    public class ImportExportPluginsController : CustomController
     {
         private readonly IPluginRepository _pluginRepository;
         private readonly IResponseManager _responseManager;
@@ -40,28 +40,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         }
 
-        [RoleAuthorize("Administrator", "Developer", "DeveloperAdmin")]
+        [RoleAuthorize("Administrator", "Developer")]
         [Route("Settings/ExportPlugins")]
         public IActionResult Export()
         {
             return View();
         }
 
-        [RoleAuthorize("Administrator", "Developer", "DeveloperAdmin")]
+        [RoleAuthorize("Administrator", "Developer")]
         [HttpPost]
         public async Task<IActionResult> CreateExport()
         {
             var response = await _responseManager.GetResponse();
-            var user = await _userManager.GetUserAsync(User);
-            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            var role = await _userAccountsManager.GetUserRoleForAccount(user, account);
-            response.Value = await _pluginRepository.GetAll("asc", user.UserName, role.Name);
+            response.Value = await _pluginRepository.GetAll("asc", User.Identity.Name, ExtendedUser.Role);
             var stream = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
             return File(stream, "application/octet-stream", "ExportPluginsConfig.json");
         }
 
         [Route("Settings/ImportPlugins")]
         [RoleAuthorize("Administrator")]
+        [Owner]
         public IActionResult Import()
         {
             return View(new ImportPluginsModel());
@@ -69,6 +67,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         [HttpPost]
         [RoleAuthorize("Administrator")]
+        [Owner]
         public async Task<IActionResult> CreateImport(ImportPluginsModel import)
         {
             var modalDetails = new ModalMessage

@@ -6,7 +6,6 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<partial name="_LinkPartial" />
 <div id="modalContainer"></div>
 <div id="statusMessageContainer"></div>
 
@@ -25,26 +24,25 @@
 
         <partial name="_PluginDetailsPartial" model="@Model" />
 
-        @if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
-        {
-            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit', true)">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Submit
-            </button>
-            <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('SaveAsDraft')">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Save as draft
-            </button>
-        }
+        <div class="mb-2">
+            @if (ExtendedUser.IsInRole("Developer"))
+            {
+                <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit', true)">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Submit
+                </button>
+                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('SaveAsDraft')">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Save as draft
+                </button>
+            }
+        </div>
     </div>
 </form>
 
 <script src="~/js/PluginScript.js"></script>
 <script src="~/js/DropDown.js"></script>
-<script src="~/lib/froala-editor/js/froala_editor.pkgd.min.js"></script>
-<script>
-    var editor = new FroalaEditor('#example', { height: 250 });
-</script>
+<script>var editor = new FroalaEditor('#example', { height: 250 })</script>
 
 <script asp-append-version="true">
     let isReadOnly = false

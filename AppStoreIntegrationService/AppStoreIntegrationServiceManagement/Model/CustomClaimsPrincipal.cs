@@ -27,36 +27,30 @@ namespace AppStoreIntegrationServiceManagement.Model
             _accountsManager = accountsManager;
         }
 
+        public string AccountName { get => GetAccountName(); }
+
+        public string Role { get => GetRole(); }
+
+        public bool PushNotificationsEnabled { get => HasPushNotificationsEnabled(); }
+
         public override bool IsInRole(string roleName)
         {
-            var user = _userManager.GetUserAsync(this).Result;
+            var user = _userManager?.GetUserAsync(this).Result;
 
             if (user == null)
             {
                 return false;
             }
 
-            var identityRole = _roleManager.FindByNameAsync(roleName).Result;
+            var identityRole = _roleManager?.FindByNameAsync(roleName).Result;
 
             if (identityRole == null)
             {
                 return false;
             }
+
             var roleId = identityRole.Id;
             return _userAccountsManager.IsInRole(user, roleId);
-        }
-
-        public bool IsInRoles(params string[] roleNames)
-        {
-            foreach (var roleName in roleNames)
-            {
-                if (IsInRole(roleName))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         public bool IsOwner()
@@ -67,28 +61,20 @@ namespace AppStoreIntegrationServiceManagement.Model
 
         public bool HasSelectedAccount()
         {
-            var user = _userManager.GetUserAsync(this).Result;
-            return !string.IsNullOrEmpty(user.SelectedAccountId);
-        }
-
-        public string GetRole()
-        {
-            var user = _userManager.GetUserAsync(this).Result;
-            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            var role = _userAccountsManager.GetUserRoleForAccount(user, account).Result;
-            return role.Name;
+            var user = _userManager?.GetUserAsync(this).Result;
+            return !string.IsNullOrEmpty(user?.SelectedAccountId);
         }
 
         public bool HasFullOwnership()
         {
-            var user = _userManager.GetUserAsync(this).Result;
+            var user = _userManager?.GetUserAsync(this).Result;
 
             if (user == null)
             {
                 return false;
             }
 
-            var identityRole = _roleManager.FindByNameAsync("Administrator").Result;
+            var identityRole = _roleManager?.FindByNameAsync("Administrator").Result;
 
             if (identityRole == null)
             {
@@ -96,6 +82,27 @@ namespace AppStoreIntegrationServiceManagement.Model
             }
 
             return _userAccountsManager.HasFullOwnership(user, identityRole.Id);
+        }
+
+        private string GetAccountName()
+        {
+            var user = _userManager?.GetUserAsync(this).Result;
+            var account = _accountsManager?.GetAccountById(user?.SelectedAccountId);
+            return account?.AccountName;
+        }
+
+        private string GetRole()
+        {
+            var user = _userManager?.GetUserAsync(this).Result;
+            var account = _accountsManager?.GetAccountById(user?.SelectedAccountId);
+            var role = _userAccountsManager?.GetUserRoleForAccount(user, account).Result;
+            return role?.Name;
+        }
+
+        private bool HasPushNotificationsEnabled()
+        {
+            var user = _userManager?.GetUserAsync(this).Result;
+            return user.PushNotificationsEnabled;
         }
     }
 }

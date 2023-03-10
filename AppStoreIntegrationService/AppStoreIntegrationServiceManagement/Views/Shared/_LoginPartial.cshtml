@@ -8,14 +8,14 @@
             <a onclick="EnsurePreserved(() => { window.location.href = '/Plugins' })" class="nav-link cursor-pointer active header-link">Plugins List</a>
         </li>
 
-        if (ExtendedUser.IsInRoles("Administrator"))
+        if (ExtendedUser.IsInRole("Administrator"))
         {
             <li class="nav-item">
                 <a onclick="EnsurePreserved(() => { window.location.href = '/Settings' })" class="nav-link active cursor-pointer header-link">Settings</a>
             </li>
         }
 
-        if (ExtendedUser.IsInRoles("DeveloperAdmin"))
+        if (ExtendedUser.IsInRole("Developer"))
         {
             <li class="nav-item">
                 <a onclick="EnsurePreserved(() => { window.location.href = '/Settings/ExportPlugins' })" class="nav-link active cursor-pointer header-link">Settings</a>
@@ -38,13 +38,9 @@
                 </ul>
             </div>
         </li>
-
-        @if (!ExtendedUser.IsInRoles("StandardUser"))
-        {
-            <li class="nav-item d-flex align-items-center">
-                <partial name="_NotificationsModalPartial" />
-            </li>
-        }
+        <li class="nav-item d-flex align-items-center">
+            <partial name="_NotificationsModalPartial" />
+        </li>
     }
     else
     {

@@ -1,9 +1,10 @@
-﻿using AppStoreIntegrationServiceManagement.Model.Comments;
+﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.Model.Comments;
 using AppStoreIntegrationServiceManagement.Model.Logs;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 
-namespace AppStoreIntegrationServiceCore.Model
+namespace AppStoreIntegrationServiceManagement.Model.Plugins
 {
     public class ExtendedPluginDetails : PluginDetails
     {

@@ -1,13 +1,7 @@
-﻿@model NameMapping
+﻿@inherits CustomRazorPage<NameMapping>
 @inject IPluginRepository pluginRepository
-@inject UserManager<IdentityUserExtended> _userManager;
-@inject AccountsManager _accountsManager;
-@inject UserAccountsManager _userAccountsManager;
 @{
-    var user = await _userManager.GetUserAsync(User);
-    var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-    var role = await _userAccountsManager.GetUserRoleForAccount(user, account);
-    var plugins = await pluginRepository.GetAll("asc", user.UserName, role.Name);
+    var plugins = await pluginRepository.GetAll("asc", User.Identity.Name, ExtendedUser.Role);
 }
 
 <tr class="table-row d-flex flex-column d-lg-table-row" id="newDataRow">

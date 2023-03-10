@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AppStoreIntegrationServiceManagement.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
+    [AccountSelected]
     public class PreferencesController : Controller
     {
         public IActionResult Index()

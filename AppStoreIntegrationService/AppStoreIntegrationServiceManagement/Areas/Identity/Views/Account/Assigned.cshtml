@@ -1,0 +1,63 @@
+﻿@inherits CustomRazorPage<IEnumerable<UserInfoModel>>
+@{
+    ViewData["Title"] = "Manage";
+    ViewData["ActivePage"] = ManageNavPages.Manage;
+}
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<h1 class="fs1-inherit">@ViewData["Title"]</h1>
+<h2 class="fs2-inherit">Manage users</h2>
+<hr class="w-100">
+<div class="row justify-content-center">
+    <div id="alertContainer"></div>
+    <partial name="_ProfileNav" />
+    <div class="col-12 col-md-9">
+        <partial name="_UsersTabPartial" model="true"/>
+        <form id="form" onsubmit="return false">
+            @if (Model.Any())
+            {
+                <p class="fw-bold fs4-inherit">Current account users</p>
+                <table class="table table-bordered" id="usersTable">
+                    <thead>
+                        <tr class="text-center d-none d-lg-table-row">
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="tbody-stripped">
+                        @foreach (var user in Model)
+                        {
+                            <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
+                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
+                                <td class="align-middle px-3 d-none d-lg-table-cell">@user.Role</td>
+                                <td class="align-middle px-3 d-none d-lg-table-cell">
+                                    @if (user.IsOwner || user.IsCurrentUser)
+                                    {
+                                        <i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="@(user.IsOwner ? "The owner cannot be dissmissed!" : "You cannot dissmiss yourself!")"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-user-minus cursor-pointer delete-user-btn text-warning" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@user.Id')"></i>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <h5>You have not assigned any users to your account</h5>
+                <a class="btn pa-admin-success-btn" href="/Identity/Account/Register">Add user</a>
+            }
+        </form>
+    </div>
+</div>
+
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = $"Are you sure you want to dismiss this user?" })" />
+
+<script src="~/js/ManageUsersScript.js"></script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

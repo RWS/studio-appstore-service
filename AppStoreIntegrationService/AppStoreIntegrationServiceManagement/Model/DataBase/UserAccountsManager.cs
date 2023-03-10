@@ -1,7 +1,6 @@
 ﻿using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace AppStoreIntegrationServiceManagement.Model.DataBase
 {
@@ -9,20 +8,17 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
     {
         private readonly AppStoreIntegrationServiceContext _context;
         private readonly AccountsManager _accountsManager;
-        private readonly UserManager<IdentityUserExtended> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserAccountsManager
         (
             AppStoreIntegrationServiceContext context,
             AccountsManager accountsManager,
-            UserManager<IdentityUserExtended> userManager,
             RoleManager<IdentityRole> roleManager
         )
         {
             _context = context;
             _accountsManager = accountsManager;
-            _userManager = userManager;
             _roleManager = roleManager;
         }
 
@@ -31,13 +27,10 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             var userAccounts = _context.UserAccounts.ToList();
             var currentUserAccounts = userAccounts.Where(x => x.UserId == user.Id);
 
-            currentUserAccounts = (currentUserAccounts.Count() > 1) switch
+            foreach (var userAccount in userAccounts.Where(x => x.UserId == user.Id))
             {
-                true => currentUserAccounts.Where(x => x.AccountId != x.ParentAccountId || x.IsOwner),
-                false => currentUserAccounts
-            };
-
-            return currentUserAccounts.Select(x => _accountsManager.GetAccountById(x.ParentAccountId));
+                yield return _accountsManager.GetAccountById(userAccount.ParentAccountId);
+            }
         }
 
         public Account GetUserAccount(IdentityUserExtended user)
@@ -47,12 +40,11 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             return _accountsManager.GetAccountById(userAccount.AccountId);
         }
 
-        public IdentityResult RemoveUserFromAccounts(IdentityUserExtended user)
+        public IdentityResult RemoveUserAccounts(IdentityUserExtended user)
         {
             try
             {
                 var userAccounts = _context.UserAccounts;
-                var accounts = _accountsManager.GetAllAccounts();
 
                 foreach (var userAccount in userAccounts.Where(x => x.UserId == user.Id))
                 {
@@ -114,6 +106,12 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
         {
             var userAccounts = _context.UserAccounts.ToList();
             return userAccounts.Any(x => x.HasFullOwnership(user, roleId));
+        }
+
+        public bool HasAssociatedAccounts(IdentityUserExtended user)
+        {
+            var userAccounts = _context.UserAccounts.ToList();
+            return userAccounts.Any(x => x.UserId == user.Id);
         }
 
         public async Task<IdentityRole> GetUserRoleForAccount(IdentityUserExtended user, Account account)

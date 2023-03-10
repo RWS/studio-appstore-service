@@ -2,6 +2,7 @@
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
+using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using AppStoreIntegrationServiceManagement.Repository;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
@@ -54,7 +55,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         {
             var user = await _userManager.GetUserAsync(User);
             var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            await _notificationCenter.ChangeStatus(ExtendedUser.IsInRoles("Administrator") ? "Administrator" : account.AccountName, id, status);
+            await _notificationCenter.ChangeStatus(ExtendedUser.IsInRole("Administrator") ? "Administrator" : account.AccountName, id, status);
             return new EmptyResult();
         }
 
@@ -68,7 +69,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 Value = $"{(int)Enum.Parse(typeof(NotificationStatus), x)}",
                 IsSelected = notificationStatus == (NotificationStatus)Enum.Parse(typeof(NotificationStatus), x)
             });
-            var notifications = await _notificationCenter.GetNotificationsForUser(User);
+
+            var notifications = !ExtendedUser.PushNotificationsEnabled ? Array.Empty<Notification>() : ExtendedUser.HasFullOwnership() switch
+            {
+                true => await _notificationCenter.GetNotificationsForUser(ExtendedUser.AccountName),
+                false => await _notificationCenter.GetNotificationsForUser(User.Identity.Name)
+            };
 
             return PartialView("_NotificationsPartial", new NotificationModel
             {

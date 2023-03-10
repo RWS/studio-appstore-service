@@ -1,11 +1,11 @@
-﻿using AppStoreIntegrationServiceCore.Model;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Repository;
 using AppStoreIntegrationServiceManagement.Model.Comments;
+using AppStoreIntegrationServiceManagement.Model.Plugins;
+using Microsoft.AspNetCore.Identity;
+using AppStoreIntegrationServiceManagement.Model.DataBase;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -17,19 +17,25 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IPluginRepository _pluginRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly INotificationCenter _notificationCenter;
+        private readonly UserManager<IdentityUserExtended> _userManager;
+        private readonly AccountsManager _accountsManager;
 
         public CommentsController
         (
             ICommentsRepository commentsRepository,
             IPluginRepository pluginRepository,
             IPluginVersionRepository pluginVersionRepository,
-            INotificationCenter notificationCenter
+            INotificationCenter notificationCenter,
+            UserManager<IdentityUserExtended> userManager,
+            AccountsManager accountsManager
         )
         {
             _commentsRepository = commentsRepository;
             _pluginRepository = pluginRepository;
             _pluginVersionRepository = pluginVersionRepository;
             _notificationCenter = notificationCenter;
+            _userManager = userManager;
+            _accountsManager = accountsManager;
         }
 
         [Route("/Plugins/Edit/{pluginId}/Comments")]
@@ -78,11 +84,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var template = versionId == null ? NotificationTemplate.NewPluginComment : NotificationTemplate.NewVersionComment;
             var emailNotification = _notificationCenter.GetNotification(template, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
             var pushNotification = _notificationCenter.GetNotification(template, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
+            var account = _accountsManager.GetAppStoreAccount();
 
-            await _notificationCenter.Broadcast(emailNotification, plugin.Developer.DeveloperName);
+            await _notificationCenter.SendEmail(emailNotification, plugin.Developer.DeveloperName);
             await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
             await _notificationCenter.Broadcast(emailNotification);
-            await _notificationCenter.Push(pushNotification);
+            await _notificationCenter.Push(pushNotification, account.AccountName);
             await _commentsRepository.SaveComment(comment, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was updated!";
             return Content(null);

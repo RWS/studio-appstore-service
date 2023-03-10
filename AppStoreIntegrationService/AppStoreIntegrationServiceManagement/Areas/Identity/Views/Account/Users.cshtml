@@ -1,9 +1,7 @@
-﻿@inherits CustomRazorPage<(IEnumerable<UserInfoModel> CurrentAccountUsers, IEnumerable<IdentityUserExtended> AllUsers)>
-@inject UserManager<IdentityUserExtended> UserManager
+﻿@inherits CustomRazorPage<IEnumerable<UserInfoModel>>
 @{
     ViewData["Title"] = "Manage";
     ViewData["ActivePage"] = ManageNavPages.Manage;
-    var modalActionMessage = User.IsInRole("Administrator") ? "delete" : "dismiss";
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
@@ -14,8 +12,9 @@
     <div id="alertContainer"></div>
     <partial name="_ProfileNav" />
     <div class="col-12 col-md-9">
+        <partial name="_UsersTabPartial" model="false" />
         <form id="form" onsubmit="return false">
-            @if (Model.AllUsers.Any())
+            @if (Model.Any())
             {
                 <p class="fw-bold fs4-inherit">All users</p>
                 <table class="table table-bordered" id="usersTable">
@@ -28,11 +27,10 @@
                         </tr>
                     </thead>
                     <tbody class="tbody-stripped">
-                        @foreach (var user in Model.AllUsers)
+                        @foreach (var user in Model)
                         {
-                            var isCurrentUser = UserManager.GetUserAsync(User).Result == user;
                             <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
-                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.UserName</p></td>
+                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
                                 <td class="align-middle px-3 d-none d-lg-table-cell">@user.Email</td>
                                 @if (user.IsBuiltInAdmin)
                                 {
@@ -40,13 +38,13 @@
                                 }
                                 else
                                 {
-                                    <td class="align-middle px-3 d-none d-lg-table-cell" colspan="@(isCurrentUser ? "2" : "1")">
+                                    <td class="align-middle px-3 d-none d-lg-table-cell" colspan="@(user.IsCurrentUser ? "2" : "1")">
                                         <a asp-controller="Account" asp-action="Profile" asp-route-id="@user.Id">
                                             <i class="fa fa-pen-alt cursor-pointer"></i>
                                         </a>
                                     </td>
 
-                                    if (!isCurrentUser)
+                                    if (!user.IsCurrentUser)
                                     {
                                         <td class="align-middle px-3 d-none d-lg-table-cell">
                                             <i class="fa fa-trash-alt cursor-pointer delete-user-btn" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteUser('@user.Id')"></i>
@@ -58,43 +56,14 @@
                     </tbody>
                 </table>
             }
-
-            @if (Model.CurrentAccountUsers.Any())
+            else
             {
-                <p class="fw-bold fs4-inherit">Current account users</p>
-                <table class="table table-bordered" id="usersTable">
-                    <thead>
-                        <tr class="text-center d-none d-lg-table-row">
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody class="tbody-stripped">
-                        @foreach (var user in Model.CurrentAccountUsers)
-                        {
-                            <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
-                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
-                                <td class="align-middle px-3 d-none d-lg-table-cell">@user.Role</td>
-                                <td class="align-middle px-3 d-none d-lg-table-cell">
-                                    @if (user.IsOwner || user.IsCurrentUser)
-                                    {
-                                        <i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="@(user.IsOwner ? "The owner cannot be dissmissed!" : "You cannot dissmiss yourself!")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fa fa-user-minus cursor-pointer delete-user-btn text-warning" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@user.Id')"></i>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                <a class="btn pa-admin-success-btn" href="/Identity/Account/Register">Add users</a>
             }
         </form>
     </div>
 </div>
-<partial name="_ModalPartial" model="@(new ModalMessage { Message = $"Are you sure you want to {modalActionMessage} this user?" })" />
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = $"Are you sure you want to delete this user?" })" />
 
 <script src="~/js/ManageUsersScript.js"></script>
 @section Scripts {

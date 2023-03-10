@@ -1,18 +1,18 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Filters;
+using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
-    [RoleAuthorize("Administrator", "Developer", "DeveloperAdmin")]
-    public class PluginsRenameController : Controller
+    [AccountSelected]
+    public class PluginsRenameController : CustomController
     {
         private readonly INamesRepository _namesRepository;
         private readonly IPluginRepository _pluginRepository;
@@ -39,10 +39,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [Route("Settings/PluginsRename")]
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
-            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            var role = await _userAccountsManager.GetUserRoleForAccount(user, account);
-            var plugins = await _pluginRepository.GetAll("asc", user.UserName, role.Name);
+            var plugins = await _pluginRepository.GetAll("asc", User.Identity.Name, ExtendedUser.Role);
             var names = await _namesRepository.GetAllNames();
             return View(plugins.SelectMany(p => names.Where(n => n.OldName.Equals(p.Name))));
         }
@@ -50,12 +47,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> Add() 
         {
-            var mappings = await _namesRepository.GetAllNames();
             return PartialView("_NewNameMappingPartial", new NameMapping
             {
-                Id = SetIndex(mappings),
-                OldName = "",
-                NewName = ""
+                Id = SetIndex(await _namesRepository.GetAllNames())
             });
         }
 
@@ -64,7 +58,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         {
             if (await _namesRepository.TryUpdateMapping(mapping))
             {
-                await _namesRepository.TryUpdateMapping(mapping);
                 TempData["StatusMessage"] = "Success! Name mapping was updated!";
                 return Content("/Settings/PluginsRename");
             }

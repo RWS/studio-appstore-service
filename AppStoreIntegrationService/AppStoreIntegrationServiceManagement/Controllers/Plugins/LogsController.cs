@@ -1,5 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceManagement.Filters;
+﻿using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -38,6 +37,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost]
         [RoleAuthorize("Administrator")]
+        [Owner]
         public async Task<IActionResult> ClearAll(int id)
         {
             await _loggingRepository.ClearLogs(id);

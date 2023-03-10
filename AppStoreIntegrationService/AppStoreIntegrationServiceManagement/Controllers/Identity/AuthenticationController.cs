@@ -46,7 +46,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             if (user == null)
             {
-                TempData["StatusMessage"] = "Error! Something went wrong!";
+                TempData["StatusMessage"] = "Error! This e-mail address doesn't exist in our database!";
+                return View("Login", loginModel);
+            }
+
+            if (!_userAccountManager.HasAssociatedAccounts(user))
+            {
+                TempData["StatusMessage"] = "Error! You are no longer part of AppStore!";
                 return View("Login", loginModel);
             }
 

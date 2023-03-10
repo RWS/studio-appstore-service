@@ -6,7 +6,6 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<partial name="_LinkPartial" />
 <div id="modalContainer"></div>
 <div id="statusMessageContainer"></div>
 
@@ -24,50 +23,52 @@
 
         <partial name="_PluginDetailsPartial" model="@Model" />
 
-        @if (Model.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
-        {
-            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit', true)">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Submit
-            </button>
-            <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('SaveAsDraft')">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Save as draft
-            </button>
-        }
-        else
-        {
-            <button class="btn pa-admin-success-btn" onclick="SavePlugin('Save')">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                Save
-            </button>
-
-            @if (Model.IsEditMode && Model.Status.Equals(Status.Active))
+        <div class="mb-2">
+            @if (Model.IsThirdParty && ExtendedUser.IsInRole("Developer"))
             {
-                <button class="btn btn-outline-secondary" onclick="SavePlugin('Deactivate')">
+                <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit', true)">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                    Deactivate
+                    Submit
+                </button>
+                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('SaveAsDraft')">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Save as draft
                 </button>
             }
-
-            @if (Model.IsEditMode && Model.Status.Equals(Status.Inactive))
+            else
             {
-                <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('Activate')">
+                <button class="btn pa-admin-success-btn" onclick="SavePlugin('Save')">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
-                    Activate
+                    Save
                 </button>
+
+                @if (Model.IsEditMode && Model.Status == Status.Active)
+                {
+                    <button class="btn btn-outline-secondary" onclick="SavePlugin('Deactivate')">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                        Deactivate
+                    </button>
+                }
+
+                @if (Model.IsEditMode && Model.Status == Status.Inactive)
+                {
+                    <button class="btn pa-admin-outline-success-btn" onclick="SavePlugin('Activate')">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                        Activate
+                    </button>
+                }
             }
-        }
+        </div>
     </div>
 </form>
 
-<script src="~/lib/froala-editor/js/froala_editor.pkgd.min.js"></script>
-<script>var editor = new FroalaEditor('#example', { height: 250 })</script>
+
 <script src="~/js/PluginScript.js"></script>
 <script src="~/js/DropDown.js"></script>
 
-<script asp-append-version="true">
-    let isReadOnly = false
+<script>
+    let editor = new FroalaEditor('#example', { height: 250 });
+    let isReadOnly = false;
     InitDropDown();
 </script>
 

@@ -1,16 +1,20 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
-    $("#form").data('validator', null);
-    $.validator.unobtrusive.parse("#form");
+﻿function InitDropDown() {
+    document.addEventListener("DOMContentLoaded", () => {
+        new DropDown(
+            document.querySelector("#productsDropdown #dropDownToggle"),
+            document.querySelector("#productsDropdown #ProductsSelect"),
+            $("#productsDropdown #SupportedProducts"),
+            document.querySelector("#productsDropdown .selection-summary"),
+            document.querySelectorAll("#productsDropdown .overflow-arrow"),
+            parentProducts.map(p => p.parentProductName),
+            isReadOnly
+        ).Init()
 
-    new DropDown(
-        document.querySelector("#productsDropdown #dropDownToggle"),
-        document.querySelector("#productsDropdown #ProductsSelect"),
-        $("#productsDropdown #SupportedProducts"),
-        document.querySelector("#productsDropdown .selection-summary"),
-        document.querySelectorAll("#productsDropdown .overflow-arrow"),
-        parentProducts.map(p => p.parentProductName)
-    ).Init()
-})
+        $.validator.setDefaults({
+            ignore: '.ignore'
+        });
+    })
+}
 
 function AddComment(pluginId, versionId) {
     let content = event.currentTarget.parentElement;
@@ -61,7 +65,7 @@ function DeleteComment(pluginId, versionId, commentId) {
 
 function GenerateChecksum() {
     let request = new XMLHttpRequest();
-    let spinner = document.querySelector(".spinner-border");
+    let spinner = document.getElementById("FileHash").parentElement.querySelector(".spinner-border");
     let data = new FormData(document.getElementById("form"));
     spinner.hidden = false;
     document.getElementById("FileHash").disabled = true;

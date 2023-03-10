@@ -1,5 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.Model;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AppStoreIntegrationServiceManagement.Model.Plugins
 {

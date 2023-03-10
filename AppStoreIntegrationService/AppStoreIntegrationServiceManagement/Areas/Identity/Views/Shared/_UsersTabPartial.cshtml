@@ -1,0 +1,13 @@
+﻿@inherits CustomRazorPage<bool>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link cursor-pointer @(Model ? "active-tab" : null)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users/Assigned'})">Assigned</a>
+    </li>
+    @if (ExtendedUser.IsInRole("Administrator"))
+    {
+        <li class="nav-item">
+            <a class="nav-link cursor-pointer @(!Model ? "active-tab" : null)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users/All'})">All</a>
+        </li>
+    }
+</ul>

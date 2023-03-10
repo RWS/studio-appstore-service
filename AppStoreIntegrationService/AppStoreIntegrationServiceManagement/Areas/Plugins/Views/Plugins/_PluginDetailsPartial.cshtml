@@ -101,6 +101,7 @@
             }
         </ul>
         <select asp-for="Categories" hidden asp-items="@Model.CategoryListItems"></select>
+        <span asp-validation-for="Categories" class="text-danger"></span>
     </div>
 </div>
 <div class="form-check d-flex align-content-center col-12 p-0 mb-3">

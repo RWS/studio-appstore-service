@@ -42,13 +42,16 @@
                     <input asp-for="ConfirmPassword" class="form-control fs-inherit" />
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
-                <div class="mb-3">
-                    <label asp-for="UserRole" class="form-label"></label>
-                    <select class="fs-inherit pa-admin-select w-100" asp-for="UserRole">
-                        <option value="Administrator">Administrator</option>
-                        <option value="Developer">Developer</option>
-                    </select>
-                </div>
+                @if (ExtendedUser.IsInRole("Administrator"))
+                {
+                    <div class="mb-3">
+                        <label asp-for="UserRole" class="form-label"></label>
+                        <select class="fs-inherit pa-admin-select w-100" asp-for="UserRole">
+                            <option value="Administrator">Administrator</option>
+                            <option value="Developer">Developer</option>
+                        </select>
+                    </div>
+                }
                 <button type="submit" class="btn pa-admin-success-btn fs-inherit">Register</button>
             </div>
         </form>

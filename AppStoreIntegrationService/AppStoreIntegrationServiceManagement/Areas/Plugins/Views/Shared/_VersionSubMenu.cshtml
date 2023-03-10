@@ -2,7 +2,6 @@
 @inject IPluginVersionRepository repository
 @{
     var route = $"/Plugins/Edit/{Model.PluginId}/Versions/{{0}}/{Model.VersionId}";
-    var userRole = ExtendedUser.GetRole();
 }
 
 <ul class="nav nav-tabs">
@@ -13,14 +12,14 @@
         </li>
     }
 
-    @if (await repository.HasPendingChanges(Model.PluginId, Model.VersionId, userRole))
+    @if (await repository.HasPendingChanges(Model.PluginId, Model.VersionId, ExtendedUser.Role))
     {
         <li class="nav-item">
             <a class="nav-link cursor-pointer @ManageVersionTabs.PendingTabClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '@(string.Format(route, "Pending"))' })">Pending</a>
         </li>
     }
 
-    @if (await repository.HasDraftChanges(Model.PluginId, Model.VersionId, userRole))
+    @if (await repository.HasDraftChanges(Model.PluginId, Model.VersionId, ExtendedUser.Role))
     {
         <li class="nav-item">
             <a class="nav-link cursor-pointer @ManageVersionTabs.DraftTabClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '@(string.Format(route, "Draft"))'})">Draft</a>

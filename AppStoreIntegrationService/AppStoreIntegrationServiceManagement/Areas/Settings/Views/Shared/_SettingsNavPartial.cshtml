@@ -1,6 +1,6 @@
 ﻿@inherits CustomRazorPage<object>
 
-@if (ExtendedUser.IsInRoles("Administrator"))
+@if (ExtendedUser.HasFullOwnership())
 {
     <div class="col-12 col-md-3">
         <ul class="nav nav-pills flex-column" id="settings-navbar">
@@ -15,12 +15,13 @@
     </div>
 }
 
-@if (ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
+@if (ExtendedUser.IsInRole("Developer"))
 {
     <div class="col-12 col-md-3">
         <ul class="nav nav-pills flex-column" id="settings-navbar">
             <li class="nav-item"><a class="nav-link cursor-pointer option @ManageSettingsNav.ExportPluginsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/ExportPlugins' })">Export plugins</a></li>
             <li class="nav-item"><a class="nav-link cursor-pointer option @ManageSettingsNav.PluginsRenameNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/PluginsRename' })">Renamed plugins</a></li>
+            <li class="nav-item"><a class="nav-link cursor-pointer option @ManageSettingsNav.PreferencesNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Settings/Preferences' })">Preferences</a></li>
         </ul>
     </div>
 }

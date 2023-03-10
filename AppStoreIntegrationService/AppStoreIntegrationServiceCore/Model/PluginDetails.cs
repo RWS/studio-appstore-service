@@ -1,4 +1,6 @@
-﻿namespace AppStoreIntegrationServiceCore.Model
+﻿using System.Text.RegularExpressions;
+
+namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginDetails : PluginDetailsBase<PluginVersion, string>, IEquatable<PluginDetails>
     {
@@ -12,7 +14,7 @@
         public bool Equals(PluginDetails other)
         {
             return Name == other?.Name &&
-                   Description == other?.Description &&
+                   RemoveHTMLTags(Description) == RemoveHTMLTags(other?.Description) &&
                    ChangelogLink == other?.ChangelogLink &&
                    SupportUrl == other?.SupportUrl &&
                    SupportEmail == other?.SupportEmail &&
@@ -26,6 +28,11 @@
                    NeedsDeletionApproval == other?.NeedsDeletionApproval &&
                    HasAdminConsent == other?.HasAdminConsent &&
                    IsActive == other?.IsActive;
+        }
+
+        private static string RemoveHTMLTags(string text)
+        {
+            return Regex.Replace(text, "<.*?>", "");
         }
     }
 }

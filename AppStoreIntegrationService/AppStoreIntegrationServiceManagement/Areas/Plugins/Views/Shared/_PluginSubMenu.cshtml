@@ -1,8 +1,5 @@
 ﻿@inherits CustomRazorPage<int>
 @inject IPluginRepository repository
-@{
-    var userRole = ExtendedUser.GetRole();
-}
 
 <ul class="nav nav-tabs">
     @if (await repository.HasActiveChanges(Model))
@@ -12,14 +9,14 @@
         </li>
     }
 
-    @if (await repository.HasPendingChanges(Model, userRole))
+    @if (await repository.HasPendingChanges(Model, ExtendedUser.Role))
     {
         <li class="nav-item">
             <a class="nav-link cursor-pointer @ManagePluginTabs.PendingTabClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Pending/@Model'})">Pending</a>
         </li>
     }
 
-    @if (await repository.HasDraftChanges(Model, userRole))
+    @if (await repository.HasDraftChanges(Model, ExtendedUser.Role))
     {
         <li class="nav-item">
             <a class="nav-link cursor-pointer @ManagePluginTabs.DraftTabClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Plugins/Draft/@Model'})">Draft</a>

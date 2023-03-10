@@ -23,7 +23,7 @@
         <input hidden name="Page" value="@Page.Version" />
         <partial name="_VersionDetailsPartial" model="@Model.Version" />
 
-        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
+        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRole("Developer"))
         {
             <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Submit')">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
@@ -34,7 +34,7 @@
                 Save as draft
             </button>
         }
-        else if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Administrator") && Model.Version.VersionStatus.Equals(Status.InReview))
+        else if (Model.Version.IsThirdParty && ExtendedUser.HasFullOwnership() && Model.Version.VersionStatus == Status.InReview)
         {
             <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Approve', true)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
@@ -51,9 +51,7 @@
 <script asp-append-version="true">let isReadOnly = false</script>
 <script src="~/js/DropDown.js" asp-append-version="true"></script>
 <script src="~/js/VersionsScript.js" asp-append-version="true"></script>
-<script asp-append-version="true">
-    let parentProducts = @Html.Raw(Json.Serialize(Model.Plugin.Parents))
-</script>
+<script asp-append-version="true">let parentProducts = @Html.Raw(Json.Serialize(Model.Plugin.Parents))</script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

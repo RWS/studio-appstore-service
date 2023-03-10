@@ -67,7 +67,6 @@ namespace AppStoreIntegrationServiceManagement.Repository
             {
                 "Developer" => plugins?.Where(p => p.Developer.DeveloperName == username),
                 "Administrator" => plugins?.Where(p => p.Status != Status.Draft || p.HasAdminConsent),
-                "StandardUser" => plugins?.Where(p => p.Status == Status.Active || p.Status == Status.Inactive),
                 _ => plugins
             };
         }

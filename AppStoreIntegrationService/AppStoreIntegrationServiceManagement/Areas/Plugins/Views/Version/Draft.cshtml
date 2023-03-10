@@ -23,7 +23,7 @@
         <input hidden name="Page" value="@Page.Version" />
         <partial name="_VersionDetailsPartial" model="@Model.Version" />
 
-        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperAdmin"))
+        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRole("Developer"))
         {
             if (Model.Plugin.Status != Status.Draft)
             {
@@ -43,9 +43,7 @@
 <script asp-append-version="true">let isReadOnly = false</script>
 <script src="~/js/DropDown.js" asp-append-version="true"></script>
 <script src="~/js/VersionsScript.js" asp-append-version="true"></script>
-<script asp-append-version="true">
-    let parentProducts = @Html.Raw(Json.Serialize(Model.Plugin.Parents))
-</script>
+<script asp-append-version="true">let parentProducts = @Html.Raw(Json.Serialize(Model.Plugin.Parents))</script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
