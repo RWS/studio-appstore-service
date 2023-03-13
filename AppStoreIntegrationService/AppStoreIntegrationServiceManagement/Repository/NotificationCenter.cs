@@ -133,6 +133,7 @@ namespace AppStoreIntegrationServiceManagement.Repository
                     Status = NotificationStatus.Active
                 }
             });
+
             await _notificationsManager.SaveNotifications(notifications);
         }
 

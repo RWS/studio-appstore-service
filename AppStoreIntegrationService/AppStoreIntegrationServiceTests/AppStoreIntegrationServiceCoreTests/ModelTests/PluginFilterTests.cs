@@ -169,16 +169,16 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
         {
             IEnumerable<PluginDetails> list = new List<PluginDetails>
             {
-                new PluginDetails { Name = "YourProductivity" },
-                new PluginDetails { Name = "Language Weaver" },
-                new PluginDetails { Name = "Test 3" },
-                new PluginDetails { Name = "CleanUp Tasks" }
+                new PluginDetails { Name = "YourProductivity", Developer = new DeveloperDetails { DeveloperName = "Test developer 1" } },
+                new PluginDetails { Name = "Language Weaver", Developer = new DeveloperDetails { DeveloperName = "Test developer 2" } },
+                new PluginDetails { Name = "Test 3", Developer = new DeveloperDetails { DeveloperName = "Test developer 3" } },
+                new PluginDetails { Name = "CleanUp Tasks" , Developer = new DeveloperDetails { DeveloperName = "Test developer 4" } }
             };
 
             list = PluginFilter.FilterPlugins(list, new PluginFilter { Query = "ea" }, null, null);
             Assert.Equal(new List<PluginDetails> {
-                new PluginDetails { Name = "Language Weaver" },
-                new PluginDetails { Name = "CleanUp Tasks" }
+                new PluginDetails { Name = "Language Weaver" , Developer = new DeveloperDetails { DeveloperName = "Test developer 2" } },
+                new PluginDetails { Name = "CleanUp Tasks", Developer = new DeveloperDetails { DeveloperName = "Test developer 4" } }
             }, list);
 
             Assert.Empty(PluginFilter.FilterPlugins(list, new PluginFilter { Query = "xyz" }, null, null));

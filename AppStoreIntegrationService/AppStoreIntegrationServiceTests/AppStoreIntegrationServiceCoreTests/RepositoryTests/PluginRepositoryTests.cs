@@ -220,37 +220,6 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Re
         }
 
         [Fact]
-        public async void PluginRepositoryTest_GetAllPendingPluginsAvailableForStandardUsers_ShouldReturnAllCorresponsingPluginsFromStorage()
-        {
-            IResponseManager repository = new AzureRepositoryMock(InitPluginResponse());
-            var pluginRepository = new PluginRepository(repository);
-
-            Assert.Empty(await pluginRepository.GetAll("asc", userRole: "StandardUser", status: Status.Draft));
-        }
-
-        [Fact]
-        public async void PluginRepositoryTest_GetAllDraftsAvailableForStandardUsers_ShouldReturnAllCorresponsingPluginsFromStorage()
-        {
-            IResponseManager repository = new AzureRepositoryMock(InitPluginResponse());
-            var pluginRepository = new PluginRepository(repository);
-
-            Assert.Empty(await pluginRepository.GetAll("asc", userRole: "StandardUser", status: Status.Draft));
-        }
-
-        [Fact]
-        public async void PluginRepositoryTest_GetAllAvailablePluginsForStandardUsers_ShouldReturnAllCorresponsingPluginsFromStorage()
-        {
-            IResponseManager repository = new AzureRepositoryMock(InitPluginResponse());
-            var pluginRepository = new PluginRepository(repository);
-            var plugins = await pluginRepository.GetAll("asc", userRole: "StandardUser");
-            Assert.Equal(new List<PluginDetails>
-            {
-                new PluginDetails { Id = 0, Name = "0 Test", Status = Status.Inactive },
-                new PluginDetails { Id = 1, Name = "1 Test", Status = Status.Active },
-                new PluginDetails { Id = 2, Name = "2 Test", HasAdminConsent = true, Status = Status.Active, Developer = new DeveloperDetails { DeveloperName = "Test username 1" }}
-            }, plugins);
-            Assert.Equal(3, plugins.Count());
-        }
 
         private static PluginResponse<PluginDetails> InitPluginResponse()
         {

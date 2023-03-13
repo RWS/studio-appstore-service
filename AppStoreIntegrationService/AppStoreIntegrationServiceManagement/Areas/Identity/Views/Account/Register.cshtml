@@ -15,22 +15,22 @@
         <form asp-controller="Account" asp-action="PostRegister" method="post" id="form">
             <input hidden name="Page" value="@Page.Register" />
             <div class="mb-3">
-                <label asp-for="UserName" class="form-label">Username</label>
+                <label asp-for="Email" class="form-label">Email</label>
                 <div class="input-group">
-                    <input asp-for="UserName" class="form-control fs-inherit border-end-0" oninput="HideUserDetails()" />
+                    <input asp-for="Email" class="form-control fs-inherit border-end-0" oninput="HideUserDetails()" />
                     <a class="btn pa-admin-success-btn text-nowrap" onclick="CheckUserExistance()">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
                         Check user
                     </a>
                 </div>
-                <span asp-validation-for="UserName" class="text-danger"></span>
+                <span asp-validation-for="Email" class="text-danger"></span>
                 <span id="userCheckMessage"></span>
             </div>
             <div class="d-none">
                 <div class="mb-3">
-                    <label asp-for="Email" class="form-label">Email</label>
-                    <input asp-for="Email" class="form-control fs-inherit" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
+                    <label asp-for="UserName" class="form-label">Username</label>
+                    <input asp-for="UserName" class="form-control fs-inherit" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
                     <label asp-for="Password" class="form-label"></label>

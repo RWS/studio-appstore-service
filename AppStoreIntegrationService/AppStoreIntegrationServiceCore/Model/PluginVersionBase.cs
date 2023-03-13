@@ -23,7 +23,7 @@ namespace AppStoreIntegrationServiceCore.Model
 
         [Required(ErrorMessage = "At least one product is required!")]
         [MinLength(1)]
-        public List<T> SupportedProducts { get; set; }
+        public List<T> SupportedProducts { get; set; } = new List<T>();
 
         [Display(Name = "App Has Studio Plugin Installer")]
         public bool AppHasStudioPluginInstaller { get; set; }

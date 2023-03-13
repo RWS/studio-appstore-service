@@ -180,6 +180,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             {
                 Id = x.Id,
                 Name = x.UserName,
+                Email = x.Email,
                 Role = _userAccountsManager.GetUserRoleForAccount(x, account).Result.Name,
                 IsCurrentUser = x == currentUser,
                 IsBuiltInAdmin = x.IsBuiltInAdmin,
@@ -209,10 +210,27 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [Owner]
-        public async Task<IActionResult> Accounts()
+        public async Task<IActionResult> Accounts(string id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            return View(_userAccountsManager.GetUserParentAccounts(user));
+            var currentUser = await _userManager.GetUserAsync(User);
+            var wantedUser = await _userManager.FindByIdAsync(id);
+
+            if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
+            {
+                return result;
+            }
+
+            if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
+            {
+                return View((_userAccountsManager.GetUserParentAccounts(currentUser), ""));
+            }
+
+            if (ExtendedUser.IsInRole("Administrator") && !wantedUser.IsBuiltInAdmin)
+            {
+                return View((_userAccountsManager.GetUserParentAccounts(wantedUser), wantedUser.Id));
+            }
+
+            return NotFound();
         }
 
         [Owner]
@@ -263,7 +281,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             if (results.All(x => x.Succeeded))
             {
                 TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.UserName);
-                return RedirectToAction("Users");
+
+                return RedirectToAction("Assigned");
             }
 
             TempData["StatusMessage"] = string.Format("Error! {0}", results.FirstOrDefault(x => !x.Succeeded).Errors.First().Description);
@@ -306,11 +325,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             if (result.Succeeded)
             {
                 TempData["StatusMessage"] = string.Format("{0} was dismissed succesfully", user.UserName);
-                return RedirectToAction("Users");
+                return RedirectToAction("Assigned");
             }
 
             TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
-            return RedirectToAction("Users");
+            return RedirectToAction("Assigned");
         }
 
         [Authorize]
@@ -325,7 +344,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             if (result.Succeeded)
             {
                 TempData["StatusMessage"] = string.Format("Success! {0} was assigned succesfully", user.UserName);
-                return Content("/Identity/Account/Users");
+                return Content("/Identity/Account/Users/Assigned");
             }
 
             TempData["StatusMessage"] = result.Errors.First().Description;
@@ -334,9 +353,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         [Authorize]
         [Owner]
-        public async Task<IActionResult> CheckUserExistance(string username)
+        public async Task<IActionResult> CheckUserExistance(string email)
         {
-            var user = await _userManager.FindByNameAsync(username);
+            var user = await _userManager.FindByEmailAsync(email);
 
             if (user == null)
             {

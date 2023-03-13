@@ -44,9 +44,9 @@ function HideUserDetails() {
 }
 
 function CheckUserExistance() {
-    $("#UserName").validate();
+    $("#Email").validate();
 
-    if (!$("#UserName").valid()) {
+    if (!$("#Email").valid()) {
         return;
     }
 
@@ -54,7 +54,7 @@ function CheckUserExistance() {
     let data = new FormData();
     let feedbackElement = document.getElementById("userCheckMessage");
     let info = button.parentElement.parentElement.nextElementSibling;
-    data.set("Username", button.previousElementSibling.value);
+    data.set("Email", button.previousElementSibling.value);
     ToggleLoader(button)
 
     let request = new XMLHttpRequest();

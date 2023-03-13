@@ -63,14 +63,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
-            if (await _productsRepository.IsProductInUse(id))
+            if (await _productsRepository.TryDeleteProduct(id))
             {
-                TempData["StatusMessage"] = "Error! This product is used by plugins!";
+                TempData["StatusMessage"] = "Success! Product was deleted!";
                 return Content("/Settings/Products");
             }
 
-            await _productsRepository.DeleteProduct(id);
-            TempData["StatusMessage"] = "Success! Product was deleted!";
+            TempData["StatusMessage"] = "Error! This product is used by plugins!";
             return Content("/Settings/Products");
         }
 

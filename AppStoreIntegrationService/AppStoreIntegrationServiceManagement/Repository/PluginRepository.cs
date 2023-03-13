@@ -91,7 +91,7 @@ namespace AppStoreIntegrationServiceManagement.Repository
         public async Task<bool> HasPendingChanges(int id, string userRole = null)
         {
             var plugins = await GetAll(null, status: Status.InReview);
-            return userRole != "StandardUser" && plugins.Any(p => p.Id == id);
+            return plugins.Any(p => p.Id == id);
         }
 
         public async Task<bool> HasDraftChanges(int id, string userRole = null)

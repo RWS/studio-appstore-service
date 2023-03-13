@@ -58,16 +58,30 @@ namespace AppStoreIntegrationServiceManagement.Repository
             return true;
         }
 
-        public async Task DeleteProduct(string id)
+        public async Task<bool> TryDeleteProduct(string id)
         {
             var products = await GetAllProducts();
+
+            if (await IsProductInUse(id))
+            {
+                return false;
+            }
+
             await SaveProducts(products.Where(item => item.Id != id));
+            return true;
         }
 
-        public async Task DeleteParent(string id)
+        public async Task<bool> TryDeleteParent(string id)
         {
             var parents = await GetAllParents();
+
+            if (await IsParentInUse(id))
+            {
+                return false;
+            }
+
             await SaveParents(parents.Where(item => item.Id != id));
+            return true;
         }
 
         public async Task<IEnumerable<ProductDetails>> GetAllProducts()
@@ -94,12 +108,18 @@ namespace AppStoreIntegrationServiceManagement.Repository
             return products.FirstOrDefault(p => p.Id.Equals(id));
         }
 
-        public async Task<bool> IsProductInUse(string id)
+        private async Task<bool> IsProductInUse(string id)
         {
             var plugins = await _pluginRepository.GetAll(null);
             return plugins.SelectMany(x => x.Versions
                           .SelectMany(y => y.SupportedProducts))
                           .Any(x => x == id);
+        }
+
+        private async Task<bool> IsParentInUse(string id)
+        {
+            var products = await GetAllProducts();
+            return products.Any(x => x.ParentProductID == id);
         }
 
         private async Task SaveProducts(IEnumerable<ProductDetails> products)

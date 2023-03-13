@@ -50,15 +50,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
-            var products = await _productsRepository.GetAllProducts();
-            if (products.Any(p => p.ParentProductID.Equals(id)))
+            if (await _productsRepository.TryDeleteParent(id))
             {
-                TempData["StatusMessage"] = "Error! This parent product is used among child products!";
+                TempData["StatusMessage"] = "Success! Paret product was deleted!";
                 return Content(null);
             }
 
-            await _productsRepository.DeleteParent(id);
-            TempData["StatusMessage"] = "Success! Paret product was deleted!";
+            TempData["StatusMessage"] = "Error! This parent product is used among child products!";
             return Content(null);
         }
 

@@ -32,6 +32,11 @@ namespace AppStoreIntegrationServiceCore.Model
 
         private static string RemoveHTMLTags(string text)
         {
+            if (string.IsNullOrEmpty(text))
+            {
+                return null;
+            }
+
             return Regex.Replace(text, "<.*?>", "");
         }
     }

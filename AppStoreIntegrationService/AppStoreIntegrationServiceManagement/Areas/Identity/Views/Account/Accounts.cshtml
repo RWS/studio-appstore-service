@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Account>
+﻿@model (IEnumerable<Account> Accounts, string Id)
 @inject UserManager<IdentityUserExtended> userManager
 @inject UserAccountsManager userAccountsManager
 @{
@@ -13,7 +13,14 @@
 <h2 class="fs2-inherit">Manage accounts</h2>
 <hr class="w-100">
 <div class="row justify-content-center">
-    <partial name="_ProfileNav" />
+    @if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <partial name="_EditNav" model="@Model.Id" />
+    }
+    else
+    {
+        <partial name="_ProfileNav" />
+    }
     <div class="col-12 col-md-9">
         <form id="form" onsubmit="return false">
             <p class="fw-bold fs4-inherit">Accounts</p>
@@ -26,7 +33,7 @@
                     </tr>
                 </thead>
                 <tbody class="tbody-stripped">
-                    @foreach (var account in Model)
+                    @foreach (var account in Model.Accounts)
                     {
                         if (selectedAccount == account.Id.ToString())
                         {

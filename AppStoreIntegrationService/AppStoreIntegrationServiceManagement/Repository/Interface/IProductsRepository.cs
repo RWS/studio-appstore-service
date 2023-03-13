@@ -10,8 +10,7 @@ namespace AppStoreIntegrationServiceManagement.Repository.Interface
         Task<ProductDetails> GetProductById(string id);
         Task<bool> TryUpdateProduct(ProductDetails products);
         Task<bool> TryUpdateProduct(ParentProduct products);
-        Task DeleteProduct(string id);
-        Task DeleteParent(string id);
-        Task<bool> IsProductInUse(string id);
+        Task<bool> TryDeleteProduct(string id);
+        Task<bool> TryDeleteParent(string id);
     }
 }

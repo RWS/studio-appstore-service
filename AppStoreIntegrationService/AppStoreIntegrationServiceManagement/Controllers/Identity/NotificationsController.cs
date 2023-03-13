@@ -1,4 +1,5 @@
-﻿using AppStoreIntegrationServiceManagement.Filters;
+﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;

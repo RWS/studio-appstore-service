@@ -21,6 +21,12 @@ namespace AppStoreIntegrationServiceManagement.Repository
         public async Task<IEnumerable<PluginVersion>> GetPluginVersions(int pluginId, Status status = Status.All)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
+
+            if (plugin == null)
+            {
+                return Enumerable.Empty<PluginVersion>();
+            }
+
             return status switch
             {
                 Status.Draft => plugin.Drafts,
@@ -35,13 +41,24 @@ namespace AppStoreIntegrationServiceManagement.Repository
         {
             var plugins = await _pluginRepository.GetAll("asc");
             var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
+
+            if (plugin == null)
+            {
+                return false;
+            }
+
             return plugin.Versions.Any(v => v.VersionId == versionId);
         }
 
-        public async Task<bool> HasDraftChanges(int pluginId, string versionId, string userRole = null)
+        public async Task<bool> HasDraftChanges(int pluginId, string versionId, string userRole)
         {
             var plugins = await _pluginRepository.GetAll("asc");
             var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
+
+            if (plugin == null)
+            {
+                return false;
+            }
 
             return userRole switch
             {
@@ -51,18 +68,28 @@ namespace AppStoreIntegrationServiceManagement.Repository
             };
         }
 
-        public async Task<bool> HasPendingChanges(int pluginId, string versionId, string userRole = null)
+        public async Task<bool> HasPendingChanges(int pluginId, string versionId, string userRole)
         {
             var plugins = await _pluginRepository.GetAll("asc");
             var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
 
-            return userRole != "StandardUser" && plugin.Pending.Any(v => v.VersionId == versionId);
+            if (plugin == null)
+            {
+                return false;
+            }
+
+            return plugin.Pending.Any(v => v.VersionId == versionId);
         }
 
         public async Task RemovePluginVersion(int pluginId, string versionId)
         {
             var plugins = await _pluginRepository.GetAll("asc");
             var plugin = plugins.FirstOrDefault(p => p.Id == pluginId);
+
+            if (plugin == null)
+            {
+                return;
+            }
 
             plugin.Versions = plugin.Versions.Where(v => v.VersionId != versionId).ToList();
             plugin.Pending = plugin.Pending.Where(v => v.VersionId != versionId).ToList();

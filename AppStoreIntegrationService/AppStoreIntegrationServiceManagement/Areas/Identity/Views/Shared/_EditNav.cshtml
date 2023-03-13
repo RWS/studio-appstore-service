@@ -4,6 +4,7 @@
     <ul class="nav nav-pills flex-column" id="profile-navbar">
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ProfileNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Profile/@Model' })">Edit</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ChangePasswordNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/ChangePassword/@Model' })">Reset password</a></li>
+        <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.AccountsNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Accounts/@Model' })">Accounts</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ManageNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users/Assigned' })">Users</a></li>
     </ul>
 </div>

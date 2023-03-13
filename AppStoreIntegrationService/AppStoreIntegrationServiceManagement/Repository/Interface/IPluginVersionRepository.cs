@@ -10,7 +10,7 @@ namespace AppStoreIntegrationServiceManagement.Repository.Interface
         Task<IEnumerable<PluginVersion>> GetPluginVersions(int pluginId, Status status = Status.All);
         Task<bool> HasActiveChanges(int pluginId, string versionId);
         Task<bool> ExistsVersion(int pluginId, string versionId);
-        Task<bool> HasPendingChanges(int pluginId, string versionId, string userRole = null);
-        Task<bool> HasDraftChanges(int pluginId, string versionId, string userRole = null);
+        Task<bool> HasPendingChanges(int pluginId, string versionId, string userRole);
+        Task<bool> HasDraftChanges(int pluginId, string versionId, string userRole);
     }
 }

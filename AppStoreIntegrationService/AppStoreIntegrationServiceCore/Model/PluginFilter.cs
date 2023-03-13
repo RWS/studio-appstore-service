@@ -46,7 +46,17 @@ namespace AppStoreIntegrationServiceCore.Model
 
         private static IEnumerable<PluginDetails> FilterByQuery(IEnumerable<PluginDetails> pluginsList, string query)
         {
-            return pluginsList.Where(p => Fuzz.PartialRatio(p.Name, query) >= 70 || Fuzz.PartialRatio(p.Developer.DeveloperName, query) >= 70);
+            return pluginsList.Where(p => IsFuzzyMatch(p, query));
+        }
+
+        private static bool IsFuzzyMatch(PluginDetails plugin, string query)
+        {
+            if (string.IsNullOrEmpty(plugin?.Name) || string.IsNullOrEmpty(plugin?.Developer?.DeveloperName))
+            {
+                return false;
+            }
+
+            return Fuzz.PartialRatio(plugin.Name, query) >= 70 || Fuzz.PartialRatio(plugin.Developer.DeveloperName, query) >= 70;
         }
 
         private static IEnumerable<PluginDetails> FilterByPrice(IEnumerable<PluginDetails> pluginsList, string price)
