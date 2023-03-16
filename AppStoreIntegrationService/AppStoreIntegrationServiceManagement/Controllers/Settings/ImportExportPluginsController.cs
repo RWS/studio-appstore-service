@@ -19,25 +19,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     {
         private readonly IPluginRepository _pluginRepository;
         private readonly IResponseManager _responseManager;
-        private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly AccountsManager _accountsManager;
-        private readonly UserAccountsManager _userAccountsManager;
 
         public ImportExportPluginsController
         (
             IPluginRepository pluginRepository, 
-            IResponseManager responseManager,
-            UserManager<IdentityUserExtended> userManager,
-            AccountsManager accountsManager,
-            UserAccountsManager userAccountsManager
+            IResponseManager responseManager
         )
         {
             _pluginRepository = pluginRepository;
             _responseManager = responseManager;
-            _userManager = userManager;
-            _accountsManager = accountsManager;
-            _userAccountsManager = userAccountsManager;
-
         }
 
         [RoleAuthorize("Administrator", "Developer")]

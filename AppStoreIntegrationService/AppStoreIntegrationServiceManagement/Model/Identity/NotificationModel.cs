@@ -5,7 +5,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
 {
     public class NotificationModel
     {
-        public IEnumerable<Notification> Notifications { get; set; }
+        public IEnumerable<PushNotification> Notifications { get; set; }
         public IEnumerable<FilterItem> Filters { get; set; }
     }
 }

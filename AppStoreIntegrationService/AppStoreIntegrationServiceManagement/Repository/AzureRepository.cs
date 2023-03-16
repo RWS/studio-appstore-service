@@ -56,24 +56,24 @@ namespace AppStoreIntegrationServiceManagement.Repository
             await _settingsBlob.UploadAsync(content, new BlobUploadOptions());
         }
 
-        public async Task<IDictionary<string, IEnumerable<Notification>>> GetNotifications()
+        public async Task<IDictionary<string, IEnumerable<PushNotification>>> GetNotifications()
         {
             if (string.IsNullOrEmpty(_configurationSettings.NotificationsFileName))
             {
-                return new Dictionary<string, IEnumerable<Notification>>();
+                return new Dictionary<string, IEnumerable<PushNotification>>();
             }
 
             var content = await _notificationsBlob.DownloadContentAsync();
 
             if (content == null)
             {
-                return new Dictionary<string, IEnumerable<Notification>>();
+                return new Dictionary<string, IEnumerable<PushNotification>>();
             }
 
-            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<Notification>>>(content.Value.Content.ToString()) ?? new Dictionary<string, IEnumerable<Notification>>();
+            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<PushNotification>>>(content.Value.Content.ToString()) ?? new Dictionary<string, IEnumerable<PushNotification>>();
         }
 
-        public async Task SaveNotifications(IDictionary<string, IEnumerable<Notification>> notifications)
+        public async Task SaveNotifications(IDictionary<string, IEnumerable<PushNotification>> notifications)
         {
             var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(notifications)));
             await _notificationsBlob.UploadAsync(content, new BlobUploadOptions());

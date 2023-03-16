@@ -12,7 +12,10 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Re
         public async void LoggingRepositoryTest_GetAllPluginLogsFromNullOrEmptyStorage_ShouldReturnEmptyList()
         {
             var azurerepository = new AzureRepositoryMock(data: null);
-            var logsRepository = new LoggingRepository(azurerepository);
+            var pluginRepository = new PluginRepository(azurerepository);
+            var categoriesRepository = new CategoriesRepository(azurerepository);
+            var productsRepository = new ProductsRepository(azurerepository, pluginRepository);
+            var logsRepository = new LoggingRepository(azurerepository, categoriesRepository, productsRepository);
 
             Assert.Empty(await logsRepository.GetPluginLogs(0));
         }
@@ -21,7 +24,10 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Re
         public async void LoggingRepositoryTest_GetAllPluginLogsFromStorage_ShouldReturnCorrespondingLogs()
         {
             var azurerepository = new AzureRepositoryMock(LoadPluginLogs());
-            var logsRepository = new LoggingRepository(azurerepository);
+            var pluginRepository = new PluginRepository(azurerepository);
+            var categoriesRepository = new CategoriesRepository(azurerepository);
+            var productsRepository = new ProductsRepository(azurerepository, pluginRepository);
+            var logsRepository = new LoggingRepository(azurerepository, categoriesRepository, productsRepository);
 
             Assert.Equal(new List<Log>
             {
@@ -35,7 +41,10 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Re
         public async void LoggingRepositoryTest_AddLogToStorage_TheLogShouldBeAdded()
         {
             var azurerepository = new AzureRepositoryMock(LoadPluginLogs());
-            var logsRepository = new LoggingRepository(azurerepository);
+            var pluginRepository = new PluginRepository(azurerepository);
+            var categoriesRepository = new CategoriesRepository(azurerepository);
+            var productsRepository = new ProductsRepository(azurerepository, pluginRepository);
+            var logsRepository = new LoggingRepository(azurerepository, categoriesRepository, productsRepository);
             await logsRepository.Log("Test author 4", 0, "Test log 4");
 
             Assert.Equal(new List<Log>
@@ -51,7 +60,10 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Re
         public async void LoggingRepositoryTest_AddNullLogToStorage_TheLogShouldNotBeAdded()
         {
             var azurerepository = new AzureRepositoryMock(LoadPluginLogs());
-            var logsRepository = new LoggingRepository(azurerepository);
+            var pluginRepository = new PluginRepository(azurerepository);
+            var categoriesRepository = new CategoriesRepository(azurerepository);
+            var productsRepository = new ProductsRepository(azurerepository, pluginRepository);
+            var logsRepository = new LoggingRepository(azurerepository, categoriesRepository, productsRepository);
             await logsRepository.Log("Test author 4", 0, null);
 
             Assert.Equal(new List<Log>
@@ -66,7 +78,10 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Re
         public async void LoggingRepositoryTest_FilterLogsByDate_ShouldReturnMatchingLogs()
         {
             var azurerepository = new AzureRepositoryMock(LoadPluginLogs());
-            var logsRepository = new LoggingRepository(azurerepository);
+            var pluginRepository = new PluginRepository(azurerepository);
+            var categoriesRepository = new CategoriesRepository(azurerepository);
+            var productsRepository = new ProductsRepository(azurerepository, pluginRepository);
+            var logsRepository = new LoggingRepository(azurerepository, categoriesRepository, productsRepository);
             var logs = await logsRepository.GetPluginLogs(0);
             
             Assert.Equal(new List<Log>
@@ -79,7 +94,10 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Re
         public async void LoggingRepositoryTest_FilterLogsByQuery_ShouldReturnMatchingLogs()
         {
             var azurerepository = new AzureRepositoryMock(LoadPluginLogs());
-            var logsRepository = new LoggingRepository(azurerepository);
+            var pluginRepository = new PluginRepository(azurerepository);
+            var categoriesRepository = new CategoriesRepository(azurerepository);
+            var productsRepository = new ProductsRepository(azurerepository, pluginRepository);
+            var logsRepository = new LoggingRepository(azurerepository, categoriesRepository, productsRepository);
             var logs = await logsRepository.GetPluginLogs(0);
 
             Assert.Equal(new List<Log>

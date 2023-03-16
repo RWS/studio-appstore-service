@@ -1,10 +1,8 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
-using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Settings
@@ -16,24 +14,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     {
         private readonly INamesRepository _namesRepository;
         private readonly IPluginRepository _pluginRepository;
-        private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly AccountsManager _accountsManager;
-        private readonly UserAccountsManager _userAccountsManager;
 
         public PluginsRenameController
         (
             INamesRepository namesRepository, 
-            IPluginRepository pluginRepository,
-            UserManager<IdentityUserExtended> userManager,
-            AccountsManager accountsManager,
-            UserAccountsManager userAccountsManager
+            IPluginRepository pluginRepository
         )
         {
             _namesRepository = namesRepository;
             _pluginRepository = pluginRepository;
-            _userManager = userManager;
-            _accountsManager = accountsManager;
-            _userAccountsManager = userAccountsManager;
         }
 
         [Route("Settings/PluginsRename")]

@@ -2,12 +2,10 @@
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Comments;
-using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
@@ -28,14 +26,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
     [Authorize]
     [AccountSelected]
-    public class PreservationController : Controller
+    public class PreservationController : CustomController
     {
         private readonly IPluginRepository _pluginRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly ICommentsRepository _commentsRepository;
         private readonly ICategoriesRepository _categoriesRepository;
         private readonly IProductsRepository _productsRepository;
-        private readonly UserManager<IdentityUserExtended> _userManager;
 
         public PreservationController
         (
@@ -43,15 +40,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             IPluginVersionRepository pluginVersionRepository,
             ICommentsRepository commentsRepository, 
             ICategoriesRepository categoriesRepository, 
-            IProductsRepository productsRepository,
-            UserManager<IdentityUserExtended> userManager
+            IProductsRepository productsRepository
         )
         {
             _pluginRepository = pluginRepository;
             _commentsRepository = commentsRepository;
             _categoriesRepository = categoriesRepository;
             _productsRepository = productsRepository;
-            _userManager = userManager;
             _pluginVersionRepository = pluginVersionRepository;
         }
 
@@ -179,8 +174,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public async Task<IActionResult> Check(ProfileModel profile)
         {
-            var editedUser = await _userManager.FindByIdAsync(profile.Id);
-            var currentUser = await _userManager.GetUserAsync(User);
+            var editedUser = await UserManager.FindByIdAsync(profile.Id);
+            var currentUser = await UserManager.GetUserAsync(User);
             var user = editedUser ?? currentUser;
 
             if (profile?.Equals(new ProfileModel(user)) ?? true)

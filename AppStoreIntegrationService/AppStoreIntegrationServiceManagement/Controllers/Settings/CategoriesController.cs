@@ -11,7 +11,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [RoleAuthorize("Administrator")]
     public class CategoriesController : Controller
     {
-        public readonly ICategoriesRepository _categoriesRepository;
+        private readonly ICategoriesRepository _categoriesRepository;
         private readonly IPluginRepository _pluginRepository;
 
         public CategoriesController(ICategoriesRepository categoriesRepository, IPluginRepository pluginRepository)

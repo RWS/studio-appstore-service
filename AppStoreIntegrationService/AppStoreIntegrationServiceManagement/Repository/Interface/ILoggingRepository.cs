@@ -1,4 +1,5 @@
-﻿using AppStoreIntegrationServiceManagement.Model.Logs;
+﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.Model.Logs;
 
 namespace AppStoreIntegrationServiceManagement.Repository.Interface
 {
@@ -8,5 +9,7 @@ namespace AppStoreIntegrationServiceManagement.Repository.Interface
         Task ClearLogs(int pluginId);
         IEnumerable<Log> SearchLogs(IEnumerable<Log> logs, DateTime from, DateTime to, string query = null);
         Task<IEnumerable<Log>> GetPluginLogs(int pluginId);
+        string CreateChangesLog(PluginDetails latest, PluginDetails old, string username);
+        string CreateChangesLog(PluginVersion @new, PluginVersion old, string username);
     }
 }

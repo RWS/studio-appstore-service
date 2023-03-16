@@ -1,5 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceManagement.Filters;
+﻿using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
@@ -8,7 +7,6 @@ using AppStoreIntegrationServiceManagement.Model.Plugins;
 using AppStoreIntegrationServiceManagement.Repository;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
@@ -19,43 +17,35 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     [RoleAuthorize("Administrator", "Developer")]
     public class NotificationsController : CustomController
     {
-        private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly AccountsManager _accountsManager;
         private readonly INotificationCenter _notificationCenter;
 
-        public NotificationsController
-        (
-            UserManager<IdentityUserExtended> userManager, 
-            INotificationCenter notificationCenter,
-            AccountsManager accountsManager)
+        public NotificationsController(INotificationCenter notificationCenter)
         {
-            _userManager = userManager;
             _notificationCenter = notificationCenter;
-            _accountsManager = accountsManager;
         }
 
         [Route("Identity/Account/Notifications")]
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await UserManager.GetUserAsync(User);
             return View("Notifications", (user.EmailNotificationsEnabled, user.PushNotificationsEnabled));
         }
 
         [HttpPost]
         public async Task<IActionResult> Update(bool emailNotificationsEnabled, bool pushNotificationsEnabled)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await UserManager.GetUserAsync(User);
             user.EmailNotificationsEnabled = emailNotificationsEnabled;
             user.PushNotificationsEnabled = pushNotificationsEnabled;
-            await _userManager.UpdateAsync(user);
+            await UserManager.UpdateAsync(user);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> ChangeStatus(int? id, NotificationStatus status)
         {
-            var user = await _userManager.GetUserAsync(User);
-            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+            var user = await UserManager.GetUserAsync(User);
+            var account = AccountsManager.GetAccountById(user.SelectedAccountId);
             await _notificationCenter.ChangeStatus(ExtendedUser.IsInRole("Administrator") ? "Administrator" : account.AccountName, id, status);
             return new EmptyResult();
         }
@@ -71,7 +61,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 IsSelected = notificationStatus == (NotificationStatus)Enum.Parse(typeof(NotificationStatus), x)
             });
 
-            var notifications = !ExtendedUser.PushNotificationsEnabled ? Array.Empty<Notification>() : ExtendedUser.HasFullOwnership() switch
+            var notifications = !ExtendedUser.PushNotificationsEnabled ? Array.Empty<PushNotification>() : ExtendedUser.HasFullOwnership() switch
             {
                 true => await _notificationCenter.GetNotificationsForUser(ExtendedUser.AccountName),
                 false => await _notificationCenter.GetNotificationsForUser(User.Identity.Name)

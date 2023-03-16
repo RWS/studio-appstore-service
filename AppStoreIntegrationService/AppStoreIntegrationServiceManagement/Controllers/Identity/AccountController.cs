@@ -13,29 +13,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     [AccountSelected]
     public class AccountController : CustomController
     {
-        private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly SignInManager<IdentityUserExtended> _signInManager;
-        private readonly UserAccountsManager _userAccountsManager;
-        private readonly AccountsManager _accountsManager;
-
-        public AccountController
-        (
-            UserManager<IdentityUserExtended> userManager,
-            SignInManager<IdentityUserExtended> signInManager,
-            UserAccountsManager userAccountsManager,
-            AccountsManager accountsManager
-        )
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _userAccountsManager = userAccountsManager;
-            _accountsManager = accountsManager;
-        }
-
         public async Task<IActionResult> Profile(string id)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var wantedUser = await _userManager.FindByIdAsync(id);
+            var currentUser = await UserManager.GetUserAsync(User);
+            var wantedUser = await UserManager.FindByIdAsync(id);
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
             {
@@ -58,8 +39,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [HttpPost]
         public async Task<IActionResult> Update(ProfileModel profileModel, string id)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var wantedUser = await _userManager.FindByIdAsync(id);
+            var currentUser = await UserManager.GetUserAsync(User);
+            var wantedUser = await UserManager.FindByIdAsync(id);
             List<IdentityResult> results = new();
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
@@ -71,8 +52,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             {
                 results = new List<IdentityResult>
                 {
-                    await _userManager.SetUserNameAsync(currentUser, profileModel.UserName),
-                    await _userManager.SetEmailAsync(currentUser, profileModel.UserName)
+                    await UserManager.SetUserNameAsync(currentUser, profileModel.UserName),
+                    await UserManager.SetEmailAsync(currentUser, profileModel.UserName)
                 };
 
                 if (results.Any(x => !x.Succeeded))
@@ -87,8 +68,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             results = new List<IdentityResult>
             {
-                await _userManager.SetUserNameAsync(wantedUser, profileModel.UserName),
-                await _userManager.SetEmailAsync(wantedUser, profileModel.UserName)
+                await UserManager.SetUserNameAsync(wantedUser, profileModel.UserName),
+                await UserManager.SetEmailAsync(wantedUser, profileModel.UserName)
             };
 
             if (results.Any(x => !x.Succeeded))
@@ -103,8 +84,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         public async Task<IActionResult> ChangePassword(string id)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var wantedUser = await _userManager.FindByIdAsync(id);
+            var currentUser = await UserManager.GetUserAsync(User);
+            var wantedUser = await UserManager.FindByIdAsync(id);
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
             {
@@ -131,8 +112,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [HttpPost]
         public async Task<IActionResult> PostChangePassword(ChangePasswordModel model, string id)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var wantedUser = await _userManager.FindByIdAsync(id);
+            var currentUser = await UserManager.GetUserAsync(User);
+            var wantedUser = await UserManager.FindByIdAsync(id);
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
             {
@@ -141,10 +122,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
             {
-                var identityResult = await _userManager.ChangePasswordAsync(currentUser, model.Input.OldPassword, model.Input.NewPassword);
+                var identityResult = await UserManager.ChangePasswordAsync(currentUser, model.Input.OldPassword, model.Input.NewPassword);
                 if (identityResult.Succeeded)
                 {
-                    await _signInManager.RefreshSignInAsync(currentUser);
+                    await SignInManager.RefreshSignInAsync(currentUser);
                     TempData["StatusMessage"] = "Success! Your password was changed!";
                 }
 
@@ -154,8 +135,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             var results = new List<IdentityResult>
             {
-                await _userManager.RemovePasswordAsync(wantedUser),
-                await _userManager.AddPasswordAsync(wantedUser, model.Input.NewPassword)
+                await UserManager.RemovePasswordAsync(wantedUser),
+                await UserManager.AddPasswordAsync(wantedUser, model.Input.NewPassword)
             };
 
             if (results.Any(x => !x.Succeeded))
@@ -172,19 +153,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Owner]
         public async Task<IActionResult> Users()
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var account = _userAccountsManager.GetUserAccount(currentUser);
-            var users = _userManager.Users.ToList();
+            var currentUser = await UserManager.GetUserAsync(User);
+            var account = UserAccountsManager.GetUserAccount(currentUser);
+            var users = UserManager.Users.ToList();
 
             return View(users.Select(x => new UserInfoModel
             {
                 Id = x.Id,
                 Name = x.UserName,
                 Email = x.Email,
-                Role = _userAccountsManager.GetUserRoleForAccount(x, account).Result.Name,
+                Role = UserAccountsManager.GetUserRoleForAccount(x, account).Result.Name,
                 IsCurrentUser = x == currentUser,
                 IsBuiltInAdmin = x.IsBuiltInAdmin,
-                IsOwner = _userAccountsManager.IsOwner(x, account)
+                IsOwner = UserAccountsManager.IsOwner(x, account)
             }));
         }
 
@@ -192,28 +173,28 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Owner]
         public async Task<IActionResult> Assigned()
         {
-            var users = _userManager.Users.ToList();
-            var user = await _userManager.GetUserAsync(User);
-            var currentUser = await _userManager.GetUserAsync(User);
-            var account = _userAccountsManager.GetUserAccount(currentUser);
-            var assignedUsers = users.Where(x => _userAccountsManager.BelongsTo(user, x));
+            var users = UserManager.Users.ToList();
+            var user = await UserManager.GetUserAsync(User);
+            var currentUser = await UserManager.GetUserAsync(User);
+            var account = UserAccountsManager.GetUserAccount(currentUser);
+            var assignedUsers = users.Where(x => UserAccountsManager.BelongsTo(user, x));
 
             return View(assignedUsers.Select(x => new UserInfoModel
             {
                 Id = x.Id,
                 Name = x.UserName,
-                Role = _userAccountsManager.GetUserRoleForAccount(x, account).Result.Name,
+                Role = UserAccountsManager.GetUserRoleForAccount(x, account).Result.Name,
                 IsCurrentUser = x == currentUser,
                 IsBuiltInAdmin = x.IsBuiltInAdmin,
-                IsOwner = _userAccountsManager.IsOwner(x, account)
+                IsOwner = UserAccountsManager.IsOwner(x, account)
             }));
         }
 
         [Owner]
         public async Task<IActionResult> Accounts(string id)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var wantedUser = await _userManager.FindByIdAsync(id);
+            var currentUser = await UserManager.GetUserAsync(User);
+            var wantedUser = await UserManager.FindByIdAsync(id);
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
             {
@@ -222,12 +203,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
             {
-                return View((_userAccountsManager.GetUserParentAccounts(currentUser), ""));
+                return View((UserAccountsManager.GetUserParentAccounts(currentUser), ""));
             }
 
             if (ExtendedUser.IsInRole("Administrator") && !wantedUser.IsBuiltInAdmin)
             {
-                return View((_userAccountsManager.GetUserParentAccounts(wantedUser), wantedUser.Id));
+                return View((UserAccountsManager.GetUserParentAccounts(wantedUser), wantedUser.Id));
             }
 
             return NotFound();
@@ -236,15 +217,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Owner]
         public async Task<IActionResult> UpdateAccount(Account account)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await UserManager.GetUserAsync(User);
 
-            if (!_userAccountsManager.IsOwner(user, account))
+            if (!UserAccountsManager.IsOwner(user, account))
             {
                 TempData["StatusMessage"] = "Error! You cannot edit this account!";
                 return new EmptyResult();
             }
 
-            _accountsManager.UpdateAccount(account);
+            AccountsManager.UpdateAccount(account);
             TempData["StatusMessage"] = "Success! The account was updated!";
             return new EmptyResult();
         }
@@ -254,7 +235,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         {
             return View(new RegisterModel
             {
-                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
+                ExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList()
             });
         }
 
@@ -263,19 +244,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         public async Task<IActionResult> PostRegister(RegisterModel registerModel)
         {
             var user = new IdentityUserExtended { UserName = registerModel.UserName, Email = registerModel.Email };
-            var currentUser = await _userManager.GetUserAsync(User);
-            var account = _userAccountsManager.GetUserAccount(currentUser);
-            var results = new List<IdentityResult> { await _userManager.CreateAsync(user, registerModel.Password) };
+            var currentUser = await UserManager.GetUserAsync(User);
+            var account = UserAccountsManager.GetUserAccount(currentUser);
+            var results = new List<IdentityResult> { await UserManager.CreateAsync(user, registerModel.Password) };
 
             if (account.IsAppStoreAccount)
             {
-                results.Add(await _userAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", account.AccountName));
+                results.Add(await UserAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", account.AccountName));
             }
             else
             {
-                var appStoreAccount = _accountsManager.GetAppStoreAccount();
-                results.Add(await _userAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", appStoreAccount.AccountName));
-                results.Add(await _userAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", account.AccountName));
+                var appStoreAccount = AccountsManager.GetAppStoreAccount();
+                results.Add(await UserAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", appStoreAccount.AccountName));
+                results.Add(await UserAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", account.AccountName));
             }
 
             if (results.All(x => x.Succeeded))
@@ -293,8 +274,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Owner]
         public async Task<IActionResult> Delete(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            var currentUser = await _userManager.GetUserAsync(User);
+            var user = await UserManager.FindByIdAsync(id);
+            var currentUser = await UserManager.GetUserAsync(User);
 
             if (!TryValidate(user, null, null, out IActionResult result))
             {
@@ -307,8 +288,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return Content(null);
             }
 
-            await _userManager.DeleteAsync(user);
-            _userAccountsManager.RemoveUserAccounts(user);
+            await UserManager.DeleteAsync(user);
+            UserAccountsManager.RemoveUserAccounts(user);
             TempData["StatusMessage"] = string.Format("Success! {0} was deleted!", user.UserName);
             return Content(null);
         }
@@ -317,10 +298,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Owner]
         public async Task<IActionResult> Dismiss(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            var currentUser = await _userManager.GetUserAsync(User);
-            var account = _userAccountsManager.GetUserAccount(currentUser);
-            var result = _userAccountsManager.RemoveUserFromAccount(user, account);
+            var user = await UserManager.FindByIdAsync(id);
+            var currentUser = await UserManager.GetUserAsync(User);
+            var account = UserAccountsManager.GetUserAccount(currentUser);
+            var result = UserAccountsManager.RemoveUserFromAccount(user, account);
 
             if (result.Succeeded)
             {
@@ -336,10 +317,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Owner]
         public async Task<IActionResult> Assign(string userId, string roleName)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            var account = _userAccountsManager.GetUserAccount(user);
-            var entryAccount = _userAccountsManager.GetUserAccount(await _userManager.GetUserAsync(User));
-            var result = await _userAccountsManager.TryAddUserToAccount(user.Id, roleName ?? "Developer", account.AccountName, entryAccount.AccountName);
+            var user = await UserManager.FindByIdAsync(userId);
+            var account = UserAccountsManager.GetUserAccount(user);
+            var entryAccount = UserAccountsManager.GetUserAccount(await UserManager.GetUserAsync(User));
+            var result = await UserAccountsManager.TryAddUserToAccount(user.Id, roleName ?? "Developer", account.AccountName, entryAccount.AccountName);
 
             if (result.Succeeded)
             {
@@ -355,7 +336,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Owner]
         public async Task<IActionResult> CheckUserExistance(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await UserManager.FindByEmailAsync(email);
 
             if (user == null)
             {
@@ -369,7 +350,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         {
             if (currentUser == null)
             {
-                result = NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                result = NotFound($"Unable to load user with ID '{UserManager.GetUserId(User)}'.");
                 return false;
             }
 

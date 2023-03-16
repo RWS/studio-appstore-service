@@ -3,11 +3,10 @@ using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Helpers;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
+using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
-using AppStoreIntegrationServiceManagement.Repository;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -23,8 +22,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly ILoggingRepository _loggingRepository;
         private readonly INotificationCenter _notificationCenter;
-        private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly AccountsManager _accountsManager;
 
         public VersionController
         (
@@ -32,9 +29,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             IProductsRepository productsRepository,
             ILoggingRepository loggingRepository,
             IPluginVersionRepository pluginVersionRepository,
-            INotificationCenter notificationCenter,
-            UserManager<IdentityUserExtended> userManager,
-            AccountsManager accountsManager
+            INotificationCenter notificationCenter
         )
         {
             _pluginRepository = pluginRepository;
@@ -42,8 +37,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             _loggingRepository = loggingRepository;
             _pluginVersionRepository = pluginVersionRepository;
             _notificationCenter = notificationCenter;
-            _userManager = userManager;
-            _accountsManager = accountsManager;
         }
 
         [Route("/Plugins/Edit/{pluginId}/Versions")]
@@ -137,7 +130,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var plugin = await _pluginRepository.GetPluginById(pluginId);
             version.VersionStatus = Status.InReview;
             version.HasAdminConsent = true;
-            await Notify(NotificationTemplate.VersionReviewRequest, plugin, version.VersionId);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions/Pending/{version.VersionId}",
+                Message = "A new plugin version was submitted for approval!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             return await Save(pluginId, version, "Pending", removeOtherVersions: removeOtherVersions, compareWithManifest: true);
         }
 
@@ -150,7 +150,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             string log = string.Format(TemplateResource.ApprovedVersionLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             version.VersionStatus = Status.Active;
             version.IsActive = true;
-            await Notify(NotificationTemplate.VersionApprovedRequest, plugin, version.VersionId);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions/Edit/{version.VersionId}",
+                Message = "A new plugin version was approved!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             return await Save(pluginId, version, "Edit", log, removeOtherVersions, true);
         }
 
@@ -163,7 +170,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var log = string.Format(TemplateResource.RejectedVersionLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             version.VersionStatus = Status.Draft;
             version.HasAdminConsent = true;
-            await Notify(NotificationTemplate.VersionRejectedRequest, plugin, version.VersionId);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions/Draft/{version.VersionId}",
+                Message = "A new plugin version was rejected!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             return await Save(pluginId, version, "Draft", log, removeOtherVersions);
         }
 
@@ -197,7 +211,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var log = string.Format(TemplateResource.VersionDeletionRequestLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             version.NeedsDeletionApproval = true;
             await _pluginVersionRepository.Save(pluginId, version);
-            await Notify(NotificationTemplate.VersionDeletionRequest, plugin, version.VersionId);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions",
+                Message = "A new plugin version deletion request was sent!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             await _loggingRepository.Log(User.Identity.Name, pluginId, log);
             TempData["StatusMessage"] = "Success! Version deletion request was sent!";
             return new EmptyResult();
@@ -211,7 +232,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var plugin = await _pluginRepository.GetPluginById(pluginId);
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
             var log = string.Format(TemplateResource.VersionDeletionAcceptedLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
-            await Notify(NotificationTemplate.VersionDeletionApproved, plugin, version.VersionId);
+            
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions",
+                Message = "Plugin version deletion request was accepted!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             await _loggingRepository.Log(User.Identity.Name, pluginId, log);
             return await Delete(pluginId, versionId);
         }
@@ -225,7 +253,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var plugin = await _pluginRepository.GetPluginById(pluginId);
             var log = string.Format(TemplateResource.VersionDeletionRejectedLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             version.NeedsDeletionApproval = false;
-            await Notify(NotificationTemplate.VersionDeletionRejected, plugin, version.VersionId);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions",
+                Message = "Plugin version deletion request was rejected!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             await _loggingRepository.Log(User.Identity.Name, pluginId, log);
             await _pluginVersionRepository.Save(pluginId, version);
             TempData["StatusMessage"] = "Success! Version deletion request was rejected!";
@@ -243,15 +278,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return Content(null);
         }
 
-        private async Task Notify(NotificationTemplate notificationTemplate, PluginDetails plugin, string versionId)
+        private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
         {
-            var account = _accountsManager.GetAppStoreAccount();
-            var emailNotification = _notificationCenter.GetNotification(notificationTemplate, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
-            var pushNotification = _notificationCenter.GetNotification(notificationTemplate, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
-            await _notificationCenter.SendEmail(emailNotification, plugin.Developer.DeveloperName);
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
+            await _notificationCenter.SendEmail(emailNotification);
+            await _notificationCenter.Push(pushNotification);
             await _notificationCenter.Broadcast(emailNotification);
-            await _notificationCenter.Push(pushNotification, account.AccountName);
+            pushNotification.Author = AccountsManager.GetAppStoreAccount().AccountName;
+            await _notificationCenter.Push(pushNotification);
         }
 
         private async Task<IActionResult> Save(int pluginId, PluginVersion version, string route, string log = null, bool removeOtherVersions = false, bool compareWithManifest = false)
@@ -262,7 +295,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
                 if (string.IsNullOrEmpty(log))
                 {
-                    await _loggingRepository.Log(User.Identity.Name, pluginId, CreateChangesLog(version, old));
+                    log = _loggingRepository.CreateChangesLog(version, old, User.Identity.Name);
+                    await _loggingRepository.Log(User.Identity.Name, pluginId, log);
                 }
                 else
                 {
@@ -331,63 +365,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             extendedVersion.IsThirdParty = extendedPlugin.IsThirdParty;
 
             return View(view, (extendedPlugin, extendedVersion));
-        }
-
-        private string CreateChangesLog(PluginVersion @new, PluginVersion old)
-        {
-            var oldToBase = PluginVersionBase<string>.CopyFrom(old);
-            var newToBase = PluginVersionBase<string>.CopyFrom(@new);
-
-            if (oldToBase == null)
-            {
-                return $"<b>{User.Identity.Name}</b> added version with number {@new.VersionNumber} at {DateTime.Now}<br><br><p>The version properties are:</p><ul>{CreateNewLog(newToBase)}</ul>";
-            }
-
-            if (oldToBase.Equals(newToBase))
-            {
-                return null;
-            }
-
-            return $"<b>{User.Identity.Name}</b> made changes to the version with number {@new.VersionNumber} at {DateTime.Now}<br><br><p>The following changes occured:</p><ul>{CreateComparisonLog(newToBase, oldToBase)}</ul>";
-        }
-
-        private string CreateNewLog(PluginVersionBase<string> version)
-        {
-            string change = "<li><b>{0}</b> : <i>{1}</i></li>";
-            return string.Format(change, "File hash", version.FileHash) +
-                   string.Format(change, "Download URL", version.DownloadUrl) +
-                   string.Format(change, "Status", version.VersionStatus.ToString()) +
-                   string.Format(change, "Is private plugin", version.IsPrivatePlugin) +
-                   string.Format(change, "Is navigation link", version.IsNavigationLink) +
-                   string.Format(change, "Supported products", CreateProductsLog(version.SupportedProducts)) +
-                   string.Format(change, "Plugin has studio installer", version.AppHasStudioPluginInstaller) +
-                   string.Format(change, "Minimum required studio version", version.MinimumRequiredVersionOfStudio) +
-                   string.Format(change, "Maximum required studio version", version.MaximumRequiredVersionOfStudio);
-        }
-
-        private string CreateComparisonLog(PluginVersionBase<string> @new, PluginVersionBase<string> old)
-        {
-            string change = "<li>The property <b>{0}</b> changed from <i>{1}</i> to <i>{2}</i></li>";
-            return (@new.FileHash == old.FileHash ? null : string.Format(change, "File hash", @new.FileHash, old.FileHash)) +
-                   (@new.DownloadUrl == old.DownloadUrl ? null : string.Format(change, "Download URL", @new.DownloadUrl, old.DownloadUrl)) +
-                   (@new.VersionStatus == old.VersionStatus ? null : string.Format(change, "Status", @new.VersionStatus, old.VersionStatus)) +
-                   (@new.IsPrivatePlugin == old.IsPrivatePlugin ? null : string.Format(change, "Is private plugin", @new.IsPrivatePlugin, old.IsPrivatePlugin)) +
-                   (@new.IsNavigationLink == old.IsNavigationLink ? null : string.Format(change, "Is navigation link", @new.IsNavigationLink, old.IsNavigationLink)) +
-                   (@new.AppHasStudioPluginInstaller == old.AppHasStudioPluginInstaller ? null : string.Format(change, "Plugin has studio installer", @new.AppHasStudioPluginInstaller, old.AppHasStudioPluginInstaller)) +
-                   (@new.SupportedProducts.SequenceEqual(old.SupportedProducts) ? null : string.Format(change, "Supported products", CreateProductsLog(@new.SupportedProducts), CreateProductsLog(@old.SupportedProducts))) +
-                   (@new.MinimumRequiredVersionOfStudio == old.MinimumRequiredVersionOfStudio ? null : string.Format(change, "Minimum required studio version", @new.MinimumRequiredVersionOfStudio, old.MinimumRequiredVersionOfStudio)) +
-                   (@new.MaximumRequiredVersionOfStudio == old.MaximumRequiredVersionOfStudio ? null : string.Format(change, "Maximum required studio versionr", @new.MaximumRequiredVersionOfStudio, old.MaximumRequiredVersionOfStudio));
-        }
-
-        private string CreateProductsLog(List<string> products)
-        {
-            var productDetails = _productsRepository.GetAllProducts().Result;
-            if (products.Count > 1)
-            {
-                return $"[{products.Aggregate("", (result, next) => $"{result}, {productDetails.FirstOrDefault(c => c.Id == next).ProductName}")}]";
-            }
-
-            return $"[{productDetails.FirstOrDefault(c => c.Id == products[0]).ProductName}]";
         }
     }
 }

@@ -2,11 +2,10 @@
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
+using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
-using AppStoreIntegrationServiceManagement.Repository;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -23,22 +22,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private readonly ICommentsRepository _commentsRepository;
         private readonly ILoggingRepository _loggingRepository;
         private readonly INotificationCenter _notificationCenter;
-        private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly AccountsManager _accountsManager;
-        private readonly string _host;
-        private readonly string _scheme;
 
         public PluginsController
         (
             IPluginRepository pluginRepository,
-            IHttpContextAccessor context,
             IProductsRepository productsRepository,
             ICategoriesRepository categoriesRepository,
             ICommentsRepository commentsRepository,
             ILoggingRepository loggingRepository,
-            INotificationCenter notificationCenter,
-            UserManager<IdentityUserExtended> userManager,
-            AccountsManager accountsManager
+            INotificationCenter notificationCenter
         )
         {
             _pluginRepository = pluginRepository;
@@ -47,10 +39,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             _commentsRepository = commentsRepository;
             _loggingRepository = loggingRepository;
             _notificationCenter = notificationCenter;
-            _userManager = userManager;
-            _accountsManager = accountsManager;
-            _host = context.HttpContext.Request.Host.Value;
-            _scheme = context.HttpContext.Request.Scheme;
         }
 
         [Route("Plugins")]
@@ -99,7 +87,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return View("Details", new ExtendedPluginDetails
             {
                 Id = plugins.MaxBy(x => x.Id)?.Id + 1 ?? 0,
-                Icon = new IconDetails { MediaUrl = $"{_scheme}://{_host}/images/plugin.ico" },
+                Icon = new IconDetails { MediaUrl = $"{GetUrlBase}/images/plugin.ico" },
                 Developer = new DeveloperDetails { DeveloperName = User.Identity.Name },
                 IsEditMode = false,
                 Status = ExtendedUser.IsInRole("Developer") ? Status.Draft : Status.Active,
@@ -125,7 +113,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(id, User.Identity.Name, ExtendedUser.Role);
             var log = string.Format(TemplateResource.DeletionRequestLog, User.Identity.Name, plugin.Name, DateTime.Now);
-
             if (!plugin.IsActive)
             {
                 return await Delete(id);
@@ -134,7 +121,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             plugin.NeedsDeletionApproval = true;
             await _pluginRepository.SavePlugin(plugin);
             await _loggingRepository.Log(User.Identity.Name, id, log);
-            await Notify(NotificationTemplate.PluginDeletionRequest, plugin);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins?Query={plugin.Name}",
+                Message = "There is a new deletion request awaiting approval!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             TempData["StatusMessage"] = "Success! Plugin deletion request was sent!";
             return new EmptyResult();
         }
@@ -146,7 +140,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(id);
             var log = string.Format(TemplateResource.DeletionAcceptedLog, User.Identity.Name, plugin.Name, DateTime.Now);
-            await Notify(NotificationTemplate.PluginDeletionApproved, plugin);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins?Query={plugin.Name}",
+                Message = "Plugin deletion request was approved!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             await _loggingRepository.Log(User.Identity.Name, id, log);
             return await Delete(id);
         }
@@ -161,7 +162,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             plugin.NeedsDeletionApproval = false;
             await _pluginRepository.SavePlugin(plugin);
             await _loggingRepository.Log(User.Identity.Name, id, log);
-            await Notify(NotificationTemplate.PluginDeletionRejected, plugin);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins?Query={plugin.Name}",
+                Message = "Plugin deletion request was rejected!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             TempData["StatusMessage"] = "Success! Plugin deletion request was rejected!";
             return new EmptyResult();
         }
@@ -207,8 +215,16 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
             plugin.Status = Status.InReview;
             plugin.HasAdminConsent = true;
-            await Notify(NotificationTemplate.PluginReviewRequest, plugin);
-            return await Save(plugin, oldPlugin, "Pending", CreateChangesLog(plugin, oldPlugin), removeOtherVersions, true);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Pending/{plugin.Id}",
+                Message = "A new plugin was submitted for approval!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
+            var log = _loggingRepository.CreateChangesLog(plugin, oldPlugin, User.Identity.Name);
+            return await Save(plugin, oldPlugin, "Pending", log, removeOtherVersions, true);
         }
 
         [HttpPost]
@@ -220,7 +236,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var log = string.Format(TemplateResource.ApprovedPluginLog, User.Identity.Name, plugin.Name, DateTime.Now);
             plugin.Status = Status.Active;
             plugin.IsActive = true;
-            await Notify(NotificationTemplate.PluginApprovedRequest, plugin);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{plugin.Id}",
+                Message = "A submited plugin was approved!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             return await Save(plugin, oldPlugin, "Edit", log, removeOtherVersions, true);
         }
 
@@ -233,7 +256,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             string log = string.Format(TemplateResource.RejectedPluginLog, User.Identity.Name, plugin.Name, DateTime.Now);
             plugin.Status = Status.Draft;
             plugin.HasAdminConsent = true;
-            await Notify(NotificationTemplate.PluginRejectedRequest, plugin);
+
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Draft/{plugin.Id}",
+                Message = "A submited plugin was rejected!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             return await Save(plugin, oldPlugin, "Draft", log, removeOtherVersions);
         }
 
@@ -243,25 +273,24 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
             plugin.Status = Status.Draft;
             plugin.HasAdminConsent = false;
-            return await Save(plugin, oldPlugin, "Draft", CreateChangesLog(plugin, oldPlugin));
+            return await Save(plugin, oldPlugin, "Draft", _loggingRepository.CreateChangesLog(plugin, oldPlugin, User.Identity.Name));
         }
 
         [HttpPost]
         public async Task<IActionResult> Save(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: Status.Active);
-            return await Save(plugin, oldPlugin, "Edit", CreateChangesLog(plugin, oldPlugin), compareWithManifest: true);
+            var log = _loggingRepository.CreateChangesLog(plugin, oldPlugin, User.Identity.Name);
+            return await Save(plugin, oldPlugin, "Edit", log, compareWithManifest: true);
         }
 
-        private async Task Notify(NotificationTemplate notificationTemplate, PluginDetails plugin)
+        private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
         {
-            var account = _accountsManager.GetAppStoreAccount();
-            var emailNotification = _notificationCenter.GetNotification(notificationTemplate, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
-            var pushNotification = _notificationCenter.GetNotification(notificationTemplate, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id);
-            await _notificationCenter.SendEmail(emailNotification, plugin.Developer.DeveloperName);
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
+            await _notificationCenter.SendEmail(emailNotification);
+            await _notificationCenter.Push(pushNotification);
             await _notificationCenter.Broadcast(emailNotification);
-            await _notificationCenter.Push(pushNotification, account.AccountName);
+            pushNotification.Author = AccountsManager.GetAppStoreAccount().AccountName;
+            await _notificationCenter.Push(pushNotification);
         }
 
         private async Task<IActionResult> Save(PluginDetails plugin, PluginDetails oldPlugin, string successRedirect, string log = null, bool removeOtherVersions = false, bool compareWithManifest = false)
@@ -359,65 +388,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             return filters;
-        }
-
-        private string CreateChangesLog(PluginDetails latest, PluginDetails old)
-        {
-            var oldToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(old);
-            var newToBase = PluginDetailsBase<PluginVersionBase<string>, string>.CopyFrom(latest);
-
-            if (oldToBase == null)
-            {
-                return string.Format(TemplateResource.NewPluginLog, User.Identity.Name, latest.Name, DateTime.Now, CreateNewLog(newToBase));
-            }
-
-            if (oldToBase.Equals(newToBase))
-            {
-                return null;
-            }
-
-            return string.Format(TemplateResource.PluginUpdateLog, User.Identity.Name, latest.Name, DateTime.Now, CreateComparisonLog(newToBase, oldToBase));
-        }
-
-        private string CreateNewLog(PluginDetailsBase<PluginVersionBase<string>, string> plugin)
-        {
-            string change = "<li><b>{0}</b> : <i>{1}</i></li>";
-            return string.Format(change, "Plugin name", plugin.Name) +
-                   string.Format(change, "Description", plugin.Description) +
-                   string.Format(change, "Changelog link", plugin.ChangelogLink) +
-                   string.Format(change, "Support URL", plugin.SupportUrl) +
-                   string.Format(change, "Support e-mail", plugin.SupportEmail) +
-                   string.Format(change, "Icon URL", plugin.Icon.MediaUrl) +
-                   string.Format(change, "Pricing", plugin.PaidFor ? "Paid" : "Free") +
-                   string.Format(change, "Developer", plugin.Developer.DeveloperName) +
-                   string.Format(change, "Categories", CreateCategoriesLog(plugin.Categories)) +
-                   string.Format(change, "Status", plugin.Status.ToString());
-        }
-
-        private string CreateComparisonLog(PluginDetailsBase<PluginVersionBase<string>, string> latest, PluginDetailsBase<PluginVersionBase<string>, string> old)
-        {
-            string change = "<li>The property <b>{0}</b> changed from <i>{1}</i> to <i>{2}</i></li>";
-            return (latest.Name == old.Name ? null : string.Format(change, "Plugin name", latest.Name, old.Name)) +
-                   (latest.Status == old.Status ? null : string.Format(change, "Status", latest.Status, old.Status)) +
-                   (latest.PaidFor == old.PaidFor ? null : string.Format(change, "Pricing", latest.PaidFor, old.PaidFor)) +
-                   (latest.Icon.Equals(old.Icon) ? null : string.Format(change, "Icon URL", latest.Icon.MediaUrl, old.Icon.MediaUrl)) +
-                   (latest.SupportUrl == old.SupportUrl ? null : string.Format(change, "Support URL", latest.SupportUrl, old.SupportUrl)) +
-                   (latest.Description == old.Description ? null : string.Format(change, "Description", latest.Description, old.Description)) +
-                   (latest.SupportEmail == old.SupportEmail ? null : string.Format(change, "Support e-mail", latest.SupportEmail, old.SupportEmail)) +
-                   (latest.ChangelogLink == old.ChangelogLink ? null : string.Format(change, "Changelog link", latest.ChangelogLink, old.ChangelogLink)) +
-                   (latest.Developer.Equals(old.Developer) ? null : string.Format(change, "Developer", latest.Developer.DeveloperName, old.Developer.DeveloperName)) +
-                   (latest.Categories.SequenceEqual(old.Categories) ? null : string.Format(change, "Categories", CreateCategoriesLog(latest.Categories), CreateCategoriesLog(@old.Categories)));
-        }
-
-        private string CreateCategoriesLog(List<string> categories)
-        {
-            var categoryDetails = _categoriesRepository.GetAllCategories().Result;
-            if (categories.Count > 1)
-            {
-                return $"[{categories.Aggregate("", (result, next) => $"{result}, {categoryDetails.FirstOrDefault(c => c.Id == next).Name}")}]";
-            }
-
-            return $"[{categoryDetails.FirstOrDefault(c => c.Id == categories[0]).Name}]";
         }
     }
 }

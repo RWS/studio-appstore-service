@@ -13,24 +13,34 @@ namespace AppStoreIntegrationServiceManagement.Model
             get => HttpContext.RequestServices;
         }
 
-        private UserManager<IdentityUserExtended> UserManager
+        protected UserManager<IdentityUserExtended> UserManager
         {
             get => ServiceProvider.GetRequiredService<UserManager<IdentityUserExtended>>();
         }
 
-        private UserAccountsManager UserAccountsManager
+        protected UserAccountsManager UserAccountsManager
         {
             get => ServiceProvider.GetRequiredService<UserAccountsManager>();
         }
 
-        private RoleManager<IdentityRole> RoleManager
+        protected RoleManager<IdentityRole> RoleManager
         {
             get => ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         }
 
-        private AccountsManager AccountsManager
+        protected AccountsManager AccountsManager
         {
             get => ServiceProvider.GetRequiredService<AccountsManager>();
+        }
+
+        protected SignInManager<IdentityUserExtended> SignInManager
+        {
+            get => ServiceProvider.GetRequiredService<SignInManager<IdentityUserExtended>>();
+        }
+
+        protected IHttpContextAccessor ContextAccessor
+        {
+            get => ServiceProvider.GetRequiredService<IHttpContextAccessor>();
         }
 
         public CustomClaimsPrincipal ExtendedUser
@@ -50,6 +60,12 @@ namespace AppStoreIntegrationServiceManagement.Model
             {
                 _extendedUser = value;
             }
+        }
+
+        protected string GetUrlBase()
+        {
+            var request = ContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host.Value}";
         }
     }
 }

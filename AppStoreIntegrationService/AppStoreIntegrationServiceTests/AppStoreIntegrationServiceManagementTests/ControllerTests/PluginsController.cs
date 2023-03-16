@@ -4,10 +4,7 @@ using NSubstitute;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Identity;
-using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Repository;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTests.ControllerTests
 {
@@ -23,21 +20,16 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
             var mockTempDataProvider = Substitute.For<ITempDataProvider>();
             var mockCommentsRepository = Substitute.For<ICommentsRepository>();
             var mockLogginRepository = Substitute.For<ILoggingRepository>();
-            var mockUserManager = Substitute.For<UserManager<IdentityUserExtended>>();
-            var mockNotificationCenter = Substitute.For<NotificationCenter>();
-            var mockAccountsManager = Substitute.For<AccountsManager>();
+            var mockNotificationCenter = Substitute.For<INotificationCenter>();
 
             var pluginsController = new PluginsController
             (
                 mockPluginRepository,
-                mockContextAccesor,
                 mockProductsRepository,
                 mockCategoriesRepository,
                 mockCommentsRepository,
                 mockLogginRepository,
-                mockNotificationCenter,
-                mockUserManager,
-                mockAccountsManager
+                mockNotificationCenter
             )
 
             {

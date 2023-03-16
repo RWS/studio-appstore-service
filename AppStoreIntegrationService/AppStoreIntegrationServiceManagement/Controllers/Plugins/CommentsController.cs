@@ -1,41 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Repository;
 using AppStoreIntegrationServiceManagement.Model.Comments;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
-using Microsoft.AspNetCore.Identity;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
+using AppStoreIntegrationServiceManagement.Model.Notifications;
+using AppStoreIntegrationServiceManagement.Model;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
     [Area("Plugins")]
     [Authorize]
-    public class CommentsController : Controller
+    public class CommentsController : CustomController
     {
         private readonly ICommentsRepository _commentsRepository;
         private readonly IPluginRepository _pluginRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;
         private readonly INotificationCenter _notificationCenter;
-        private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly AccountsManager _accountsManager;
 
         public CommentsController
         (
             ICommentsRepository commentsRepository,
             IPluginRepository pluginRepository,
             IPluginVersionRepository pluginVersionRepository,
-            INotificationCenter notificationCenter,
-            UserManager<IdentityUserExtended> userManager,
-            AccountsManager accountsManager
+            INotificationCenter notificationCenter
         )
         {
             _commentsRepository = commentsRepository;
             _pluginRepository = pluginRepository;
             _pluginVersionRepository = pluginVersionRepository;
             _notificationCenter = notificationCenter;
-            _userManager = userManager;
-            _accountsManager = accountsManager;
         }
 
         [Route("/Plugins/Edit/{pluginId}/Comments")]
@@ -81,18 +75,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Update(Comment comment, int pluginId, string versionId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var template = versionId == null ? NotificationTemplate.NewPluginComment : NotificationTemplate.NewVersionComment;
-            var emailNotification = _notificationCenter.GetNotification(template, true, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
-            var pushNotification = _notificationCenter.GetNotification(template, false, plugin.Icon.MediaUrl, plugin.Name, plugin.Id, versionId);
-            var account = _accountsManager.GetAppStoreAccount();
 
-            await _notificationCenter.SendEmail(emailNotification, plugin.Developer.DeveloperName);
-            await _notificationCenter.Push(pushNotification, plugin.Developer.DeveloperName);
-            await _notificationCenter.Broadcast(emailNotification);
-            await _notificationCenter.Push(pushNotification, account.AccountName);
+            var notification = new EmailNotification(plugin)
+            {
+                CallToActionUrl = $"{GetUrlBase()}/Plugins/Draft/{plugin.Id}",
+                Message = $"There is a new commet for a plugin{(string.IsNullOrEmpty(versionId) ? null : " version")}!"
+            };
+
+            await Notify(notification, new PushNotification(notification));
             await _commentsRepository.SaveComment(comment, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was updated!";
             return Content(null);
+        }
+
+        private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
+        {
+            await _notificationCenter.SendEmail(emailNotification);
+            await _notificationCenter.Push(pushNotification);
+            await _notificationCenter.Broadcast(emailNotification);
+            pushNotification.Author = AccountsManager.GetAppStoreAccount().AccountName;
+            await _notificationCenter.Push(pushNotification);
         }
 
         public async Task<IActionResult> Delete(int commentId, int pluginId, string versionId)

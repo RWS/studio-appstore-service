@@ -28,24 +28,24 @@ namespace AppStoreIntegrationServiceManagement.Repository
             _options.Value.Name = settings.Name;
         }
 
-        public async Task<IDictionary<string, IEnumerable<Notification>>> GetNotifications()
+        public async Task<IDictionary<string, IEnumerable<PushNotification>>> GetNotifications()
         {
             if (string.IsNullOrEmpty(_configurationSettings.NotificationsFilePath))
             {
-                return new Dictionary<string, IEnumerable<Notification>>();
+                return new Dictionary<string, IEnumerable<PushNotification>>();
             }
 
             var content = await File.ReadAllTextAsync(_configurationSettings.NotificationsFilePath);
 
             if (content == null)
             {
-                return new Dictionary<string, IEnumerable<Notification>>();
+                return new Dictionary<string, IEnumerable<PushNotification>>();
             }
 
-            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<Notification>>>(content) ?? new Dictionary<string, IEnumerable<Notification>>();
+            return JsonConvert.DeserializeObject<IDictionary<string, IEnumerable<PushNotification>>>(content) ?? new Dictionary<string, IEnumerable<PushNotification>>();
         }
 
-        public async Task SaveNotifications(IDictionary<string, IEnumerable<Notification>> notifications)
+        public async Task SaveNotifications(IDictionary<string, IEnumerable<PushNotification>> notifications)
         {
             await File.WriteAllTextAsync(_configurationSettings.NotificationsFilePath, JsonConvert.SerializeObject(notifications));
         }

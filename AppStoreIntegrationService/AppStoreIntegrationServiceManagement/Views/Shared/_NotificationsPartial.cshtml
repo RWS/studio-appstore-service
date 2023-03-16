@@ -37,7 +37,7 @@
         @foreach (var notification in Model.Notifications)
         {
             <div class="position-relative" contenteditable="false" spellcheck="false">
-                @Html.Raw(notification.Content)
+                @Html.Raw(notification.ToHtml())
                 <div class="position-absolute action-container d-flex justify-content-between">
                     @if (notification.Status == NotificationStatus.Active)
                     {
