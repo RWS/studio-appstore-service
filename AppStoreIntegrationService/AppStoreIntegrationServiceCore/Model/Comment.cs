@@ -1,4 +1,4 @@
-﻿namespace AppStoreIntegrationServiceManagement.Model.Comments
+﻿namespace AppStoreIntegrationServiceCore.Model
 {
     public class Comment : IEquatable<Comment>
     {

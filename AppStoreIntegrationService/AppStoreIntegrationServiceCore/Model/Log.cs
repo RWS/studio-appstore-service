@@ -1,4 +1,4 @@
-﻿namespace AppStoreIntegrationServiceManagement.Model.Logs
+﻿namespace AppStoreIntegrationServiceCore.Model
 {
     public class Log : IEquatable<Log>
     {

@@ -1,5 +1,4 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceManagement.Model.Logs;
 
 namespace AppStoreIntegrationServiceManagement.Repository.Interface
 {

@@ -3,10 +3,12 @@ using Azure.Storage.Blobs;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceCore.Model;
 using Newtonsoft.Json;
+using Azure.Storage.Blobs.Models;
+using System.Text;
 
 namespace AppStoreIntegrationServiceAPI.Model.Repository
 {
-    public class AzureRepositoryBase : IResponseManagerBase
+    public class AzureRepositoryBase : IResponseManager
     {
         protected readonly IConfigurationSettings _configurationSettings;
         protected readonly BlobContainerClient _container;
@@ -31,6 +33,23 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
 
             var content = await _pluginsBlob.DownloadContentAsync();
             return JsonConvert.DeserializeObject<PluginResponseBase<PluginDetails>>(content.Value.Content.ToString()) ?? new PluginResponseBase<PluginDetails>();
+        }
+
+        public async Task<PluginResponse<PluginDetails>> GetResponse()
+        {
+            if (_configurationSettings.PluginsFileName == null)
+            {
+                return new PluginResponse<PluginDetails>();
+            }
+
+            var content = await _pluginsBlob.DownloadContentAsync();
+            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(content.Value.Content.ToString()) ?? new PluginResponse<PluginDetails>();
+        }
+
+        public async Task SaveResponse(PluginResponse<PluginDetails> response)
+        {
+            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+            await _pluginsBlob.UploadAsync(content, new BlobUploadOptions());
         }
 
         protected static BlobClient CreateIfNotExists(BlobContainerClient container, string fileName)

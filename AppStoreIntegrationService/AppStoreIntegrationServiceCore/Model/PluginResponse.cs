@@ -1,7 +1,4 @@
-﻿using AppStoreIntegrationServiceManagement.Model.Comments;
-using AppStoreIntegrationServiceManagement.Model.Logs;
-
-namespace AppStoreIntegrationServiceCore.Model
+﻿namespace AppStoreIntegrationServiceCore.Model
 {
     public class PluginResponse<T> : PluginResponseBase<T>, IEquatable<PluginResponse<T>>
     {

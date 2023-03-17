@@ -46,6 +46,8 @@ namespace AppStoreIntegrationServiceCore.Model
         public string DownloadUrl { get; set; }
         [Display(Name = "Status")]
         public Status Status { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int DownloadCount { get; set; }
 
         public static PluginDetailsBase<T,U> CopyFrom(PluginDetails other)
         {

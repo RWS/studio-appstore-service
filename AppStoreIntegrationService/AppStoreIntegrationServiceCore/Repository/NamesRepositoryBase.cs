@@ -5,9 +5,9 @@ namespace AppStoreIntegrationServiceCore.Repository
 {
     public class NamesRepositoryBase : INamesRepositoryReadonly
     {
-        private readonly IResponseManagerBase _responseManager;
+        private readonly IResponseManager _responseManager;
 
-        public NamesRepositoryBase(IResponseManagerBase responseManager)
+        public NamesRepositoryBase(IResponseManager responseManager)
         {
             _responseManager = responseManager;
         }

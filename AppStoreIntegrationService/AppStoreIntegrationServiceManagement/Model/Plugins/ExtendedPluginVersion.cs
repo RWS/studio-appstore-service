@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using AppStoreIntegrationServiceManagement.Model.Comments;
 using AppStoreIntegrationServiceCore.Model;
 
 namespace AppStoreIntegrationServiceManagement.Model.Plugins

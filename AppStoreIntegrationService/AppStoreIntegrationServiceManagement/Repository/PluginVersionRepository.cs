@@ -172,6 +172,7 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
             if (old == null)
             {
+                version.CreatedAt = DateTime.Now;
                 versions.Add(version);
             }
             else

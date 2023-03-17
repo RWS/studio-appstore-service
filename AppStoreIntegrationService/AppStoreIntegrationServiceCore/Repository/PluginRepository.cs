@@ -1,4 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 
 namespace AppStoreIntegrationServiceManagement.Repository
@@ -105,6 +106,12 @@ namespace AppStoreIntegrationServiceManagement.Repository
             };
         }
 
+        private async Task<PluginDetails> GetPluginByName(string pluginName)
+        {
+            var plugins = await GetAll(null, status: Status.Active);
+            return plugins?.FirstOrDefault(p => p.Name == pluginName);
+        }
+
         private async Task SaveActive(List<PluginDetails> plugins, PluginDetails plugin, bool removeOtherVersions)
         {
             if (plugin.Status != Status.Active && plugin.Status != Status.Inactive)
@@ -183,6 +190,7 @@ namespace AppStoreIntegrationServiceManagement.Repository
                     throw new Exception($"Another plugin with the name {plugin.Name} already exists");
                 }
 
+                plugin.CreatedAt = DateTime.Now;
                 plugins.Add(plugin);
             }
             else
@@ -196,6 +204,20 @@ namespace AppStoreIntegrationServiceManagement.Repository
             }
 
             return plugins;
+        }
+
+        public async Task<bool> TryIncrementDownloadCount(string pluginName)
+        {
+            var plugin = await GetPluginByName(pluginName);
+            var plugins = await GetAll(null, status: Status.Active);
+            if (plugin == null)
+            {
+                return false;
+            }
+
+            plugin.DownloadCount++;
+            await SavePlugins(await UpdatePlugins(plugin, plugins.ToList()), Status.Active);
+            return true;
         }
     }
 }

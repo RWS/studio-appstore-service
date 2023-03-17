@@ -1,5 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.Model;
-using AppStoreIntegrationServiceCore.Repository;
+﻿using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model.Settings;
@@ -8,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceManagement.Repository
 {
-    public class LocalRepository : LocalRepositoryBase, IResponseManager, ISettingsManager, INotificationsManager
+    public class LocalRepository : LocalRepositoryBase, ISettingsManager, INotificationsManager
     {
         private readonly IWritableOptions<SiteSettings> _options;
 
@@ -48,28 +47,6 @@ namespace AppStoreIntegrationServiceManagement.Repository
         public async Task SaveNotifications(IDictionary<string, IEnumerable<PushNotification>> notifications)
         {
             await File.WriteAllTextAsync(_configurationSettings.NotificationsFilePath, JsonConvert.SerializeObject(notifications));
-        }
-
-        public async Task<PluginResponse<PluginDetails>> GetResponse()
-        {
-            if (string.IsNullOrEmpty(_configurationSettings.LocalPluginsFilePath))
-            {
-                return new PluginResponse<PluginDetails>();
-            }
-
-            var content = await File.ReadAllTextAsync(_configurationSettings.LocalPluginsFilePath);
-
-            if (content == null)
-            {
-                return new PluginResponse<PluginDetails>();
-            }
-
-            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(content) ?? new PluginResponse<PluginDetails>();
-        }
-
-        public async Task SaveResponse(PluginResponse<PluginDetails> response)
-        {
-            await File.WriteAllTextAsync(_configurationSettings.LocalPluginsFilePath, JsonConvert.SerializeObject(response));
         }
     }
 }

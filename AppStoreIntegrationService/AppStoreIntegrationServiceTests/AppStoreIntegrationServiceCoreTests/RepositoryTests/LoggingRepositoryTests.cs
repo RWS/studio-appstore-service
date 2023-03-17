@@ -2,7 +2,6 @@
 using AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mock;
 using Xunit;
 using AppStoreIntegrationServiceManagement.Repository;
-using AppStoreIntegrationServiceManagement.Model.Logs;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.RepositoryTests
 {

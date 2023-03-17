@@ -79,6 +79,7 @@ namespace AppStoreIntegrationServiceCore.Model
         [Display(Name = "Status")]
         [JsonProperty("Status")]
         public Status VersionStatus { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public bool Equals(PluginVersionBase<T> other)
         {

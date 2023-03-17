@@ -11,7 +11,7 @@ using AppStoreIntegrationServiceManagement.Model.Settings;
 
 namespace AppStoreIntegrationServiceManagement.Repository
 {
-    public class AzureRepository : AzureRepositoryBase, IResponseManager, ISettingsManager, INotificationsManager
+    public class AzureRepository : AzureRepositoryBase, ISettingsManager, INotificationsManager
     {
         private readonly BlobClient _settingsBlob;
         private readonly BlobClient _notificationsBlob;
@@ -20,23 +20,6 @@ namespace AppStoreIntegrationServiceManagement.Repository
         {
             _settingsBlob = CreateIfNotExists(_container, _configurationSettings.SettingsFileName);
             _notificationsBlob = CreateIfNotExists(_container, _configurationSettings.NotificationsFileName);
-        }
-
-        public async Task<PluginResponse<PluginDetails>> GetResponse()
-        {
-            if (_configurationSettings.PluginsFileName == null)
-            {
-                return new PluginResponse<PluginDetails>();
-            }
-
-            var content = await _pluginsBlob.DownloadContentAsync();
-            return JsonConvert.DeserializeObject<PluginResponse<PluginDetails>>(content.Value.Content.ToString()) ?? new PluginResponse<PluginDetails>();
-        }
-
-        public async Task SaveResponse(PluginResponse<PluginDetails> response)
-        {
-            var content = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
-            await _pluginsBlob.UploadAsync(content, new BlobUploadOptions());
         }
 
         public async Task<SiteSettings> ReadSettings()

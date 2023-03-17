@@ -7,6 +7,8 @@ using AppStoreIntegrationServiceAPI.Model.Repository;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using AppStoreIntegrationServiceAPI.HealthChecks;
 using HealthChecks.UI.Client;
+using AppStoreIntegrationServiceManagement.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Repository;
 
 namespace AppStoreIntegrationServiceAPI
 {
@@ -41,15 +43,17 @@ namespace AppStoreIntegrationServiceAPI
 
             if (deployMode == DeployMode.AzureBlob)
             {
-                services.AddSingleton<IResponseManagerBase, AzureRepositoryBase>();
+                services.AddSingleton<IResponseManager, AzureRepositoryBase>();
             }
             else
             {
-                services.AddSingleton<IResponseManagerBase, LocalRepositoryBase>();
+                services.AddSingleton<IResponseManager, LocalRepositoryBase>();
             }
 
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<IPluginResponseConverter, PluginResponseConverter>();
+            services.AddSingleton<IPluginRepository, PluginRepository>();
+            services.AddSingleton<ICategoriesRepositoryReadonly, CategoriesRepositoryBase>();
         }
 
         private static ServiceProvider GetServiceProvider(IServiceCollection services)

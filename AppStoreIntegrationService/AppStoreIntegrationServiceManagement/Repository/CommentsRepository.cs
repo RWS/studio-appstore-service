@@ -1,4 +1,5 @@
-﻿using AppStoreIntegrationServiceManagement.Model.Comments;
+﻿using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 
 namespace AppStoreIntegrationServiceManagement.Repository

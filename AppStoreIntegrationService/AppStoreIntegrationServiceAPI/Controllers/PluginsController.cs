@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using AppStoreIntegrationServiceAPI.Model.Repository.Interface;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Repository.Interface;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {
@@ -13,12 +14,19 @@ namespace AppStoreIntegrationServiceAPI.Controllers
     public class PluginsController : Controller
     {
         private readonly IPluginResponseConverter _converter;
-        private readonly IResponseManagerBase _manager;
+        private readonly IResponseManager _manager;
+        private readonly IPluginRepository _pluginRepository;
 
-        public PluginsController(IPluginResponseConverter converter, IResponseManagerBase manager)
+        public PluginsController
+        (
+            IPluginResponseConverter converter, 
+            IResponseManager manager,
+            IPluginRepository pluginRepository
+        )
         {
             _converter = converter;
             _manager = manager;
+            _pluginRepository = pluginRepository;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -51,6 +59,12 @@ namespace AppStoreIntegrationServiceAPI.Controllers
             }
 
             return NotFound();
+        }
+        
+        [HttpPost("/Increment")]
+        public async Task<IActionResult> Increment([FromQuery] string pluginName)
+        {
+            return Ok(await _pluginRepository.TryIncrementDownloadCount(pluginName));
         }
     }
 }

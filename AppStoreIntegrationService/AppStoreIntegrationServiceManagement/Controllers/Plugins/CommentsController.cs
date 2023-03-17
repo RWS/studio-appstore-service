@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
-using AppStoreIntegrationServiceManagement.Model.Comments;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceCore.Model;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
