@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "AccessToken";
+    ViewData["ActivePage"] = ManageNavPages.AccessToken;
+}
+
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<h1 class="fs1-inherit">@ViewData["Title"]</h1>
+<h2 class="fs2-inherit">Account settings</h2>
+<hr class="w-100">
+<div class="row">
+    <partial name="_ProfileNav" />
+
+    <div class="col-12 col-md-9">
+        <p class="text-break fw-bold fs4-inherit">Access Token</p>
+        <button class="btn pa-admin-success-btn" onclick="GenerateAccessToken()">Get access token</button>
+        <div id="accessTokenContainer"></div>
+    </div>
+</div>
+
+<script src="~/js/ManageUsersScript.js"></script>

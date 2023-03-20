@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AppStoreIntegrationServiceManagement.Model.DataBase;
+using AppStoreIntegrationServiceCore.DataBase;
 
 namespace AppStoreIntegrationServiceManagement.Model.Identity
 {

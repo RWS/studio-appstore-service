@@ -1,8 +1,8 @@
-﻿using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+﻿using AppStoreIntegrationServiceCore.Data;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
 
-namespace AppStoreIntegrationServiceManagement.Model.DataBase
+namespace AppStoreIntegrationServiceCore.DataBase
 {
     public class UserAccountsManager
     {

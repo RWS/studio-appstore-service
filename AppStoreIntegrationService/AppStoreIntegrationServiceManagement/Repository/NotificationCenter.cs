@@ -4,9 +4,9 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using System.Data;
 using System.Text.RegularExpressions;
-using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
+using AppStoreIntegrationServiceCore.DataBase;
 
 namespace AppStoreIntegrationServiceManagement.Repository
 {

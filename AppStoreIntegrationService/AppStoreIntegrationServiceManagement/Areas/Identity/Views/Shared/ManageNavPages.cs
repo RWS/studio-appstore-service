@@ -11,6 +11,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Views.Shared
         public static string Edit => "Edit";
         public static string Notifications => "Notifications";
         public static string Accounts => "Accounts";
+        public static string AccessToken => "AccessToken";
         public static string ProfileNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
         public static string RegisterNavClass(ViewContext viewContext) => PageNavClass(viewContext, Register);
         public static string ChangePasswordNavClass(ViewContext viewContext) => PageNavClass(viewContext, ChangePassword);
@@ -18,6 +19,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Views.Shared
         public static string EditUserNavClass(ViewContext viewContext) => PageNavClass(viewContext, Edit);
         public static string NotificationsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Notifications);
         public static string AccountsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Accounts);
+        public static string AccessTokenNavClass(ViewContext viewContext) => PageNavClass(viewContext, AccessToken);
 
         private static string PageNavClass(ViewContext viewContext, string page)
         {

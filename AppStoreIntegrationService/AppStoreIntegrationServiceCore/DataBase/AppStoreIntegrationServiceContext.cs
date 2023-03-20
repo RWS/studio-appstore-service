@@ -1,8 +1,8 @@
-﻿using AppStoreIntegrationServiceManagement.Model.DataBase;
+﻿using AppStoreIntegrationServiceCore.DataBase;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+namespace AppStoreIntegrationServiceCore.Data;
 
 public class AppStoreIntegrationServiceContext : IdentityDbContext<IdentityUserExtended>
 {

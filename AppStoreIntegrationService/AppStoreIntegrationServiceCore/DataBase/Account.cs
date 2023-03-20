@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AppStoreIntegrationServiceManagement.Model.DataBase
+namespace AppStoreIntegrationServiceCore.DataBase
 {
     [Table("AspNetAccounts")]
     public class Account

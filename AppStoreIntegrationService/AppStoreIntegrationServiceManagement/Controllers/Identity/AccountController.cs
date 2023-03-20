@@ -1,10 +1,12 @@
-﻿using AppStoreIntegrationServiceManagement.Filters;
+﻿using AppStoreIntegrationServiceCore.DataBase;
+using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
-using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
@@ -344,6 +346,27 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             }
 
             return PartialView("_ExistentUserPartial", user.Id);
+        }
+
+        [Authorize]
+        public IActionResult AccessToken()
+        {
+            return View("AccessToken");
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> GenerateAccessToken()
+        {
+            var descriptor = new SecurityTokenDescriptor();
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var user = await UserManager.GetUserAsync(User);
+
+            var securityToken = tokenHandler.CreateToken(descriptor);
+            var token = tokenHandler.WriteToken(securityToken);
+            user.APIAccessToken = token;
+            await UserManager.UpdateAsync(user);
+            return PartialView("_AccessTokenPartial", token);
         }
 
         private bool TryValidate(IdentityUserExtended currentUser, string id, IdentityUserExtended wantedUser, out IActionResult result)

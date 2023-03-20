@@ -1,6 +1,6 @@
-﻿using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+﻿using AppStoreIntegrationServiceCore.Data;
 
-namespace AppStoreIntegrationServiceManagement.Model.DataBase
+namespace AppStoreIntegrationServiceCore.DataBase
 {
     public class AccountsManager
     {
@@ -26,9 +26,9 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
                 return account;
             }
 
-            account = new Account 
-            { 
-                Id = Guid.NewGuid().ToString(), 
+            account = new Account
+            {
+                Id = Guid.NewGuid().ToString(),
                 AccountName = accountName,
                 IsAppStoreAccount = isAppStoreAccount
             };
@@ -42,7 +42,7 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
             var accounts = _context.Accounts;
             var oldAccount = accounts.FirstOrDefault(x => x.Id == account.Id);
             oldAccount.AccountName = account.AccountName;
-           _context.SaveChanges();
+            _context.SaveChanges();
         }
 
         public Account GetAccountById(string id)

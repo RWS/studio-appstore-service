@@ -6,6 +6,7 @@ using AppStoreIntegrationServiceAPI.Model.Repository.Interface;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
+using AppStoreIntegrationServiceAPI.Filters;
 
 namespace AppStoreIntegrationServiceAPI.Controllers
 {
@@ -62,6 +63,7 @@ namespace AppStoreIntegrationServiceAPI.Controllers
         }
         
         [HttpPost("/Increment")]
+        [TokenAuthorization]
         public async Task<IActionResult> Increment([FromQuery] string pluginName)
         {
             return Ok(await _pluginRepository.TryIncrementDownloadCount(pluginName));

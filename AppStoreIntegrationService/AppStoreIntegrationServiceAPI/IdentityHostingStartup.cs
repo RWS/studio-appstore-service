@@ -1,12 +1,11 @@
-﻿using AppStoreIntegrationServiceCore.Data;
+﻿using AppStoreIntegrationServiceAPI;
+using AppStoreIntegrationServiceCore.Data;
 using AppStoreIntegrationServiceCore.DataBase;
-using AppStoreIntegrationServiceManagement.Areas.Identity;
-using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 [assembly: HostingStartup(typeof(IdentityHostingStartup))]
-namespace AppStoreIntegrationServiceManagement.Areas.Identity
+namespace AppStoreIntegrationServiceAPI
 {
     public class IdentityHostingStartup : IHostingStartup
     {
@@ -29,14 +28,6 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity
                         options.User.RequireUniqueEmail = true;
                     })
                     .AddEntityFrameworkStores<AppStoreIntegrationServiceContext>();
-
-                services.ConfigureApplicationCookie(options =>
-                {
-                    options.LoginPath = "/Identity/Authentication/Login";
-                });
-                services.AddTransient<IUserSeed, UserSeed>();
-                services.AddTransient<UserAccountsManager>();
-                services.AddTransient<AccountsManager>();
             });
         }
     }

@@ -1,4 +1,4 @@
-﻿using AppStoreIntegrationServiceManagement.Model.DataBase;
+﻿using AppStoreIntegrationServiceCore.DataBase;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Security.Principal;

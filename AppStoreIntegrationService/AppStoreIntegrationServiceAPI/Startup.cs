@@ -9,6 +9,7 @@ using AppStoreIntegrationServiceAPI.HealthChecks;
 using HealthChecks.UI.Client;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Repository;
+using AppStoreIntegrationServiceCore.Data;
 
 namespace AppStoreIntegrationServiceAPI
 {
@@ -24,6 +25,7 @@ namespace AppStoreIntegrationServiceAPI
         public void ConfigureServices(IServiceCollection services)
         {
             _ = Enum.TryParse(Configuration.GetValue<string>("DeployMode"), out DeployMode deployMode);
+            GetServiceProvider(services).GetRequiredService<AppStoreIntegrationServiceContext>().Database.EnsureCreated();
             var configurationSettings = GetConfigurationSettings(GetServiceProvider(services).GetService<IWebHostEnvironment>(), deployMode).Result;
             
             services.Configure<GzipCompressionProviderOptions>(options =>
@@ -83,6 +85,7 @@ namespace AppStoreIntegrationServiceAPI
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseResponseCaching();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

@@ -1,6 +1,5 @@
 using System.IO.Compression;
 using Microsoft.AspNetCore.ResponseCompression;
-using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceCore.Repository;
 using AppStoreIntegrationServiceCore.Repository.Interface;
 using AppStoreIntegrationServiceManagement.HealthChecks;
@@ -10,6 +9,7 @@ using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Repository;
 using AppStoreIntegrationServiceManagement.Model.Customization;
 using AppStoreIntegrationServiceManagement.Model.Settings;
+using AppStoreIntegrationServiceCore.Data;
 
 namespace AppStoreIntegrationServiceManagement
 {

@@ -95,6 +95,19 @@ function AddUserToAccount() {
     request.send(data);
 }
 
+function GenerateAccessToken() {
+    let request = new XMLHttpRequest();
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            document.getElementById("accessTokenContainer").innerHTML = request.responseText;
+        }
+    }
+
+    request.open("POST", `/Identity/Account/GenerateAccessToken`);
+    request.send();
+}
+
 function ToggleAccessCheckbox() {
     let input = event.currentTarget;
     let accessInput = input.parentElement.nextElementSibling;

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
-using AppStoreIntegrationServiceManagement.Model.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceCore.Model;

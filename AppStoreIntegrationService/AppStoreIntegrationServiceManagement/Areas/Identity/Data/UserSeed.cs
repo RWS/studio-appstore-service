@@ -1,4 +1,4 @@
-﻿using AppStoreIntegrationServiceManagement.Model.DataBase;
+﻿using AppStoreIntegrationServiceCore.DataBase;
 using Microsoft.AspNetCore.Identity;
 
 namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
@@ -12,8 +12,8 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
 
         public UserSeed
         (
-            UserManager<IdentityUserExtended> userManager, 
-            RoleManager<IdentityRole> roleManager, 
+            UserManager<IdentityUserExtended> userManager,
+            RoleManager<IdentityRole> roleManager,
             SignInManager<IdentityUserExtended> signInManager,
             UserAccountsManager userAccountsManager
         )
@@ -44,11 +44,11 @@ namespace AppStoreIntegrationServiceManagement.Areas.Identity.Data
                 }
             }
 
-            var defaultAdminUser = new IdentityUserExtended 
-            { 
-                UserName = "Admin", 
+            var defaultAdminUser = new IdentityUserExtended
+            {
+                UserName = "Admin",
                 Email = "admin@sdl.com",
-                IsBuiltInAdmin = true 
+                IsBuiltInAdmin = true
             };
 
             _userManager.CreateAsync(defaultAdminUser, "administrator").Wait();

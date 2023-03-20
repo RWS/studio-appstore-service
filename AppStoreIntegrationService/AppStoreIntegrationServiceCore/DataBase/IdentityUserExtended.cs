@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace AppStoreIntegrationServiceManagement.Model.DataBase
+namespace AppStoreIntegrationServiceCore.DataBase
 {
     public class IdentityUserExtended : IdentityUser
     {
@@ -8,5 +8,6 @@ namespace AppStoreIntegrationServiceManagement.Model.DataBase
         public bool PushNotificationsEnabled { get; set; }
         public bool IsBuiltInAdmin { get; set; }
         public string SelectedAccountId { get; set; }
+        public string APIAccessToken { get; set; }
     }
 }
