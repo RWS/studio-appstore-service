@@ -267,7 +267,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
                 await _pluginVersionRepository.Save(pluginId, version, removeOtherVersions);
 
-                if (compareWithManifest)
+                if (compareWithManifest && !version.IsNavigationLink)
                 {
                     await CompareWithManifest(version);
                 }
@@ -284,6 +284,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         private async Task CompareWithManifest(PluginVersion version)
         {
             var response = await PluginPackage.DownloadPlugin(version.DownloadUrl);
+
+            if (response == null)
+            {
+                TempData["StatusMessage"] = "Success! Plugin was saved!";
+                return;
+            }
+
             var log = response.CreateVersionMatchLog(version, await _productsRepository.GetAllProducts(), out bool isFullMatch);
 
             TempData["IsVersionMatch"] = log.IsVersionMatch;

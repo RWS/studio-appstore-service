@@ -311,6 +311,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             var response = await PluginPackage.DownloadPlugin(plugin.DownloadUrl);
+
+            if (response == null) 
+            {
+                TempData["StatusMessage"] = "Success! Plugin was saved!";
+                return;
+            }
+
             (TempData["IsNameMatch"], TempData["IsAuthorMatch"]) = response.CreatePluginMatchLog(plugin, out bool isFullMatch);
 
             if (isFullMatch)

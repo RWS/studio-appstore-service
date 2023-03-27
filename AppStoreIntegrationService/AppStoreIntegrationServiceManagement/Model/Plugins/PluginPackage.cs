@@ -74,7 +74,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
             catch (InvalidDataException)
             {
                 Directory.Delete(_pluginDownloadPath, true);
-                throw new Exception("Unable to execute manifest comparison! There is no manifest in the URL!");
+                return null;
             }
             catch (Exception e)
             {

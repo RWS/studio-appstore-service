@@ -60,6 +60,10 @@ function DeleteComment(pluginId, versionId, commentId) {
 }
 
 function GenerateChecksum() {
+    if (document.getElementById("IsNavigationLink").checked) {
+        return;
+    }
+
     let request = new XMLHttpRequest();
     let spinner = document.querySelector(".spinner-border");
     let data = new FormData(document.getElementById("form"));
@@ -81,6 +85,11 @@ function GenerateChecksum() {
 
 function Save(pluginId, action, removeOtherVersions = false) {
     let button = event.currentTarget;
+    let isNavigationLink = document.getElementById("IsNavigationLink");
+
+    if (isNavigationLink) {
+        $("#FileHash").rules(isNavigationLink.checked ? "remove" : "add", "required");
+    }
 
     $("#form").validate();
 
