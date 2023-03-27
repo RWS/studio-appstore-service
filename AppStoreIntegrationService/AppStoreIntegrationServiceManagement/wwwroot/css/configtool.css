@@ -217,6 +217,14 @@ body, html {
     visibility: hidden;
 }
 
+.ql-toolbar,
+.ql-editor{
+    color: var(--pa-admin-input-foreground) !important;
+    background-color: var(--pa-admin-input-color) !important;
+    font-size: var(--pa-admin-input-fontsize) !important;
+    font-family: var(--pa-admin-input-fontfamily) !important;
+}
+
 /* Table striped */
 
 table {
@@ -264,10 +272,6 @@ table {
 }
 
 /* Generic */
-
-#fr-logo{
-    display: none;
-}
 
 .fa-clock, .fa-exclamation-circle {
     position: absolute;
@@ -326,7 +330,9 @@ table {
     font-size: var(--pa-admin-secondary-fontsize)
 }
 
-input[type="text"] {
+input[type="text"], 
+input[type="url"], 
+input[type="email"]{
     color: var(--pa-admin-input-foreground) !important;
     background-color: var(--pa-admin-input-color) !important;
     font-size: var(--pa-admin-input-fontsize) !important;

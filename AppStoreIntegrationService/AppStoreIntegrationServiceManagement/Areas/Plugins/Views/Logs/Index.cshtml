@@ -80,7 +80,7 @@
             @foreach (var item in Model.Plugin.Logs)
             {
                 <div contenteditable="false" class="p-3 border-bottom">
-                    @Html.Raw(item.Description)
+                    @Html.Raw(item.ToHtml())
                 </div>
             }
         </div>

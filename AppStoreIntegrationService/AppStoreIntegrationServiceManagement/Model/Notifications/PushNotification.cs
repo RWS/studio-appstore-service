@@ -4,6 +4,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Notifications
 {
     public class PushNotification : EmailNotification
     {
+        public PushNotification() { }
         public PushNotification(EmailNotification notification) 
         {
             ImageSource = notification.ImageSource;

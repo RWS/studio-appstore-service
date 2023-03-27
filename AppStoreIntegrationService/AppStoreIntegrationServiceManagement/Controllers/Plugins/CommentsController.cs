@@ -81,6 +81,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 Message = $"There is a new commet for a plugin{(string.IsNullOrEmpty(versionId) ? null : " version")}!"
             };
 
+            var test = new PushNotification(notification);
             await Notify(notification, new PushNotification(notification));
             await _commentsRepository.SaveComment(comment, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was updated!";

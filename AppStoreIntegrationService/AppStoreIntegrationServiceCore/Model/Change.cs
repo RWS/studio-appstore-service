@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace AppStoreIntegrationServiceManagement.Model.Logs
+namespace AppStoreIntegrationServiceCore.Model
 {
     public class Change
     {

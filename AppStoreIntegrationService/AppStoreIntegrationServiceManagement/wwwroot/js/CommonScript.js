@@ -1,11 +1,13 @@
 ﻿let x;
 let y;
 let draggable;
+let editor = null;
+let isReadOnly = false;
 
 function EnsurePreserved(callback) {
     var textArea = document.querySelector(".text-area-hidden");
     if (textArea) {
-        textArea.innerText = document.querySelector(".fr-box .fr-element").innerHTML;
+        textArea.innerText = document.querySelector("#editor .ql-editor").innerHTML;
     }
 
     let data = new FormData(document.getElementById("form"));
@@ -113,14 +115,6 @@ document.addEventListener('DOMContentLoaded', function () {
             })
         }, 3000);
     }
-
-    let editor = document.querySelector(".fr-box .fr-element");
-
-    if (editor) {
-        editor.addEventListener('input', () => {
-            console.log("Changed!")
-        })
-    }
 });
 
 function ToggleLoader(element) {
@@ -132,4 +126,24 @@ function ToggleLoader(element) {
 
     element.disabled = true;
     element.firstElementChild.hidden = false;
+}
+
+function HttpRequestCallback(response) {
+    if (response.includes('div')) {
+        document.getElementById('statusMessageContainer').innerHTML = response;
+
+        let alert = document.querySelector('.alert')
+        if (alert) {
+            setTimeout(() => {
+
+                alert.classList.add('slide-right');
+                alert.addEventListener('animationend', () => {
+                    document.querySelector('.alert-container').remove();
+                })
+            }, 3000);
+        }
+    }
+    else {
+        window.location.href = response;
+    }
 }

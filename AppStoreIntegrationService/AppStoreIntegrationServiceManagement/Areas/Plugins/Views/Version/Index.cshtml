@@ -84,7 +84,7 @@
             <div class="d-flex flex-column align-items-center">
                 <img src="~/images/empty-result.png" width="200" height="200" />
                 <h5 class="mt-2">No versions found!</h5>
-                @if (Model.Plugin.IsThirdParty && ExtendedUser.IsInRole("Developer"))
+                @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && ExtendedUser.IsInRole("Developer"))
                 {
                     <a class="btn pa-admin-success-btn" asp-controller="Version" asp-action="Add" asp-route-pluginId="@Model.Plugin.Id">Add version</a>
                 }

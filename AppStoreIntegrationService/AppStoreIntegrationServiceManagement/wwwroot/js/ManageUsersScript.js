@@ -123,24 +123,3 @@ function ToggleAccessCheckbox() {
         return;
     }
 }
-
-function HttpRequestCallback(response) {
-    if (!response.includes("div")) {
-        window.location.href = response;
-    }
-
-    let alert = document.querySelector('.alert');
-
-    if (alert) {
-        alert.remove();
-    }
-
-    document.getElementById("statusMessageContainer").innerHTML = response;
-    setTimeout(() => {
-        alert = document.querySelector('.alert')
-        alert.classList.add('slide-right');
-        alert.addEventListener('animationend', () => {
-            document.querySelector('.alert-container').remove();
-        })
-    }, 3000);
-}

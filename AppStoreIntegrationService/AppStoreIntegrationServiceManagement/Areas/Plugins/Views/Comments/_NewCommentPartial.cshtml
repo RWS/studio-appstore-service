@@ -7,7 +7,9 @@
 <input hidden asp-for="VersionId" />
 <input hidden name="Page" value="@Page.Comment" />
 
-<textarea id="example">@Html.Raw(Model.CommentDescription)</textarea>
+<div id="editor">
+    @Html.Raw(Model.CommentDescription)
+</div>
 <textarea asp-for="CommentDescription" class="text-area-hidden"></textarea>
 <span asp-validation-for="CommentDescription" class="text-danger"></span>
 

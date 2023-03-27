@@ -5,10 +5,17 @@ namespace AppStoreIntegrationServiceAPI.HealthChecks
 {
     public class ResponeTimeHealthCheck : IHealthCheck
     {
+        private readonly IHttpContextAccessor _context;
+
+        public ResponeTimeHealthCheck(IHttpContextAccessor context)
+        {
+            _context = context;
+        }
+
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             var watch = new Stopwatch();
-
+            
             try
             {
                 watch.Start();
@@ -16,7 +23,7 @@ namespace AppStoreIntegrationServiceAPI.HealthChecks
                 var message = new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,
-                    RequestUri = new Uri("https://localhost:44375/plugins")
+                    RequestUri = new Uri($"{GetUrlBase}/plugins")
                 };
 
                 var downloadResponse = await client.SendAsync(message);
@@ -39,6 +46,12 @@ namespace AppStoreIntegrationServiceAPI.HealthChecks
             }
 
             return HealthCheckResult.Healthy($"The response time for this endpoint is {watch.ElapsedMilliseconds} ms!");
+        }
+
+        private string GetUrlBase()
+        {
+            var request = _context.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host.Value}";
         }
     }
 }

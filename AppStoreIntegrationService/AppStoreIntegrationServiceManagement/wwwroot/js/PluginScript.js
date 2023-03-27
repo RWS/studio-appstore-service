@@ -1,4 +1,34 @@
-﻿function InitDropDown() {
+﻿document.addEventListener('DOMContentLoaded', () => {
+    var editorExists = document.getElementById("editor") != null;
+
+    if (editorExists) {
+        var toolbarOptions = [
+            ['bold', 'italic', 'underline', 'strike'],
+            ['blockquote', 'code-block'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'script': 'sub' }, { 'script': 'super' }],
+            [{ 'indent': '-1' }, { 'indent': '+1' }],
+            [{ 'align': [] }],
+            ['clean'],
+            [{ 'direction': 'rtl' }],
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            [{ 'color': [] }, { 'background': [] }],
+            ['link', 'image', 'video'],
+        ];
+
+        editor = new Quill('#editor', {
+            modules:
+            {
+                toolbar: toolbarOptions,
+            },
+            theme: 'snow'
+        });
+        isReadOnly = false;
+        InitDropDown();
+    }
+})
+
+function InitDropDown() {
     document.addEventListener('DOMContentLoaded', function () {
         new DropDown(
             document.querySelector("#categoriesDropdown #dropDownToggle"),
@@ -36,7 +66,7 @@ function ClearLogs(id) {
 
 function SavePlugin(action, removeOtherVersions = false) {
     var button = event.currentTarget;
-    document.getElementById("Description").innerText = document.querySelector(".fr-box .fr-element").innerHTML;
+    document.getElementById("Description").innerText = document.querySelector("#editor .ql-editor").innerHTML;
     $("#form").validate();
 
     if ($("#form").valid()) {
@@ -47,7 +77,8 @@ function SavePlugin(action, removeOtherVersions = false) {
 
         request.onreadystatechange = function () {
             if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                HttpRequestCallback(request.responseText)
+                HttpRequestCallback(request.responseText);
+                ToggleLoader(button);
             }
         }
 
@@ -79,37 +110,4 @@ function RespondDeletionRequest(action, id) {
 
     request.open("POST", `Plugins/Plugins/${action}/${id}`);
     request.send();
-}
-
-function HttpRequestCallback(response) {
-    if (response.includes('div')) {
-        document.getElementById('statusMessageContainer').innerHTML = response;
-
-        let alert = document.querySelector('.alert')
-        if (alert) {
-            setTimeout(() => {
-
-                alert.classList.add('slide-right');
-                alert.addEventListener('animationend', () => {
-                    document.querySelector('.alert-container').remove();
-                })
-            }, 3000);
-        }
-
-        ToggleLoader(button);
-    }
-    else {
-        window.location.href = response;
-    }
-}
-
-function ToggleLoader(element) {
-    if (element.disabled) {
-        element.disabled = false;
-        element.firstElementChild.hidden = true;
-        return;
-    }
-
-    element.disabled = true;
-    element.firstElementChild.hidden = false;
 }

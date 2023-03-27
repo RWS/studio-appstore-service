@@ -28,7 +28,27 @@ function AddComment(pluginId, versionId = '') {
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
             content.innerHTML = request.responseText;
-            editor = new FroalaEditor('#example', { height: 250 });
+            var toolbarOptions = [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                [{ 'script': 'sub' }, { 'script': 'super' }],
+                [{ 'indent': '-1' }, { 'indent': '+1' }],
+                [{ 'align': [] }],
+                ['clean'],
+                [{ 'direction': 'rtl' }],
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image', 'video'],
+            ];
+
+            editor = new Quill('#editor', {
+                modules:
+                {
+                    toolbar: toolbarOptions,
+                },
+                theme: 'snow'
+            });
         }
     }
 
@@ -39,7 +59,7 @@ function AddComment(pluginId, versionId = '') {
 function SaveComment() {
     let button = event.currentTarget;
     let request = new XMLHttpRequest();
-    document.getElementById("CommentDescription").innerText = document.querySelector(".fr-box .fr-element").innerHTML;
+    document.getElementById("CommentDescription").innerText = document.querySelector("#editor .ql-editor").innerHTML;
     let data = new FormData(document.getElementById("form"));
     ToggleLoader(button);
 

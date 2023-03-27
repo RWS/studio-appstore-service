@@ -9,12 +9,11 @@
 <hr class="w-100">
 <div class="row">
     <partial name="_ProfileNav" />
-
-    <div class="col-12 col-md-9">
+    <form class="col-12 col-md-9" onsubmit="return false" id="form">
         <p class="text-break fw-bold fs4-inherit">Access Token</p>
-        <button class="btn pa-admin-success-btn" onclick="GenerateAccessToken()">Get access token</button>
+        <button type="button" class="btn pa-admin-success-btn" onclick="GenerateAccessToken()">Get access token</button>
         <div id="accessTokenContainer"></div>
-    </div>
+    </form>
 </div>
 
 <script src="~/js/ManageUsersScript.js"></script>

@@ -53,7 +53,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 extendedVersions.Add(extendedVersion);
             }
 
-            return View((extendedPlugin, extendedVersions.Where(v => v.IsThirdParty && ExtendedUser.IsInRole("Developer") || ExtendedUser.HasFullOwnership() && v.HasAdminConsent)));
+            return View((extendedPlugin, extendedVersions.Where(v => IsEligibleVersion(v))));
         }
 
         [Route("/Plugins/Edit/{pluginId}/Versions/Edit/{versionId}")]
@@ -110,16 +110,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Activate(int pluginId, PluginVersion version)
         {
             version.VersionStatus = Status.Active;
-            string log = string.Format(TemplateResource.VersionActiveLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
-            return await Save(pluginId, version, "Edit", log);
+            await _loggingRepository.Log(new Log
+            {
+                Author = ExtendedUser.AccountName,
+                Description = TemplateResource.VersionActiveLog,
+                TargetInfo = version.VersionNumber
+            }, pluginId);
+            return await Save(pluginId, version, "Edit");
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Deactivate")]
         public async Task<IActionResult> Deactivate(int pluginId, PluginVersion version)
         {
             version.VersionStatus = Status.Inactive;
-            string log = string.Format(TemplateResource.VersionInactiveLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
-            return await Save(pluginId, version, "Edit", log);
+            await _loggingRepository.Log(new Log
+            {
+                Author = ExtendedUser.AccountName,
+                Description = TemplateResource.VersionInactiveLog,
+                TargetInfo = version.VersionNumber
+            }, pluginId);
+            return await Save(pluginId, version, "Edit");
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Submit")]
@@ -127,6 +137,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Submit(int pluginId, PluginVersion version, bool removeOtherVersions)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
+            var oldVersion = await _pluginVersionRepository.GetPluginVersion(pluginId, version.VersionId);
             version.VersionStatus = Status.InReview;
             version.HasAdminConsent = true;
 
@@ -137,6 +148,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             };
 
             await Notify(notification, new PushNotification(notification));
+            await _loggingRepository.Log(new Log(version, oldVersion, ExtendedUser.AccountName), pluginId);
             return await Save(pluginId, version, "Pending", removeOtherVersions: removeOtherVersions, compareWithManifest: true);
         }
 
@@ -146,18 +158,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Approve(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            string log = string.Format(TemplateResource.ApprovedVersionLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
-            version.VersionStatus = Status.Active;
-            version.IsActive = true;
-
+            var oldVersion = await _pluginVersionRepository.GetPluginVersion(pluginId, version.VersionId);
             var notification = new EmailNotification(plugin)
             {
                 CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions/Edit/{version.VersionId}",
                 Message = "A new plugin version was approved!"
             };
 
+            version.VersionStatus = Status.Active;
+            version.IsActive = true;
+            await _loggingRepository.Log(new Log(version, oldVersion, ExtendedUser.AccountName), pluginId);
             await Notify(notification, new PushNotification(notification));
-            return await Save(pluginId, version, "Edit", log, removeOtherVersions, true);
+            return await Save(pluginId, version, "Edit", removeOtherVersions, true);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Reject")]
@@ -166,18 +178,23 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Reject(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var log = string.Format(TemplateResource.RejectedVersionLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
-            version.VersionStatus = Status.Draft;
-            version.HasAdminConsent = true;
-
             var notification = new EmailNotification(plugin)
             {
                 CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions/Draft/{version.VersionId}",
                 Message = "A new plugin version was rejected!"
             };
 
+            version.VersionStatus = Status.Draft;
+            version.HasAdminConsent = true;
+            await _loggingRepository.Log(new Log
+            {
+                Author = ExtendedUser.AccountName,
+                Description = TemplateResource.RejectedVersionLog,
+                TargetInfo = version.VersionNumber
+            }, pluginId);
+
             await Notify(notification, new PushNotification(notification));
-            return await Save(pluginId, version, "Draft", log, removeOtherVersions);
+            return await Save(pluginId, version, "Draft", removeOtherVersions);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/SaveAsDraft")]
@@ -192,7 +209,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Save")]
         public async Task<IActionResult> Save(int pluginId, PluginVersion version)
         {
+            var oldVersion = await _pluginVersionRepository.GetPluginVersion(pluginId, version.VersionId);
             version.VersionStatus = Status.Active;
+            await _loggingRepository.Log(new Log(version, oldVersion, ExtendedUser.AccountName), pluginId);
             return await Save(pluginId, version, "Edit", compareWithManifest: true);
         }
 
@@ -207,7 +226,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var log = string.Format(TemplateResource.VersionDeletionRequestLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
             version.NeedsDeletionApproval = true;
             await _pluginVersionRepository.Save(pluginId, version);
 
@@ -218,7 +236,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             };
 
             await Notify(notification, new PushNotification(notification));
-            await _loggingRepository.Log(User.Identity.Name, pluginId, log);
+            await _loggingRepository.Log(new Log
+            {
+                Author = ExtendedUser.AccountName,
+                Description = TemplateResource.VersionDeletionRequestLog,
+                TargetInfo = version.VersionNumber
+            }, pluginId);
             TempData["StatusMessage"] = "Success! Version deletion request was sent!";
             return new EmptyResult();
         }
@@ -230,8 +253,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
-            var log = string.Format(TemplateResource.VersionDeletionAcceptedLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
-            
             var notification = new EmailNotification(plugin)
             {
                 CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions",
@@ -239,7 +260,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             };
 
             await Notify(notification, new PushNotification(notification));
-            await _loggingRepository.Log(User.Identity.Name, pluginId, log);
+            await _loggingRepository.Log(new Log
+            {
+                Author = ExtendedUser.AccountName,
+                Description = TemplateResource.VersionDeletionAcceptedLog,
+                TargetInfo = version.VersionNumber
+            }, pluginId);
             return await Delete(pluginId, versionId);
         }
 
@@ -250,17 +276,20 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
             var plugin = await _pluginRepository.GetPluginById(pluginId);
-            var log = string.Format(TemplateResource.VersionDeletionRejectedLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
-            version.NeedsDeletionApproval = false;
-
             var notification = new EmailNotification(plugin)
             {
                 CallToActionUrl = $"{GetUrlBase()}/Plugins/Edit/{pluginId}/Versions",
                 Message = "Plugin version deletion request was rejected!"
             };
 
+            version.NeedsDeletionApproval = false;
             await Notify(notification, new PushNotification(notification));
-            await _loggingRepository.Log(User.Identity.Name, pluginId, log);
+            await _loggingRepository.Log(new Log
+            {
+                Author = ExtendedUser.AccountName,
+                Description = TemplateResource.VersionDeletionRejectedLog,
+                TargetInfo = version.VersionNumber
+            }, pluginId);
             await _pluginVersionRepository.Save(pluginId, version);
             TempData["StatusMessage"] = "Success! Version deletion request was rejected!";
             return Content(null);
@@ -270,11 +299,25 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Delete(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
-            var log = string.Format(TemplateResource.VersionRemovedLog, User.Identity.Name, version.VersionNumber, DateTime.Now);
-            await _loggingRepository.Log(User.Identity.Name, pluginId, log);
+            await _loggingRepository.Log(new Log
+            {
+                Author = ExtendedUser.AccountName,
+                Description = TemplateResource.VersionRemovedLog,
+                TargetInfo = version.VersionNumber
+            }, pluginId);
             await _pluginVersionRepository.RemovePluginVersion(pluginId, versionId);
             TempData["StatusMessage"] = "Success! Version was removed!";
             return Content(null);
+        }
+
+        private bool IsEligibleVersion(ExtendedPluginVersion version)
+        {
+            if (version.IsThirdParty)
+            {
+                return ExtendedUser.IsInRole("Developer") || ExtendedUser.HasFullOwnership() && version.HasAdminConsent;
+            }
+
+            return ExtendedUser.IsInRole("Administrator");
         }
 
         private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
@@ -286,22 +329,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _notificationCenter.Push(pushNotification);
         }
 
-        private async Task<IActionResult> Save(int pluginId, PluginVersion version, string route, string log = null, bool removeOtherVersions = false, bool compareWithManifest = false)
+        private async Task<IActionResult> Save(int pluginId, PluginVersion version, string route, bool removeOtherVersions = false, bool compareWithManifest = false)
         {
             try
             {
-                var old = await _pluginVersionRepository.GetPluginVersion(pluginId, version.VersionId);
-
-                if (string.IsNullOrEmpty(log))
-                {
-                    log = _loggingRepository.CreateChangesLog(version, old, User.Identity.Name);
-                    await _loggingRepository.Log(User.Identity.Name, pluginId, log);
-                }
-                else
-                {
-                    await _loggingRepository.Log(User.Identity.Name, pluginId, log);
-                }
-
                 await _pluginVersionRepository.Save(pluginId, version, removeOtherVersions);
 
                 if (compareWithManifest)

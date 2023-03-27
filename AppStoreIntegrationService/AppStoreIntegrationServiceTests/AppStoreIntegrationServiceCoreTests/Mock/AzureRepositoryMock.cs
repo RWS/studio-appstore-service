@@ -1,15 +1,17 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model.Settings;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Newtonsoft.Json;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mock
 {
-    public class AzureRepositoryMock : IResponseManager, ISettingsManager
+    public class AzureRepositoryMock : IResponseManager, ISettingsManager, INotificationsManager
     {
         private string _data;
         private string _settings;
+        private string _notifications;
 
         public AzureRepositoryMock() { }
 
@@ -28,9 +30,24 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
             _settings = JsonConvert.SerializeObject(settings);
         }
 
+        public AzureRepositoryMock(IDictionary<string, IEnumerable<PushNotification>> notifications)
+        {
+            _notifications = JsonConvert.SerializeObject(notifications);
+        }
+
         public async Task<PluginResponseBase<PluginDetails>> GetBaseResponse()
         {
             return await GetResponse();
+        }
+
+        public async Task<IDictionary<string, IEnumerable<PushNotification>>> GetNotifications()
+        {
+            if (string.IsNullOrEmpty(_notifications))
+            {
+                return new Dictionary<string, IEnumerable<PushNotification>>();
+            }
+
+            return JsonConvert.DeserializeObject<Dictionary<string, IEnumerable<PushNotification>>>(_notifications) ?? new Dictionary<string, IEnumerable<PushNotification>>();
         }
 
         public async Task<PluginResponse<PluginDetails>> GetResponse()
@@ -51,6 +68,11 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Mo
             }
 
             return JsonConvert.DeserializeObject<SiteSettings>(_settings) ?? new SiteSettings();
+        }
+
+        public async Task SaveNotifications(IDictionary<string, IEnumerable<PushNotification>> notifications)
+        {
+            _notifications = JsonConvert.SerializeObject(notifications);
         }
 
         public async Task SaveResponse(PluginResponse<PluginDetails> response)

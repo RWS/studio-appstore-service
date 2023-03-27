@@ -1,4 +1,6 @@
-﻿function InitDropDown() {
+﻿document.addEventListener('DOMContentLoaded', () => {
+    isReadOnly = false;
+
     document.addEventListener("DOMContentLoaded", () => {
         new DropDown(
             document.querySelector("#productsDropdown #dropDownToggle"),
@@ -14,7 +16,7 @@
             ignore: '.ignore'
         });
     })
-}
+})
 
 function AddComment(pluginId, versionId) {
     let content = event.currentTarget.parentElement;
@@ -106,17 +108,6 @@ function Save(pluginId, action, removeOtherVersions = false) {
     }
 }
 
-function ToggleLoader(element) {
-    if (element.disabled) {
-        element.disabled = false;
-        element.firstElementChild.hidden = true;
-        return;
-    }
-
-    element.disabled = true;
-    element.firstElementChild.hidden = false;
-}
-
 function Delete(pluginId, versionId, action, needsConfirmation = true) {
     if (needsConfirmation) {
         document.getElementById('confirmationBtn').onclick = function () {
@@ -141,25 +132,4 @@ function RespondDeletionRequest(pluginId, versionId, action) {
 
     request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${action}/${versionId}`);
     request.send(data);
-}
-
-function HttpRequestCallback(response) {
-    if (!response.includes("div")) {
-        window.location.href = response;
-    }
-
-    let alert = document.querySelector('.alert');
-
-    if (alert) {
-        alert.remove();
-    }
-
-    document.getElementById("statusMessageContainer").innerHTML = response;
-    setTimeout(() => {
-        alert = document.querySelector('.alert')
-        alert.classList.add('slide-right');
-        alert.addEventListener('animationend', () => {
-            document.querySelector('.alert-container').remove();
-        })
-    }, 3000);
 }
