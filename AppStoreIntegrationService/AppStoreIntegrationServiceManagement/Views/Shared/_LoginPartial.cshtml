@@ -1,21 +1,19 @@
 ﻿@inherits CustomRazorPage<object>
-@inject SignInManager<IdentityUserExtended> SignInManager
 
 <ul class="navbar-nav">
-    @if (SignInManager.IsSignedIn(User) && ExtendedUser.HasSelectedAccount())
+    @if (ExtendedUser?.HasSelectedAccount() ?? false)
     {
         <li class="nav-item">
             <a onclick="EnsurePreserved(() => { window.location.href = '/Plugins' })" class="nav-link cursor-pointer active header-link">Plugins List</a>
         </li>
 
-        if (ExtendedUser.IsInRole("Administrator"))
+        if (ExtendedUser.IsInRole("SystemAdministrator"))
         {
             <li class="nav-item">
                 <a onclick="EnsurePreserved(() => { window.location.href = '/Settings' })" class="nav-link active cursor-pointer header-link">Settings</a>
             </li>
         }
-
-        if (ExtendedUser.IsInRole("Developer"))
+        else
         {
             <li class="nav-item">
                 <a onclick="EnsurePreserved(() => { window.location.href = '/Settings/ExportPlugins' })" class="nav-link active cursor-pointer header-link">Settings</a>
@@ -35,17 +33,14 @@
                             <button class="cursor-pointer fs-inherit dropdown-item" type="submit">Sign out</button>
                         </form>
                     </li>
+                    <li>
+                        <a onclick="EnsurePreserved(() => { window.location.href = '/Identity/Authentication/Accounts' })" class="dropdown-item cursor-pointer">Switch account</a>
+                    </li>
                 </ul>
             </div>
         </li>
         <li class="nav-item d-flex align-items-center">
             <partial name="_NotificationsModalPartial" />
-        </li>
-    }
-    else
-    {
-        <li class="nav-item">
-            <a class="nav-link active header-link" id="login" asp-controller="Authentication" asp-area="Identity" asp-action="Login">Sign in</a>
         </li>
     }
 </ul>

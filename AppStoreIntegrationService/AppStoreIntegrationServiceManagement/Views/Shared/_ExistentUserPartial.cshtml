@@ -11,13 +11,15 @@
                 <p class="m-0 mb-3">This user exists in our database! Do you want to assign it under your account?</p>
                 <form id="assignmentForm" onsubmit="return false">
                     <input hidden name="UserId" value="@Model" />
-                    @if (ExtendedUser.IsInRole("Administrator"))
-                    {
-                        <select class="fs-inherit pa-admin-select w-100" name="RoleName">
-                            <option value="Administrator">Administrator</option>
-                            <option value="Developer">Developer</option>
-                        </select>
-                    }
+                    <select class="fs-inherit pa-admin-select w-100" name="RoleName">
+                        @if (ExtendedUser.IsInRole("SystemAdministrator"))
+                        {
+                            <option value="SystemAdministrator">SystemAdministrator</option>
+                            <option value="DeveloperTrial">DeveloperTrial</option>
+                        }
+                        <option value="Administrator">Administrator</option>
+                        <option value="Developer">Developer</option>
+                    </select>
                 </form>
             </div>
             <div class="modal-footer">

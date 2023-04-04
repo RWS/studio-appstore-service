@@ -28,7 +28,7 @@
                             {
                                 if (version.NeedsDeletionApproval)
                                 {
-                                    if (ExtendedUser.HasFullOwnership())
+                                    if (ExtendedUser.IsInRole("SystemAdministrator"))
                                     {
                                         <div class="position-relative">
                                             <div class="btn-group">

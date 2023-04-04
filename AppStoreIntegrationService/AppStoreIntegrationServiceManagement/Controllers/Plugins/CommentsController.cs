@@ -93,7 +93,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _notificationCenter.SendEmail(emailNotification);
             await _notificationCenter.Push(pushNotification);
             await _notificationCenter.Broadcast(emailNotification);
-            pushNotification.Author = AccountsManager.GetAppStoreAccount().AccountName;
             await _notificationCenter.Push(pushNotification);
         }
 

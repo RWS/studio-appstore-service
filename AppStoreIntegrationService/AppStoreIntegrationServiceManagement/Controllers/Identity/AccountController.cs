@@ -1,24 +1,29 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase;
+using AppStoreIntegrationServiceCore.DataBase.Models;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Identity;
+using Auth0.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Claims;
+using AppStoreIntegrationServiceManagement.ExtensionMethods;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
     [Area("Identity")]
     [Authorize]
-    [AccountSelected]
+    [AccountSelect]
     public class AccountController : CustomController
     {
-        public async Task<IActionResult> Profile(string id)
+        public IActionResult Profile(string id)
         {
-            var currentUser = await UserManager.GetUserAsync(User);
-            var wantedUser = await UserManager.FindByIdAsync(id);
+            var currentUser = UserManager.GetUser(User);
+            var wantedUser = UserManager.GetUserById(id);
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
             {
@@ -30,7 +35,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return View(Load(currentUser, true));
             }
 
-            if (ExtendedUser.IsInRole("Administrator") && !wantedUser.IsBuiltInAdmin)
+            if (ExtendedUser.IsInRole("SystemAdministrator"))
             {
                 return View(Load(wantedUser, false));
             }
@@ -39,11 +44,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(ProfileModel profileModel, string id)
+        public async Task<IActionResult> Update(string email, string id)
         {
-            var currentUser = await UserManager.GetUserAsync(User);
-            var wantedUser = await UserManager.FindByIdAsync(id);
-            List<IdentityResult> results = new();
+            var currentUser = UserManager.GetUser(User);
+            var wantedUser = UserManager.GetUserById(id);
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
             {
@@ -52,151 +56,51 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
             {
-                results = new List<IdentityResult>
-                {
-                    await UserManager.SetUserNameAsync(currentUser, profileModel.UserName),
-                    await UserManager.SetEmailAsync(currentUser, profileModel.UserName)
-                };
-
-                if (results.Any(x => !x.Succeeded))
-                {
-                    TempData["StatusMessage"] = string.Format("Error! {0}", results.First(x => !x.Succeeded).Errors.First().Description);
-                    return RedirectToAction("Profile");
-                }
-
-                TempData["StatusMessage"] = "Success! Your profile was updated!";
-                return RedirectToAction("Profile");
+                return await Update(currentUser, email, "Your profile was updated!", true);
             }
 
-            results = new List<IdentityResult>
-            {
-                await UserManager.SetUserNameAsync(wantedUser, profileModel.UserName),
-                await UserManager.SetEmailAsync(wantedUser, profileModel.UserName)
-            };
-
-            if (results.Any(x => !x.Succeeded))
-            {
-                TempData["StatusMessage"] = string.Format("Error! {0}", results.First(x => !x.Succeeded).Errors.First().Description);
-                return RedirectToAction("Profile");
-            }
-
-            TempData["StatusMessage"] = string.Format("Success! {0}'s profile was updated!", wantedUser.UserName);
-            return RedirectToAction("Profile", new { id });
-        }
-
-        public async Task<IActionResult> ChangePassword(string id)
-        {
-            var currentUser = await UserManager.GetUserAsync(User);
-            var wantedUser = await UserManager.FindByIdAsync(id);
-
-            if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
-            {
-                return result;
-            }
-
-            if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
-            {
-                return View(new ChangePasswordModel { IsCurrentUserSelected = true });
-            }
-
-            if (ExtendedUser.IsInRole("Administrator") && !wantedUser.IsBuiltInAdmin)
-            {
-                return View(new ChangePasswordModel
-                {
-                    Id = wantedUser.Id,
-                    Username = wantedUser.UserName
-                });
-            }
-
-            return NotFound();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> PostChangePassword(ChangePasswordModel model, string id)
-        {
-            var currentUser = await UserManager.GetUserAsync(User);
-            var wantedUser = await UserManager.FindByIdAsync(id);
-
-            if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
-            {
-                return result;
-            }
-
-            if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
-            {
-                var identityResult = await UserManager.ChangePasswordAsync(currentUser, model.Input.OldPassword, model.Input.NewPassword);
-                if (identityResult.Succeeded)
-                {
-                    await SignInManager.RefreshSignInAsync(currentUser);
-                    TempData["StatusMessage"] = "Success! Your password was changed!";
-                }
-
-                TempData["StatusMessage"] = string.Format("Error! {0}", identityResult.Errors.First().Description);
-                return RedirectToAction("Profile");
-            }
-
-            var results = new List<IdentityResult>
-            {
-                await UserManager.RemovePasswordAsync(wantedUser),
-                await UserManager.AddPasswordAsync(wantedUser, model.Input.NewPassword)
-            };
-
-            if (results.Any(x => !x.Succeeded))
-            {
-                TempData["StatusMessage"] = string.Format("Error! {0}!", results.First(x => !x.Succeeded).Errors.First().Description);
-            }
-
-            TempData["StatusMessage"] = string.Format("Success! {0}'s password was changed!", wantedUser.UserName);
-            return RedirectToAction("Profile", new { id });
+            return await Update(wantedUser, email, $"{wantedUser.Name}'s profile was updated!", routeValues: new { id });
         }
 
         [Route("/Identity/Account/Users/All")]
-        [RoleAuthorize("Administrator")]
-        [Owner]
-        public async Task<IActionResult> Users()
+        [RoleAuthorize("SystemAdministrator")]
+        public IActionResult Users()
         {
-            var currentUser = await UserManager.GetUserAsync(User);
-            var account = UserAccountsManager.GetUserAccount(currentUser);
-            var users = UserManager.Users.ToList();
+            var currentUser = UserManager.GetUser(User);
+            var users = UserManager.UserProfiles.Where(x => !string.IsNullOrEmpty(x.UserId));
 
             return View(users.Select(x => new UserInfoModel
             {
                 Id = x.Id,
-                Name = x.UserName,
+                Name = x.Name,
                 Email = x.Email,
-                Role = UserAccountsManager.GetUserRoleForAccount(x, account).Result.Name,
-                IsCurrentUser = x == currentUser,
+                IsCurrentUser = x.Id == currentUser.Id,
                 IsBuiltInAdmin = x.IsBuiltInAdmin,
-                IsOwner = UserAccountsManager.IsOwner(x, account)
+                IsEligibleForRemoval = UserAccountsManager.CanBeRemoved(x)
             }));
         }
 
         [Route("/Identity/Account/Users/Assigned")]
-        [Owner]
-        public async Task<IActionResult> Assigned()
+        public IActionResult Assigned()
         {
-            var users = UserManager.Users.ToList();
-            var user = await UserManager.GetUserAsync(User);
-            var currentUser = await UserManager.GetUserAsync(User);
-            var account = UserAccountsManager.GetUserAccount(currentUser);
-            var assignedUsers = users.Where(x => UserAccountsManager.BelongsTo(user, x));
+            var users = UserManager.UserProfiles;
+            var user = UserManager.GetUser(User);
+            var account = AccountsManager.GetAccountById(user.SelectedAccountId);
+            var assignedUsers = users.Where(x => UserAccountsManager.BelongsTo(x, account) && !string.IsNullOrEmpty(x.UserId));
 
             return View(assignedUsers.Select(x => new UserInfoModel
             {
                 Id = x.Id,
-                Name = x.UserName,
-                Role = UserAccountsManager.GetUserRoleForAccount(x, account).Result.Name,
-                IsCurrentUser = x == currentUser,
-                IsBuiltInAdmin = x.IsBuiltInAdmin,
-                IsOwner = UserAccountsManager.IsOwner(x, account)
+                Name = x.Name,
+                Role = UserAccountsManager.GetUserRoleForAccount(x, account).Name,
+                IsCurrentUser = x.Email == user.Email
             }));
         }
 
-        [Owner]
-        public async Task<IActionResult> Accounts(string id)
+        public IActionResult Accounts(string id)
         {
-            var currentUser = await UserManager.GetUserAsync(User);
-            var wantedUser = await UserManager.FindByIdAsync(id);
+            var currentUser = UserManager.GetUser(User);
+            var wantedUser = UserManager.GetUserById(id);
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
             {
@@ -205,144 +109,138 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
             {
-                return View((UserAccountsManager.GetUserParentAccounts(currentUser), ""));
+                return View((PrepareAccounts(currentUser), ""));
             }
 
-            if (ExtendedUser.IsInRole("Administrator") && !wantedUser.IsBuiltInAdmin)
+            if (ExtendedUser.IsInRole("SystemAdministrator") && wantedUser.Name != "admin")
             {
-                return View((UserAccountsManager.GetUserParentAccounts(wantedUser), wantedUser.Id));
+                return View((PrepareAccounts(wantedUser), wantedUser.Id));
             }
 
             return NotFound();
         }
 
-        [Owner]
-        public async Task<IActionResult> UpdateAccount(Account account)
+        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        public IActionResult Register()
         {
-            var user = await UserManager.GetUserAsync(User);
-
-            if (!UserAccountsManager.IsOwner(user, account))
-            {
-                TempData["StatusMessage"] = "Error! You cannot edit this account!";
-                return new EmptyResult();
-            }
-
-            AccountsManager.UpdateAccount(account);
-            TempData["StatusMessage"] = "Success! The account was updated!";
-            return new EmptyResult();
-        }
-
-        [Owner]
-        public async Task<IActionResult> Register()
-        {
-            return View(new RegisterModel
-            {
-                ExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList()
-            });
+            return View(new RegisterModel());
         }
 
         [HttpPost]
-        [Owner]
-        public async Task<IActionResult> PostRegister(RegisterModel registerModel)
+        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        public IActionResult PostRegister(RegisterModel registerModel)
         {
-            var user = new IdentityUserExtended { UserName = registerModel.UserName, Email = registerModel.Email };
-            var currentUser = await UserManager.GetUserAsync(User);
-            var account = UserAccountsManager.GetUserAccount(currentUser);
-            var results = new List<IdentityResult> { await UserManager.CreateAsync(user, registerModel.Password) };
-
-            if (account.IsAppStoreAccount)
+            var currentUser = UserManager.GetUser(User);
+            var user = new UserProfile { Email = registerModel.Email, Id = Guid.NewGuid().ToString() };
+            var createNew = ExtendedUser.IsInRole("SystemAdministrator") && registerModel.UserRole == "Administrator";
+            var account = createNew ? AccountsManager.TryAddAccount(new Account
             {
-                results.Add(await UserAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", account.AccountName));
-            }
-            else
+                OosId = registerModel.OosId,
+                Id = Guid.NewGuid().ToString(),
+                SalesForceId = registerModel.SalesForceId,
+                Name = registerModel.SalesForceName ?? $"{user.Email} Account"
+
+            }) : AccountsManager.GetAccountById(currentUser?.SelectedAccountId);
+
+            UserManager.AddUserProfile(user);
+            UserAccountsManager.TryAddUserToAccount(new UserAccount
             {
-                var appStoreAccount = AccountsManager.GetAppStoreAccount();
-                results.Add(await UserAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", appStoreAccount.AccountName));
-                results.Add(await UserAccountsManager.TryAddUserToAccount(user.Id, registerModel.UserRole ?? "Developer", $"{user.UserName} Account", account.AccountName));
-            }
+                AccountId = account.Id,
+                UserProfileId = user.Id,
+                Id = Guid.NewGuid().ToString(),
+                UserRoleId = RoleManager.GetRoleByName(registerModel.UserRole).Id,
+            });
 
-            if (results.All(x => x.Succeeded))
-            {
-                TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.UserName);
-
-                return RedirectToAction("Assigned");
-            }
-
-            TempData["StatusMessage"] = string.Format("Error! {0}", results.FirstOrDefault(x => !x.Succeeded).Errors.First().Description);
-            return RedirectToAction("Register");
+            TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.Email);
+            return RedirectToAction("Assigned");
         }
 
-        [RoleAuthorize("Administrator")]
-        [Owner]
-        public async Task<IActionResult> Delete(string id)
+        [RoleAuthorize("SystemAdministrator")]
+        public IActionResult Delete(string id)
         {
-            var user = await UserManager.FindByIdAsync(id);
-            var currentUser = await UserManager.GetUserAsync(User);
+            var user = UserManager.GetUserById(id);
 
             if (!TryValidate(user, null, null, out IActionResult result))
             {
                 return result;
             }
 
-            if (user == currentUser)
-            {
-                TempData["StatusMessage"] = "Error! You cannot delete your account!";
-                return Content(null);
-            }
-
-            await UserManager.DeleteAsync(user);
+            UserManager.Delete(user);
             UserAccountsManager.RemoveUserAccounts(user);
-            TempData["StatusMessage"] = string.Format("Success! {0} was deleted!", user.UserName);
-            return Content(null);
-        }
-
-        [Authorize]
-        [Owner]
-        public async Task<IActionResult> Dismiss(string id)
-        {
-            var user = await UserManager.FindByIdAsync(id);
-            var currentUser = await UserManager.GetUserAsync(User);
-            var account = UserAccountsManager.GetUserAccount(currentUser);
-            var result = UserAccountsManager.RemoveUserFromAccount(user, account);
-
-            if (result.Succeeded)
-            {
-                TempData["StatusMessage"] = string.Format("{0} was dismissed succesfully", user.UserName);
-                return RedirectToAction("Assigned");
-            }
-
-            TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
-            return RedirectToAction("Assigned");
-        }
-
-        [Authorize]
-        [Owner]
-        public async Task<IActionResult> Assign(string userId, string roleName)
-        {
-            var user = await UserManager.FindByIdAsync(userId);
-            var account = UserAccountsManager.GetUserAccount(user);
-            var entryAccount = UserAccountsManager.GetUserAccount(await UserManager.GetUserAsync(User));
-            var result = await UserAccountsManager.TryAddUserToAccount(user.Id, roleName ?? "Developer", account.AccountName, entryAccount.AccountName);
-
-            if (result.Succeeded)
-            {
-                TempData["StatusMessage"] = string.Format("Success! {0} was assigned succesfully", user.UserName);
-                return Content("/Identity/Account/Users/Assigned");
-            }
-
-            TempData["StatusMessage"] = result.Errors.First().Description;
+            AccountAgreementsManager.Remove(user);
+            TempData["StatusMessage"] = string.Format("Success! {0} was deleted!", user.Name);
             return new EmptyResult();
         }
 
         [Authorize]
-        [Owner]
-        public async Task<IActionResult> CheckUserExistance(string email)
+        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        public IActionResult Dismiss(string id)
         {
-            var user = await UserManager.FindByEmailAsync(email);
+            var user = UserManager.GetUserById(id);
+            var currentUser = UserManager.GetUser(User);
+            var account = AccountsManager.GetAccountById(currentUser.SelectedAccountId);
+            var result = UserAccountsManager.RemoveUserFromAccount(user, account);
+            AccountAgreementsManager.Remove(user, account);
+
+            if (result.Succeeded)
+            {
+                TempData["StatusMessage"] = string.Format("Success! {0} was dismissed succesfully", user.Name.ToUpperFirst());
+                return Content("/Identity/Account/Assigned");
+            }
+
+            TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
+            return Content("/Identity/Account/Assigned");
+        }
+
+        [Authorize]
+        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        public IActionResult Assign(string userId, string roleName)
+        {
+            var user = UserManager.GetUserById(userId);
+            var currentUser = UserManager.GetUser(User);
+            var account = AccountsManager.GetAccountById(currentUser.SelectedAccountId);
+            var roleId = RoleManager.GetRoleByName(roleName).Id;
+
+            var result = UserAccountsManager.TryAddUserToAccount(new UserAccount
+            {
+                UserProfileId = userId,
+                AccountId = account.Id,
+                UserRoleId = roleId,
+                Id = Guid.NewGuid().ToString()
+            });
+
+            AccountAgreementsManager.Add(new AccountAgreement
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserProfileId = user.Id,
+                AccountId = account.Id
+            });
+
+            if (result.Succeeded)
+            {
+                TempData["StatusMessage"] = string.Format("Success! {0} was assigned succesfully", user.Name);
+                return Content("/Identity/Account/Users/Assigned");
+            }
+
+            return PartialView("_StatusMessage", string.Format("{0}", result.Errors.First().Description));
+        }
+
+        [Authorize]
+        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        public IActionResult CheckUserExistance(string email)
+        {
+            var user = UserManager.GetUserByEmail(email);
 
             if (user == null)
             {
                 return Json(new { Message = "The user does not exits!", IsErrorMessage = false });
+            }
+
+            var currentUserEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            if (email == currentUserEmail)
+            {
+                return Json(new { Message = "This user cannot be assigned!", IsErrorMessage = true });
             }
 
             return PartialView("_ExistentUserPartial", user.Id);
@@ -356,24 +254,68 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> GenerateAccessToken()
+        public IActionResult GenerateAccessToken()
         {
-            var descriptor = new SecurityTokenDescriptor();
             var tokenHandler = new JwtSecurityTokenHandler();
-            var user = await UserManager.GetUserAsync(User);
+            var user = UserManager.GetUser(User);
 
-            var securityToken = tokenHandler.CreateToken(descriptor);
+            var securityToken = tokenHandler.CreateToken(new());
             var token = tokenHandler.WriteToken(securityToken);
             user.APIAccessToken = token;
-            await UserManager.UpdateAsync(user);
+            UserManager.UpdateUserProfile(user);
             return PartialView("_AccessTokenPartial", token);
         }
 
-        private bool TryValidate(IdentityUserExtended currentUser, string id, IdentityUserExtended wantedUser, out IActionResult result)
+        private IEnumerable<AccountModel> PrepareAccounts(UserProfile user)
+        {
+            var accounts = UserAccountsManager.GetUserAccounts(user);
+            return accounts.Select(x => new AccountModel
+            {
+                Name = x.Name,
+                Role = UserAccountsManager.GetUserRoleForAccount(user, x).Name,
+            });
+        }
+
+        private async Task<IActionResult> Update(UserProfile user, string email, string successMessage, bool logoutIfSuccess = false, object routeValues = null)
+        {
+            if (user.Email == email)
+            {
+                TempData["StatusMessage"] = $"Success! {successMessage}!";
+                return RedirectToAction("Profile");
+            }
+
+            var response = await Auth0UserManager.TryUpdateUserEmail(user.UserId, email);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                UserManager.UpdateUserEmail(user, email);
+                TempData["StatusMessage"] = $"Success! {successMessage}!";
+
+                if (logoutIfSuccess)
+                {
+                    await Logout();
+                }
+            }
+
+            TempData["StatusMessage"] = $"Error! {response.Message}!";
+            return RedirectToAction("Profile", routeValues);
+        }
+
+        private async Task Logout()
+        {
+            var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
+                        .WithRedirectUri(Url.Action("Login", "Authentication"))
+                        .Build();
+
+            await HttpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        }
+
+        private bool TryValidate(UserProfile currentUser, string id, UserProfile wantedUser, out IActionResult result)
         {
             if (currentUser == null)
             {
-                result = NotFound($"Unable to load user with ID '{UserManager.GetUserId(User)}'.");
+                result = NotFound($"Unable to load user with ID '{UserProfilesManager.GetUserId(User)}'.");
                 return false;
             }
 
@@ -387,14 +329,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return true;
         }
 
-        private static ProfileModel Load(IdentityUserExtended user, bool isCurrentUserProfile)
+        private ProfileModel Load(UserProfile user, bool isCurrentUserProfile)
         {
             return new ProfileModel
             {
-                UserName = user.UserName,
+                UserName = user.Name,
                 Email = user.Email,
-                IsUsernameEditable = !isCurrentUserProfile && user.IsBuiltInAdmin,
-                Id = isCurrentUserProfile ? null : user.Id
+                IsBuiltInAdmin = user.IsBuiltInAdmin,
+                Id = isCurrentUserProfile ? null : user.Id,
             };
         }
     }

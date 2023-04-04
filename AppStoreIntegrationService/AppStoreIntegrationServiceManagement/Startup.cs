@@ -9,7 +9,17 @@ using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Repository;
 using AppStoreIntegrationServiceManagement.Model.Customization;
 using AppStoreIntegrationServiceManagement.Model.Settings;
-using AppStoreIntegrationServiceCore.Data;
+using Auth0.AspNetCore.Authentication;
+using AppStoreIntegrationServiceManagement.ExtensionMethods;
+using Microsoft.EntityFrameworkCore;
+using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+using AppStoreIntegrationServiceCore.DataBase;
+using AppStoreIntegrationServiceManagement.Model.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Options;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceManagement.Model.Customization.Interface;
+using AppStoreIntegrationServiceManagement.Model.Identity.Interface;
 
 namespace AppStoreIntegrationServiceManagement
 {
@@ -25,6 +35,11 @@ namespace AppStoreIntegrationServiceManagement
         public void ConfigureServices(IServiceCollection services)
         {
             _ = Enum.TryParse(Configuration.GetValue<string>("DeployMode"), out DeployMode deployMode);
+            services.AddDbContext<AppStoreIntegrationServiceContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("AppStoreIntegrationServiceContextConnection"));
+            });
+        
             GetServiceProvider(services).GetRequiredService<AppStoreIntegrationServiceContext>().Database.EnsureCreated();
 
             services.Configure<GzipCompressionProviderOptions>(options =>
@@ -66,15 +81,24 @@ namespace AppStoreIntegrationServiceManagement
             }
 
             services.AddSingleton<IConfigurationSettings>(GetConfigurationSettings(GetServiceProvider(services).GetService<IWebHostEnvironment>(), deployMode).Result);
-            services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
+            services.AddSingleton<IAccountEntitlementsManager, AccountEntitlementsManager>();
+            services.AddSingleton<IAccountAgreementsManager, AccountAgreementsManager>();
             services.AddSingleton<IPluginVersionRepository, PluginVersionRepository>();
-            services.AddSingleton<IPluginRepository, PluginRepository>();
+            services.AddSingleton<IServiceContextFactory, ServiceContextFactory>();
+            services.AddSingleton<ICategoriesRepository, CategoriesRepository>();
+            services.AddSingleton<ICustomizationHelper, CustomizationHelper>();
+            services.AddSingleton<IUserProfilesManager, UserProfilesManager>();
+            services.AddSingleton<IUserAccountsManager, UserAccountsManager>();
             services.AddSingleton<IProductsRepository, ProductsRepository>();
-            services.AddSingleton<INamesRepository, NamesRepository>();
             services.AddSingleton<ICommentsRepository, CommentsRepository>();
+            services.AddSingleton<INotificationCenter, NotificationCenter>();
             services.AddSingleton<ILoggingRepository, LoggingRepository>();
-            services.AddSingleton<CustomizationHelper>();
-            services.AddTransient<INotificationCenter, NotificationCenter>();
+            services.AddSingleton<IAuth0UserManager, Auth0UserManager>();
+            services.AddSingleton<IUserRolesManager, UserRolesManager>();
+            services.AddSingleton<IPluginRepository, PluginRepository>();
+            services.AddSingleton<INamesRepository, NamesRepository>();
+            services.AddSingleton<IAccountsManager, AccountsManager>();
+            services.AddSingleton<IUserSeed, UserSeed>();
 
             services.AddAuthorization(options =>
             {
@@ -82,6 +106,19 @@ namespace AppStoreIntegrationServiceManagement
             });
 
             services.AddRazorPages().AddRazorPagesOptions(options => { options.Conventions.AddPageRoute("/Edit", "edit"); });
+
+            services.ConfigureSameSiteNoneCookies();
+
+            var domain = Configuration["Auth0:Domain"];
+            var apiPath = Configuration["Auth0:ApiPath"];
+            var domainApi = "https://" + domain + apiPath;
+
+            services.AddAuth0WebAppAuthentication(options =>
+            {
+                options.Domain = domain;
+                options.ClientId = Configuration["Auth0:ClientId"];
+                options.ClientSecret = Configuration["Auth0:ClientSecret"];
+            }).WithAccessToken(opt => opt.Audience = domainApi);
         }
 
         private static ServiceProvider GetServiceProvider(IServiceCollection services)

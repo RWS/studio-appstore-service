@@ -106,29 +106,27 @@ namespace AppStoreIntegrationServiceManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;body style=&quot;border: 1px solid lightgray; padding:20px; width: 500px&quot;&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;New&lt;/b&gt;{0}&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;{1}&quot; width=&quot;250&quot;&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;br&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;{2}&lt;/b&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;a href=&quot;{3}&quot;&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-        ///&lt;/body&gt;.
-        /// </summary>
-        public static string EmailNotificationTemplate {
-            get {
-                return ResourceManager.GetString("EmailNotificationTemplate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         public static byte[] FontNames {
             get {
                 object obj = ResourceManager.GetObject("FontNames", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;body style=&quot;border: 1px solid lightgray; padding:20px; width: 500px&quot;&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;A new user profile was created on RWS AppStore Manager using this email address:&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;tot.catalin98@gmail.com&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;Your profile was associated to the following account:&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt; [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string NewAccountEmailNotification {
+            get {
+                return ResourceManager.GetString("NewAccountEmailNotification", resourceCulture);
             }
         }
         
@@ -165,6 +163,23 @@ namespace AppStoreIntegrationServiceManagement {
         public static string PluginRemovedLog {
             get {
                 return ResourceManager.GetString("PluginRemovedLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;body style=&quot;border: 1px solid lightgray; padding:20px; width: 500px&quot;&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;New&lt;/b&gt;{0}&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;{1}&quot; width=&quot;250&quot;&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;br&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;{2}&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;a href=&quot;{3}&quot;&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        ///&lt;/body&gt;.
+        /// </summary>
+        public static string PluginUpdateEmailNotification {
+            get {
+                return ResourceManager.GetString("PluginUpdateEmailNotification", resourceCulture);
             }
         }
         

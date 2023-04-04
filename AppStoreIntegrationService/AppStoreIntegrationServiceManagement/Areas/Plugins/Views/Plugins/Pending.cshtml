@@ -37,7 +37,7 @@
                 </button>
             }
 
-            @if (ExtendedUser.HasFullOwnership() && Model.Status == Status.InReview)
+            @if (ExtendedUser.IsInRole("SystemAdministrator") && Model.Status == Status.InReview)
             {
                 <button class="btn pa-admin-success-btn" onclick="SavePlugin('Approve', true)">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>

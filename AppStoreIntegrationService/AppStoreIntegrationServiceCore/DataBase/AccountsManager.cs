@@ -1,69 +1,46 @@
-﻿using AppStoreIntegrationServiceCore.Data;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceCore.DataBase.Models;
 
 namespace AppStoreIntegrationServiceCore.DataBase
 {
-    public class AccountsManager
+    public class AccountsManager : IAccountsManager
     {
-        private readonly AppStoreIntegrationServiceContext _context;
+        private readonly IServiceContextFactory _serviceContext;
 
-        public AccountsManager(AppStoreIntegrationServiceContext context)
+        public AccountsManager(IServiceContextFactory serviceContext)
         {
-            _context = context;
+            _serviceContext = serviceContext;
         }
 
-        public Account TryAddAccount(string accountName, bool isAppStoreAccount = false)
+        public Account TryAddAccount(Account account)
         {
-            if (string.IsNullOrEmpty(accountName))
+            if (account == null)
             {
                 return null;
             }
 
-            var accounts = _context.Accounts;
-            var account = accounts.ToList().FirstOrDefault(x => x.AccountName == accountName);
+            using var context = _serviceContext.CreateContext();
+            var existingAccount = context.Accounts.FirstOrDefault(x => x.Name == account.Name);
 
-            if (account != null)
+            if (existingAccount != null)
             {
-                return account;
+                return existingAccount;
             }
 
-            account = new Account
-            {
-                Id = Guid.NewGuid().ToString(),
-                AccountName = accountName,
-                IsAppStoreAccount = isAppStoreAccount
-            };
-            accounts.Add(account);
-            _context.SaveChanges();
+            context.Accounts.Add(account);
+            context.SaveChanges();
             return account;
-        }
-
-        public void UpdateAccount(Account account)
-        {
-            var accounts = _context.Accounts;
-            var oldAccount = accounts.FirstOrDefault(x => x.Id == account.Id);
-            oldAccount.AccountName = account.AccountName;
-            _context.SaveChanges();
         }
 
         public Account GetAccountById(string id)
         {
-            return _context.Accounts.ToList().FirstOrDefault(x => x.Id == id);
-        }
+            if (string.IsNullOrEmpty(id))
+            {
+                return null;
+            }
 
-        public Account GetAccountByName(string accountName)
-        {
-            return _context.Accounts.ToList().FirstOrDefault(x => x.AccountName == accountName);
-        }
-
-        public Account GetAppStoreAccount()
-        {
-            return _context.Accounts.ToList().FirstOrDefault(x => x.IsAppStoreAccount);
-        }
-
-        public void RemoveAccountById(string id)
-        {
-            var accounts = _context.Accounts;
-            accounts.Remove(accounts.FirstOrDefault(x => x.Id == id));
+            using var context = _serviceContext.CreateContext();
+            return context.Accounts.ToList().FirstOrDefault(x => x.Id == id);
         }
     }
 }

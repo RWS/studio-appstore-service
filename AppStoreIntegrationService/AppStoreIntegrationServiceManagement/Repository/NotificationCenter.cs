@@ -1,12 +1,11 @@
 ﻿using AppStoreIntegrationServiceCore.Repository.Interface;
-using Microsoft.AspNetCore.Identity;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System.Data;
 using System.Text.RegularExpressions;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
-using AppStoreIntegrationServiceCore.DataBase;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
 
 namespace AppStoreIntegrationServiceManagement.Repository
 {
@@ -22,19 +21,25 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
     public class NotificationCenter : INotificationCenter
     {
-        private readonly UserManager<IdentityUserExtended> _userManager;
+        private readonly IUserProfilesManager _userManager;
+        private readonly IUserAccountsManager _userAccountsManager;
+        private readonly IAccountsManager _accountsManager;
         private readonly INotificationsManager _notificationsManager;
         private readonly SendGridClient _sendGridClient;
 
         public NotificationCenter
         (
-            UserManager<IdentityUserExtended> userManager,
             IConfigurationSettings configurationSettings,
-            INotificationsManager notificationsManager
+            INotificationsManager notificationsManager,
+            IUserProfilesManager userProfilesManager,
+            IUserAccountsManager userAccountsManager,
+            IAccountsManager accountsManager
         )
         {
-            _userManager = userManager;
             _notificationsManager = notificationsManager;
+            _userManager = userProfilesManager;
+            _userAccountsManager = userAccountsManager;
+            _accountsManager = accountsManager;
             var sendGridKey = configurationSettings.SendGridAPIKey;
             if (string.IsNullOrEmpty(sendGridKey))
             {
@@ -46,7 +51,7 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
         public async Task SendEmail(EmailNotification notification)
         {
-            var user = await _userManager.FindByNameAsync(notification.Author);
+            var user = _userManager.GetUserByName(notification.Author);
 
             if (!user.EmailNotificationsEnabled)
             {
@@ -71,10 +76,11 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
             try
             {
-                foreach (var user in _userManager.Users)
+                foreach (var user in _userManager.UserProfiles)
                 {
-                    var roles = await _userManager.GetRolesAsync(user);
-                    if (user.EmailNotificationsEnabled && roles[0] == "Administrator")
+                    var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+                    var role = _userAccountsManager.GetUserRoleForAccount(user, account);
+                    if (user.EmailNotificationsEnabled && role.Name == "Administrator")
                     {
                         var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(user.Email), "RWS Plugin update", null, notification.ToHtml());
                         _ = await _sendGridClient.SendEmailAsync(email);

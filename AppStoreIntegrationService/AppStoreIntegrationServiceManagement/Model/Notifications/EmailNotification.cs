@@ -20,7 +20,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Notifications
 
         public virtual string ToHtml()
         {
-            return string.Format(TemplateResource.EmailNotificationTemplate, Message, ImageSource, Title, CallToActionUrl);
+            return string.Format(TemplateResource.PluginUpdateEmailNotification, Message, ImageSource, Title, CallToActionUrl);
         }
     }
 }

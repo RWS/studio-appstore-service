@@ -25,19 +25,19 @@
             <input hidden name="Page" value="@Page.Profile" />
             <div class="mb-3">
                 <label asp-for="UserName" class="form-label">Username</label>
-                @if (Model.IsUsernameEditable)
-                {
-                    <input asp-for="UserName" class="form-control fs-inherit" />
-                }
-                else
-                {
-                    <input asp-for="UserName" readonly class="form-control fs-inherit" />
-                }
+                <input asp-for="UserName" readonly class="form-control fs-inherit" />
                 <span asp-validation-for="UserName" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Email" class="form-label">Email</label>
-                <input asp-for="Email" class="form-control fs-inherit" />
+                @if (Model.IsBuiltInAdmin)
+                {
+                    <input asp-for="Email" readonly class="form-control fs-inherit" />
+                }
+                else
+                {
+                    <input asp-for="Email" class="form-control fs-inherit" />
+                }
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <button type="submit" class="btn pa-admin-success-btn fs-inherit">Save</button>

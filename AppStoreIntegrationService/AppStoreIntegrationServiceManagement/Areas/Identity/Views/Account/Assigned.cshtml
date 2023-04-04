@@ -32,9 +32,9 @@
                                 <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
                                 <td class="align-middle px-3 d-none d-lg-table-cell">@user.Role</td>
                                 <td class="align-middle px-3 d-none d-lg-table-cell">
-                                    @if (user.IsOwner || user.IsCurrentUser)
+                                    @if (user.IsCurrentUser)
                                     {
-                                        <i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="@(user.IsOwner ? "The owner cannot be dissmissed!" : "You cannot dissmiss yourself!")"></i>
+                                        <i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="You cannot dissmiss yourself!"></i>
                                     }
                                     else
                                     {

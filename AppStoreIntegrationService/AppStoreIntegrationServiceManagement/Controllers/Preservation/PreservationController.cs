@@ -24,7 +24,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
     }
 
     [Authorize]
-    [AccountSelected]
+    [AccountSelect]
     public class PreservationController : CustomController
     {
         private readonly IPluginRepository _pluginRepository;
@@ -173,8 +173,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
         public async Task<IActionResult> Check(ProfileModel profile)
         {
-            var editedUser = await UserManager.FindByIdAsync(profile.Id);
-            var currentUser = await UserManager.GetUserAsync(User);
+            var editedUser = UserManager.GetUserById(profile.Id);
+            var currentUser = UserManager.GetUser(User);
             var user = editedUser ?? currentUser;
 
             if (profile?.Equals(new ProfileModel(user)) ?? true)

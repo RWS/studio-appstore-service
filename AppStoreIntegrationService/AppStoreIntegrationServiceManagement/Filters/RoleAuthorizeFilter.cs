@@ -1,44 +1,46 @@
-﻿using AppStoreIntegrationServiceCore.DataBase;
-using Microsoft.AspNetCore.Identity;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceCore.DataBase.Models;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AppStoreIntegrationServiceManagement.Filters
 {
-    public class RoleAuthorizeFilter : IAsyncAuthorizationFilter
+    public class RoleAuthorizeFilter : IAuthorizationFilter
     {
-        private readonly UserManager<IdentityUserExtended> _userManager;
-        private readonly UserAccountsManager _userAccountsManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IUserProfilesManager _userManager;
+        private readonly IUserAccountsManager _userAccountsManager;
+        private readonly IUserRolesManager _roleManager;
+        private readonly IAccountsManager _accountsManager;
         private readonly string[] _roles;
 
         public RoleAuthorizeFilter
         (
-            UserManager<IdentityUserExtended> userManager,
-            UserAccountsManager userAccountsManager,
-            RoleManager<IdentityRole> roleManager,
+            IUserProfilesManager userManager,
+            IUserAccountsManager userAccountsManager,
+            IUserRolesManager roleManager,
+            IAccountsManager accountsManager,
             string[] roles
         )
         {
             _userManager = userManager;
             _userAccountsManager = userAccountsManager;
             _roleManager = roleManager;
+            _accountsManager = accountsManager;
             _roles = roles;
         }
 
-        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+        public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var user = await _userManager.GetUserAsync(context.HttpContext.User);
-            foreach (var role in _roles)
+            var user = _userManager.GetUser(context.HttpContext.User);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+            var userRole = _userAccountsManager.GetUserRoleForAccount(user, account);
+
+            if (_roles.Any(x => _roleManager.GetRoleByName(x).Equals(userRole)))
             {
-                var identityRole = await _roleManager.FindByNameAsync(role);
-                if (_userAccountsManager.IsInRole(user, identityRole.Id))
-                {
-                    return;
-                }
+                return;
             }
 
             var redirectUrl = context.HttpContext.Request.Path.Value;
-            context.HttpContext.Response.Redirect($"~/AccountDenied?{redirectUrl}");
+            context.HttpContext.Response.Redirect($"~/AccessDenied?{redirectUrl}");
         }
     }
 }

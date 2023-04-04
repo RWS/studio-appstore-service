@@ -1,65 +1,69 @@
-﻿using AppStoreIntegrationServiceCore.Data;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceCore.DataBase.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
 
 namespace AppStoreIntegrationServiceCore.DataBase
 {
-    public class UserAccountsManager
+    public class UserAccountsManager : IUserAccountsManager
     {
-        private readonly AppStoreIntegrationServiceContext _context;
-        private readonly AccountsManager _accountsManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IAccountEntitlementsManager _accountEntitlementsManager;
+        private readonly IServiceContextFactory _serviceContext;
+        private readonly IAccountsManager _accountsManager;
+        private readonly IUserRolesManager _roleManager;
 
         public UserAccountsManager
         (
-            AppStoreIntegrationServiceContext context,
-            AccountsManager accountsManager,
-            RoleManager<IdentityRole> roleManager
+            IAccountEntitlementsManager accountEntitlementsManager,
+            IServiceContextFactory serviceContext,
+            IAccountsManager accountsManager,
+            IUserRolesManager roleManager
         )
         {
-            _context = context;
+            _accountEntitlementsManager = accountEntitlementsManager;
+            _serviceContext = serviceContext;
             _accountsManager = accountsManager;
             _roleManager = roleManager;
         }
 
-        public IEnumerable<Account> GetUserParentAccounts(IdentityUserExtended user)
+        public IEnumerable<Account> GetUserAccounts(UserProfile user)
         {
-            var userAccounts = _context.UserAccounts.ToList();
-            var currentUserAccounts = userAccounts.Where(x => x.UserId == user.Id);
+            using var context = _serviceContext.CreateContext();
+            var userAccounts = context.UserAccounts.ToList();
+            return userAccounts.Where(x => x.UserProfileId == user.Id)
+                               .Select(x => _accountsManager.GetAccountById(x.AccountId));
+        }
 
-            foreach (var userAccount in userAccounts.Where(x => x.UserId == user.Id))
+        public bool CanBeRemoved(UserProfile user)
+        {
+            using var context = _serviceContext.CreateContext();
+            var userAccounts = context.UserAccounts.ToList();
+            foreach (var userAccount in userAccounts.Where(x => x.UserProfileId == user.Id))
             {
-                yield return _accountsManager.GetAccountById(userAccount.ParentAccountId);
+                var otherAccounts = userAccounts.Where(x => x.UserProfileId != user.Id && x.AccountId == userAccount.Id);
+                if (otherAccounts.Any(x => CanBeRemoved(_roleManager.GetRoleById(x.UserRoleId))))
+                {
+                    return true;
+                }
             }
+
+            return false;
         }
 
-        public Account GetUserAccount(IdentityUserExtended user)
+        private static bool CanBeRemoved(UserRole role)
         {
-            var userAccounts = _context.UserAccounts.ToList();
-            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id);
-            return _accountsManager.GetAccountById(userAccount.AccountId);
+            return "SystemAdministrator" == role.Name || "Administrator" == role.Name;
         }
 
-        public IdentityResult RemoveUserAccounts(IdentityUserExtended user)
+        public IdentityResult RemoveUserAccounts(UserProfile user)
         {
             try
             {
-                var userAccounts = _context.UserAccounts;
-
-                foreach (var userAccount in userAccounts.Where(x => x.UserId == user.Id))
-                {
-                    if (userAccount.IsOwner)
-                    {
-                        _accountsManager.RemoveAccountById(userAccount.AccountId);
-                        userAccounts.RemoveRange(userAccounts.Where(x => x.AccountId == userAccount.AccountId));
-                    }
-                    else
-                    {
-                        userAccounts.Remove(userAccount);
-                    }
-                }
-
-                _context.SaveChanges();
+                using var context = _serviceContext.CreateContext();
+                var userAccounts = context.UserAccounts;
+                var toBeRemobed = userAccounts.Where(x => x.UserProfileId == user.Id);
+                userAccounts.RemoveRange(toBeRemobed);
+                context.SaveChanges();
                 return IdentityResult.Success;
             }
             catch (Exception ex)
@@ -68,68 +72,29 @@ namespace AppStoreIntegrationServiceCore.DataBase
             }
         }
 
-        public bool IsOwner(IdentityUserExtended user)
+        public bool BelongsTo(UserProfile member, Account account)
         {
-            var userAccounts = _context.UserAccounts.ToList();
-            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && (x.AccountId == account.Id || x.ParentAccountId == account.Id));
-            return userAccount.IsOwner;
+            using var context = _serviceContext.CreateContext();
+            return context.UserAccounts.ToList().Any(x => x.AccountId == account.Id && x.UserProfileId == member.Id);
         }
 
-        public bool IsOwner(IdentityUserExtended user, Account account)
+        public UserRole GetUserRoleForAccount(UserProfile user, Account account)
         {
-            var userAccounts = _context.UserAccounts.ToList();
-            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && x.AccountId == account.Id);
-            return userAccount?.IsOwner ?? false;
+            using var context = _serviceContext.CreateContext();
+            var userAccounts = context.UserAccounts.ToList();
+            var userAccount = userAccounts.FirstOrDefault(x => x.UserProfileId == user.Id && x.AccountId == account.Id);
+            return _roleManager.GetRoleById(userAccount.UserRoleId);
         }
 
-        public bool BelongsTo(IdentityUserExtended owner, IdentityUserExtended member)
-        {
-            var account = GetUserAccount(owner);
-            var userAccounts = _context.UserAccounts.ToList();
-            return userAccounts.Any(x => (x.ParentAccountId == account.Id || x.AccountId == account.Id) && x.UserId == member.Id);
-        }
-
-        public bool BelongsTo(IdentityUserExtended user, string accountId)
-        {
-            var userAccounts = _context.UserAccounts.ToList();
-            return userAccounts.Any(x => x.ParentAccountId == accountId && x.UserId == user.Id);
-        }
-
-        public bool IsInRole(IdentityUserExtended user, string roleId)
-        {
-            var userAccounts = _context.UserAccounts.ToList();
-            return userAccounts.Any(x => x.IsInRole(user, roleId));
-        }
-
-        public bool HasFullOwnership(IdentityUserExtended user, string roleId)
-        {
-            var userAccounts = _context.UserAccounts.ToList();
-            return userAccounts.Any(x => x.HasFullOwnership(user, roleId));
-        }
-
-        public bool HasAssociatedAccounts(IdentityUserExtended user)
-        {
-            var userAccounts = _context.UserAccounts.ToList();
-            return userAccounts.Any(x => x.UserId == user.Id);
-        }
-
-        public async Task<IdentityRole> GetUserRoleForAccount(IdentityUserExtended user, Account account)
-        {
-            var userAccounts = _context.UserAccounts.ToList();
-            var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && (x.AccountId == account.Id || x.ParentAccountId == account.Id));
-            var identityRole = await _roleManager.FindByIdAsync(userAccount.RoleId);
-            return identityRole;
-        }
-
-        public IdentityResult RemoveUserFromAccount(IdentityUserExtended user, Account account)
+        public IdentityResult RemoveUserFromAccount(UserProfile user, Account account)
         {
             try
             {
-                var userAccounts = _context.UserAccounts;
-                var userAccount = userAccounts.FirstOrDefault(x => x.UserId == user.Id && x.ParentAccountId == account.Id);
+                using var context = _serviceContext.CreateContext();
+                var userAccounts = context.UserAccounts;
+                var userAccount = userAccounts.FirstOrDefault(x => x.UserProfileId == user.Id && x.AccountId == account.Id);
                 userAccounts.Remove(userAccount);
-                _context.SaveChanges();
+                context.SaveChanges();
                 return IdentityResult.Success;
             }
             catch (Exception ex)
@@ -138,29 +103,12 @@ namespace AppStoreIntegrationServiceCore.DataBase
             }
         }
 
-        public async Task<IdentityResult> TryAddUserToAccount(string userId, string role, string accountName, string entryAccountName = null, bool isAppStoreAccount = false)
+        public IdentityResult TryAddUserToAccount(UserAccount userAccount)
         {
             try
             {
-                var account = _accountsManager.TryAddAccount(accountName, isAppStoreAccount);
-                var userAccounts = _context.UserAccounts;
-                var identityRole = await _roleManager.FindByNameAsync(role);
-                var userAccount = new UserAccount
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    AccountId = account.Id,
-                    ParentAccountId = account.Id,
-                    UserId = userId,
-                    RoleId = identityRole.Id,
-                    IsOwner = account.IsAppStoreAccount
-                };
-
-                if (!string.IsNullOrEmpty(entryAccountName))
-                {
-                    var entryAccount = _accountsManager.TryAddAccount(entryAccountName);
-                    userAccount.ParentAccountId = entryAccount.Id;
-                    userAccount.IsOwner = entryAccount.IsAppStoreAccount;
-                }
+                using var context = _serviceContext.CreateContext();
+                var userAccounts = context.UserAccounts;
 
                 if (userAccounts.ToList().Any(x => x.IsAssigned(userAccount)))
                 {
@@ -168,7 +116,13 @@ namespace AppStoreIntegrationServiceCore.DataBase
                 }
 
                 userAccounts.Add(userAccount);
-                _context.SaveChanges();
+                context.SaveChanges();
+                _accountEntitlementsManager.Add(new AccountEntitlement
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    AccountId = userAccount.AccountId
+                });
+
                 return IdentityResult.Success;
             }
             catch (Exception ex)

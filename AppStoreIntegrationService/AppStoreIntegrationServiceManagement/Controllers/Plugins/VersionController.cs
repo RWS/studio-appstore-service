@@ -13,7 +13,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
     [Area("Plugins")]
     [Authorize]
-    [AccountSelected]
+    [AccountSelect]
     public class VersionController : CustomController
     {
         private readonly IPluginRepository _pluginRepository;
@@ -75,7 +75,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             extendedPlugin.IsEditMode = true;
             extendedPlugin.Parents = await _productsRepository.GetAllParents();
-            extendedPlugin.Versions = versions.Where(v => v.IsThirdParty && ExtendedUser.IsInRole("Developer") || ExtendedUser.HasFullOwnership() && v.HasAdminConsent).ToList();
+            extendedPlugin.Versions = versions.Where(v => v.IsThirdParty && ExtendedUser.IsInRole("Developer") || ExtendedUser.IsInRole("SystemAdministrator") && v.HasAdminConsent).ToList();
 
             var extendedVersion = new ExtendedPluginVersion
             {
@@ -154,7 +154,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Approve")]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> Approve(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -174,7 +173,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Reject")]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> Reject(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -248,7 +246,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/AcceptDeletion/{versionId}")]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> AcceptDeletion(int pluginId, string versionId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -271,7 +268,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/RejectDeletion/{versionId}")]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> RejectDeletion(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
@@ -314,7 +310,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             if (version.IsThirdParty)
             {
-                return ExtendedUser.IsInRole("Developer") || ExtendedUser.HasFullOwnership() && version.HasAdminConsent;
+                return ExtendedUser.IsInRole("Developer") || ExtendedUser.IsInRole("SystemAdministrator") && version.HasAdminConsent;
             }
 
             return ExtendedUser.IsInRole("Administrator");
@@ -325,7 +321,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _notificationCenter.SendEmail(emailNotification);
             await _notificationCenter.Push(pushNotification);
             await _notificationCenter.Broadcast(emailNotification);
-            pushNotification.Author = AccountsManager.GetAppStoreAccount().AccountName;
             await _notificationCenter.Push(pushNotification);
         }
 
@@ -388,7 +383,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             extendedPlugin.Parents = await _productsRepository.GetAllParents();
             extendedPlugin.IsEditMode = true;
-            extendedPlugin.Versions = versions.Where(v => !v.IsThirdParty || ExtendedUser.IsInRole("Developer") || v.VersionStatus == Status.Active || ExtendedUser.HasFullOwnership() && v.HasAdminConsent).ToList();
+            extendedPlugin.Versions = versions.Where(v => !v.IsThirdParty || ExtendedUser.IsInRole("Developer") || v.VersionStatus == Status.Active || ExtendedUser.IsInRole("SystemAdministrator") && v.HasAdminConsent).ToList();
 
             extendedVersion.SupportedProductsListItems = new MultiSelectList(await _productsRepository.GetAllProducts(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
             extendedVersion.PluginId = pluginId;

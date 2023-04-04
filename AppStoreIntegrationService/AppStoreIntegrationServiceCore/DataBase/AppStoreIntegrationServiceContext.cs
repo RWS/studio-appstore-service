@@ -1,22 +1,22 @@
-﻿using AppStoreIntegrationServiceCore.DataBase;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using AppStoreIntegrationServiceCore.DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AppStoreIntegrationServiceCore.Data;
-
-public class AppStoreIntegrationServiceContext : IdentityDbContext<IdentityUserExtended>
+namespace AppStoreIntegrationServiceCore.DataBase
 {
-    public AppStoreIntegrationServiceContext(DbContextOptions<AppStoreIntegrationServiceContext> options) : base(options) { }
-
-    public DbSet<Account> Accounts { get; set; }
-
-    public DbSet<UserAccount> UserAccounts { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder builder)
+    public class AppStoreIntegrationServiceContext : DbContext
     {
-        base.OnModelCreating(builder);
-        // Customize the ASP.NET Identity model and override the defaults if needed.
-        // For example, you can rename the ASP.NET Identity table names and more.
-        // Add your customizations after calling base.OnModelCreating(builder);
+        public AppStoreIntegrationServiceContext(DbContextOptions<AppStoreIntegrationServiceContext> options) : base(options) { }
+
+        public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<UserAccount> UserAccounts { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<AccountEntitlement> AccountEntitlements { get; set; }
+        public DbSet<AccountAgreement> AccountAgreements { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
     }
 }

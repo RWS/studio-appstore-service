@@ -1,87 +1,104 @@
-﻿using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+﻿using AppStoreIntegrationServiceCore.DataBase;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceCore.DataBase.Models;
+using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
-using AppStoreIntegrationServiceManagement.Model.Identity;
+using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
+    [Authorize]
     [Area("Identity")]
     public class AuthenticationController : CustomController
     {
-        public AuthenticationController(IUserSeed userSeed)
+        private readonly IUserProfilesManager _userProfilesManager;
+        private readonly IAccountAgreementsManager _accountAgreements;
+        private readonly IAccountsManager _accountsManager;
+
+        public AuthenticationController
+        (
+            IUserSeed userSeed,
+            IUserProfilesManager userProfilesManager,
+            IAccountAgreementsManager accountAgreements,
+            IAccountsManager accountsManager
+        )
         {
             userSeed.EnsureAdminExistance();
+            _userProfilesManager = userProfilesManager;
+            _accountAgreements = accountAgreements;
+            _accountsManager = accountsManager;
         }
 
-        public async Task<IActionResult> Login(string returnUrl = null)
+        [AllowAnonymous]
+        [Route("/Account/Login")]
+        public async Task Login()
         {
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-            return View(new LoginModel
-            {
-                ExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList(),
-                ReturnUrl = returnUrl ?? Url.Content("~/Plugins")
-            });
+            var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
+                .WithRedirectUri(GetUrlBase() + "/Plugins")
+                .Build();
+
+            await HttpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PostLogin(LoginModel loginModel, string returnUrl = null)
+        public IActionResult Accounts(string returnUrl = null)
         {
-            var user = await UserManager.FindByEmailAsync(loginModel.Input.Email);
-
-            if (user == null)
-            {
-                TempData["StatusMessage"] = "Error! This e-mail address doesn't exist in our database!";
-                return View("Login", loginModel);
-            }
-
-            if (!UserAccountsManager.HasAssociatedAccounts(user))
-            {
-                TempData["StatusMessage"] = "Error! You are no longer part of AppStore!";
-                return View("Login", loginModel);
-            }
-
-            var result = await SignInManager.PasswordSignInAsync(user, loginModel.Input.Password, loginModel.Input.RememberMe, false);
-            user.SelectedAccountId = null;
-            await UserManager.UpdateAsync(user);
-
-            if (result.Succeeded)
-            {
-                return Redirect(returnUrl);
-            }
-
-            TempData["StatusMessage"] = "Error! Something went wrong!";
-            return View("Login", loginModel);
-        }
-
-        [Authorize]
-        public async Task<IActionResult> Accounts(string returnUrl = null)
-        {
-            var user = await UserManager.GetUserAsync(User);
-            var accounts = UserAccountsManager.GetUserParentAccounts(user);
+            var user = UserManager.GetUser(ExtendedUser);
+            var accounts = UserAccountsManager.GetUserAccounts(user);
             return View((accounts, returnUrl));
         }
 
         [HttpPost]
-        public async Task<IActionResult> SelectAccount(string accountId, string returnUrl = null)
+        public IActionResult SelectAccount(string accountId, string returnUrl = null)
         {
-            var user = await UserManager.GetUserAsync(User);
+            var user = UserManager.GetUser(ExtendedUser);
             user.SelectedAccountId = accountId;
-            await UserManager.UpdateAsync(user);
+            UserManager.UpdateUserProfile(user);
             return Redirect(returnUrl ?? "/Plugins");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Logout()
+        [AccountSelect]
+        public IActionResult Agreement(string returnUrl = null)
         {
-            var user = await UserManager.GetUserAsync(User);
+            return View("Agreement", (false, returnUrl ?? "/Plugins"));
+        }
+
+        [HttpPost]
+        public IActionResult ConsentAgreement(bool acceptedAgreement)
+        {
+            if (!acceptedAgreement)
+            {
+                TempData["StatusMessage"] = "Warning! You cannot proceed without accepting the agreement!";
+                return Content("/Identity/Authentication/Agreement");
+            }
+
+            var user = _userProfilesManager.GetUser(ExtendedUser);
+            _accountAgreements.Add(new AccountAgreement
+            {
+                AccountId = _accountsManager.GetAccountById(user.SelectedAccountId).Id,
+                Id = Guid.NewGuid().ToString(),
+                UserProfileId = user.Id,
+            });
+
+            return Content("/Plugins");
+        }
+
+        public async Task Logout()
+        {
+            var user = UserManager.GetUser(User);
             user.SelectedAccountId = null;
-            await UserManager.UpdateAsync(user);
-            await SignInManager.SignOutAsync();
-            TempData["StatusMessage"] = "Success! You were logged out!";
-            return RedirectToAction("Login");
+            _userProfilesManager.UpdateUserProfile(user);
+
+            var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
+                .WithRedirectUri(Url.Action("Login", "Authentication"))
+                .Build();
+
+            await HttpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }
     }
 }

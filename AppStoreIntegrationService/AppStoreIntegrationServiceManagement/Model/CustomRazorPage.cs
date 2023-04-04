@@ -1,5 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase;
-using Microsoft.AspNetCore.Identity;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
 using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace AppStoreIntegrationServiceManagement.Model
@@ -13,24 +13,24 @@ namespace AppStoreIntegrationServiceManagement.Model
             get => Context.RequestServices;
         }
 
-        private UserManager<IdentityUserExtended> UserManager 
+        private IUserProfilesManager UserManager 
         {
-            get => ServiceProvider.GetRequiredService<UserManager<IdentityUserExtended>>();
+            get => ServiceProvider.GetRequiredService<IUserProfilesManager>();
         }
 
-        private UserAccountsManager UserAccountsManager
+        private IUserAccountsManager UserAccountsManager
         {
-            get => ServiceProvider.GetRequiredService<UserAccountsManager>();
+            get => ServiceProvider.GetRequiredService<IUserAccountsManager>();
         }
 
-        private RoleManager<IdentityRole> RoleManager
+        private IUserRolesManager RoleManager
         {
-            get => ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            get => ServiceProvider.GetRequiredService<IUserRolesManager>();
         }
 
-        private AccountsManager AccountsManager
+        private IAccountsManager AccountsManager
         {
-            get => ServiceProvider.GetRequiredService<AccountsManager>();
+            get => ServiceProvider.GetRequiredService<IAccountsManager>();
         }
 
         public CustomClaimsPrincipal ExtendedUser

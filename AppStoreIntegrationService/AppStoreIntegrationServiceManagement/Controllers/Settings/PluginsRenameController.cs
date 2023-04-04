@@ -9,7 +9,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
-    [AccountSelected]
+    [AccountSelect]
     public class PluginsRenameController : CustomController
     {
         private readonly INamesRepository _namesRepository;

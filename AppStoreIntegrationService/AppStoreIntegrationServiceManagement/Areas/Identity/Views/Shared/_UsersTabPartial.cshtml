@@ -4,7 +4,7 @@
     <li class="nav-item">
         <a class="nav-link cursor-pointer @(Model ? "active-tab" : null)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users/Assigned'})">This account users</a>
     </li>
-    @if (ExtendedUser.IsInRole("Administrator"))
+    @if (ExtendedUser.IsInRole("SystemAdministrator"))
     {
         <li class="nav-item">
             <a class="nav-link cursor-pointer @(!Model ? "active-tab" : null)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users/All'})">All users</a>

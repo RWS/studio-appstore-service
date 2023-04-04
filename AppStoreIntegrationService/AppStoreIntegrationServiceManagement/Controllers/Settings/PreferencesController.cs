@@ -6,7 +6,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
-    [AccountSelected]
+    [AccountSelect]
     public class PreferencesController : Controller
     {
         public IActionResult Index()

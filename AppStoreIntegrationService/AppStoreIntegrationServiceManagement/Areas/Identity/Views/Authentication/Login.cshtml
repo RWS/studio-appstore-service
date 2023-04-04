@@ -4,11 +4,12 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]"/>
+<div id="statusMessageContainer"></div>
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-11 col-md-8 col-lg-6 rounded p-5 bg-light">
             <section>
-                <form asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Authentication" asp-action="PostLogin" method="post">
+                <form asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Authentication" asp-action="PostLogin" id="form" onsubmit="return false" method="post">
                     <h3 class="text-start">Sign in</h3>
                     <hr />
                     <div asp-validation-summary="All" class="text-danger"></div>
@@ -28,13 +29,18 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <button type="submit" class="btn pa-admin-success-btn w-100">Sign in</button>
+                        Don't have an account? <a asp-controller="Authentication" asp-action="Register">Sign up</a>
+                    </div>
+                    <div class="mb-3">
+                        <button type="button" class="btn pa-admin-success-btn w-100" onclick="Login()">Sign in</button>
                     </div>
                 </form>
             </section>
         </div>
     </div>
 </div>
+
+<script src="~/js/ManageUsersScript.js"></script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

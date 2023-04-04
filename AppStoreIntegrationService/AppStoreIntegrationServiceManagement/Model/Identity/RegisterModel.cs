@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace AppStoreIntegrationServiceManagement.Model.Identity
 {
     public class RegisterModel
     {
         [Required]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         [Required]
         [DataType(DataType.EmailAddress)]
@@ -15,7 +13,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         public string Email { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[^\s]{8,}$", ErrorMessage = "The password is to weak!")]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
@@ -27,10 +25,14 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
 
         [Display(Name = "User role")]
         public string UserRole { get; set; }
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
+        public bool IsNewAccount { get; set; }
+        public string SalesForceId { get; set; }
+        public string OosId { get; set; }
+        public string SalesForceName { get; set; }
+
         public bool IsEmpty()
         {
-            return new[] { Password, ConfirmPassword, UserName }.All(x => x == null);
+            return new[] { Password, ConfirmPassword, Username }.All(x => x == null);
         }
 
     }

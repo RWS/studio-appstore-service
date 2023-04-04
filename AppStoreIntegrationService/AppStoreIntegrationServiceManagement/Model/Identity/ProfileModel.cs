@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AppStoreIntegrationServiceCore.DataBase;
+﻿using AppStoreIntegrationServiceCore.DataBase.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppStoreIntegrationServiceManagement.Model.Identity
 {
@@ -7,10 +7,10 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
     {
         public ProfileModel() { }
 
-        public ProfileModel(IdentityUserExtended user)
+        public ProfileModel(UserProfile user)
         {
             Email = user.Email;
-            UserName = user.UserName;
+            UserName = user.Name;
         }
 
         [Required]
@@ -20,7 +20,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         public string Email { get; set; }
         [Display(Name = "User role")]
         public string Id { get; set; }
-        public bool IsUsernameEditable { get; set; }
+        public bool IsBuiltInAdmin { get; set; }
 
         public bool Equals(ProfileModel other)
         {

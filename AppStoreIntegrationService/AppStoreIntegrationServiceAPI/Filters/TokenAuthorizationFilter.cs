@@ -1,5 +1,5 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase;
-using Microsoft.AspNetCore.Identity;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Net.Http.Headers;
@@ -8,9 +8,9 @@ namespace AppStoreIntegrationServiceAPI.Filters
 {
     public class TokenAuthorizationFilter : IAuthorizationFilter
     {
-        private readonly UserManager<IdentityUserExtended> _userManager;
+        private readonly IUserProfilesManager _userManager;
 
-        public TokenAuthorizationFilter(UserManager<IdentityUserExtended> userManager)
+        public TokenAuthorizationFilter(IUserProfilesManager userManager)
         {
             _userManager = userManager;
         }
@@ -25,7 +25,7 @@ namespace AppStoreIntegrationServiceAPI.Filters
                 context.Result = new UnauthorizedResult();
             }
 
-            var users = _userManager.Users.ToList();
+            var users = _userManager.UserProfiles;
 
             if (users.Any(x => x.APIAccessToken == parsedValue.Parameter))
             {

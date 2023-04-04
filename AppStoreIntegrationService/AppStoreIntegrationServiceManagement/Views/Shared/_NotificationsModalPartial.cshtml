@@ -1,7 +1,7 @@
 ﻿@inherits CustomRazorPage<object>
 @inject INotificationCenter notificationCenter
 @{
-    var count = !ExtendedUser.PushNotificationsEnabled ? 0 : await notificationCenter.GetNotificationsCount(ExtendedUser.HasFullOwnership() ? ExtendedUser.AccountName : User.Identity.Name);
+    var count = !ExtendedUser.PushNotificationsEnabled ? 0 : await notificationCenter.GetNotificationsCount(ExtendedUser.IsInRole("SystemAdministrator") ? ExtendedUser.AccountName : User.Identity.Name);
 }
 
 <div class="btn-group dropstart notifications">

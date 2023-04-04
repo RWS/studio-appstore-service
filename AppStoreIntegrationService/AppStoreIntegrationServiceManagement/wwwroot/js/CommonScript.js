@@ -132,7 +132,7 @@ function HttpRequestCallback(response) {
     if (response.includes('div')) {
         document.getElementById('statusMessageContainer').innerHTML = response;
 
-        let alert = document.querySelector('.alert')
+        let alert = document.querySelector('.alert');
         if (alert) {
             setTimeout(() => {
 

@@ -7,22 +7,34 @@
     <div class="row justify-content-center">
         <div class="col-11 col-md-8 col-lg-6 rounded p-5 bg-light">
             <section>
-                <form asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Authentication" asp-action="SelectAccount" method="post">
-                    <h3 class="text-start">Choose account</h3>
-                    <hr />
-                    @foreach (var item in Model.Accounts)
-                    {
+                @if (Model.Accounts.Any())
+                {
+                    <form asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Authentication" asp-action="SelectAccount" method="post">
+                        <h3 class="text-start">Choose account</h3>
+                        <hr />
+                        @foreach (var item in Model.Accounts)
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <input type="radio" name="AccountId" value="@item.Id" class="form-check-input" />
+                                    @item.Name
+                                </label>
+                            </div>
+                        }
                         <div class="mb-3">
-                            <label class="form-label">
-                                <input type="radio" name="AccountId" value="@item.Id" class="form-check-input" />
-                                @item.AccountName
-                            </label>
+                            <button type="submit" class="btn pa-admin-success-btn w-100">Choose account</button>
                         </div>
-                    }
-                    <div class="mb-3">
-                        <button type="submit" class="btn pa-admin-success-btn w-100">Choose account</button>
-                    </div>
-                </form>
+                    </form>
+                }
+                else
+                {
+                    <form asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Authentication" asp-action="TechPartnerSignUp" method="post">
+                        <div class="mb-3">
+                            <button type="submit" class="btn pa-admin-success-btn w-100">Sign in as tech partner</button>
+                        </div>
+                    </form>
+                }
+
             </section>
         </div>
     </div>

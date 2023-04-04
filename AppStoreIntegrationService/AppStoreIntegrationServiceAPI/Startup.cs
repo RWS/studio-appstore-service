@@ -9,7 +9,7 @@ using AppStoreIntegrationServiceAPI.HealthChecks;
 using HealthChecks.UI.Client;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Repository;
-using AppStoreIntegrationServiceCore.Data;
+using AppStoreIntegrationServiceCore.DataBase;
 
 namespace AppStoreIntegrationServiceAPI
 {

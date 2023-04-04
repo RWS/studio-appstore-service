@@ -34,7 +34,7 @@
                 Save as draft
             </button>
         }
-        else if (Model.Version.IsThirdParty && ExtendedUser.HasFullOwnership() && Model.Version.VersionStatus == Status.InReview)
+        else if (Model.Version.IsThirdParty && ExtendedUser.IsInRole("SystemAdministrator") && Model.Version.VersionStatus == Status.InReview)
         {
             <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Approve', true)">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>

@@ -12,7 +12,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
     [Area("Plugins")]
     [Authorize]
-    [AccountSelected]
+    [SyncDB]
+    [AccountSelect]
+    [TechPartnerAgreement]
     public class PluginsController : CustomController
     {
         private readonly IPluginRepository _pluginRepository;
@@ -138,7 +140,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> AcceptDeletion(int id)
         {
             var plugin = await _pluginRepository.GetPluginById(id);
@@ -161,7 +162,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> RejectDeletion(int id)
         {
             var plugin = await _pluginRepository.GetPluginById(id);
@@ -203,7 +203,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> Activate(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -220,7 +219,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> Deactivate(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -255,7 +253,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> Approve(PluginDetails plugin, bool removeOtherVersions = false)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -280,7 +277,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         [HttpPost]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> Reject(PluginDetails plugin, bool removeOtherVersions = false)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -326,7 +322,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _notificationCenter.SendEmail(emailNotification);
             await _notificationCenter.Push(pushNotification);
             await _notificationCenter.Broadcast(emailNotification);
-            pushNotification.Author = AccountsManager.GetAppStoreAccount().AccountName;
             await _notificationCenter.Push(pushNotification);
         }
 

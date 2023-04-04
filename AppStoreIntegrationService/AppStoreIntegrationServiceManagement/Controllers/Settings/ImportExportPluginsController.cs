@@ -13,7 +13,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
-    [AccountSelected]
+    [AccountSelect]
     public class ImportExportPluginsController : CustomController
     {
         private readonly IPluginRepository _pluginRepository;
@@ -48,7 +48,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         [Route("Settings/ImportPlugins")]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public IActionResult Import()
         {
             return View(new ImportPluginsModel());
@@ -56,7 +55,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         [HttpPost]
         [RoleAuthorize("Administrator")]
-        [Owner]
         public async Task<IActionResult> CreateImport(ImportPluginsModel import)
         {
             var modalDetails = new ModalMessage

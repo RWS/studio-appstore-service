@@ -1,16 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AppStoreIntegrationServiceCore.DataBase
+namespace AppStoreIntegrationServiceCore.DataBase.Models
 {
-    [Table("AspNetAccounts")]
+    [Table("Accounts")]
     public class Account
     {
         [Required]
         public string Id { get; set; }
+        public string SalesForceId { get; set; }
+        public string OosId { get; set; }
         [Required]
-        public string AccountName { get; set; }
-        [Required]
-        public bool IsAppStoreAccount { get; set; }
+        public string Name { get; set; }
     }
 }

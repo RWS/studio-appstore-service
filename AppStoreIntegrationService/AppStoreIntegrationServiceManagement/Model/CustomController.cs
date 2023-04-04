@@ -1,5 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase;
-using Microsoft.AspNetCore.Identity;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceManagement.Model.Identity.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Model
@@ -13,29 +14,34 @@ namespace AppStoreIntegrationServiceManagement.Model
             get => HttpContext.RequestServices;
         }
 
-        protected UserManager<IdentityUserExtended> UserManager
+        protected IUserProfilesManager UserManager
         {
-            get => ServiceProvider.GetRequiredService<UserManager<IdentityUserExtended>>();
+            get => ServiceProvider.GetRequiredService<IUserProfilesManager>();
         }
 
-        protected UserAccountsManager UserAccountsManager
+        protected IAccountAgreementsManager AccountAgreementsManager
         {
-            get => ServiceProvider.GetRequiredService<UserAccountsManager>();
+            get => ServiceProvider.GetRequiredService<IAccountAgreementsManager>();
         }
 
-        protected RoleManager<IdentityRole> RoleManager
+        protected IUserAccountsManager UserAccountsManager
         {
-            get => ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            get => ServiceProvider.GetRequiredService<IUserAccountsManager>();
         }
 
-        protected AccountsManager AccountsManager
+        protected IUserRolesManager RoleManager
         {
-            get => ServiceProvider.GetRequiredService<AccountsManager>();
+            get => ServiceProvider.GetRequiredService<IUserRolesManager>();
         }
 
-        protected SignInManager<IdentityUserExtended> SignInManager
+        protected IAuth0UserManager Auth0UserManager
         {
-            get => ServiceProvider.GetRequiredService<SignInManager<IdentityUserExtended>>();
+            get => ServiceProvider.GetRequiredService<IAuth0UserManager>();
+        }
+
+        protected IAccountsManager AccountsManager
+        {
+            get => ServiceProvider.GetRequiredService<IAccountsManager>();
         }
 
         protected IHttpContextAccessor ContextAccessor

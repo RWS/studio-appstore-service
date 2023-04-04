@@ -1,9 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using AppStoreIntegrationServiceManagement.Model.Customization.Interface;
+using Newtonsoft.Json;
 using System.Text;
 
 namespace AppStoreIntegrationServiceManagement.Model.Customization
 {
-    public class CustomizationHelper
+    public class CustomizationHelper : ICustomizationHelper
     {
         private readonly IEnumerable<string> defaults = new[] { "navbar", "success", "select" };
         private readonly IHttpContextAccessor _context;

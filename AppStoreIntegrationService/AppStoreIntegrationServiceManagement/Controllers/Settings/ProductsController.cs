@@ -8,7 +8,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
-    [AccountSelected]
+    [AccountSelect]
     [RoleAuthorize("Administrator")]
     public class ProductsController : Controller
     {

@@ -12,8 +12,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
     [Area("Identity")]
     [Authorize]
-    [AccountSelected]
-    [RoleAuthorize("Administrator", "Developer")]
+    [AccountSelect]
     public class NotificationsController : CustomController
     {
         private readonly INotificationCenter _notificationCenter;
@@ -26,26 +25,26 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [Route("Identity/Account/Notifications")]
         public async Task<IActionResult> Index()
         {
-            var user = await UserManager.GetUserAsync(User);
+            var user = UserManager.GetUser(User);
             return View("Notifications", (user.EmailNotificationsEnabled, user.PushNotificationsEnabled));
         }
 
         [HttpPost]
         public async Task<IActionResult> Update(bool emailNotificationsEnabled, bool pushNotificationsEnabled)
         {
-            var user = await UserManager.GetUserAsync(User);
+            var user = UserManager.GetUser(User);
             user.EmailNotificationsEnabled = emailNotificationsEnabled;
             user.PushNotificationsEnabled = pushNotificationsEnabled;
-            await UserManager.UpdateAsync(user);
+            UserManager.UpdateUserProfile(user);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> ChangeStatus(int? id, NotificationStatus status)
         {
-            var user = await UserManager.GetUserAsync(User);
+            var user = UserManager.GetUser(User);
             var account = AccountsManager.GetAccountById(user.SelectedAccountId);
-            await _notificationCenter.ChangeStatus(ExtendedUser.IsInRole("Administrator") ? "Administrator" : account.AccountName, id, status);
+            await _notificationCenter.ChangeStatus(ExtendedUser.IsInRole("Administrator") ? "Administrator" : account.Name, id, status);
             return new EmptyResult();
         }
 
@@ -60,7 +59,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 IsSelected = notificationStatus == (NotificationStatus)Enum.Parse(typeof(NotificationStatus), x)
             });
 
-            var notifications = !ExtendedUser.PushNotificationsEnabled ? Array.Empty<PushNotification>() : ExtendedUser.HasFullOwnership() switch
+            var notifications = !ExtendedUser.PushNotificationsEnabled ? Array.Empty<PushNotification>() : ExtendedUser.IsInRole("SystemAdministrator") switch
             {
                 true => await _notificationCenter.GetNotificationsForUser(ExtendedUser.AccountName),
                 false => await _notificationCenter.GetNotificationsForUser(User.Identity.Name)

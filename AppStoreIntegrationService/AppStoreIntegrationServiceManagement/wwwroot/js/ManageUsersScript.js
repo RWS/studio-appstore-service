@@ -4,13 +4,28 @@
 
         request.onreadystatechange = function () {
             if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                window.location.reload();
+                HttpRequestCallback(request.responseText);
             }
         }
 
         request.open("POST", `/Identity/Account/Delete/${userId}`);
         request.send();
     }
+}
+
+function ConsentAgreement() {
+    let data = new FormData(document.getElementById("form"));
+    let request = new XMLHttpRequest();
+    data.set("AcceptedAgreement", data.get("Item1"))
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            HttpRequestCallback(request.responseText)
+        }
+    }
+
+    request.open("POST", `/Identity/Authentication/ConsentAgreement`);
+    request.send(data);
 }
 
 function DismissUser(userId) {
@@ -41,6 +56,34 @@ function HideUserDetails() {
     }
     
     userInfo.classList.add("d-none");
+}
+
+function Register() {
+    let data = new FormData(document.getElementById("form"));
+    let request = new XMLHttpRequest();
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            HttpRequestCallback(request.responseText)
+        }
+    }
+
+    request.open("POST", `/Identity/Account/PostRegister`);
+    request.send(data);
+}
+
+function Login() {
+    let data = new FormData(document.getElementById("form"));
+    let request = new XMLHttpRequest();
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            HttpRequestCallback(request.responseText)
+        }
+    }
+
+    request.open("POST", `/Identity/Authentication/PostLogin`);
+    request.send(data);
 }
 
 function CheckUserExistance() {
@@ -92,6 +135,20 @@ function AddUserToAccount() {
     }
 
     request.open("POST", `/Identity/Account/Assign`);
+    request.send(data);
+}
+
+function ChangeOwner() {
+    let data = new FormData(document.getElementById("newOwnerForm"));
+    let request = new XMLHttpRequest();
+
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            HttpRequestCallback(request.responseText)
+        }
+    }
+
+    request.open("POST", `/Identity/Account/ChangeOwner`);
     request.send(data);
 }
 

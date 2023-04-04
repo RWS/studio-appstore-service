@@ -1,0 +1,28 @@
+﻿@model Dictionary<Account, SelectList>
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-inherit" id="exampleModalLabel">Choose new owner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="m-0 mb-3">The user you want to remove owns some accounts. To be able to remove this user, you need to select a new owner for each of his own accounts</p>
+                @using (Html.BeginForm("ChooseOwners", "Account", FormMethod.Post))
+                {
+                    foreach (var item in Model)
+                    {
+                        @Html.DropDownListFor(model => model[item.Key], item.Value, new { @class = "fs-inherit pa-admin-select w-100" })
+                    }
+
+                    <input type="submit" value="Submit" />
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="ChangeOwner()" class="btn btn-success fs-inherit" data-bs-dismiss="modal">Choose</button>
+                <button type="button" class="btn btn-secondary fs-inherit" onclick="$('#confirmationModal').remove()" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
