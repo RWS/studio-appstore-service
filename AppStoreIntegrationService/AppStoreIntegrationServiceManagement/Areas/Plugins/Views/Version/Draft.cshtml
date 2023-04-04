@@ -23,7 +23,7 @@
         <input hidden name="Page" value="@Page.Version" />
         <partial name="_VersionDetailsPartial" model="@Model.Version" />
 
-        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRole("Developer"))
+        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
         {
             if (Model.Plugin.Status != Status.Draft)
             {

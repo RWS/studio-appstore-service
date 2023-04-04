@@ -18,8 +18,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
         Categories,
         ParentProducts,
         Products,
-        Profile,
-        Password,
         Register
     }
 
@@ -58,8 +56,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             CategoryDetails category,
             ParentProduct parent,
             ProductDetails product,
-            ProfileModel profile,
-            ChangePasswordModel passwordModel,
             RegisterModel registerModel,
             Status status,
             Page page
@@ -73,8 +69,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
                 Page.Categories => await Check(category),
                 Page.Products => await Check(product),
                 Page.ParentProducts => await Check(parent),
-                Page.Profile => await Check(profile),
-                Page.Password => Check(passwordModel),
                 Page.Register => Check(registerModel),
                 _ => Content(null)
             };
@@ -168,36 +162,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
             return PartialView("_ModalPartial", new ModalMessage
             {
                 Message = "Discard changes for this product?"
-            });
-        }
-
-        public async Task<IActionResult> Check(ProfileModel profile)
-        {
-            var editedUser = UserManager.GetUserById(profile.Id);
-            var currentUser = UserManager.GetUser(User);
-            var user = editedUser ?? currentUser;
-
-            if (profile?.Equals(new ProfileModel(user)) ?? true)
-            {
-                return Content(null);
-            }
-
-            return PartialView("_ModalPartial", new ModalMessage
-            {
-                Message = "Discard changes for user profile?"
-            });
-        }
-
-        public IActionResult Check(ChangePasswordModel model)
-        {
-            if (model.Input.IsEmpty())
-            {
-                return Content(null);
-            }
-
-            return PartialView("_ModalPartial", new ModalMessage
-            {
-                Message = "Discard changes for the new password?"
             });
         }
 

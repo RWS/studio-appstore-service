@@ -23,11 +23,6 @@ namespace AppStoreIntegrationServiceManagement.Model
             get => ServiceProvider.GetRequiredService<IUserAccountsManager>();
         }
 
-        private IUserRolesManager RoleManager
-        {
-            get => ServiceProvider.GetRequiredService<IUserRolesManager>();
-        }
-
         private IAccountsManager AccountsManager
         {
             get => ServiceProvider.GetRequiredService<IAccountsManager>();
@@ -41,7 +36,6 @@ namespace AppStoreIntegrationServiceManagement.Model
                 (
                     User,
                     UserManager,
-                    RoleManager,
                     UserAccountsManager,
                     AccountsManager
                 );

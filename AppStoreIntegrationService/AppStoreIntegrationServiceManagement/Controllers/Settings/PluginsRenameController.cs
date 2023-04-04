@@ -9,7 +9,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
+    [DBSynched]
     [AccountSelect]
+    [TechPartnerAgreement]
+    [RoleAuthorize("SystemAdministrator", "Administrator")]
     public class PluginsRenameController : CustomController
     {
         private readonly INamesRepository _namesRepository;

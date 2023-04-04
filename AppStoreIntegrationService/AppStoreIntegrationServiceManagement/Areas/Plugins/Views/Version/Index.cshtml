@@ -44,7 +44,7 @@
                                         </div>
                                     }
 
-                                    if (ExtendedUser.IsInRole("Developer"))
+                                    if (ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
                                     {
                                         <div class="position-relative cursor-pointer">
                                             <i class="fa fa-trash-alt align-self-center"></i>
@@ -54,7 +54,7 @@
                                 }
                                 else
                                 {
-                                    if (ExtendedUser.IsInRole("Developer") && version.IsActive)
+                                    if (ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator") && version.IsActive)
                                     {
                                         <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('@Model.Plugin.Id', '@version.VersionId', 'RequestDeletion')"></i>
                                     }
@@ -74,7 +74,7 @@
                 </div>
             }
 
-            @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && ExtendedUser.IsInRole("Developer"))
+            @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
             {
                 <a class="btn pa-admin-success-btn mt-2" asp-controller="Version" asp-action="Add" asp-route-pluginId="@Model.Plugin.Id">Add version</a>
             }

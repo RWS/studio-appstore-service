@@ -13,7 +13,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
+    [DBSynched]
     [AccountSelect]
+    [TechPartnerAgreement]
     public class ImportExportPluginsController : CustomController
     {
         private readonly IPluginRepository _pluginRepository;
@@ -29,15 +31,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
             _responseManager = responseManager;
         }
 
-        [RoleAuthorize("Administrator", "Developer")]
         [Route("Settings/ExportPlugins")]
+        [RoleAuthorize("SystemAdministrator", "Administrator")]
         public IActionResult Export()
         {
             return View();
         }
 
-        [RoleAuthorize("Administrator", "Developer")]
         [HttpPost]
+        [RoleAuthorize("SystemAdministrator", "Administrator")]
         public async Task<IActionResult> CreateExport()
         {
             var response = await _responseManager.GetResponse();
@@ -47,14 +49,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         }
 
         [Route("Settings/ImportPlugins")]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public IActionResult Import()
         {
             return View(new ImportPluginsModel());
         }
 
         [HttpPost]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> CreateImport(ImportPluginsModel import)
         {
             var modalDetails = new ModalMessage

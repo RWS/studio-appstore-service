@@ -8,21 +8,18 @@ namespace AppStoreIntegrationServiceCore.DataBase
     {
         private readonly IUserProfilesManager _userManager;
         private readonly IUserAccountsManager _userAccountsManager;
-        private readonly IUserRolesManager _roleManager;
         private readonly IAccountsManager _accountsManager;
 
         public CustomClaimsPrincipal
         (
             IPrincipal principal,
             IUserProfilesManager userManager,
-            IUserRolesManager roleManager,
             IUserAccountsManager userAccountsManager,
             IAccountsManager accountsManager
         ) : base(principal)
         {
             _userManager = userManager;
             _userAccountsManager = userAccountsManager;
-            _roleManager = roleManager;
             _accountsManager = accountsManager;
         }
 
@@ -50,6 +47,26 @@ namespace AppStoreIntegrationServiceCore.DataBase
 
             var userRole = _userAccountsManager.GetUserRoleForAccount(user, account);
             return userRole?.Name == roleName;
+        }
+
+        public bool IsInRoles(params string[] roles)
+        {
+            var user = _userManager?.GetUser(this);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+
+            if (account == null)
+            {
+                return false;
+            }
+
+            var userRole = _userAccountsManager.GetUserRoleForAccount(user, account);
+            return roles.Any(x => x == userRole?.Name);
         }
 
         public bool HasSelectedAccount()

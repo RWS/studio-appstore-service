@@ -12,7 +12,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
     [Area("Plugins")]
     [Authorize]
-    [SyncDB]
+    [DBSynched]
     [AccountSelect]
     [TechPartnerAgreement]
     public class PluginsController : CustomController
@@ -47,7 +47,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Index()
         {
             PluginFilter filter = ApplyFilters();
-            var plugins = await _pluginRepository.GetAll(filter.SortOrder, User.Identity.Name, ExtendedUser.Role);
+            var plugins = await _pluginRepository.GetAll(filter.SortOrder, ExtendedUser.AccountName, ExtendedUser.Role);
             var products = await _productsRepository.GetAllProducts();
             var parents = await _productsRepository.GetAllParents();
             var status = new[] { "Active", "Inactive", "Draft", "InReview" }.Select(x => new FilterItem
@@ -89,10 +89,10 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             {
                 Id = plugins.MaxBy(x => x.Id)?.Id + 1 ?? 0,
                 Icon = new IconDetails { MediaUrl = $"{GetUrlBase()}/images/plugin.ico" },
-                Developer = new DeveloperDetails { DeveloperName = User.Identity.Name },
+                Developer = new DeveloperDetails { DeveloperName = ExtendedUser.AccountName },
                 IsEditMode = false,
-                Status = ExtendedUser.IsInRole("Developer") ? Status.Draft : Status.Active,
-                IsThirdParty = ExtendedUser.IsInRole("Developer"),
+                Status = ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator") ? Status.Draft : Status.Active,
+                IsThirdParty = ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"),
                 CategoryListItems = new MultiSelectList(categories, nameof(CategoryDetails.Id), nameof(CategoryDetails.Name))
             });
         }
@@ -101,15 +101,13 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> Edit(int id) => await Render(id, Status.Active, Pending, "Details");
 
         [Route("Plugins/Pending/{id:int}")]
-        [RoleAuthorize("Administrator", "Developer")]
         public async Task<IActionResult> Pending(int id) => await Render(id, Status.InReview, Draft, "Pending");
 
         [Route("Plugins/Draft/{id:int}")]
-        [RoleAuthorize("Administrator", "Developer")]
         public async Task<IActionResult> Draft(int id) => await Render(id, Status.Draft, Edit, "Draft");
 
         [HttpPost]
-        [RoleAuthorize("Developer")]
+        [RoleAuthorize("Developer", "DeveloperTrial", "Administrator")]
         public async Task<IActionResult> RequestDeletion(int id)
         {
             var plugin = await _pluginRepository.GetPluginById(id, User.Identity.Name, ExtendedUser.Role);
@@ -139,7 +137,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> AcceptDeletion(int id)
         {
             var plugin = await _pluginRepository.GetPluginById(id);
@@ -161,7 +159,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> RejectDeletion(int id)
         {
             var plugin = await _pluginRepository.GetPluginById(id);
@@ -202,7 +200,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> Activate(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -218,7 +216,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> Deactivate(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -233,7 +231,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("Developer")]
+        [RoleAuthorize("Developer", "DeveloperTrial", "Administrator")]
         public async Task<IActionResult> Submit(PluginDetails plugin, bool removeOtherVersions)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -252,7 +250,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> Approve(PluginDetails plugin, bool removeOtherVersions = false)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -276,7 +274,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> Reject(PluginDetails plugin, bool removeOtherVersions = false)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -299,7 +297,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             return await Save(plugin, oldPlugin, "Draft", removeOtherVersions);
         }
 
-        [RoleAuthorize("Developer")]
+        [RoleAuthorize("Developer", "DeveloperTrial", "Administrator")]
         public async Task<IActionResult> SaveAsDraft(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -319,9 +317,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
         {
-            await _notificationCenter.SendEmail(emailNotification);
+            await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer", "DeveloperTrial");
             await _notificationCenter.Push(pushNotification);
-            await _notificationCenter.Broadcast(emailNotification);
+            emailNotification.Author = "AppStore Account";
+            await _notificationCenter.Broadcast(emailNotification, "SystemAdministrator");
+            pushNotification.Author = "SystemAdministrator";
             await _notificationCenter.Push(pushNotification);
         }
 
@@ -377,7 +377,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             }
 
             var categories = await _categoriesRepository.GetAllCategories();
-            var plugin = await _pluginRepository.GetPluginById(id, User.Identity.Name, ExtendedUser.Role, status);
+            var plugin = await _pluginRepository.GetPluginById(id, ExtendedUser.AccountName, ExtendedUser.Role, status);
 
             if (plugin == null)
             {

@@ -1,4 +1,4 @@
-﻿@model ProfileModel
+﻿@model UserProfile
 @{
     ViewData["Title"] = "Profile";
     ViewData["ActivePage"] = ManageNavPages.Index;
@@ -19,28 +19,19 @@
     }
 
     <div class="col-12 col-md-9">
-        <p class="text-break fw-bold fs4-inherit">@string.Format("Edit profile {0}", Model.Id != null ? $"for {Model.UserName}" : null)</p>
-        <form asp-controller="Account" asp-action="Update" asp-route-id="@Model.Id" method="post" id="form">
+        <p class="text-break fw-bold fs4-inherit">@(string.IsNullOrEmpty(Model.Id) ? "Profile" : $"{Model.Name.ToUpperFirst()}'s Profile'")</p>
+        <form id="form">
             <input hidden asp-for="Id" />
-            <input hidden name="Page" value="@Page.Profile" />
             <div class="mb-3">
-                <label asp-for="UserName" class="form-label">Username</label>
-                <input asp-for="UserName" readonly class="form-control fs-inherit" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
+                <label asp-for="Name" class="form-label">Username</label>
+                <input asp-for="Name" value="@Model.Name.ToUpperFirst()" readonly class="form-control fs-inherit" />
+                <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Email" class="form-label">Email</label>
-                @if (Model.IsBuiltInAdmin)
-                {
-                    <input asp-for="Email" readonly class="form-control fs-inherit" />
-                }
-                else
-                {
-                    <input asp-for="Email" class="form-control fs-inherit" />
-                }
+                <input asp-for="Email" readonly class="form-control fs-inherit" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <button type="submit" class="btn pa-admin-success-btn fs-inherit">Save</button>
         </form>
     </div>
 </div>

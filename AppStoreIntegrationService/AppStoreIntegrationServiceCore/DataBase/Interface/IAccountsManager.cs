@@ -6,5 +6,7 @@ namespace AppStoreIntegrationServiceCore.DataBase.Interface
     {
         Account TryAddAccount(Account account);
         Account GetAccountById(string id);
+        Account GetAccountByName(string name);
+        void UpdateAccountName(Account account, string name);
     }
 }

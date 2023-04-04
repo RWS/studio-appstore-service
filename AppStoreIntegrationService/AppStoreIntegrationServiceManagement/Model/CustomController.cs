@@ -57,7 +57,6 @@ namespace AppStoreIntegrationServiceManagement.Model
                 (
                     User,
                     UserManager,
-                    RoleManager,
                     UserAccountsManager,
                     AccountsManager
                 );

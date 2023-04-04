@@ -24,7 +24,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         public string SettingsFileName { get; set; }
         public string NotificationsFileName { get; set; }
         public string NotificationsFilePath { get; set; }
-        public string SendGridAPIKey { get; set; }
+        public string SendGridAPIKey { get; set; } = "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";
 
         public ConfigurationSettings(DeployMode deployMode)
         {

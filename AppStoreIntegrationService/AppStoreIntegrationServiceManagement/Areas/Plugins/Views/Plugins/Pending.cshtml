@@ -25,7 +25,7 @@
         <partial name="_PluginDetailsPartial" model="@Model" />
 
         <div class="mb-2">
-            @if (ExtendedUser.IsInRole("Developer"))
+            @if (ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
             {
                 <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit')">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>

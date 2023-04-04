@@ -51,23 +51,16 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
         public async Task SendEmail(EmailNotification notification)
         {
-            var user = _userManager.GetUserByName(notification.Author);
-
-            if (!user.EmailNotificationsEnabled)
-            {
-                return;
-            }
-
-            var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(user.Email), "RWS Plugin update", null, notification.ToHtml());
             if (_sendGridClient == null)
             {
                 return;
             }
 
+            var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(notification.Author), "RWS Account notification", null, notification.ToHtml());
             _ = await _sendGridClient.SendEmailAsync(email);
         }
 
-        public async Task Broadcast(EmailNotification notification)
+        public async Task Broadcast(EmailNotification notification, params string[] roles)
         {
             if (_sendGridClient == null)
             {
@@ -76,11 +69,13 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
             try
             {
-                foreach (var user in _userManager.UserProfiles)
+                var account = _accountsManager.GetAccountByName(notification.Author);
+                var users = _userAccountsManager.GetUsersFromAccount(account);
+
+                foreach (var user in users)
                 {
-                    var account = _accountsManager.GetAccountById(user.SelectedAccountId);
                     var role = _userAccountsManager.GetUserRoleForAccount(user, account);
-                    if (user.EmailNotificationsEnabled && role.Name == "Administrator")
+                    if (user.EmailNotificationsEnabled && roles.Any(x => x == role.Name))
                     {
                         var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(user.Email), "RWS Plugin update", null, notification.ToHtml());
                         _ = await _sendGridClient.SendEmailAsync(email);

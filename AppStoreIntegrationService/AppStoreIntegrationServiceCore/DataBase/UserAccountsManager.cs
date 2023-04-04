@@ -11,19 +11,22 @@ namespace AppStoreIntegrationServiceCore.DataBase
         private readonly IServiceContextFactory _serviceContext;
         private readonly IAccountsManager _accountsManager;
         private readonly IUserRolesManager _roleManager;
+        private readonly IUserProfilesManager _userProfilesManager;
 
         public UserAccountsManager
         (
             IAccountEntitlementsManager accountEntitlementsManager,
             IServiceContextFactory serviceContext,
             IAccountsManager accountsManager,
-            IUserRolesManager roleManager
+            IUserRolesManager roleManager,
+            IUserProfilesManager userProfilesManager
         )
         {
             _accountEntitlementsManager = accountEntitlementsManager;
             _serviceContext = serviceContext;
             _accountsManager = accountsManager;
             _roleManager = roleManager;
+            _userProfilesManager = userProfilesManager;
         }
 
         public IEnumerable<Account> GetUserAccounts(UserProfile user)
@@ -34,13 +37,33 @@ namespace AppStoreIntegrationServiceCore.DataBase
                                .Select(x => _accountsManager.GetAccountById(x.AccountId));
         }
 
+        public Account GetUserUnsyncedAccount(UserProfile user)
+        {
+            using (var context = _serviceContext.CreateContext())
+            {
+                var userAccounts = context.UserAccounts.ToList();
+
+                foreach (var userAccount in userAccounts.Where(x => x.UserProfileId == user.Id))
+                {
+                    var account = _accountsManager.GetAccountById(userAccount.AccountId);
+
+                    if (userAccounts.Count(x => x.AccountId == userAccount.AccountId) == 1 && string.IsNullOrEmpty(account.Name))
+                    {
+                        return account;
+                    }
+                }
+
+                return null;
+            }
+        }
+
         public bool CanBeRemoved(UserProfile user)
         {
             using var context = _serviceContext.CreateContext();
             var userAccounts = context.UserAccounts.ToList();
             foreach (var userAccount in userAccounts.Where(x => x.UserProfileId == user.Id))
             {
-                var otherAccounts = userAccounts.Where(x => x.UserProfileId != user.Id && x.AccountId == userAccount.Id);
+                var otherAccounts = userAccounts.Where(x => x.UserProfileId != user.Id && x.AccountId == userAccount.AccountId);
                 if (otherAccounts.Any(x => CanBeRemoved(_roleManager.GetRoleById(x.UserRoleId))))
                 {
                     return true;
@@ -128,6 +151,17 @@ namespace AppStoreIntegrationServiceCore.DataBase
             catch (Exception ex)
             {
                 return IdentityResult.Failed(new IdentityError { Description = ex.Message });
+            }
+        }
+
+        public IEnumerable<UserProfile> GetUsersFromAccount(Account account)
+        {
+            using (var context = _serviceContext.CreateContext())
+            {
+                var userAccounts = context.UserAccounts.ToList();
+                return userAccounts.Where(x => x.AccountId == account.Id)
+                                   .Select(x => _userProfilesManager.GetUserById(x.UserProfileId));
+                                                       
             }
         }
     }

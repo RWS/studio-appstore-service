@@ -6,7 +6,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 {
     [Area("Settings")]
     [Authorize]
+    [DBSynched]
     [AccountSelect]
+    [TechPartnerAgreement]
     public class PreferencesController : Controller
     {
         public IActionResult Index()

@@ -116,13 +116,15 @@ namespace AppStoreIntegrationServiceManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;body style=&quot;border: 1px solid lightgray; padding:20px; width: 500px&quot;&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;A new user profile was created on RWS AppStore Manager using this email address:&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;tot.catalin98@gmail.com&lt;/b&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+        ///   Looks up a localized string similar to &lt;body style=&quot;border: 1px solid lightgray; padding: 20px;&quot;&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;{0}&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;{1}&lt;/strong&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
         ///&lt;div style=&quot;text-align: center;&quot;&gt;Your profile was associated to the following account:&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt; [rest of string was truncated]&quot;;.
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
+        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;{2}&lt;/strong&gt;&lt;/div&gt;
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         public static string NewAccountEmailNotification {
             get {

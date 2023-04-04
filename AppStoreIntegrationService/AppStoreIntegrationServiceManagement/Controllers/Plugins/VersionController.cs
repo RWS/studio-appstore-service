@@ -13,7 +13,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
     [Area("Plugins")]
     [Authorize]
+    [DBSynched]
     [AccountSelect]
+    [TechPartnerAgreement]
     public class VersionController : CustomController
     {
         private readonly IPluginRepository _pluginRepository;
@@ -107,6 +109,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Activate")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> Activate(int pluginId, PluginVersion version)
         {
             version.VersionStatus = Status.Active;
@@ -120,6 +123,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Deactivate")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> Deactivate(int pluginId, PluginVersion version)
         {
             version.VersionStatus = Status.Inactive;
@@ -133,7 +137,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Submit")]
-        [RoleAuthorize("Developer")]
+        [RoleAuthorize("Developer", "DeveloperTrial", "Administrator")]
         public async Task<IActionResult> Submit(int pluginId, PluginVersion version, bool removeOtherVersions)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -153,7 +157,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Approve")]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> Approve(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -172,7 +176,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Reject")]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> Reject(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -196,7 +200,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/SaveAsDraft")]
-        [RoleAuthorize("Developer")]
+        [RoleAuthorize("Developer", "DeveloperTrial", "Administrator")]
         public async Task<IActionResult> SaveAsDraft(int pluginId, PluginVersion version)
         {
             version.VersionStatus = Status.Draft;
@@ -214,7 +218,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/RequestDeletion/{versionId}")]
-        [RoleAuthorize("Developer")]
+        [RoleAuthorize("Developer", "DeveloperTrial", "Administrator")]
         public async Task<IActionResult> RequestDeletion(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
@@ -245,7 +249,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/AcceptDeletion/{versionId}")]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> AcceptDeletion(int pluginId, string versionId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -267,7 +271,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/RejectDeletion/{versionId}")]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> RejectDeletion(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
@@ -310,17 +314,17 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             if (version.IsThirdParty)
             {
-                return ExtendedUser.IsInRole("Developer") || ExtendedUser.IsInRole("SystemAdministrator") && version.HasAdminConsent;
+                return ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator") || ExtendedUser.IsInRole("SystemAdministrator") && version.HasAdminConsent;
             }
 
-            return ExtendedUser.IsInRole("Administrator");
+            return ExtendedUser.IsInRole("SystemAdministrator");
         }
 
         private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
         {
-            await _notificationCenter.SendEmail(emailNotification);
+            await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer", "DeveloperTrial");
             await _notificationCenter.Push(pushNotification);
-            await _notificationCenter.Broadcast(emailNotification);
+            await _notificationCenter.Broadcast(emailNotification, "SystemAdministrator");
             await _notificationCenter.Push(pushNotification);
         }
 

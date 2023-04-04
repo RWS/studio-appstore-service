@@ -1,37 +1,41 @@
-﻿using AppStoreIntegrationServiceCore.DataBase;
-using AppStoreIntegrationServiceCore.DataBase.Interface;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Models;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.Identity.Interface;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
-    [Authorize]
     [Area("Identity")]
+    [Authorize]
     public class AuthenticationController : CustomController
     {
         private readonly IUserProfilesManager _userProfilesManager;
         private readonly IAccountAgreementsManager _accountAgreements;
         private readonly IAccountsManager _accountsManager;
+        private readonly IAuth0UserManager _auth0UserManager;
 
         public AuthenticationController
         (
             IUserSeed userSeed,
             IUserProfilesManager userProfilesManager,
             IAccountAgreementsManager accountAgreements,
-            IAccountsManager accountsManager
+            IAccountsManager accountsManager,
+            IAuth0UserManager auth0UserManager
         )
         {
             userSeed.EnsureAdminExistance();
             _userProfilesManager = userProfilesManager;
             _accountAgreements = accountAgreements;
             _accountsManager = accountsManager;
+            _auth0UserManager = auth0UserManager;
         }
 
         [AllowAnonymous]
@@ -67,6 +71,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return View("Agreement", (false, returnUrl ?? "/Plugins"));
         }
 
+        [AccountSelect]
         [HttpPost]
         public IActionResult ConsentAgreement(bool acceptedAgreement)
         {

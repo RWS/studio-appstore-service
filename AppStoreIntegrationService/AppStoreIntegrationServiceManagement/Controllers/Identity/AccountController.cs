@@ -3,23 +3,30 @@ using AppStoreIntegrationServiceCore.DataBase.Models;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Identity;
-using Auth0.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Security.Claims;
 using AppStoreIntegrationServiceManagement.ExtensionMethods;
+using AppStoreIntegrationServiceManagement.Repository.Interface;
+using AppStoreIntegrationServiceManagement.Model.Notifications;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
     [Area("Identity")]
     [Authorize]
+    [DBSynched]
     [AccountSelect]
+    [TechPartnerAgreement]
     public class AccountController : CustomController
     {
+        private readonly INotificationCenter _notificationCenter;
+
+        public AccountController(INotificationCenter notificationCenter)
+        {
+            _notificationCenter = notificationCenter;
+        }
+
         public IActionResult Profile(string id)
         {
             var currentUser = UserManager.GetUser(User);
@@ -30,36 +37,18 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return result;
             }
 
-            if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
+            if (string.IsNullOrEmpty(id) || currentUser.Equals(wantedUser))
             {
-                return View(Load(currentUser, true));
+                currentUser.Id = null;
+                return View(currentUser);
             }
 
             if (ExtendedUser.IsInRole("SystemAdministrator"))
             {
-                return View(Load(wantedUser, false));
+                return View(wantedUser);
             }
 
             return NotFound();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Update(string email, string id)
-        {
-            var currentUser = UserManager.GetUser(User);
-            var wantedUser = UserManager.GetUserById(id);
-
-            if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
-            {
-                return result;
-            }
-
-            if (string.IsNullOrEmpty(id) || currentUser == wantedUser)
-            {
-                return await Update(currentUser, email, "Your profile was updated!", true);
-            }
-
-            return await Update(wantedUser, email, $"{wantedUser.Name}'s profile was updated!", routeValues: new { id });
         }
 
         [Route("/Identity/Account/Users/All")]
@@ -72,7 +61,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return View(users.Select(x => new UserInfoModel
             {
                 Id = x.Id,
-                Name = x.Name,
+                Name = x.Name.ToUpperFirst(),
                 Email = x.Email,
                 IsCurrentUser = x.Id == currentUser.Id,
                 IsBuiltInAdmin = x.IsBuiltInAdmin,
@@ -81,6 +70,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [Route("/Identity/Account/Users/Assigned")]
+        [RoleAuthorize("SystemAdministrator", "Administrator")]
         public IActionResult Assigned()
         {
             var users = UserManager.UserProfiles;
@@ -91,7 +81,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return View(assignedUsers.Select(x => new UserInfoModel
             {
                 Id = x.Id,
-                Name = x.Name,
+                Name = x.Name.ToUpperFirst(),
                 Role = UserAccountsManager.GetUserRoleForAccount(x, account).Name,
                 IsCurrentUser = x.Email == user.Email
             }));
@@ -128,7 +118,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         [HttpPost]
         [RoleAuthorize("SystemAdministrator", "Administrator")]
-        public IActionResult PostRegister(RegisterModel registerModel)
+        public async Task<IActionResult> PostRegister(RegisterModel registerModel)
         {
             var currentUser = UserManager.GetUser(User);
             var user = new UserProfile { Email = registerModel.Email, Id = Guid.NewGuid().ToString() };
@@ -138,7 +128,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 OosId = registerModel.OosId,
                 Id = Guid.NewGuid().ToString(),
                 SalesForceId = registerModel.SalesForceId,
-                Name = registerModel.SalesForceName ?? $"{user.Email} Account"
+                Name = registerModel.SalesForceName
 
             }) : AccountsManager.GetAccountById(currentUser?.SelectedAccountId);
 
@@ -151,8 +141,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 UserRoleId = RoleManager.GetRoleByName(registerModel.UserRole).Id,
             });
 
+            await Notify(createNew, registerModel.Email, account.Name);
             TempData["StatusMessage"] = string.Format("Success! {0} was added!", user.Email);
-            return RedirectToAction("Assigned");
+            return Content("/Identity/Account/Users/Assigned");
         }
 
         [RoleAuthorize("SystemAdministrator")]
@@ -172,7 +163,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return new EmptyResult();
         }
 
-        [Authorize]
         [RoleAuthorize("SystemAdministrator", "Administrator")]
         public IActionResult Dismiss(string id)
         {
@@ -192,9 +182,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return Content("/Identity/Account/Assigned");
         }
 
-        [Authorize]
         [RoleAuthorize("SystemAdministrator", "Administrator")]
-        public IActionResult Assign(string userId, string roleName)
+        public async Task<IActionResult> Assign(string userId, string roleName)
         {
             var user = UserManager.GetUserById(userId);
             var currentUser = UserManager.GetUser(User);
@@ -216,6 +205,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 AccountId = account.Id
             });
 
+            await Notify(false, user.Email, account.Name);
+
             if (result.Succeeded)
             {
                 TempData["StatusMessage"] = string.Format("Success! {0} was assigned succesfully", user.Name);
@@ -225,7 +216,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return PartialView("_StatusMessage", string.Format("{0}", result.Errors.First().Description));
         }
 
-        [Authorize]
         [RoleAuthorize("SystemAdministrator", "Administrator")]
         public IActionResult CheckUserExistance(string email)
         {
@@ -246,13 +236,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return PartialView("_ExistentUserPartial", user.Id);
         }
 
-        [Authorize]
         public IActionResult AccessToken()
         {
             return View("AccessToken");
         }
 
-        [Authorize]
         [HttpPost]
         public IActionResult GenerateAccessToken()
         {
@@ -266,6 +254,32 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return PartialView("_AccessTokenPartial", token);
         }
 
+        private async Task Notify(bool createNew, string email, string account)
+        {
+            if (createNew)
+            {
+                await _notificationCenter.SendEmail(new EmailNotification
+                {
+                    Author = email,
+                    Message = "A new user profile was created on RWS AppStore Manager using this email address:",
+                    Title = account,
+                    CallToActionUrl = GetUrlBase() + "/Plugins",
+                    IsAccountNotification = true
+                });
+
+                return;
+            }
+
+            await _notificationCenter.SendEmail(new EmailNotification
+            {
+                Author = email,
+                Message = "A user profile identified by this email address was associated to a new account in RWS AppStore Manager:",
+                Title = account,
+                CallToActionUrl = GetUrlBase() + "/Plugins",
+                IsAccountNotification = true
+            });
+        }
+
         private IEnumerable<AccountModel> PrepareAccounts(UserProfile user)
         {
             var accounts = UserAccountsManager.GetUserAccounts(user);
@@ -274,41 +288,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 Name = x.Name,
                 Role = UserAccountsManager.GetUserRoleForAccount(user, x).Name,
             });
-        }
-
-        private async Task<IActionResult> Update(UserProfile user, string email, string successMessage, bool logoutIfSuccess = false, object routeValues = null)
-        {
-            if (user.Email == email)
-            {
-                TempData["StatusMessage"] = $"Success! {successMessage}!";
-                return RedirectToAction("Profile");
-            }
-
-            var response = await Auth0UserManager.TryUpdateUserEmail(user.UserId, email);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                UserManager.UpdateUserEmail(user, email);
-                TempData["StatusMessage"] = $"Success! {successMessage}!";
-
-                if (logoutIfSuccess)
-                {
-                    await Logout();
-                }
-            }
-
-            TempData["StatusMessage"] = $"Error! {response.Message}!";
-            return RedirectToAction("Profile", routeValues);
-        }
-
-        private async Task Logout()
-        {
-            var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
-                        .WithRedirectUri(Url.Action("Login", "Authentication"))
-                        .Build();
-
-            await HttpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }
 
         private bool TryValidate(UserProfile currentUser, string id, UserProfile wantedUser, out IActionResult result)
@@ -327,17 +306,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             result = null;
             return true;
-        }
-
-        private ProfileModel Load(UserProfile user, bool isCurrentUserProfile)
-        {
-            return new ProfileModel
-            {
-                UserName = user.Name,
-                Email = user.Email,
-                IsBuiltInAdmin = user.IsBuiltInAdmin,
-                Id = isCurrentUserProfile ? null : user.Id,
-            };
         }
     }
 }

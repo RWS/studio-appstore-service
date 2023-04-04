@@ -9,7 +9,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Area("Settings")]
     [Authorize]
     [AccountSelect]
-    [RoleAuthorize("Administrator")]
+    [RoleAuthorize("SystemAdministrator")]
     public class ProductsController : Controller
     {
         private readonly IProductsRepository _productsRepository;

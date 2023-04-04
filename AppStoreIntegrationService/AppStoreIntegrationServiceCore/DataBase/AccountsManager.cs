@@ -32,6 +32,16 @@ namespace AppStoreIntegrationServiceCore.DataBase
             return account;
         }
 
+        public void UpdateAccountName(Account account, string name)
+        {
+            using (var context = _serviceContext.CreateContext())
+            {
+                var oldAccount = context.Accounts.FirstOrDefault(x => x.Id == account.Id);
+                oldAccount.Name = name;
+                context.SaveChanges();
+            }
+        }
+
         public Account GetAccountById(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -41,6 +51,17 @@ namespace AppStoreIntegrationServiceCore.DataBase
 
             using var context = _serviceContext.CreateContext();
             return context.Accounts.ToList().FirstOrDefault(x => x.Id == id);
+        }
+
+        public Account GetAccountByName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
+
+            using var context = _serviceContext.CreateContext();
+            return context.Accounts.ToList().FirstOrDefault(x => x.Name == name);
         }
     }
 }

@@ -10,7 +10,6 @@ namespace AppStoreIntegrationServiceCore.DataBase.Models
         public string Id { get; set; }
         public string SalesForceId { get; set; }
         public string OosId { get; set; }
-        [Required]
         public string Name { get; set; }
     }
 }

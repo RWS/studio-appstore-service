@@ -24,7 +24,7 @@
         <partial name="_PluginDetailsPartial" model="@Model" />
 
         <div class="mb-2">
-            @if (Model.IsThirdParty && ExtendedUser.IsInRole("Developer"))
+            @if (Model.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
             {
                 <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit', true)">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>

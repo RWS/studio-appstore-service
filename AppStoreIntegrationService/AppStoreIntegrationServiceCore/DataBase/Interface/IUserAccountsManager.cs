@@ -9,8 +9,10 @@ namespace AppStoreIntegrationServiceCore.DataBase.Interface
         bool CanBeRemoved(UserProfile user);
         IdentityResult RemoveUserAccounts(UserProfile user);
         bool BelongsTo(UserProfile member, Account account);
+        IEnumerable<UserProfile> GetUsersFromAccount(Account account);
         UserRole GetUserRoleForAccount(UserProfile user, Account account);
         IdentityResult RemoveUserFromAccount(UserProfile user, Account account);
         IdentityResult TryAddUserToAccount(UserAccount userAccount);
+        Account GetUserUnsyncedAccount(UserProfile user);
     }
 }

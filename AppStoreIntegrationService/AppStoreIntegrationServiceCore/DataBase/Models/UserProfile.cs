@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AppStoreIntegrationServiceCore.DataBase.Models
 {
     [Table("UserProfiles")]
-    public class UserProfile
+    public class UserProfile : IEquatable<UserProfile>
     {
         [Required]
         public string Id { get; set; }
@@ -23,6 +23,10 @@ namespace AppStoreIntegrationServiceCore.DataBase.Models
         public bool IsBuiltInAdmin { get; set; }
         public string SelectedAccountId { get; set; }
         public string APIAccessToken { get; set; }
-        
+
+        public bool Equals(UserProfile other)
+        {
+            return Email == other?.Email && Name == other?.Name;
+        }
     }
 }

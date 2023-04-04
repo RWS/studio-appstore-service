@@ -12,7 +12,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
     [Area("Identity")]
     [Authorize]
+    [DBSynched]
     [AccountSelect]
+    [TechPartnerAgreement]
     public class NotificationsController : CustomController
     {
         private readonly INotificationCenter _notificationCenter;
@@ -23,14 +25,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [Route("Identity/Account/Notifications")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var user = UserManager.GetUser(User);
             return View("Notifications", (user.EmailNotificationsEnabled, user.PushNotificationsEnabled));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(bool emailNotificationsEnabled, bool pushNotificationsEnabled)
+        public IActionResult Update(bool emailNotificationsEnabled, bool pushNotificationsEnabled)
         {
             var user = UserManager.GetUser(User);
             user.EmailNotificationsEnabled = emailNotificationsEnabled;
@@ -44,7 +46,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         {
             var user = UserManager.GetUser(User);
             var account = AccountsManager.GetAccountById(user.SelectedAccountId);
-            await _notificationCenter.ChangeStatus(ExtendedUser.IsInRole("Administrator") ? "Administrator" : account.Name, id, status);
+            await _notificationCenter.ChangeStatus(ExtendedUser.IsInRole("SystemAdministrator") ? "SystemAdministrator" : account.Name, id, status);
             return new EmptyResult();
         }
 
@@ -61,8 +63,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             var notifications = !ExtendedUser.PushNotificationsEnabled ? Array.Empty<PushNotification>() : ExtendedUser.IsInRole("SystemAdministrator") switch
             {
-                true => await _notificationCenter.GetNotificationsForUser(ExtendedUser.AccountName),
-                false => await _notificationCenter.GetNotificationsForUser(User.Identity.Name)
+                true => await _notificationCenter.GetNotificationsForUser("SystemAdministrator"),
+                false => await _notificationCenter.GetNotificationsForUser(ExtendedUser.AccountName)
             };
 
             return PartialView("_NotificationsPartial", new NotificationModel

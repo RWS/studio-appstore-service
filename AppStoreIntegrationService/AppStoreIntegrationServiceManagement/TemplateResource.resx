@@ -137,18 +137,16 @@
     <value>Resources\fonts.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="NewAccountEmailNotification" xml:space="preserve">
-    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
-&lt;div style="text-align: center;"&gt;A new user profile was created on RWS AppStore Manager using this email address:&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;tot.catalin98@gmail.com&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+    <value>&lt;body style="border: 1px solid lightgray; padding: 20px;"&gt;
+&lt;div style="text-align: center;"&gt;{0}&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;strong&gt;{1}&lt;/strong&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
 &lt;div style="text-align: center;"&gt;Your profile was associated to the following account:&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;AppStore Account&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;Go to &lt;a href="{3}"&gt;this link&lt;/a&gt; to sign up into your account.&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;If this was not you, please ignore this email!&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;strong&gt;{2}&lt;/strong&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
+&lt;div style="text-align: center;"&gt;Go to &lt;a href="{3}"&gt;this link&lt;/a&gt; to sign up into your account.&lt;strong&gt;&lt;br /&gt;&lt;/strong&gt;&lt;/div&gt;
 &lt;/body&gt;</value>
   </data>
   <data name="NewPluginLog" xml:space="preserve">

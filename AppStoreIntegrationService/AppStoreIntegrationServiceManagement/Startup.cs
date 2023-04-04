@@ -15,8 +15,6 @@ using Microsoft.EntityFrameworkCore;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceCore.DataBase;
 using AppStoreIntegrationServiceManagement.Model.Identity;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.Options;
 using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceManagement.Model.Customization.Interface;
 using AppStoreIntegrationServiceManagement.Model.Identity.Interface;

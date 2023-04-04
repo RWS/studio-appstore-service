@@ -8,6 +8,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
     [Area("Plugins")]
     [Authorize]
+    [DBSynched]
+    [AccountSelect]
+    [TechPartnerAgreement]
     public class LogsController : Controller
     {
         private readonly ILoggingRepository _loggingRepository;
@@ -36,7 +39,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("Administrator")]
+        [RoleAuthorize("SystemAdministrator")]
         public async Task<IActionResult> ClearAll(int id)
         {
             await _loggingRepository.ClearLogs(id);

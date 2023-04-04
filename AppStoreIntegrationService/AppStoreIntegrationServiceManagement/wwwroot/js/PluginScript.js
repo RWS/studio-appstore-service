@@ -29,20 +29,18 @@
 })
 
 function InitDropDown() {
-    document.addEventListener('DOMContentLoaded', function () {
-        new DropDown(
-            document.querySelector("#categoriesDropdown #dropDownToggle"),
-            document.querySelector("#categoriesDropdown #CategoriesSelect"),
-            $("#categoriesDropdown #Categories"),
-            document.querySelector("#categoriesDropdown .selection-summary"),
-            document.querySelectorAll("#categoriesDropdown .overflow-arrow"),
-            [],
-            isReadOnly
-        ).Init();
+    new DropDown(
+        document.querySelector("#categoriesDropdown #dropDownToggle"),
+        document.querySelector("#categoriesDropdown #CategoriesSelect"),
+        $("#categoriesDropdown #Categories"),
+        document.querySelector("#categoriesDropdown .selection-summary"),
+        document.querySelectorAll("#categoriesDropdown .overflow-arrow"),
+        [],
+        isReadOnly
+    ).Init();
 
-        $.validator.setDefaults({
-            ignore: '.ignore'
-        });
+    $.validator.setDefaults({
+        ignore: '.ignore'
     });
 }
 

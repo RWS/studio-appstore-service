@@ -4,7 +4,7 @@ namespace AppStoreIntegrationServiceManagement.Repository.Interface
 {
     public interface INotificationCenter
     {
-        Task Broadcast(EmailNotification notification);
+        Task Broadcast(EmailNotification notification, params string[] roles);
         Task SendEmail(EmailNotification notification);
         Task Push(PushNotification notification);
         Task ChangeStatus(string username, int? id, NotificationStatus status);

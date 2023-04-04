@@ -20,7 +20,6 @@ namespace AppStoreIntegrationServiceAPI.Model.Repository
             _configurationSettings = configurationSettings;
             _blobServiceClient = new BlobServiceClient(new Uri($"https://{_configurationSettings.StorageAccountName}.blob.core.windows.net"), new DefaultAzureCredential());
             _container = _blobServiceClient.GetBlobContainerClient(_configurationSettings.BlobName);
-
             _pluginsBlob = CreateIfNotExists(_container, _configurationSettings.PluginsFileName);
         }
 

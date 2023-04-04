@@ -110,7 +110,7 @@
                                             </div>
                                         }
 
-                                        if (ExtendedUser.IsInRole("Developer"))
+                                        if (ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
                                         {
                                             <div class="p-0 fs-inherit position-relative d-flex">
                                                 <i class="fa fa-trash-alt align-self-center"></i>
@@ -120,7 +120,7 @@
                                     }
                                     else
                                     {
-                                        if (ExtendedUser.IsInRole("Developer") && plugin.IsActive)
+                                        if (ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator") && plugin.IsActive)
                                         {
                                             <div class="p-0 fs-inherit position-relative d-flex">
                                                 <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('RequestDeletion', '@plugin.Id')"></i>
@@ -134,13 +134,6 @@
                                         }
 
                                     }
-                                }
-
-                                @if (plugin.IsThirdParty && ExtendedUser.IsInRole("Administrator") && !ExtendedUser.IsInRole("SystemAdministrator"))
-                                {
-                                    <div class="p-0 fs-inherit position-relative d-flex">
-                                        <a class="focus-transparent text-secondary" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-eye"></i></a>
-                                    </div>
                                 }
 
                                 @if (!plugin.IsThirdParty)

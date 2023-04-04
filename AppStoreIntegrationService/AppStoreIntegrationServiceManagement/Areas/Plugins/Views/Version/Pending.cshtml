@@ -23,7 +23,7 @@
         <input hidden name="Page" value="@Page.Version" />
         <partial name="_VersionDetailsPartial" model="@Model.Version" />
 
-        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRole("Developer"))
+        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
         {
             <button class="btn pa-admin-success-btn" onclick="Save('@Model.Plugin.Id', 'Submit')">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>

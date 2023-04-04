@@ -5,11 +5,15 @@ using AppStoreIntegrationServiceManagement.Model.Plugins;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.Filters;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
     [Area("Plugins")]
     [Authorize]
+    [DBSynched]
+    [AccountSelect]
+    [TechPartnerAgreement]
     public class CommentsController : CustomController
     {
         private readonly ICommentsRepository _commentsRepository;
@@ -81,7 +85,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 Message = $"There is a new commet for a plugin{(string.IsNullOrEmpty(versionId) ? null : " version")}!"
             };
 
-            var test = new PushNotification(notification);
             await Notify(notification, new PushNotification(notification));
             await _commentsRepository.SaveComment(comment, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was updated!";
@@ -90,9 +93,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
         {
-            await _notificationCenter.SendEmail(emailNotification);
+            await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer", "DeveloperTrial");
             await _notificationCenter.Push(pushNotification);
-            await _notificationCenter.Broadcast(emailNotification);
+            await _notificationCenter.Broadcast(emailNotification, "SystemAdministrator");
             await _notificationCenter.Push(pushNotification);
         }
 
