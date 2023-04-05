@@ -64,7 +64,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 Name = x.Name.ToUpperFirst(),
                 Email = x.Email,
                 IsCurrentUser = x.Id == currentUser.Id,
-                IsBuiltInAdmin = x.IsBuiltInAdmin,
+                IsBuiltInAdmin = x.Name == "admin",
                 IsEligibleForRemoval = UserAccountsManager.CanBeRemoved(x)
             }));
         }

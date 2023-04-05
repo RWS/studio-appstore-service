@@ -79,6 +79,13 @@ body, html {
     font-family: var(--pa-admin-navbar-fontfamily);
 }
 
+/* Custom radio button */
+
+.custom-radio:checked + div{
+    background-color: var(--pa-admin-color);
+    color: var(--pa-admin-foreground);
+}
+
 /* Custom multi select list */
 .overflow-arrow {
     position: absolute;

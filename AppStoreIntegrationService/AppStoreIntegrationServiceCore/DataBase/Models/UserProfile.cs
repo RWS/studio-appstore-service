@@ -20,7 +20,7 @@ namespace AppStoreIntegrationServiceCore.DataBase.Models
         [Required]
         public bool PushNotificationsEnabled { get; set; }
         [Required]
-        public bool IsBuiltInAdmin { get; set; }
+        public bool RememberAccount { get;set; }
         public string SelectedAccountId { get; set; }
         public string APIAccessToken { get; set; }
 

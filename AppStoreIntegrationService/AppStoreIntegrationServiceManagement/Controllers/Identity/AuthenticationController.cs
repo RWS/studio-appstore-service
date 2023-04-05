@@ -3,13 +3,13 @@ using AppStoreIntegrationServiceCore.DataBase.Models;
 using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
+using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Identity.Interface;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
@@ -20,22 +20,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         private readonly IUserProfilesManager _userProfilesManager;
         private readonly IAccountAgreementsManager _accountAgreements;
         private readonly IAccountsManager _accountsManager;
-        private readonly IAuth0UserManager _auth0UserManager;
 
         public AuthenticationController
         (
             IUserSeed userSeed,
             IUserProfilesManager userProfilesManager,
             IAccountAgreementsManager accountAgreements,
-            IAccountsManager accountsManager,
-            IAuth0UserManager auth0UserManager
+            IAccountsManager accountsManager
         )
         {
             userSeed.EnsureAdminExistance();
             _userProfilesManager = userProfilesManager;
             _accountAgreements = accountAgreements;
             _accountsManager = accountsManager;
-            _auth0UserManager = auth0UserManager;
         }
 
         [AllowAnonymous]
@@ -52,17 +49,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         public IActionResult Accounts(string returnUrl = null)
         {
             var user = UserManager.GetUser(ExtendedUser);
-            var accounts = UserAccountsManager.GetUserAccounts(user);
-            return View((accounts, returnUrl));
+
+            return View(new AccountsModel
+            {
+                Accounts = UserAccountsManager.GetUserAccounts(user),
+                ReturnUrl = returnUrl
+            });
         }
 
         [HttpPost]
-        public IActionResult SelectAccount(string accountId, string returnUrl = null)
+        public IActionResult SelectAccount(AccountsModel model)
         {
             var user = UserManager.GetUser(ExtendedUser);
-            user.SelectedAccountId = accountId;
+            user.SelectedAccountId = model.SelectedAccountId;
+            user.RememberAccount = model.RememberMyChoice;
             UserManager.UpdateUserProfile(user);
-            return Redirect(returnUrl ?? "/Plugins");
+            return Redirect(model.ReturnUrl ?? "/Plugins");
         }
 
         [AccountSelect]
@@ -95,8 +97,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         public async Task Logout()
         {
             var user = UserManager.GetUser(User);
-            user.SelectedAccountId = null;
-            _userProfilesManager.UpdateUserProfile(user);
+
+            if (!user.RememberAccount)
+            {
+                user.SelectedAccountId = null;
+                _userProfilesManager.UpdateUserProfile(user);
+            }
 
             var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()
                 .WithRedirectUri(Url.Action("Login", "Authentication"))
