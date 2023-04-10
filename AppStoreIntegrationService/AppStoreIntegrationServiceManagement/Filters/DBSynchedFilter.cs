@@ -1,14 +1,13 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Models;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using AppStoreIntegrationServiceManagement.ExtensionMethods;
-using AppStoreIntegrationServiceManagement.Model.Identity.Interface;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace AppStoreIntegrationServiceManagement.Filters
 {
-    public class DBSynchedFilter : IAuthorizationFilter
+    public class DBSynchedFilter : IAsyncAuthorizationFilter
     {
         private readonly IUserProfilesManager _userProfilesManager;
         private readonly IUserAccountsManager _userAccountsManager;
@@ -26,7 +25,7 @@ namespace AppStoreIntegrationServiceManagement.Filters
             _accountsManager = accountsManager;
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             var principal = context.HttpContext.User;
             var user = _userProfilesManager.GetUser(principal);
@@ -39,11 +38,11 @@ namespace AppStoreIntegrationServiceManagement.Filters
                 return;
             }
 
-            SyncUserProfile(user, principal, username);
-            SyncUserAccount(user, username);
+            await SyncUserProfile(user, principal, username);
+            await SyncUserAccount(user, username);
         }
 
-        private void SyncUserAccount(UserProfile user, string username)
+        private async Task SyncUserAccount(UserProfile user, string username)
         {
             var account = _userAccountsManager.GetUserUnsyncedAccount(user);
 
@@ -52,10 +51,10 @@ namespace AppStoreIntegrationServiceManagement.Filters
                 return;
             }
 
-            _accountsManager.UpdateAccountName(account, $"{username.ToUpperFirst()} Account");
+            await _accountsManager.TryUpdateAccountName(account, $"{username.ToUpperFirst()} Account");
         }
 
-        private void SyncUserProfile(UserProfile user, ClaimsPrincipal principal, string username)
+        private async Task SyncUserProfile(UserProfile user, ClaimsPrincipal principal, string username)
         {
             if (!string.IsNullOrEmpty(user.UserId) && !string.IsNullOrEmpty(user.Name))
             {
@@ -63,8 +62,8 @@ namespace AppStoreIntegrationServiceManagement.Filters
             }
 
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            _userProfilesManager.UpdateUserName(user, username);
-            _userProfilesManager.UpdateUserId(user, userId);
+            await _userProfilesManager.UpdateUserName(user, username);
+            await _userProfilesManager.UpdateUserId(user, userId);
         }
     }
 }

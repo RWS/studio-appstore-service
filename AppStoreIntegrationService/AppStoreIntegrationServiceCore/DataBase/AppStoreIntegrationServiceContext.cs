@@ -1,5 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
-using AppStoreIntegrationServiceCore.DataBase.Models;
+﻿using AppStoreIntegrationServiceCore.DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AppStoreIntegrationServiceCore.DataBase

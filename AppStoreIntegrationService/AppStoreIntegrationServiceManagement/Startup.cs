@@ -12,12 +12,11 @@ using AppStoreIntegrationServiceManagement.Model.Settings;
 using Auth0.AspNetCore.Authentication;
 using AppStoreIntegrationServiceManagement.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
-using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
 using AppStoreIntegrationServiceCore.DataBase;
-using AppStoreIntegrationServiceManagement.Model.Identity;
-using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceManagement.Model.Customization.Interface;
-using AppStoreIntegrationServiceManagement.Model.Identity.Interface;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
+using AppStoreIntegrationServiceManagement.DataBase;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
 
 namespace AppStoreIntegrationServiceManagement
 {
@@ -37,7 +36,7 @@ namespace AppStoreIntegrationServiceManagement
             {
                 options.UseSqlServer(Configuration.GetConnectionString("AppStoreIntegrationServiceContextConnection"));
             });
-        
+
             GetServiceProvider(services).GetRequiredService<AppStoreIntegrationServiceContext>().Database.EnsureCreated();
 
             services.Configure<GzipCompressionProviderOptions>(options =>
@@ -61,7 +60,6 @@ namespace AppStoreIntegrationServiceManagement
             services.AddHttpContextAccessor();
             services.AddHealthChecks().AddCheck<SQLConnectionHealthCheck>("SQL connection");
             services.AddResponseCaching();
-            services.AddHttpContextAccessor();
 
             if (deployMode == DeployMode.AzureBlob)
             {

@@ -6,6 +6,8 @@ using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceManagement.Filters;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -26,8 +28,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             ICommentsRepository commentsRepository,
             IPluginRepository pluginRepository,
             IPluginVersionRepository pluginVersionRepository,
-            INotificationCenter notificationCenter
-        )
+            INotificationCenter notificationCenter,
+            IUserProfilesManager userProfilesManager,
+            IUserAccountsManager userAccountsManager,
+            IAccountsManager accountsManager
+        ) : base(userProfilesManager, userAccountsManager, accountsManager)
         {
             _commentsRepository = commentsRepository;
             _pluginRepository = pluginRepository;

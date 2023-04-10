@@ -12,11 +12,9 @@ namespace AppStoreIntegrationServiceCore.Repository
     public class ConfigurationSettings : IConfigurationSettings
     {
         public string StorageAccountName { get; set; }
-        public string StorageAccountKey { get; set; }
         public string BlobName { get; set; }
         public string LocalFolderPath { get; set; }
         public string PluginsFileName { get; set; }
-        public string InstrumentationKey { get; set; }
         public DeployMode DeployMode { get; set; }
         public string ConfigFolderPath { get; set; }
         public string LocalPluginsFilePath { get; set; }

@@ -23,7 +23,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Preservation
 
     [Authorize]
     [AccountSelect]
-    public class PreservationController : CustomController
+    public class PreservationController : Controller
     {
         private readonly IPluginRepository _pluginRepository;
         private readonly IPluginVersionRepository _pluginVersionRepository;

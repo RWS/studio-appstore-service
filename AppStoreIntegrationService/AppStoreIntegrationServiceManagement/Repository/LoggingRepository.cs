@@ -22,6 +22,11 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
         public async Task Log(Log log, int pluginId)
         {
+            if (log == null)
+            {
+                return;
+            }
+
             var logs = await GetAllLogs();
 
             if (logs.TryGetValue(pluginId, out var pluginLogs))

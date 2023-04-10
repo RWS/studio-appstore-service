@@ -1,10 +1,9 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Models;
-using AppStoreIntegrationServiceManagement.Areas.Identity.Data;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Identity;
-using AppStoreIntegrationServiceManagement.Model.Identity.Interface;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -17,22 +16,25 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     [Authorize]
     public class AuthenticationController : CustomController
     {
+        private readonly IAccountAgreementsManager _accountAgreementsManager;
         private readonly IUserProfilesManager _userProfilesManager;
-        private readonly IAccountAgreementsManager _accountAgreements;
+        private readonly IUserAccountsManager _userAccountsManager;
         private readonly IAccountsManager _accountsManager;
 
         public AuthenticationController
         (
-            IUserSeed userSeed,
-            IUserProfilesManager userProfilesManager,
             IAccountAgreementsManager accountAgreements,
-            IAccountsManager accountsManager
-        )
+            IUserProfilesManager userProfilesManager,
+            IUserAccountsManager userAccountsManager,
+            IAccountsManager accountsManager,
+            IUserSeed userSeed
+        ) : base(userProfilesManager, userAccountsManager, accountsManager)
         {
             userSeed.EnsureAdminExistance();
             _userProfilesManager = userProfilesManager;
-            _accountAgreements = accountAgreements;
+            _accountAgreementsManager = accountAgreements;
             _accountsManager = accountsManager;
+            _userAccountsManager = userAccountsManager;
         }
 
         [AllowAnonymous]
@@ -48,22 +50,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         public IActionResult Accounts(string returnUrl = null)
         {
-            var user = UserManager.GetUser(ExtendedUser);
+            var user = _userProfilesManager.GetUser(ExtendedUser);
 
             return View(new AccountsModel
             {
-                Accounts = UserAccountsManager.GetUserAccounts(user),
+                Accounts = _userAccountsManager.GetUserAccounts(user),
                 ReturnUrl = returnUrl
             });
         }
 
         [HttpPost]
-        public IActionResult SelectAccount(AccountsModel model)
+        public async Task<IActionResult> SelectAccount(AccountsModel model)
         {
-            var user = UserManager.GetUser(ExtendedUser);
+            var user = _userProfilesManager.GetUser(ExtendedUser);
             user.SelectedAccountId = model.SelectedAccountId;
             user.RememberAccount = model.RememberMyChoice;
-            UserManager.UpdateUserProfile(user);
+            await _userProfilesManager.UpdateUserProfile(user);
             return Redirect(model.ReturnUrl ?? "/Plugins");
         }
 
@@ -84,7 +86,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             }
 
             var user = _userProfilesManager.GetUser(ExtendedUser);
-            _accountAgreements.Add(new AccountAgreement
+            _accountAgreementsManager.Add(new AccountAgreement
             {
                 AccountId = _accountsManager.GetAccountById(user.SelectedAccountId).Id,
                 Id = Guid.NewGuid().ToString(),
@@ -96,12 +98,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         public async Task Logout()
         {
-            var user = UserManager.GetUser(User);
+            var user = _userProfilesManager.GetUser(User);
 
             if (!user.RememberAccount)
             {
                 user.SelectedAccountId = null;
-                _userProfilesManager.UpdateUserProfile(user);
+                await _userProfilesManager.UpdateUserProfile(user);
             }
 
             var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()

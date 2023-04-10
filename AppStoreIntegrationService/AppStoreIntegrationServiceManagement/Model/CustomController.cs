@@ -1,70 +1,48 @@
-﻿using AppStoreIntegrationServiceCore.DataBase;
-using AppStoreIntegrationServiceCore.DataBase.Interface;
-using AppStoreIntegrationServiceManagement.Model.Identity.Interface;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceManagement.DataBase;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStoreIntegrationServiceManagement.Model
 {
     public class CustomController : Controller
     {
+        private readonly IUserProfilesManager _userProfilesManager;
+        private readonly IUserAccountsManager _userAccountsManager;
+        private readonly IAccountsManager _accountsManager;
         private CustomClaimsPrincipal _extendedUser;
 
-        private IServiceProvider ServiceProvider
+        public CustomController
+        (
+            IUserProfilesManager userProfilesManager,
+            IUserAccountsManager userAccountsManager,
+            IAccountsManager accountsManager
+        ) : base()
         {
-            get => HttpContext.RequestServices;
+            _userProfilesManager = userProfilesManager;
+            _userAccountsManager = userAccountsManager;
+            _accountsManager = accountsManager;
         }
 
-        protected IUserProfilesManager UserManager
-        {
-            get => ServiceProvider.GetRequiredService<IUserProfilesManager>();
-        }
-
-        protected IAccountAgreementsManager AccountAgreementsManager
-        {
-            get => ServiceProvider.GetRequiredService<IAccountAgreementsManager>();
-        }
-
-        protected IUserAccountsManager UserAccountsManager
-        {
-            get => ServiceProvider.GetRequiredService<IUserAccountsManager>();
-        }
-
-        protected IUserRolesManager RoleManager
-        {
-            get => ServiceProvider.GetRequiredService<IUserRolesManager>();
-        }
-
-        protected IAccountsManager AccountsManager
-        {
-            get => ServiceProvider.GetRequiredService<IAccountsManager>();
-        }
-
-        protected IHttpContextAccessor ContextAccessor
-        {
-            get => ServiceProvider.GetRequiredService<IHttpContextAccessor>();
-        }
-
-        public CustomClaimsPrincipal ExtendedUser
-        {
+        public CustomClaimsPrincipal ExtendedUser 
+        { 
             get
             {
-                return _extendedUser ?? new CustomClaimsPrincipal
+                _extendedUser ??= new CustomClaimsPrincipal
                 (
                     User,
-                    UserManager,
-                    UserAccountsManager,
-                    AccountsManager
+                    _userProfilesManager,
+                    _userAccountsManager,
+                    _accountsManager
                 );
-            }
-            protected set
-            {
-                _extendedUser = value;
+
+                return _extendedUser;
             }
         }
 
         protected string GetUrlBase()
         {
-            var request = ContextAccessor.HttpContext.Request;
+            var request = HttpContext.Request;
             return $"{request.Scheme}://{request.Host.Value}";
         }
     }

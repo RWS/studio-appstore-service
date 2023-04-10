@@ -1,7 +1,7 @@
 ﻿using AppStoreIntegrationServiceCore.Model;
 using Xunit;
 
-namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.Model
+namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceCoreTests.ModelTests
 {
     public class PluginFilterTests
     {

@@ -11,7 +11,7 @@
                 <hr />
                 @foreach (var item in Model.Accounts)
                 {
-                    <label class="custom-label w-100">
+                    <label class="custom-label w-100 cursor-pointer">
                         <input type="radio" asp-for="SelectedAccountId" value="@item.Id" class="custom-radio d-none" />
                         <div class="w-100 p-2">@item.Name</div>
                     </label>

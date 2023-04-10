@@ -1,5 +1,6 @@
-﻿using AppStoreIntegrationServiceCore.DataBase;
-using AppStoreIntegrationServiceCore.DataBase.Interface;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceManagement.DataBase;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace AppStoreIntegrationServiceManagement.Model

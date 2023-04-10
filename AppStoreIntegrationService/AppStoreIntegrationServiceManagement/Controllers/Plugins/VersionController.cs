@@ -1,4 +1,6 @@
-﻿using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Helpers;
 using AppStoreIntegrationServiceManagement.Model;
@@ -26,12 +28,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         public VersionController
         (
+            IUserProfilesManager userProfilesManager,
+            IUserAccountsManager userAccountsManager,
             IPluginRepository pluginRepository,
             IProductsRepository productsRepository,
             ILoggingRepository loggingRepository,
             IPluginVersionRepository pluginVersionRepository,
-            INotificationCenter notificationCenter
-        )
+            INotificationCenter notificationCenter,
+            IAccountsManager accountsManager
+        ) : base(userProfilesManager, userAccountsManager, accountsManager)
         {
             _pluginRepository = pluginRepository;
             _productsRepository = productsRepository;

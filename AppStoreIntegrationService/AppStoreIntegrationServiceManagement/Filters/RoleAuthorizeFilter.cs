@@ -1,14 +1,14 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
-using AppStoreIntegrationServiceCore.DataBase.Models;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AppStoreIntegrationServiceManagement.Filters
 {
     public class RoleAuthorizeFilter : IAuthorizationFilter
     {
-        private readonly IUserProfilesManager _userManager;
+        private readonly IUserProfilesManager _userProfilesManager;
         private readonly IUserAccountsManager _userAccountsManager;
-        private readonly IUserRolesManager _roleManager;
+        private readonly IUserRolesManager _userRolesManager;
         private readonly IAccountsManager _accountsManager;
         private readonly string[] _roles;
 
@@ -21,20 +21,20 @@ namespace AppStoreIntegrationServiceManagement.Filters
             string[] roles
         )
         {
-            _userManager = userManager;
+            _userProfilesManager = userManager;
             _userAccountsManager = userAccountsManager;
-            _roleManager = roleManager;
+            _userRolesManager = roleManager;
             _accountsManager = accountsManager;
             _roles = roles;
         }
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var user = _userManager.GetUser(context.HttpContext.User);
+            var user = _userProfilesManager.GetUser(context.HttpContext.User);
             var account = _accountsManager.GetAccountById(user.SelectedAccountId);
             var userRole = _userAccountsManager.GetUserRoleForAccount(user, account);
 
-            if (_roles.Any(x => _roleManager.GetRoleByName(x).Equals(userRole)))
+            if (_roles.Any(x => _userRolesManager.GetRoleByName(x).Equals(userRole)))
             {
                 return;
             }

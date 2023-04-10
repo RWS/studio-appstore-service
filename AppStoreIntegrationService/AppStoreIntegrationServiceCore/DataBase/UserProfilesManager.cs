@@ -24,28 +24,36 @@ namespace AppStoreIntegrationServiceCore.DataBase
             }
         }
 
-        public void AddUserProfile(UserProfile profile)
+        public async Task AddUserProfile(UserProfile profile)
         {
             using (var context = _serviceContext.CreateContext())
             {
                 context.UserProfiles.Add(profile);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
-        public void UpdateUserProfile(UserProfile profile)
+        public async Task UpdateUserProfile(UserProfile profile)
         {
             using (var context = _serviceContext.CreateContext())
             {
                 var user = context.UserProfiles.FirstOrDefault(x => x.Id == profile.Id);
-                context.Remove(user);
-                context.SaveChanges();
-                context.Add(profile);
-                context.SaveChanges();
+
+                user.Id = profile.Id;
+                user.UserId = profile.UserId;
+                user.Email = profile.Email;
+                user.Name = profile.Name;
+                user.EmailNotificationsEnabled = profile.EmailNotificationsEnabled;
+                user.PushNotificationsEnabled = profile.PushNotificationsEnabled;
+                user.RememberAccount = profile.RememberAccount;
+                user.SelectedAccountId = profile.SelectedAccountId;
+                user.APIAccessToken = profile.APIAccessToken;
+
+                await context.SaveChangesAsync();
             }
         }
 
-        public void UpdateUserName(UserProfile profile, string name)
+        public async Task UpdateUserName(UserProfile profile, string name)
         {
             using (var context = _serviceContext.CreateContext())
             {
@@ -56,11 +64,11 @@ namespace AppStoreIntegrationServiceCore.DataBase
                 }
 
                 user.Name = name;
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
-        public void UpdateUserId(UserProfile profile, string userId)
+        public async Task UpdateUserId(UserProfile profile, string userId)
         {
             using (var context = _serviceContext.CreateContext())
             {
@@ -71,7 +79,7 @@ namespace AppStoreIntegrationServiceCore.DataBase
                 }
 
                 user.UserId = userId;
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
@@ -86,14 +94,6 @@ namespace AppStoreIntegrationServiceCore.DataBase
             using (var context = _serviceContext.CreateContext())
             {
                 return context.UserProfiles.ToList().FirstOrDefault(x => x.Email == email);
-            }
-        }
-
-        public UserProfile GetUserByName(string username)
-        {
-            using (var context = _serviceContext.CreateContext())
-            {
-                return context.UserProfiles.ToList().FirstOrDefault(x => x.Name == username);
             }
         }
 
@@ -118,29 +118,13 @@ namespace AppStoreIntegrationServiceCore.DataBase
             return principal.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
-        public void UpdateUserEmail(UserProfile user, string email)
-        {
-            using (var context = _serviceContext.CreateContext())
-            {
-                var oldUser = context.UserProfiles.Find(user.Id);
-
-                if (string.IsNullOrEmpty(email))
-                {
-                    return;
-                }
-
-                oldUser.Email = email;
-                context.SaveChanges();
-            }
-        }
-
-        public void Delete(UserProfile profile)
+        public async Task Delete(UserProfile profile)
         {
             using (var context = _serviceContext.CreateContext())
             {
                 var oldProfile = context.UserProfiles.FirstOrDefault(x => x.Id == profile.Id);
                 context.UserProfiles.Remove(oldProfile);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
     }

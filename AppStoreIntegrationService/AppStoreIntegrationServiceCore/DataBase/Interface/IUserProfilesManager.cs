@@ -6,15 +6,13 @@ namespace AppStoreIntegrationServiceCore.DataBase.Interface
     public interface IUserProfilesManager
     {
         List<UserProfile> UserProfiles { get; }
-        void AddUserProfile(UserProfile profile);
-        void UpdateUserProfile(UserProfile profile);
-        void UpdateUserName(UserProfile profile, string name);
-        void UpdateUserId(UserProfile profile, string userId);
+        Task AddUserProfile(UserProfile profile);
+        Task UpdateUserProfile(UserProfile profile);
+        Task UpdateUserName(UserProfile profile, string name);
+        Task UpdateUserId(UserProfile profile, string userId);
         UserProfile GetUser(ClaimsPrincipal principal);
-        UserProfile GetUserByName(string username);
         UserProfile GetUserByEmail(string email);
         UserProfile GetUserById(string id);
-        void UpdateUserEmail(UserProfile user, string email);
-        void Delete(UserProfile profile);
+        Task Delete(UserProfile profile);
     }
 }

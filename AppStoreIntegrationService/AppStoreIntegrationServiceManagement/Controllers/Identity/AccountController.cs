@@ -1,6 +1,4 @@
-﻿using AppStoreIntegrationServiceCore.DataBase;
-using AppStoreIntegrationServiceCore.DataBase.Models;
-using AppStoreIntegrationServiceManagement.Filters;
+﻿using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +8,10 @@ using System.Security.Claims;
 using AppStoreIntegrationServiceManagement.ExtensionMethods;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceCore.DataBase;
+using AppStoreIntegrationServiceCore.DataBase.Models;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 {
@@ -20,17 +22,38 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     [TechPartnerAgreement]
     public class AccountController : CustomController
     {
+        private readonly IAccountAgreementsManager _accountAgreementsManager;
+        private readonly IUserProfilesManager _userProfilesManager;
+        private readonly IUserAccountsManager _userAccountsManager;
         private readonly INotificationCenter _notificationCenter;
+        private readonly IUserRolesManager _userRolesManager;
+        private readonly IAccountsManager _accountsManager;
+        private readonly IAuth0UserManager _auth0UserManager;
 
-        public AccountController(INotificationCenter notificationCenter)
+        public AccountController
+        (
+            IAccountAgreementsManager accountAgreementsManager,
+            IUserProfilesManager userProfilesManager,
+            IUserAccountsManager userAccountsManager,
+            INotificationCenter notificationCenter,
+            IAccountsManager accountsManager,
+            IUserRolesManager userRolesManager,
+            IAuth0UserManager auth0UserManager
+        ) : base(userProfilesManager, userAccountsManager, accountsManager)
         {
+            _accountAgreementsManager = accountAgreementsManager;
             _notificationCenter = notificationCenter;
+            _userProfilesManager = userProfilesManager;
+            _userAccountsManager = userAccountsManager;
+            _userRolesManager = userRolesManager;
+            _accountsManager = accountsManager;
+            _auth0UserManager = auth0UserManager;
         }
 
         public IActionResult Profile(string id)
         {
-            var currentUser = UserManager.GetUser(User);
-            var wantedUser = UserManager.GetUserById(id);
+            var currentUser = _userProfilesManager.GetUser(User);
+            var wantedUser = _userProfilesManager.GetUserById(id);
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
             {
@@ -55,8 +78,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [RoleAuthorize("SystemAdministrator")]
         public IActionResult Users()
         {
-            var currentUser = UserManager.GetUser(User);
-            var users = UserManager.UserProfiles.Where(x => !string.IsNullOrEmpty(x.UserId));
+            var currentUser = _userProfilesManager.GetUser(User);
+            var users = _userProfilesManager.UserProfiles.Where(x => !string.IsNullOrEmpty(x.UserId));
 
             return View(users.Select(x => new UserInfoModel
             {
@@ -65,7 +88,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 Email = x.Email,
                 IsCurrentUser = x.Id == currentUser.Id,
                 IsBuiltInAdmin = x.Name == "admin",
-                IsEligibleForRemoval = UserAccountsManager.CanBeRemoved(x)
+                IsEligibleForRemoval = _userAccountsManager.CanBeRemoved(x)
             }));
         }
 
@@ -73,24 +96,24 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [RoleAuthorize("SystemAdministrator", "Administrator")]
         public IActionResult Assigned()
         {
-            var users = UserManager.UserProfiles;
-            var user = UserManager.GetUser(User);
-            var account = AccountsManager.GetAccountById(user.SelectedAccountId);
-            var assignedUsers = users.Where(x => UserAccountsManager.BelongsTo(x, account) && !string.IsNullOrEmpty(x.UserId));
+            var users = _userProfilesManager.UserProfiles;
+            var user = _userProfilesManager.GetUser(User);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
+            var assignedUsers = users.Where(x => _userAccountsManager.BelongsTo(x, account) && !string.IsNullOrEmpty(x.UserId));
 
             return View(assignedUsers.Select(x => new UserInfoModel
             {
                 Id = x.Id,
                 Name = x.Name.ToUpperFirst(),
-                Role = UserAccountsManager.GetUserRoleForAccount(x, account).Name,
+                Role = _userAccountsManager.GetUserRoleForAccount(x, account).Name,
                 IsCurrentUser = x.Email == user.Email
             }));
         }
 
         public IActionResult Accounts(string id)
         {
-            var currentUser = UserManager.GetUser(User);
-            var wantedUser = UserManager.GetUserById(id);
+            var currentUser = _userProfilesManager.GetUser(User);
+            var wantedUser = _userProfilesManager.GetUserById(id);
 
             if (!TryValidate(currentUser, id, wantedUser, out IActionResult result))
             {
@@ -120,25 +143,25 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [RoleAuthorize("SystemAdministrator", "Administrator")]
         public async Task<IActionResult> PostRegister(RegisterModel registerModel)
         {
-            var currentUser = UserManager.GetUser(User);
+            var currentUser = _userProfilesManager.GetUser(User);
             var user = new UserProfile { Email = registerModel.Email, Id = Guid.NewGuid().ToString() };
             var createNew = ExtendedUser.IsInRole("SystemAdministrator") && registerModel.UserRole == "Administrator";
-            var account = createNew ? AccountsManager.TryAddAccount(new Account
+            var auth0User = await _auth0UserManager.GetUserByEmail(user?.Email);
+            var account = createNew ? await _accountsManager.TryAddAccount(new Account
             {
                 OosId = registerModel.OosId,
                 Id = Guid.NewGuid().ToString(),
                 SalesForceId = registerModel.SalesForceId,
-                Name = registerModel.SalesForceName
+                Name = string.IsNullOrEmpty(auth0User?.Name) ? registerModel.SalesForceName : $"{auth0User.Name.ToUpperFirst()} Account"
+            }) : _accountsManager.GetAccountById(currentUser?.SelectedAccountId);
 
-            }) : AccountsManager.GetAccountById(currentUser?.SelectedAccountId);
-
-            UserManager.AddUserProfile(user);
-            UserAccountsManager.TryAddUserToAccount(new UserAccount
+            await _userProfilesManager.AddUserProfile(user);
+            await _userAccountsManager.TryAddUserToAccount(new UserAccount
             {
                 AccountId = account.Id,
                 UserProfileId = user.Id,
                 Id = Guid.NewGuid().ToString(),
-                UserRoleId = RoleManager.GetRoleByName(registerModel.UserRole).Id,
+                UserRoleId = _userRolesManager.GetRoleByName(registerModel.UserRole).Id,
             });
 
             await Notify(createNew, registerModel.Email, account.Name);
@@ -147,30 +170,30 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [RoleAuthorize("SystemAdministrator")]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            var user = UserManager.GetUserById(id);
+            var user = _userProfilesManager.GetUserById(id);
 
             if (!TryValidate(user, null, null, out IActionResult result))
             {
                 return result;
             }
 
-            UserManager.Delete(user);
-            UserAccountsManager.RemoveUserAccounts(user);
-            AccountAgreementsManager.Remove(user);
+            await _userProfilesManager.Delete(user);
+            await _userAccountsManager.RemoveUserFromAllAccounts(user);
+            await _accountAgreementsManager.Remove(user);
             TempData["StatusMessage"] = string.Format("Success! {0} was deleted!", user.Name);
             return new EmptyResult();
         }
 
         [RoleAuthorize("SystemAdministrator", "Administrator")]
-        public IActionResult Dismiss(string id)
+        public async Task<IActionResult> Dismiss(string id)
         {
-            var user = UserManager.GetUserById(id);
-            var currentUser = UserManager.GetUser(User);
-            var account = AccountsManager.GetAccountById(currentUser.SelectedAccountId);
-            var result = UserAccountsManager.RemoveUserFromAccount(user, account);
-            AccountAgreementsManager.Remove(user, account);
+            var user = _userProfilesManager.GetUserById(id);
+            var currentUser = _userProfilesManager.GetUser(User);
+            var account = _accountsManager.GetAccountById(currentUser.SelectedAccountId);
+            var result = await _userAccountsManager.RemoveUserFromAccount(user, account);
+            await _accountAgreementsManager.Remove(user, account);
 
             if (result.Succeeded)
             {
@@ -185,12 +208,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [RoleAuthorize("SystemAdministrator", "Administrator")]
         public async Task<IActionResult> Assign(string userId, string roleName)
         {
-            var user = UserManager.GetUserById(userId);
-            var currentUser = UserManager.GetUser(User);
-            var account = AccountsManager.GetAccountById(currentUser.SelectedAccountId);
-            var roleId = RoleManager.GetRoleByName(roleName).Id;
+            var user = _userProfilesManager.GetUserById(userId);
+            var currentUser = _userProfilesManager.GetUser(User);
+            var account = _accountsManager.GetAccountById(currentUser.SelectedAccountId);
+            var roleId = _userRolesManager.GetRoleByName(roleName).Id;
 
-            var result = UserAccountsManager.TryAddUserToAccount(new UserAccount
+            var result = await _userAccountsManager.TryAddUserToAccount(new UserAccount
             {
                 UserProfileId = userId,
                 AccountId = account.Id,
@@ -198,7 +221,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 Id = Guid.NewGuid().ToString()
             });
 
-            AccountAgreementsManager.Add(new AccountAgreement
+            await _accountAgreementsManager.Add(new AccountAgreement
             {
                 Id = Guid.NewGuid().ToString(),
                 UserProfileId = user.Id,
@@ -219,11 +242,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [RoleAuthorize("SystemAdministrator", "Administrator")]
         public IActionResult CheckUserExistance(string email)
         {
-            var user = UserManager.GetUserByEmail(email);
+            var user = _userProfilesManager.GetUserByEmail(email);
 
             if (user == null)
             {
-                return Json(new { Message = "The user does not exits!", IsErrorMessage = false });
+                return Json(new { Message = "The user does not exists!", IsErrorMessage = false });
             }
 
             var currentUserEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
@@ -242,15 +265,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         }
 
         [HttpPost]
-        public IActionResult GenerateAccessToken()
+        public async Task<IActionResult> GenerateAccessToken()
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var user = UserManager.GetUser(User);
+            var user = _userProfilesManager.GetUser(User);
 
             var securityToken = tokenHandler.CreateToken(new());
             var token = tokenHandler.WriteToken(securityToken);
             user.APIAccessToken = token;
-            UserManager.UpdateUserProfile(user);
+            await _userProfilesManager.UpdateUserProfile(user);
             return PartialView("_AccessTokenPartial", token);
         }
 
@@ -282,11 +305,11 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         private IEnumerable<AccountModel> PrepareAccounts(UserProfile user)
         {
-            var accounts = UserAccountsManager.GetUserAccounts(user);
+            var accounts = _userAccountsManager.GetUserAccounts(user);
             return accounts.Select(x => new AccountModel
             {
                 Name = x.Name,
-                Role = UserAccountsManager.GetUserRoleForAccount(user, x).Name,
+                Role = _userAccountsManager.GetUserRoleForAccount(user, x).Name,
             });
         }
 

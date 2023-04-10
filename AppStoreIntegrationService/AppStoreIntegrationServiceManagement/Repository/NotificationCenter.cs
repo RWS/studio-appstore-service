@@ -5,6 +5,7 @@ using System.Data;
 using System.Text.RegularExpressions;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Interface;
 
 namespace AppStoreIntegrationServiceManagement.Repository

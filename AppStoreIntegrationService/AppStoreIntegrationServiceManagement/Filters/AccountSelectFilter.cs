@@ -1,13 +1,14 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace AppStoreIntegrationServiceManagement.Filters
 {
-    public class AccountSelectFilter : IAuthorizationFilter
+    public class AccountSelectFilter : IAsyncAuthorizationFilter
     {
         const string Url = "/Identity/Authentication/Accounts?ReturnUrl={0}";
-        private readonly IUserProfilesManager _userManager;
+        private readonly IUserProfilesManager _userProfilesManager;
         private readonly IUserAccountsManager _userAccountsManager;
 
         public AccountSelectFilter
@@ -16,19 +17,19 @@ namespace AppStoreIntegrationServiceManagement.Filters
             IUserAccountsManager userAccountsManager
         )
         {
-            _userManager = userManager;
+            _userProfilesManager = userManager;
             _userAccountsManager = userAccountsManager;
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            var user = _userManager.GetUser(context.HttpContext.User);
+            var user = _userProfilesManager.GetUser(context.HttpContext.User);
             var accounts = _userAccountsManager.GetUserAccounts(user);
 
             if (accounts.Count() <= 1)
             {
                 user.SelectedAccountId = accounts.FirstOrDefault().Id;
-                _userManager.UpdateUserProfile(user);
+                await _userProfilesManager.UpdateUserProfile(user);
                 return;
             }
 

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AppStoreIntegrationServiceCore.DataBase.Models
 {
     [Table("UserAccounts")]
-    public class UserAccount
+    public class UserAccount : IEquatable<UserAccount>
     {
         [Required]
         public string Id { get; set; }
@@ -15,9 +15,16 @@ namespace AppStoreIntegrationServiceCore.DataBase.Models
         [Required]
         public string UserRoleId { get; set; }
 
+        public bool Equals(UserAccount other)
+        {
+            return UserProfileId == other?.UserProfileId &&
+                   AccountId == other?.AccountId &&
+                   UserRoleId == other?.UserRoleId;
+        }
+
         public bool IsAssigned(UserAccount userAccount)
         {
-            return UserProfileId == userAccount.UserProfileId && AccountId == userAccount.AccountId;
+            return UserProfileId == userAccount?.UserProfileId && AccountId == userAccount?.AccountId;
         }
     }
 }

@@ -1,5 +1,7 @@
-﻿using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceCore.Model;
 using AppStoreIntegrationServiceCore.Repository.Interface;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Settings;
@@ -23,9 +25,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         public ImportExportPluginsController
         (
+            IUserProfilesManager userProfilesManager,
+            IUserAccountsManager userAccountsManager,
             IPluginRepository pluginRepository, 
-            IResponseManager responseManager
-        )
+            IResponseManager responseManager,
+            IAccountsManager accountsManager
+        ) : base(userProfilesManager, userAccountsManager, accountsManager)
         {
             _pluginRepository = pluginRepository;
             _responseManager = responseManager;

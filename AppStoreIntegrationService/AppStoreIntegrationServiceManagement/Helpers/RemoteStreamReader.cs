@@ -35,10 +35,5 @@
 
             return await downloadResponse.Content.ReadAsStreamAsync();
         }
-
-        public async Task<string> ReadAsStringAsync()
-        {
-            return await new StreamReader(await ReadAsStreamAsync()).ReadToEndAsync();
-        }
     }
 }

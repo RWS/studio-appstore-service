@@ -17,17 +17,17 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
 
         public (bool, bool) CreatePluginMatchLog(PluginDetails plugin, out bool isFullMatch)
         {
-            var isNameMatch = PluginName == plugin.Name;
-            var isAuthorMatch = Author == plugin.Developer.DeveloperName;
+            var isNameMatch = PluginName == plugin?.Name;
+            var isAuthorMatch = Author == plugin?.Developer.DeveloperName;
             isFullMatch = new[] { isNameMatch, isAuthorMatch }.All(match => match);
             return (isNameMatch, isAuthorMatch);
         }
 
         public VersionManifestComparison CreateVersionMatchLog(PluginVersion version, IEnumerable<ProductDetails> products, out bool isFullMatch)
         {
-            var isVersionMatch = Version == version.VersionNumber;
-            var isMinVersionMatch = RequiredProduct.MinimumStudioVersion == version.MinimumRequiredVersionOfStudio;
-            var isMaxVersionMatch = RequiredProduct.MaximumStudioVersion == version.MaximumRequiredVersionOfStudio;
+            var isVersionMatch = Version == version?.VersionNumber;
+            var isMinVersionMatch = RequiredProduct.MinimumStudioVersion == version?.MinimumRequiredVersionOfStudio;
+            var isMaxVersionMatch = RequiredProduct.MaximumStudioVersion == version?.MaximumRequiredVersionOfStudio;
             var isProductMatch = IsProductMatch(version, products);
             isFullMatch = new[] { isVersionMatch, isMinVersionMatch, isMaxVersionMatch, isProductMatch }.All(match => match);
             return new VersionManifestComparison
@@ -41,12 +41,12 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
 
         private static bool IsProductMatch(PluginVersion version, IEnumerable<ProductDetails> products)
         {
-            var selectedProducts = version.SupportedProducts.SelectMany(sp => products.Where(p => p.Id == sp));
+            var selectedProducts = version?.SupportedProducts.SelectMany(sp => products.Where(p => p.Id == sp));
             return new[] {
-                System.Version.TryParse(selectedProducts.MinBy(p => p.MinimumStudioVersion).MinimumStudioVersion, out Version minProductVersion),
-                System.Version.TryParse(selectedProducts.MaxBy(p => p.MinimumStudioVersion).MinimumStudioVersion, out Version maxProductVersion),
-                System.Version.TryParse(version.MinimumRequiredVersionOfStudio, out Version minRequiredVersion),
-                System.Version.TryParse(version.MaximumRequiredVersionOfStudio, out Version maxRequiredVersion)
+                System.Version.TryParse(selectedProducts?.MinBy(p => p.MinimumStudioVersion)?.MinimumStudioVersion, out Version minProductVersion),
+                System.Version.TryParse(selectedProducts?.MaxBy(p => p.MinimumStudioVersion)?.MinimumStudioVersion, out Version maxProductVersion),
+                System.Version.TryParse(version?.MinimumRequiredVersionOfStudio, out Version minRequiredVersion),
+                System.Version.TryParse(version?.MaximumRequiredVersionOfStudio, out Version maxRequiredVersion)
             }.All(match => match) && minProductVersion >= minRequiredVersion && maxProductVersion <= maxRequiredVersion;
         }
 

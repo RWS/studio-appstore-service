@@ -10,6 +10,8 @@ using HealthChecks.UI.Client;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Repository;
 using AppStoreIntegrationServiceCore.DataBase;
+using Microsoft.EntityFrameworkCore;
+using AppStoreIntegrationServiceCore.DataBase.Interface;
 
 namespace AppStoreIntegrationServiceAPI
 {
@@ -25,6 +27,10 @@ namespace AppStoreIntegrationServiceAPI
         public void ConfigureServices(IServiceCollection services)
         {
             _ = Enum.TryParse(Configuration.GetValue<string>("DeployMode"), out DeployMode deployMode);
+            services.AddDbContext<AppStoreIntegrationServiceContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("AppStoreIntegrationServiceContextConnection"));
+            });
             GetServiceProvider(services).GetRequiredService<AppStoreIntegrationServiceContext>().Database.EnsureCreated();
             var configurationSettings = GetConfigurationSettings(GetServiceProvider(services).GetService<IWebHostEnvironment>(), deployMode).Result;
             
@@ -54,6 +60,8 @@ namespace AppStoreIntegrationServiceAPI
 
             services.AddSingleton<IConfigurationSettings>(configurationSettings);
             services.AddSingleton<IPluginResponseConverter, PluginResponseConverter>();
+            services.AddSingleton<IServiceContextFactory, ServiceContextFactory>();
+            services.AddSingleton<IUserProfilesManager, UserProfilesManager>();
             services.AddSingleton<IPluginRepository, PluginRepository>();
             services.AddSingleton<ICategoriesRepositoryReadonly, CategoriesRepositoryBase>();
         }

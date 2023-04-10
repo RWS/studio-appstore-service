@@ -1,4 +1,6 @@
-﻿using AppStoreIntegrationServiceManagement.Filters;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
+using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
@@ -17,35 +19,46 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
     [TechPartnerAgreement]
     public class NotificationsController : CustomController
     {
+        private readonly IUserProfilesManager _userProfilesManager;
         private readonly INotificationCenter _notificationCenter;
+        private readonly IAccountsManager _accountsManager;
 
-        public NotificationsController(INotificationCenter notificationCenter)
+        public NotificationsController
+        (
+            INotificationCenter notificationCenter,
+            IUserProfilesManager userProfilesManager,
+            IUserAccountsManager userAccountsManager,
+            IAccountsManager accountsManager
+
+        ) : base(userProfilesManager, userAccountsManager, accountsManager)
         {
             _notificationCenter = notificationCenter;
+            _userProfilesManager = userProfilesManager;
+            _accountsManager = accountsManager;
         }
 
         [Route("Identity/Account/Notifications")]
         public IActionResult Index()
         {
-            var user = UserManager.GetUser(User);
+            var user = _userProfilesManager.GetUser(User);
             return View("Notifications", (user.EmailNotificationsEnabled, user.PushNotificationsEnabled));
         }
 
         [HttpPost]
-        public IActionResult Update(bool emailNotificationsEnabled, bool pushNotificationsEnabled)
+        public async Task<IActionResult> Update(bool emailNotificationsEnabled, bool pushNotificationsEnabled)
         {
-            var user = UserManager.GetUser(User);
+            var user = _userProfilesManager.GetUser(User);
             user.EmailNotificationsEnabled = emailNotificationsEnabled;
             user.PushNotificationsEnabled = pushNotificationsEnabled;
-            UserManager.UpdateUserProfile(user);
+            await _userProfilesManager.UpdateUserProfile(user);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> ChangeStatus(int? id, NotificationStatus status)
         {
-            var user = UserManager.GetUser(User);
-            var account = AccountsManager.GetAccountById(user.SelectedAccountId);
+            var user = _userProfilesManager.GetUser(User);
+            var account = _accountsManager.GetAccountById(user.SelectedAccountId);
             await _notificationCenter.ChangeStatus(ExtendedUser.IsInRole("SystemAdministrator") ? "SystemAdministrator" : account.Name, id, status);
             return new EmptyResult();
         }

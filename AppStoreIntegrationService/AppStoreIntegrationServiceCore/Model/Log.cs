@@ -1,6 +1,6 @@
 ﻿namespace AppStoreIntegrationServiceCore.Model
 {
-    public class Log
+    public class Log : IEquatable<Log>
     {
         public Log() { }
 
@@ -104,6 +104,16 @@
         public List<Change> Changes { get; set; } = new List<Change>();
 
         public string ToHtml() => string.Format(Description, Author, TargetInfo, Date) + GetDetails();
+
+        public bool Equals(Log other)
+        {
+            return Author == other?.Author &&
+                   IsNewLog == other?.IsNewLog &&
+                   Date == other?.Date &&
+                   Description == other?.Description &&
+                   TargetInfo == other?.TargetInfo &&
+                   Changes.SequenceEqual(other?.Changes);
+        }
 
         private string GetDetails(string change = null)
         {

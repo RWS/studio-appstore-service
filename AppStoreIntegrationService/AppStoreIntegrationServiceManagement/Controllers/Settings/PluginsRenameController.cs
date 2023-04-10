@@ -1,4 +1,6 @@
-﻿using AppStoreIntegrationServiceCore.Model;
+﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
+using AppStoreIntegrationServiceCore.Model;
+using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
 using AppStoreIntegrationServiceManagement.Repository.Interface;
@@ -20,9 +22,12 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
 
         public PluginsRenameController
         (
+            IUserProfilesManager userProfilesManager,
+            IUserAccountsManager userAccountsManager,
             INamesRepository namesRepository, 
-            IPluginRepository pluginRepository
-        )
+            IPluginRepository pluginRepository,
+            IAccountsManager accountsManager
+        ) : base(userProfilesManager, userAccountsManager, accountsManager)
         {
             _namesRepository = namesRepository;
             _pluginRepository = pluginRepository;

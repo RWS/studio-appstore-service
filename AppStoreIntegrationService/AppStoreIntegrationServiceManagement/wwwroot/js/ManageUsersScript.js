@@ -61,10 +61,14 @@ function HideUserDetails() {
 function Register() {
     let data = new FormData(document.getElementById("form"));
     let request = new XMLHttpRequest();
+    let button = event.target;
+
+    ToggleLoader(button);
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText)
+            HttpRequestCallback(request.responseText);
+            ToggleLoader(button);
         }
     }
 

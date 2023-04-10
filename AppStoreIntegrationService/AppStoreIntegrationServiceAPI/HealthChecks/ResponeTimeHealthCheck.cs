@@ -23,11 +23,11 @@ namespace AppStoreIntegrationServiceAPI.HealthChecks
                 var message = new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{GetUrlBase}/plugins")
+                    RequestUri = new Uri($"{GetUrlBase()}/Plugins")
                 };
 
-                var downloadResponse = await client.SendAsync(message);
-                _ = await downloadResponse.Content.ReadAsStringAsync();
+                var downloadResponse = await client.SendAsync(message, cancellationToken);
+                _ = await downloadResponse.Content.ReadAsStringAsync(cancellationToken);
                 watch.Stop();
             }
             catch (Exception)

@@ -17,22 +17,14 @@ namespace AppStoreIntegrationServiceManagement.Model.Identity
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
-
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
-
-        [Display(Name = "User role")]
         public string UserRole { get; set; }
-        public bool IsNewAccount { get; set; }
         public string SalesForceId { get; set; }
         public string OosId { get; set; }
         public string SalesForceName { get; set; }
 
         public bool IsEmpty()
         {
-            return new[] { Password, ConfirmPassword, Username }.All(x => x == null);
+            return new[] { Password, Username }.All(x => x == null);
         }
 
     }

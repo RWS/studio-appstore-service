@@ -63,7 +63,7 @@ function ClearLogs(id) {
 }
 
 function SavePlugin(action, removeOtherVersions = false) {
-    var button = event.currentTarget;
+    let button = event.currentTarget;
     document.getElementById("Description").innerText = document.querySelector("#editor .ql-editor").innerHTML;
     $("#form").validate();
 
