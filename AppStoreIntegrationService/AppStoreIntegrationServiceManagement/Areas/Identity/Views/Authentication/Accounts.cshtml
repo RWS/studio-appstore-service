@@ -3,35 +3,47 @@
     ViewData["Title"] = "Accounts";
 }
 
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-11 col-md-8 col-lg-6 rounded p-5 bg-light">
-            <form asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Authentication" asp-action="SelectAccount" method="post">
-                <h3 class="text-start">Choose account</h3>
-                <hr />
-                @foreach (var item in Model.Accounts)
-                {
-                    <label class="custom-label w-100 cursor-pointer">
-                        <input type="radio" asp-for="SelectedAccountId" value="@item.Id" class="custom-radio d-none" />
-                        <div class="w-100 p-2">@item.Name</div>
-                    </label>
-                }
-                <hr />
-                <div class="container-fluid p-0">
-                    <div class="row">
-                        <div class="col-6 d-flex align-items-center">
-                            <label>
-                                <input type="checkbox" class="form-check-input" asp-for="RememberMyChoice" />
-                                Remember my choice
-                            </label>
-                        </div>
-                        <div class="col-6 d-flex justify-content-end">
-                            <button type="submit" class="btn pa-admin-success-btn me-2">Choose account</button>
-                            <a asp-controller="Authentication" asp-action="Logout" class="btn btn-outline-secondary">Logout</a>
+            @if (Model.Accounts.Any())
+            {
+                <form asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Authentication" asp-action="SelectAccount" method="post">
+                    <h3 class="text-start">Choose account</h3>
+                    <hr />
+                    @foreach (var item in Model.Accounts)
+                    {
+                        <label class="custom-label w-100 cursor-pointer">
+                            <input type="radio" asp-for="SelectedAccountId" value="@item.Id" class="custom-radio d-none" />
+                            <div class="w-100 p-2">@item.Name</div>
+                        </label>
+                    }
+                    <hr />
+                    <div class="container-fluid p-0">
+                        <div class="row">
+                            <div class="col-6 d-flex align-items-center">
+                                <label>
+                                    <input type="checkbox" class="form-check-input" asp-for="RememberMyChoice" />
+                                    Remember my choice
+                                </label>
+                            </div>
+                            <div class="col-6 d-flex justify-content-end">
+                                <button type="submit" class="btn pa-admin-success-btn me-2">Choose account</button>
+                                <a asp-controller="Authentication" asp-action="Logout" class="btn btn-outline-secondary">Logout</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            }
+            else
+            {
+                <h3 class="text-start">Warning!</h3>
+                <hr />
+                <p class="fw-500 text-secondary">You are not assigned to any Account from AppStore Manager. To be able to access this website, you need to be invited!</p>
+                <a asp-controller="Authentication" asp-action="Logout" class="btn btn-outline-secondary">Logout</a>
+            }
         </div>
     </div>
 </div>

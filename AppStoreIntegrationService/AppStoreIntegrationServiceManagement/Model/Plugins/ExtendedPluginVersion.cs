@@ -20,7 +20,7 @@ namespace AppStoreIntegrationServiceManagement.Model.Plugins
         [JsonIgnore]
         public IEnumerable<Comment> VersionComments { get; set; }
 
-        public static new ExtendedPluginVersion CopyFrom(PluginVersion other)
+        public static ExtendedPluginVersion CopyFrom(PluginVersion other)
         {
             if (other == null)
             {

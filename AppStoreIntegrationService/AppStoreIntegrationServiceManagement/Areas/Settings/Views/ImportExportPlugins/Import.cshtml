@@ -17,12 +17,16 @@
                     <input asp-for="ImportedFile" class="form-control fs-inherit" />
                     <span asp-validation-for="ImportedFile" class="text-danger"></span>
                 </div>
-                <button onclick="javascript: ImportPlugins()" type="button" class="btn btn-outline-secondary fs-inherit">Import</button>
+                <button onclick="ImportPlugins()" type="button" class="btn btn-outline-secondary fs-inherit">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                    Import
+                </button>
             </form>
         </div>
     </div>
 </div>
-<div id="modalContainer"></div>
+
+<div id="partialContainer"></div>
 
 <script src="~/js/ImportPluginsScript.js"></script>
 @section Scripts {

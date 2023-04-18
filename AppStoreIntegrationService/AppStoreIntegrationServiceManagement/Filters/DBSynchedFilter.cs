@@ -56,14 +56,19 @@ namespace AppStoreIntegrationServiceManagement.Filters
 
         private async Task SyncUserProfile(UserProfile user, ClaimsPrincipal principal, string username)
         {
-            if (!string.IsNullOrEmpty(user.UserId) && !string.IsNullOrEmpty(user.Name))
+            var parameters = new[] { user?.UserId, user?.Name, user?.Picture };
+            
+            if (parameters.All(x => !string.IsNullOrEmpty(x)))
             {
                 return;
             }
 
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _userProfilesManager.UpdateUserName(user, username);
-            await _userProfilesManager.UpdateUserId(user, userId);
+            var picture = principal.Claims.FirstOrDefault(x => x.Type == "picture")?.Value;
+            user.Name = username;
+            user.UserId = userId;
+            user.Picture = picture;
+            await _userProfilesManager.TryUpdateUserProfile(user);
         }
     }
 }

@@ -2,26 +2,14 @@
     $("#form").validate();
 
     if ($("#form").valid()) {
-        let request = new XMLHttpRequest();
         let data = new FormData(document.getElementById("form"));
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                document.getElementById("modalContainer").innerHTML = request.responseText;
-                $('#modalContainer').find('.modal').modal('show');
-            }
-        }
-
-        request.open("POST", `ImportExportPlugins/CreateImport`);
-        request.send(data);
+        SendPostRequest('ImportExportPlugins/CreateImport', data, true)
     }
 }
 
 function SwitchNotifications() {
     var data = new FormData(document.getElementById("form"))
     let request = new XMLHttpRequest();
-    data.set("EmailNotificationsEnabled", data.get("Item1"))
-    data.set("PushNotificationsEnabled", data.get("Item2"))
 
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {

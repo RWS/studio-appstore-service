@@ -60,39 +60,12 @@ document.documentElement.style.setProperty('--pa-admin-danger-fontfamily', GetCo
 document.documentElement.style.setProperty('--pa-admin-danger-color-hover', GetCookie('dangerBackgroundColor'));
 
 function ChangeFontSize(target) {
-    //if (target == '') {
-    //    ['navbar', 'select', 'success'].forEach(x => {
-    //        var echoTarget = document.getElementById(`${x}Fontsize`);
-
-    //        if (echoTarget.dataset.override == "True") {
-    //            echoTarget.value = event.target.value;
-    //        }
-    //    })
-    //}
-
     event.target.dataset.override = "False";
     document.documentElement.style.setProperty(`--pa-admin${target}-fontsize`, `${event.target.value}px`);
     document.cookie = `${target.replace('-', '')}FontSize=${event.target.value}; max-age=${cookieMaxAge}; Path=/;`;
 }
 
 function ChangeFontFamily(target) {
-    //if (target == '') {
-    //    ['navbar', 'select', 'success'].forEach(x => {
-    //        var echoTarget = document.getElementById(`dropDownToggle${x}`);
-
-    //        if (echoTarget.dataset.override == "True") {
-    //            echoTarget.innerText = event.target.innerText;
-    //        }
-
-    //        for (let item of echoTarget.nextElementSibling.children) {
-    //            item.removeAttribute('selected');
-    //            if (item.innerText == event.target.innerText) {
-    //                item.setAttribute('selected', 'selected');
-    //            }
-    //        }
-    //    })
-    //}
-
     event.target.parentElement.previousElementSibling.dataset.override = "false";
     event.target.parentElement.previousElementSibling.innerText = event.target.innerText;
     document.documentElement.style.setProperty(`--pa-admin${target}-fontfamily`, `${event.target.innerText}`);
@@ -100,16 +73,6 @@ function ChangeFontFamily(target) {
 }
 
 function ChangeBackground(target) {
-    //if (target == '') {
-    //    ['navbar', 'select', 'success'].forEach(x => {
-    //        var echoTarget = document.getElementById(`${x}Background`);
-
-    //        if (echoTarget.dataset.override == "True") {
-    //            echoTarget.value = event.target.value;
-    //        }
-    //    })
-    //}
-
     event.target.dataset.override = "false";
     document.documentElement.style.setProperty(`--pa-admin${target}-color`, `${event.target.value}`);
     document.documentElement.style.setProperty(`--pa-admin${target}-color-hover`, `${event.target.value}`);
@@ -117,16 +80,6 @@ function ChangeBackground(target) {
 }
 
 function ChangeForeground(target) {
-    //if (target == '') {
-    //    ['navbar', 'select', 'success'].forEach(x => {
-    //        var echoTarget = document.getElementById(`${x}Foreground`);
-
-    //        if (echoTarget.dataset.override == "True") {
-    //            echoTarget.value = event.target.value;
-    //        }
-    //    })
-    //}
-
     event.target.dataset.override = "false";
     document.documentElement.style.setProperty(`--pa-admin${target}-foreground`, `${event.target.value}`);
     document.cookie = `${target.replace('-', '')}ForegroundColor=${event.target.value}; max-age=${cookieMaxAge}; Path=/;`;

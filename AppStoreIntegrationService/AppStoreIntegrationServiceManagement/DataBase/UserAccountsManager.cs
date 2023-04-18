@@ -6,7 +6,7 @@ using System.Data;
 
 namespace AppStoreIntegrationServiceManagement.DataBase
 {
-    public class UserAccountsManager : IUserAccountsManager
+    public class UserAccountsManager : Manager, IUserAccountsManager
     {
         private readonly IAccountEntitlementsManager _accountEntitlementsManager;
         private readonly IServiceContextFactory _serviceContext;
@@ -40,9 +40,35 @@ namespace AppStoreIntegrationServiceManagement.DataBase
             }
         }
 
+        public async Task<IdentityResult> ChangeUserRoleForAccount(UserProfile userProfile, Account account, string role)
+        {
+            if (ExistNullParams(out var result, userProfile?.Id, account?.Id, role))
+            {
+                return result;
+            }
+
+            try
+            {
+                using (var context = _serviceContext.CreateContext())
+                {
+                    var userAccounts = context.UserAccounts;
+                    var userRole = _roleManager.GetRoleByName(role);
+                    var userAccount = userAccounts.FirstOrDefault(x => x.UserProfileId == userProfile.Id && x.AccountId == account.Id);
+                    userAccount.UserRoleId = userRole.Id;
+                    await context.SaveChangesAsync();
+                }
+
+                return IdentityResult.Success;
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
+            }
+        }
+
         public Account GetUserUnsyncedAccount(UserProfile user)
         {
-            if (string.IsNullOrEmpty(user?.Id))
+            if (ExistNullParams(out _, user?.Id))
             {
                 return null;
             }
@@ -65,9 +91,9 @@ namespace AppStoreIntegrationServiceManagement.DataBase
             }
         }
 
-        public bool CanBeRemoved(UserProfile user)
+        public bool CanBeRemovedFromAccount(UserProfile user, Account account)
         {
-            if (string.IsNullOrEmpty(user?.Id))
+            if (ExistNullParams(out _, user?.Id, account?.Id))
             {
                 return false;
             }
@@ -75,21 +101,17 @@ namespace AppStoreIntegrationServiceManagement.DataBase
             using (var context = _serviceContext.CreateContext())
             {
                 var userAccounts = context.UserAccounts.ToList();
-                foreach (var userAccount in userAccounts.Where(x => x.UserProfileId == user.Id))
-                {
-                    var otherAccounts = userAccounts.Where(x => x.UserProfileId != user.Id && x.AccountId == userAccount.AccountId);
-                    if (otherAccounts.Any(x => CanBeRemoved(_roleManager.GetRoleById(x.UserRoleId))))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
+                return userAccounts.Where(x => x.AccountId == account.Id && x.UserProfileId != user.Id).Any(x => CanBeRemoved(x));
             }
         }
 
         public async Task<IdentityResult> RemoveUserFromAllAccounts(UserProfile user)
         {
+            if (ExistNullParams(out var result, user?.Id))
+            {
+                return result;
+            }
+
             try
             {
                 using (var context = _serviceContext.CreateContext())
@@ -107,12 +129,17 @@ namespace AppStoreIntegrationServiceManagement.DataBase
             }
         }
 
-        public bool BelongsTo(UserProfile member, Account account)
+        public bool BelongsTo(UserProfile member, Account account = null)
         {
             try
             {
                 using (var context = _serviceContext.CreateContext())
                 {
+                    if (account == null)
+                    {
+                        return context.UserAccounts.ToList().Any(x => x.UserProfileId == member.Id);
+                    }
+
                     return context.UserAccounts.ToList().Any(x => x.AccountId == account.Id && x.UserProfileId == member.Id);
                 }
             }
@@ -124,6 +151,11 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         public UserRole GetUserRoleForAccount(UserProfile user, Account account)
         {
+            if (ExistNullParams(out _, user?.Id, account?.Id))
+            {
+                return null;
+            }
+
             try
             {
                 using (var context = _serviceContext.CreateContext())
@@ -141,6 +173,11 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         public async Task<IdentityResult> RemoveUserFromAccount(UserProfile user, Account account)
         {
+            if (ExistNullParams(out var result, user?.Id, account?.Id))
+            {
+                return result;
+            }
+
             try
             {
                 using (var context = _serviceContext.CreateContext())
@@ -168,15 +205,15 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
                     if (userAccounts.ToList().Any(x => x.IsAssigned(userAccount)))
                     {
-                        return IdentityResult.Failed(new IdentityError 
-                        { 
-                            Description = "Warning! The user is already assigned to this account" 
+                        return IdentityResult.Failed(new IdentityError
+                        {
+                            Description = "Warning! The user is already assigned to this account"
                         });
                     }
 
                     userAccounts.Add(userAccount);
                     await context.SaveChangesAsync();
-                    await _accountEntitlementsManager.Add(new AccountEntitlement
+                    await _accountEntitlementsManager.TryAddEntitlement(new AccountEntitlement
                     {
                         Id = Guid.NewGuid().ToString(),
                         AccountId = userAccount.AccountId
@@ -193,7 +230,7 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         public IEnumerable<UserProfile> GetUsersFromAccount(Account account)
         {
-            if (string.IsNullOrEmpty(account?.Id))
+            if (ExistNullParams(out _, account?.Id))
             {
                 return new List<UserProfile>();
             }
@@ -207,9 +244,10 @@ namespace AppStoreIntegrationServiceManagement.DataBase
             }
         }
 
-        private static bool CanBeRemoved(UserRole role)
+        private bool CanBeRemoved(UserAccount userAccount)
         {
-            return "SystemAdministrator" == role.Name || "Administrator" == role.Name;
+            return _userProfilesManager.GetUserById(userAccount.UserProfileId).IsValidated() &&
+                   _roleManager.IsAdmin(userAccount.UserRoleId);
         }
     }
 }

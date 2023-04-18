@@ -2,7 +2,6 @@
 using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using AppStoreIntegrationServiceManagement.Filters;
 using AppStoreIntegrationServiceManagement.Model;
-using AppStoreIntegrationServiceManagement.Model.Identity;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.Model.Plugins;
 using AppStoreIntegrationServiceManagement.Repository;
@@ -41,16 +40,16 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         public IActionResult Index()
         {
             var user = _userProfilesManager.GetUser(User);
-            return View("Notifications", (user.EmailNotificationsEnabled, user.PushNotificationsEnabled));
+            return View("Notifications", new NotificationSettingsModel(user));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(bool emailNotificationsEnabled, bool pushNotificationsEnabled)
+        public async Task<IActionResult> Update(NotificationSettingsModel model)
         {
             var user = _userProfilesManager.GetUser(User);
-            user.EmailNotificationsEnabled = emailNotificationsEnabled;
-            user.PushNotificationsEnabled = pushNotificationsEnabled;
-            await _userProfilesManager.UpdateUserProfile(user);
+            user.EmailNotificationsEnabled = model.EmailNotificationsEnabled;
+            user.PushNotificationsEnabled = model.PushNotificationsEnabled;
+            await _userProfilesManager.TryUpdateUserProfile(user);
             return RedirectToAction("Index");
         }
 

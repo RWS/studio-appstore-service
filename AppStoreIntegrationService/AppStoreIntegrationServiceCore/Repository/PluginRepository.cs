@@ -68,7 +68,6 @@ namespace AppStoreIntegrationServiceManagement.Repository
             {
                 "Developer" => plugins?.Where(p => p.Developer.DeveloperName == username),
                 "Administrator" => plugins?.Where(p => p.Developer.DeveloperName == username),
-                "DeveloperTrial" => plugins?.Where(p => p.Developer.DeveloperName == username),
                 "SystemAdministrator" => plugins?.Where(p => p.Status != Status.Draft || p.HasAdminConsent),
                 _ => plugins
             };
@@ -104,10 +103,34 @@ namespace AppStoreIntegrationServiceManagement.Repository
             {
                 "SystemAdministrator" => drafts.Any(p => p.Id == id && p.HasAdminConsent),
                 "Developer" => drafts.Any(p => p.Id == id),
-                "DeveloperTrial" => drafts.Any(p => p.Id == id),
                 "Administrator" => drafts.Any(p => p.Id == id),
                 _ => false
             };
+        }
+
+        public async Task<bool> TryIncrementDownloadCount(string pluginName)
+        {
+            var plugin = await GetPluginByName(pluginName);
+            var plugins = await GetAll(null, status: Status.Active);
+            if (plugin == null)
+            {
+                return false;
+            }
+
+            plugin.DownloadCount++;
+            await SavePlugins(await UpdatePlugins(plugin, plugins.ToList()), Status.Active);
+            return true;
+        }
+
+        public async Task<bool> ExitsPlugin(string accountName)
+        {
+            if (string.IsNullOrEmpty(accountName))
+            {
+                return false;
+            }
+
+            var plugins = await GetAll(null, status: Status.Active);
+            return plugins.Any(x => x.Developer.DeveloperName == accountName);
         }
 
         private async Task<PluginDetails> GetPluginByName(string pluginName)
@@ -208,20 +231,6 @@ namespace AppStoreIntegrationServiceManagement.Repository
             }
 
             return plugins;
-        }
-
-        public async Task<bool> TryIncrementDownloadCount(string pluginName)
-        {
-            var plugin = await GetPluginByName(pluginName);
-            var plugins = await GetAll(null, status: Status.Active);
-            if (plugin == null)
-            {
-                return false;
-            }
-
-            plugin.DownloadCount++;
-            await SavePlugins(await UpdatePlugins(plugin, plugins.ToList()), Status.Active);
-            return true;
         }
     }
 }

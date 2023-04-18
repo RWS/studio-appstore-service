@@ -98,7 +98,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
         {
-            await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer", "DeveloperTrial");
+            await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer");
             await _notificationCenter.Push(pushNotification);
             await _notificationCenter.Broadcast(emailNotification, "SystemAdministrator");
             await _notificationCenter.Push(pushNotification);
@@ -108,7 +108,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             await _commentsRepository.DeleteComment(commentId, pluginId, versionId);
             TempData["StatusMessage"] = "Success! Comment was deleted!";
-            return Content(null);
+            return new EmptyResult();
         }
     }
 }

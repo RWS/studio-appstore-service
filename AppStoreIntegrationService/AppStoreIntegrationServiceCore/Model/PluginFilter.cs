@@ -114,18 +114,6 @@ namespace AppStoreIntegrationServiceCore.Model
 
         }
 
-        private static bool IsMatchingVersion(PluginVersion version, string studioVersion)
-        {
-            var parsedStudioVersion = new Version(studioVersion);
-            return new Version(version.MinimumRequiredVersionOfStudio ?? "0.0.0") <= parsedStudioVersion &&
-                   new Version(version.MaximumRequiredVersionOfStudio ?? "0.0.0") >= parsedStudioVersion;
-        }
-
-        private static IEnumerable<PluginDetails> FilterByCategory(IEnumerable<PluginDetails> pluginsList, IEnumerable<int> categoryIds)
-        {
-            return categoryIds.SelectMany(c => pluginsList.Where(p => p.Categories.Any(pc => pc == c.ToString())));
-        }
-
         public static IEnumerable<PluginDetails> FilterPlugins(IEnumerable<PluginDetails> pluginsList, PluginFilter filter, IEnumerable<ProductDetails> products, IEnumerable<ParentProduct> parents)
         {
             pluginsList ??= new List<PluginDetails>();
@@ -169,6 +157,18 @@ namespace AppStoreIntegrationServiceCore.Model
         private static IEnumerable<PluginDetails> FilterByProduct(IEnumerable<PluginDetails> plugins, string product)
         {
             return plugins.Where(p => p.Versions.Any(v => v.SupportedProducts.Any(p => p == product)));
+        }
+
+        private static bool IsMatchingVersion(PluginVersion version, string studioVersion)
+        {
+            var parsedStudioVersion = new Version(studioVersion);
+            return new Version(version.MinimumRequiredVersionOfStudio ?? "0.0.0") <= parsedStudioVersion &&
+                   new Version(version.MaximumRequiredVersionOfStudio ?? "0.0.0") >= parsedStudioVersion;
+        }
+
+        private static IEnumerable<PluginDetails> FilterByCategory(IEnumerable<PluginDetails> pluginsList, IEnumerable<int> categoryIds)
+        {
+            return categoryIds.SelectMany(c => pluginsList.Where(p => p.Categories.Any(pc => pc == c.ToString())));
         }
     }
 }

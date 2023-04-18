@@ -6,6 +6,7 @@ namespace AppStoreIntegrationServiceManagement.Repository.Interface
     {
         Task RemovePlugin(int id);
         Task<bool> ExitsPlugin(int id);
+        Task<bool> ExitsPlugin(string accountName);
         Task<bool> HasActiveChanges(int id);
         Task<bool> HasDraftChanges(int id, string userRole = null);
         Task<bool> HasPendingChanges(int id, string userRole = null);

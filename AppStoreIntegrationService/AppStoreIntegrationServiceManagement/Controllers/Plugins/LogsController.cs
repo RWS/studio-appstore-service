@@ -43,6 +43,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         public async Task<IActionResult> ClearAll(int id)
         {
             await _loggingRepository.ClearLogs(id);
+            TempData["StatusMessage"] = "Success! All logs was cleared!";
             return new EmptyResult();
         }
 

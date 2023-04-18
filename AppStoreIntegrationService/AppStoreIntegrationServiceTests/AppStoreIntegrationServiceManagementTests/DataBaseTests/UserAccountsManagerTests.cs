@@ -1,10 +1,7 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase;
-using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Models;
 using AppStoreIntegrationServiceManagement.DataBase;
-using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTests.Mock;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Xunit;
 
 namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTests.DataBaseTests
@@ -91,9 +88,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "2", UserProfileId = "2", AccountId = "1", UserRoleId = "2" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "3", UserProfileId = "3", AccountId = "1", UserRoleId = "3" });
 
-            await _userProfilesManager.AddUserProfile(new UserProfile { Id = "1", Email = "Test Email 1" });
-            await _userProfilesManager.AddUserProfile(new UserProfile { Id = "2", Email = "Test Email 2" });
-            await _userProfilesManager.AddUserProfile(new UserProfile { Id = "3", Email = "Test Email 3" });
+            await _userProfilesManager.TryAddUserProfile(new UserProfile { Id = "1", Email = "Test Email 1" });
+            await _userProfilesManager.TryAddUserProfile(new UserProfile { Id = "2", Email = "Test Email 2" });
+            await _userProfilesManager.TryAddUserProfile(new UserProfile { Id = "3", Email = "Test Email 3" });
 
             var users = _userAccountsManager.GetUsersFromAccount(new Account { Id = "1" });
 
@@ -152,7 +149,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserAccountsManagerTests_GetUserRoleForTheCorrespondingAccount_TheCorrespondingRoleShouldBeReturned()
         {
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "1", Name = "Administrator" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "1", Name = "Administrator" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "1", UserProfileId = "1", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "2", UserProfileId = "2", AccountId = "1", UserRoleId = "2" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "3", UserProfileId = "3", AccountId = "1", UserRoleId = "3" });
@@ -167,7 +164,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserAccountsManagerTests_GetUserRoleForNullAccount_ShouldReturnNull()
         {
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "1", Name = "Administrator" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "1", Name = "Administrator" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "1", UserProfileId = "1", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "2", UserProfileId = "2", AccountId = "1", UserRoleId = "2" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "3", UserProfileId = "3", AccountId = "1", UserRoleId = "3" });
@@ -180,7 +177,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserAccountsManagerTests_CheckIfUserBelongsToAccount_ShouldReturnTrue()
         {
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "1", Name = "Administrator" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "1", Name = "Administrator" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "1", UserProfileId = "1", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "2", UserProfileId = "2", AccountId = "1", UserRoleId = "2" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "3", UserProfileId = "3", AccountId = "1", UserRoleId = "3" });
@@ -193,7 +190,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserAccountsManagerTests_CheckIfUserBelongsToAccount_ShouldReturnFalse()
         {
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "1", Name = "Administrator" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "1", Name = "Administrator" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "1", UserProfileId = "1", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "2", UserProfileId = "2", AccountId = "1", UserRoleId = "2" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "3", UserProfileId = "3", AccountId = "1", UserRoleId = "3" });
@@ -206,7 +203,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserAccountsManagerTests_CheckIfNullUserBelongsToAccount_ShouldReturnFalse()
         {
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "1", Name = "Administrator" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "1", Name = "Administrator" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "1", UserProfileId = "1", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "2", UserProfileId = "2", AccountId = "1", UserRoleId = "2" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "3", UserProfileId = "3", AccountId = "1", UserRoleId = "3" });
@@ -256,12 +253,12 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserAccountsManagerTests_CheckIfUserCanBeRemoved_CollectionShouldBeUnchanged()
         {
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "1", Name = "Administrator" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "1", Name = "Administrator" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "1", UserProfileId = "1", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "2", UserProfileId = "2", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "3", UserProfileId = "3", AccountId = "3", UserRoleId = "3" });
 
-            Assert.True(_userAccountsManager.CanBeRemoved(new UserProfile { Id = "1" }));
+            Assert.True(_userAccountsManager.CanBeRemovedFromAccount(new UserProfile { Id = "1" }, new Account { Id = "1" }));
 
             _serviceContextFactory.ClearInMemoryDataBase();
         }
@@ -269,12 +266,12 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserAccountsManagerTests_CheckIfNullUserCanBeRemoved_CollectionShouldBeUnchanged()
         {
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "1", Name = "Administrator" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "1", Name = "Administrator" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "1", UserProfileId = "1", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "2", UserProfileId = "2", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "3", UserProfileId = "3", AccountId = "3", UserRoleId = "3" });
 
-            Assert.False(_userAccountsManager.CanBeRemoved(null));
+            Assert.False(_userAccountsManager.CanBeRemovedFromAccount(null, null));
 
             _serviceContextFactory.ClearInMemoryDataBase();
         }
@@ -296,7 +293,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserAccountsManagerTests_GetUserUnsyncedAccount_ShouldReturnNull()
         {
-            _ = await _accountsManager.TryAddAccount(new Account { Id = "1" , Name = "Test Account"});
+            _ = await _accountsManager.TryAddAccount(new Account { Id = "1", Name = "Test Account" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "1", UserProfileId = "1", AccountId = "1", UserRoleId = "1" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "2", UserProfileId = "2", AccountId = "2", UserRoleId = "2" });
             _ = await _userAccountsManager.TryAddUserToAccount(new UserAccount { Id = "3", UserProfileId = "3", AccountId = "3", UserRoleId = "3" });

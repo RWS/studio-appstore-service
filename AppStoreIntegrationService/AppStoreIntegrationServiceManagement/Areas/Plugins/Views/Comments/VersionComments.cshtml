@@ -8,7 +8,6 @@
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this message?" })" />
-<div id="modalContainer"></div>
 
 <form class="row p-2" method="post" id="form" onsubmit="return false">
     <div class="col-12 col-lg-4">
@@ -62,5 +61,7 @@
         }
     </div>
 </form>
+
+<div id="partialContainer"></div>
 
 <script asp-append-version="true" src="~/js/CommentsScript.js"></script>

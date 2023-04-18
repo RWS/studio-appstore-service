@@ -1,5 +1,6 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Models;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
 namespace AppStoreIntegrationServiceCore.DataBase
@@ -24,68 +25,57 @@ namespace AppStoreIntegrationServiceCore.DataBase
             }
         }
 
-        public async Task AddUserProfile(UserProfile profile)
+        public async Task<IdentityResult> TryAddUserProfile(UserProfile profile)
         {
-            using (var context = _serviceContext.CreateContext())
+            try
             {
-                context.UserProfiles.Add(profile);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        public async Task UpdateUserProfile(UserProfile profile)
-        {
-            using (var context = _serviceContext.CreateContext())
-            {
-                var user = context.UserProfiles.FirstOrDefault(x => x.Id == profile.Id);
-
-                user.Id = profile.Id;
-                user.UserId = profile.UserId;
-                user.Email = profile.Email;
-                user.Name = profile.Name;
-                user.EmailNotificationsEnabled = profile.EmailNotificationsEnabled;
-                user.PushNotificationsEnabled = profile.PushNotificationsEnabled;
-                user.RememberAccount = profile.RememberAccount;
-                user.SelectedAccountId = profile.SelectedAccountId;
-                user.APIAccessToken = profile.APIAccessToken;
-
-                await context.SaveChangesAsync();
-            }
-        }
-
-        public async Task UpdateUserName(UserProfile profile, string name)
-        {
-            using (var context = _serviceContext.CreateContext())
-            {
-                var user = context.UserProfiles.FirstOrDefault(x => x.Id == profile.Id);
-                if (string.IsNullOrEmpty(name))
+                using (var context = _serviceContext.CreateContext())
                 {
-                    return;
+                    context.UserProfiles.Add(profile);
+                    await context.SaveChangesAsync();
                 }
 
-                user.Name = name;
-                await context.SaveChangesAsync();
+                return IdentityResult.Success;
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
             }
         }
 
-        public async Task UpdateUserId(UserProfile profile, string userId)
+        public async Task<IdentityResult> TryUpdateUserProfile(UserProfile profile)
         {
-            using (var context = _serviceContext.CreateContext())
+            try
             {
-                var user = context.UserProfiles.FirstOrDefault(x => x.Id == profile.Id);
-                if (string.IsNullOrEmpty(userId))
+                using (var context = _serviceContext.CreateContext())
                 {
-                    return;
+                    var user = context.UserProfiles.FirstOrDefault(x => x.Id == profile.Id);
+
+                    user.Id = profile.Id;
+                    user.UserId = profile.UserId;
+                    user.Email = profile.Email;
+                    user.Name = profile.Name;
+                    user.Picture = profile.Picture;
+                    user.EmailNotificationsEnabled = profile.EmailNotificationsEnabled;
+                    user.PushNotificationsEnabled = profile.PushNotificationsEnabled;
+                    user.RememberAccount = profile.RememberAccount;
+                    user.SelectedAccountId = profile.SelectedAccountId;
+                    user.APIAccessToken = profile.APIAccessToken;
+
+                    await context.SaveChangesAsync();
                 }
 
-                user.UserId = userId;
-                await context.SaveChangesAsync();
+                return IdentityResult.Success;
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
             }
         }
 
         public UserProfile GetUser(ClaimsPrincipal principal)
         {
-            var email = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+            var email = principal?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
             if (email == null)
             {
                 return null;
@@ -116,16 +106,6 @@ namespace AppStoreIntegrationServiceCore.DataBase
         public static string GetUserId(ClaimsPrincipal principal)
         {
             return principal.FindFirstValue(ClaimTypes.NameIdentifier);
-        }
-
-        public async Task Delete(UserProfile profile)
-        {
-            using (var context = _serviceContext.CreateContext())
-            {
-                var oldProfile = context.UserProfiles.FirstOrDefault(x => x.Id == profile.Id);
-                context.UserProfiles.Remove(oldProfile);
-                await context.SaveChangesAsync();
-            }
         }
     }
 }

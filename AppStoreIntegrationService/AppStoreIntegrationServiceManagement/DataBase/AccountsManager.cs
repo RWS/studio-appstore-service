@@ -1,10 +1,11 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Models;
 using AppStoreIntegrationServiceManagement.DataBase.Interface;
+using Microsoft.AspNetCore.Identity;
 
 namespace AppStoreIntegrationServiceManagement.DataBase
 {
-    public class AccountsManager : IAccountsManager
+    public class AccountsManager : Manager, IAccountsManager
     {
         private readonly IServiceContextFactory _serviceContext;
 
@@ -15,7 +16,7 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         public async Task<Account> TryAddAccount(Account account)
         {
-            if (string.IsNullOrEmpty(account?.Id))
+            if (ExistNullParams(out _, account?.Id))
             {
                 return null;
             }
@@ -37,17 +38,24 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         public async Task<Account> TryUpdateAccountName(Account account, string name)
         {
-            if (string.IsNullOrEmpty(name))
+            if (ExistNullParams(out _, name))
             {
                 return account;
             }
 
-            using (var context = _serviceContext.CreateContext())
+            try
             {
-                var oldAccount = context.Accounts.FirstOrDefault(x => x.Id == account.Id);
-                oldAccount.Name = name;
-                await context.SaveChangesAsync();
-                return oldAccount;
+                using (var context = _serviceContext.CreateContext())
+                {
+                    var oldAccount = context.Accounts.FirstOrDefault(x => x.Id == account.Id);
+                    oldAccount.Name = name;
+                    await context.SaveChangesAsync();
+                    return oldAccount;
+                }
+            }
+            catch (Exception)
+            {
+                return account;
             }
         }
 
@@ -61,7 +69,7 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         public Account GetAccountByName(string name)
         {
-            if (string.IsNullOrEmpty(name))
+            if (ExistNullParams(out _, name))
             {
                 return null;
             }
@@ -71,6 +79,31 @@ namespace AppStoreIntegrationServiceManagement.DataBase
                 var accounts = context.Accounts.ToList();
                 var account = accounts.FirstOrDefault(x => x.Name == name);
                 return account;
+            }
+        }
+
+        public async Task<IdentityResult> RemoveAccountById(string id)
+        {
+            if (ExistNullParams(out var result, id))
+            {
+                return result;
+            }
+
+            try
+            {
+                using (var context = _serviceContext.CreateContext())
+                {
+                    var accounts = context.Accounts;
+                    var account = accounts.FirstOrDefault(x => x.Id == id);
+                    accounts.Remove(account);
+                    await context.SaveChangesAsync();
+                }
+
+                return IdentityResult.Success;
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
             }
         }
     }

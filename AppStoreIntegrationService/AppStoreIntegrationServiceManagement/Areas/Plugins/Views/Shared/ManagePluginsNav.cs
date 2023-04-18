@@ -11,8 +11,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Plugins.Views.Shared
 
         private static string PageNavClass(ViewContext viewContext, string page, string key, string className)
         {
-            var activePage = viewContext.ViewData[key] as string
-                ?? Path.GetFileNameWithoutExtension(viewContext.ActionDescriptor.DisplayName);
+            var activePage = viewContext.ViewData[key] as string ?? Path.GetFileNameWithoutExtension(viewContext.ActionDescriptor.DisplayName);
             return string.Equals(activePage, page, StringComparison.OrdinalIgnoreCase) ? className : null;
         }
     }

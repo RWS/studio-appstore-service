@@ -19,9 +19,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task AccountAgreementsManagerTests_PopulateDataBase_TheRecordsShouldBeAddedInTheDataBase()
         {
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "2" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "3" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "2" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "3" });
             var accountAgreements = _serviceContextFactoryMock.CreateContext().AccountAgreements.ToList();
 
             Assert.Equal(3, accountAgreements.Count);
@@ -38,9 +38,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task AccountAgreementsManagerTests_AddRecordWithNullProperties_TheRecordsShouldNotBeAdded()
         {
-            await _accountAgreementsManager.Add(new AccountAgreement { AccountId = "1", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "2", UserProfileId = "2" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "3", AccountId = "3" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { AccountId = "1", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "2", UserProfileId = "2" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "3", AccountId = "3" });
 
             Assert.Empty(_serviceContextFactoryMock.CreateContext().AccountAgreements.ToList());
 
@@ -50,30 +50,8 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task AccountAgreementsManagerTests_AddNullRecord_TheRecordsShouldNotBeAdded()
         {
-            await _accountAgreementsManager.Add(null);
+            await _accountAgreementsManager.TryAddAgreement(null);
 
-            Assert.Empty(_serviceContextFactoryMock.CreateContext().AccountAgreements.ToList());
-
-            _serviceContextFactoryMock.ClearInMemoryDataBase();
-        }
-
-        [Fact]
-        public async Task AccountAgreementsManagerTests_RemoveAllUserAggreements_TheRecordsShouldBeRemoved()
-        {
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "1" });
-            var accountAgreements = _serviceContextFactoryMock.CreateContext().AccountAgreements.ToList();
-
-            Assert.Equal(3, accountAgreements.Count);
-            Assert.Equal(new[]
-            {
-                new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" },
-                new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "1" },
-                new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "1" }
-            }, accountAgreements);
-
-            await _accountAgreementsManager.Remove(new UserProfile { Id = "1" });
             Assert.Empty(_serviceContextFactoryMock.CreateContext().AccountAgreements.ToList());
 
             _serviceContextFactoryMock.ClearInMemoryDataBase();
@@ -82,9 +60,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task AccountAgreementsManagerTests_RemoveAllUserAggreementsForAnAccount_TheRecordsShouldBeRemoved()
         {
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "1" });
             var accountAgreements = _serviceContextFactoryMock.CreateContext().AccountAgreements.ToList();
 
             Assert.Equal(3, accountAgreements.Count);
@@ -112,9 +90,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task AccountAgreementsManagerTests_RemoveAllUserAggreementsWhenAccountIsNull_TheRecordsShouldNotBeRemoved()
         {
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "1" });
             var accountAgreements = _serviceContextFactoryMock.CreateContext().AccountAgreements.ToList();
 
             Assert.Equal(3, accountAgreements.Count);
@@ -143,9 +121,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task AccountAgreementsManagerTests_CheckIfUserConsentAccountAgreement_ShouldReturnTrue()
         {
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "1" });
-            await _accountAgreementsManager.Add(new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "1", AccountId = "1", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "2", AccountId = "2", UserProfileId = "1" });
+            await _accountAgreementsManager.TryAddAgreement(new AccountAgreement { Id = "3", AccountId = "3", UserProfileId = "1" });
 
             Assert.True(_accountAgreementsManager.HasAggreement(new UserProfile { Id = "1" }, new Account { Id = "1" }));
 

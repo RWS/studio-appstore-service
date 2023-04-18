@@ -9,6 +9,7 @@ namespace AppStoreIntegrationServiceCore.Repository
         ServerFilePath,
         NetworkFilePath
     }
+
     public class ConfigurationSettings : IConfigurationSettings
     {
         public string StorageAccountName { get; set; }

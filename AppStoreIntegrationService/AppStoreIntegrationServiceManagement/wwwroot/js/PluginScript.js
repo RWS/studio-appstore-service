@@ -1,25 +1,9 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
-    var editorExists = document.getElementById("editor") != null;
-
-    if (editorExists) {
-        var toolbarOptions = [
-            ['bold', 'italic', 'underline', 'strike'],
-            ['blockquote', 'code-block'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'script': 'sub' }, { 'script': 'super' }],
-            [{ 'indent': '-1' }, { 'indent': '+1' }],
-            [{ 'align': [] }],
-            ['clean'],
-            [{ 'direction': 'rtl' }],
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            [{ 'color': [] }, { 'background': [] }],
-            ['link', 'image', 'video'],
-        ];
-
+    if (document.getElementById("editor")) {
         editor = new Quill('#editor', {
             modules:
             {
-                toolbar: toolbarOptions,
+                toolbar: quillToolbarOptions,
             },
             theme: 'snow'
         });
@@ -48,64 +32,31 @@ function ClearLogs(id) {
     document.getElementById('confirmationBtn').onclick = function () {
         var data = new FormData();
         data.set("Id", id);
-
-        let request = new XMLHttpRequest();
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                HttpRequestCallback(request.responseText);
-            }
-        }
-
-        request.open("POST", `/Plugins/Logs/ClearAll`);
-        request.send(data)
+        SendPostRequest('/Plugins/Logs/ClearAll', data)
     }
 }
 
 function SavePlugin(action, removeOtherVersions = false) {
-    let button = event.currentTarget;
-    document.getElementById("Description").innerText = document.querySelector("#editor .ql-editor").innerHTML;
+    let description = document.querySelector("#editor .ql-editor").innerHTML;
+    document.getElementById("Description").innerText = description;
+
     $("#form").validate();
 
     if ($("#form").valid()) {
-        let request = new XMLHttpRequest();
         let data = new FormData(document.getElementById("form"));
         data.set("RemoveOtherVersions", removeOtherVersions);
-        ToggleLoader(button);
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                HttpRequestCallback(request.responseText);
-                ToggleLoader(button);
-            }
-        }
-
-        request.open("POST", `/Plugins/Plugins/${action}`);
-        request.send(data);
+        SendPostRequest(`/Plugins/Plugins/${action}`, data);
     }
 }
 
 function Delete(action, id, needsConfirmation = true) {
     if (needsConfirmation) {
         document.getElementById('confirmationBtn').onclick = function () {
-            RespondDeletionRequest(action, id);
+            SendPostRequest(`Plugins/Plugins/${action}/${id}`)
         }
 
         return;
     }
 
-    RespondDeletionRequest(action, id);
-}
-
-function RespondDeletionRequest(action, id) {
-    let request = new XMLHttpRequest();
-
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText);
-        }
-    }
-
-    request.open("POST", `Plugins/Plugins/${action}/${id}`);
-    request.send();
+    SendPostRequest(`Plugins/Plugins/${action}/${id}`)
 }

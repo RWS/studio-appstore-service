@@ -7,8 +7,6 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<div id="statusMessageContainer"></div>
-<div id="modalContainer"></div>
 
 <form class="row p-2" method="post" id="form" onsubmit="return false">
     <div class="col-12 col-lg-4">
@@ -23,7 +21,7 @@
         <input hidden name="Page" value="@Page.Version" />
         <partial name="_VersionDetailsPartial" model="@Model.Version" />
 
-        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
+        @if (Model.Version.IsThirdParty && ExtendedUser.IsInRoles("Developer", "Administrator"))
         {
             if (Model.Plugin.Status != Status.Draft)
             {
@@ -62,6 +60,8 @@
         }
     </div>
 </form>
+
+<div id="partialContainer"></div>
 
 <script src="~/js/DropDown.js" asp-append-version="true"></script>
 <script src="~/js/VersionsScript.js" asp-append-version="true"></script>

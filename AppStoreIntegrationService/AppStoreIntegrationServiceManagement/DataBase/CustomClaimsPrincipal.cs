@@ -7,19 +7,19 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 {
     public class CustomClaimsPrincipal : ClaimsPrincipal
     {
-        private readonly IUserProfilesManager _userManager;
+        private readonly IUserProfilesManager _userProfilesManager;
         private readonly IUserAccountsManager _userAccountsManager;
         private readonly IAccountsManager _accountsManager;
 
         public CustomClaimsPrincipal
         (
             IPrincipal principal,
-            IUserProfilesManager userManager,
+            IUserProfilesManager userProfilesManager,
             IUserAccountsManager userAccountsManager,
             IAccountsManager accountsManager
         ) : base(principal)
         {
-            _userManager = userManager;
+            _userProfilesManager = userProfilesManager;
             _userAccountsManager = userAccountsManager;
             _accountsManager = accountsManager;
         }
@@ -32,7 +32,7 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         public override bool IsInRole(string roleName)
         {
-            var user = _userManager?.GetUser(this);
+            var user = _userProfilesManager?.GetUser(this);
 
             if (user == null)
             {
@@ -52,7 +52,7 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         public bool IsInRoles(params string[] roles)
         {
-            var user = _userManager?.GetUser(this);
+            var user = _userProfilesManager?.GetUser(this);
 
             if (user == null)
             {
@@ -72,20 +72,20 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         public bool HasSelectedAccount()
         {
-            var user = _userManager?.GetUser(this);
+            var user = _userProfilesManager?.GetUser(this);
             return !string.IsNullOrEmpty(user?.SelectedAccountId);
         }
 
         private string GetAccountName()
         {
-            var user = _userManager?.GetUser(this);
+            var user = _userProfilesManager?.GetUser(this);
             var account = _accountsManager?.GetAccountById(user?.SelectedAccountId);
             return account?.Name;
         }
 
         private string GetRole()
         {
-            var user = _userManager?.GetUser(this);
+            var user = _userProfilesManager?.GetUser(this);
             var account = _accountsManager?.GetAccountById(user?.SelectedAccountId);
             var role = _userAccountsManager?.GetUserRoleForAccount(user, account);
             return role?.Name;
@@ -93,7 +93,7 @@ namespace AppStoreIntegrationServiceManagement.DataBase
 
         private bool HasPushNotificationsEnabled()
         {
-            var user = _userManager?.GetUser(this);
+            var user = _userProfilesManager?.GetUser(this);
             return user.PushNotificationsEnabled;
         }
     }

@@ -1,10 +1,11 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Models;
 using AppStoreIntegrationServiceManagement.DataBase.Interface;
+using Microsoft.AspNetCore.Identity;
 
 namespace AppStoreIntegrationServiceManagement.DataBase
 {
-    public class AccountEntitlementsManager : IAccountEntitlementsManager
+    public class AccountEntitlementsManager : Manager, IAccountEntitlementsManager
     {
         private readonly IServiceContextFactory _serviceContext;
 
@@ -13,23 +14,57 @@ namespace AppStoreIntegrationServiceManagement.DataBase
             _serviceContext = serviceContext;
         }
 
-        public async Task Add(AccountEntitlement entitlement)
+        public async Task<IdentityResult> TryAddEntitlement(AccountEntitlement entitlement)
         {
-            if (string.IsNullOrEmpty(entitlement?.Id) || string.IsNullOrEmpty(entitlement?.AccountId))
+            if (ExistNullParams(out var result, entitlement?.Id, entitlement?.AccountId))
             {
-                return;
+                return result;
             }
 
-            using (var context = _serviceContext.CreateContext())
+            try
             {
-                if (context.AccountEntitlements.ToList().Any(x => x.AccountId == entitlement.AccountId || x.Id == entitlement.Id))
+                using (var context = _serviceContext.CreateContext())
                 {
-                    return;
+                    if (context.AccountEntitlements.ToList().Any(x => x.AccountId == entitlement.AccountId || x.Id == entitlement.Id))
+                    {
+                        return IdentityResult.Success;
+                    }
+
+                    context.AccountEntitlements.Add(entitlement);
+                    await context.SaveChangesAsync();
                 }
 
-                context.AccountEntitlements.Add(entitlement);
-                await context.SaveChangesAsync();
+                return IdentityResult.Success;
             }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
+            }
+        }
+
+        public async Task<IdentityResult> RemoveByAccountId(string accountId)
+        {
+            if (ExistNullParams(out var result, accountId))
+            {
+                return result;
+            }
+
+            try
+            {
+                using (var context = _serviceContext.CreateContext())
+                {
+                    var entitlement = context.AccountEntitlements.FirstOrDefault(x => x.AccountId == accountId);
+                    context.AccountEntitlements.Remove(entitlement);
+                    await context.SaveChangesAsync();
+                }
+
+                return IdentityResult.Success;
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
+            }
+
         }
     }
 }

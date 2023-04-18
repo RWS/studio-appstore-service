@@ -5,8 +5,8 @@
     var selectedMapping = Context.Request.Query["selectedMapping"];
 }
 
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this name mapping?" })" />
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<div id="statusMessageContainer"></div>
 
 <h1 class="fs1-inherit">Settings</h1>
 <h2 class="fs2-inherit">Change site settings</h2>
@@ -76,8 +76,8 @@
         </div>
     </div>
 </div>
-<div id="modalContainer"></div>
-<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to delete this name mapping?" })" />
+
+<div id="partialContainer"></div>
 
 <script src="~/js/TableCrud.js"></script>
 <script asp-append-version="true">
@@ -86,4 +86,3 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-

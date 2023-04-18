@@ -1,4 +1,4 @@
-﻿@model (bool EmailNotificationsEnabled, bool PushNotificationsEnabled)
+﻿@model NotificationSettingsModel
 @{
     ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageNavPages.Notifications;
@@ -8,7 +8,7 @@
 <h2 class="fs2-inherit">Change site settings</h2>
 <hr class="w-100">
 <div class="row d-flex" id="settings-page">
-    <partial name="_ProfileNav" />
+    <partial name="_ProfileNav" /> 
     <div class="col-12 col-md-9" id="settings-details-container">
         <p class="fw-bold fs4-inherit mb-2">Notifications</p>
         <div class="settings-details">

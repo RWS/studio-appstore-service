@@ -1,0 +1,22 @@
+﻿@inherits CustomRazorPage<ExtendedUserProfile>
+
+<input hidden asp-for="Id"/>
+<input hidden name="Page" value="@Page.Assigned" />
+
+<tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
+    <td class="text-break align-middle"><p class="m-0" onclick="Collapse(this)">@Model.Name</p></td>
+    <td class="align-middle px-3 d-none d-lg-table-cell">
+        <select class="fs-inherit pa-admin-select w-100" asp-for="Role">
+            @if (ExtendedUser.IsInRole("SystemAdministrator"))
+            {
+                <option value="SystemAdministrator">SystemAdministrator</option>
+            }
+
+            <option value="Administrator">Administrator</option>
+            <option value="Developer">Developer</option>
+        </select>
+    </td>
+
+    <td class="align-middle text-center"><i onclick="table.Save()" title="Save new category" class="fa fa-check-circle cursor-pointer align-middle"></i></td>
+    <td class="align-middle text-center"><i onclick="EnsurePreserved(() => table.Discard())" title="Discard new category" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
+</tr>

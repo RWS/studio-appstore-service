@@ -27,6 +27,7 @@ namespace AppStoreIntegrationServiceCore.Model
                 _minimumStudioVersion = value;
             }
         }
+
         public string ParentProductID { get; set; }
         public bool IsLegacy { get; set; }
 

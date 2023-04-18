@@ -6,8 +6,6 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<div id="modalContainer"></div>
-<div id="statusMessageContainer"></div>
 
 <form class="row px-2" onsubmit="return false" id="form">
     <div class="col-12 col-lg-4">
@@ -24,7 +22,7 @@
         <partial name="_PluginDetailsPartial" model="@Model" />
 
         <div class="mb-2">
-            @if (Model.IsThirdParty && ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
+            @if (Model.IsThirdParty && ExtendedUser.IsInRoles("Developer", "Administrator"))
             {
                 <button class="btn pa-admin-success-btn" onclick="SavePlugin('Submit', true)">
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
@@ -61,6 +59,8 @@
         </div>
     </div>
 </form>
+
+<div id="partialContainer"></div>
 
 <script src="~/js/PluginScript.js"></script>
 <script src="~/js/DropDown.js"></script>

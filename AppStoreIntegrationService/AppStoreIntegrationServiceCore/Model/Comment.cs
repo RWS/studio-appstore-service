@@ -1,8 +1,11 @@
-﻿namespace AppStoreIntegrationServiceCore.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AppStoreIntegrationServiceCore.Model
 {
     public class Comment : IEquatable<Comment>
     {
         public int CommentId { get; set; }
+        [Required(ErrorMessage = "The comment description is required!")]
         public string CommentDescription { get; set; }
         public string CommentAuthor { get; set; }
         public DateTime CommentDate { get; set; }

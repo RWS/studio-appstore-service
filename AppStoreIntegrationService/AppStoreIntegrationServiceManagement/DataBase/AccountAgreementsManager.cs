@@ -1,10 +1,11 @@
 ﻿using AppStoreIntegrationServiceCore.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Models;
 using AppStoreIntegrationServiceManagement.DataBase.Interface;
+using Microsoft.AspNetCore.Identity;
 
 namespace AppStoreIntegrationServiceManagement.DataBase
 {
-    public class AccountAgreementsManager : IAccountAgreementsManager
+    public class AccountAgreementsManager : Manager, IAccountAgreementsManager
     {
         private readonly IServiceContextFactory _serviceContext;
 
@@ -13,58 +14,66 @@ namespace AppStoreIntegrationServiceManagement.DataBase
             _serviceContext = serviceContext;
         }
 
-        public async Task Add(AccountAgreement agreement)
+        public async Task<IdentityResult> TryAddAgreement(AccountAgreement agreement)
         {
-            if (agreement?.AnyNull() ?? true)
+            if (ExistNullParams(out var result, agreement?.AccountId, agreement?.UserProfileId))
             {
-                return;
+                return result;
             }
 
-            using (var context = _serviceContext.CreateContext())
+            try
             {
-                var agreements = context.AccountAgreements.ToList();
-                if (agreements.Any(x => x.AccountId == agreement.AccountId && x.UserProfileId == agreement.UserProfileId))
+                using (var context = _serviceContext.CreateContext())
                 {
-                    return;
+                    var agreements = context.AccountAgreements.ToList();
+                    if (agreements.Any(x => x.AccountId == agreement.AccountId && x.UserProfileId == agreement.UserProfileId))
+                    {
+                        return IdentityResult.Success;
+                    }
+
+                    context.AccountAgreements.Add(agreement);
+                    await context.SaveChangesAsync();
                 }
 
-                context.AccountAgreements.Add(agreement);
-                await context.SaveChangesAsync();
+                return IdentityResult.Success;
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
             }
         }
 
-        public async Task Remove(UserProfile user)
+        public async Task<IdentityResult> Remove(UserProfile user, Account account)
         {
-            if (string.IsNullOrEmpty(user?.Id))
+            if (ExistNullParams(out var result, user?.Id, account?.Id))
             {
-                return;
+                return result;
             }
 
-            using (var context = _serviceContext.CreateContext())
+            try
             {
-                var agreements = context.AccountAgreements.Where(x => x.UserProfileId == user.Id);
-                context.AccountAgreements.RemoveRange(agreements);
-                await context.SaveChangesAsync();
-            }
-        }
+                using (var context = _serviceContext.CreateContext())
+                {
+                    var agreement = context.AccountAgreements.FirstOrDefault(x => x.UserProfileId == user.Id && x.AccountId == account.Id);
+                    context.AccountAgreements.Remove(agreement);
+                    await context.SaveChangesAsync();
+                }
 
-        public async Task Remove(UserProfile user, Account account)
-        {
-            if (string.IsNullOrEmpty(user?.Id) || string.IsNullOrEmpty(account?.Id))
-            {
-                return;
+                return IdentityResult.Success;
             }
-
-            using (var context = _serviceContext.CreateContext())
+            catch (Exception ex)
             {
-                var agreement = context.AccountAgreements.FirstOrDefault(x => x.UserProfileId == user.Id && x.AccountId == account.Id);
-                context.AccountAgreements.Remove(agreement);
-                await context.SaveChangesAsync();
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
             }
         }
 
         public bool HasAggreement(UserProfile user, Account account)
         {
+            if (ExistNullParams(out _, user?.Id, account?.Id))
+            {
+                return false;
+            }
+
             using (var context = _serviceContext.CreateContext())
             {
                 var agreements = context.AccountAgreements.ToList();

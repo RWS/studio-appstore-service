@@ -22,7 +22,7 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
         public async Task Log(Log log, int pluginId)
         {
-            if (log == null)
+            if (log == null || !log.HasChanges())
             {
                 return;
             }

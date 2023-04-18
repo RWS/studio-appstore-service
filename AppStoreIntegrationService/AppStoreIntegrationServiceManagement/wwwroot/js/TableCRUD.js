@@ -42,14 +42,10 @@
             let request = new XMLHttpRequest();
             let data = new FormData(document.getElementById("form"));
 
-            for (const [key, value] of data) {
-                console.log(`${key}: ${value}\n`)
-            }
-
             request.onreadystatechange = () => {
                 if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
                     if (request.responseText.includes('div')) {
-                        this.HttpSuccessCallback(request.responseText);
+                        HttpRequestCallback();
                         return;
                     }
 
@@ -88,26 +84,5 @@
             request.open("POST", `/Settings/${this.#deletionRoute}/${id}`);
             request.send();
         })
-    }
-
-    HttpSuccessCallback(response) {
-        if (!response.includes("div")) {
-            window.location.href = response;
-        }
-
-        let alert = document.querySelector('.alert');
-
-        if (alert) {
-            alert.remove();
-        }
-
-        document.getElementById("statusMessageContainer").innerHTML = response;
-        setTimeout(() => {
-            alert = document.querySelector('.alert')
-            alert.classList.add('slide-right');
-            alert.addEventListener('animationend', () => {
-                document.querySelector('.alert-container').remove();
-            })
-        }, 3000);
     }
 }

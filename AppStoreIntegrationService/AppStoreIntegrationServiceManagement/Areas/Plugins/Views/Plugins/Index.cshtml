@@ -4,6 +4,7 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+
 <div class="row flex-column justify-content-center flex-lg-row justify-content-between px-3">
     <div class="container-fluid col-12 col-lg-8 m-0 order-1 order-lg-0 p-0">
         <form class="row flex-column flex-lg-row" method="get" asp-action="Index">
@@ -35,7 +36,6 @@
         </a>
     </div>
 </div>
-
 
 <form id="form" class="m-0 px-1 py-3 d-flex">
     <div class="d-flex align-items-center me-2">
@@ -110,7 +110,7 @@
                                             </div>
                                         }
 
-                                        if (ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator"))
+                                        if (ExtendedUser.IsInRoles("Developer", "Administrator"))
                                         {
                                             <div class="p-0 fs-inherit position-relative d-flex">
                                                 <i class="fa fa-trash-alt align-self-center"></i>
@@ -120,7 +120,7 @@
                                     }
                                     else
                                     {
-                                        if (ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator") && plugin.IsActive)
+                                        if (ExtendedUser.IsInRoles("Developer", "Administrator") && plugin.IsActive)
                                         {
                                             <div class="p-0 fs-inherit position-relative d-flex">
                                                 <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('RequestDeletion', '@plugin.Id')"></i>

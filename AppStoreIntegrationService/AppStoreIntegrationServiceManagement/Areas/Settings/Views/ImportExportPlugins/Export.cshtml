@@ -11,12 +11,10 @@
     <div class="col-12 col-md-9" id="settings-details-container">
         <div class="settings-details">
             <div>
-                <form method="post" id="form">
+                <form method="post" id="form" asp-controller="ImportExportPlugins" asp-action="CreateExport">
                     <div class="mb-2">
-                        <label for="exportPlugins" class="fw-bold fs4-inherit mb-2">Export plugins</label>
-                        <div>
-                            <input id="exportPlugins" type="submit" class="btn btn-outline-secondary fs-inherit" asp-controller="ImportExportPlugins" asp-action="CreateExport" value="Export" />
-                        </div>
+                        <p class="fw-bold fs4-inherit mb-2">Export plugins</p>
+                        <button type="submit" class="btn btn-outline-secondary">Export</button>
                     </div>
                 </form>
             </div>

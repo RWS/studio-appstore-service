@@ -26,10 +26,10 @@ namespace AppStoreIntegrationServiceManagement.Filters
             var user = _userProfilesManager.GetUser(context.HttpContext.User);
             var accounts = _userAccountsManager.GetUserAccounts(user);
 
-            if (accounts.Count() <= 1)
+            if (accounts.Count() == 1)
             {
                 user.SelectedAccountId = accounts.FirstOrDefault().Id;
-                await _userProfilesManager.UpdateUserProfile(user);
+                await _userProfilesManager.TryUpdateUserProfile(user);
                 return;
             }
 

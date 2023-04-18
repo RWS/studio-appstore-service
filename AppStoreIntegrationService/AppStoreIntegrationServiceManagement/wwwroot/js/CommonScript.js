@@ -1,8 +1,18 @@
-﻿let x;
-let y;
-let draggable;
-let editor = null;
+﻿let editor = null;
 let isReadOnly = false;
+let quillToolbarOptions = [
+    ['bold', 'italic', 'underline', 'strike'],
+    ['blockquote', 'code-block'],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+    [{ 'script': 'sub' }, { 'script': 'super' }],
+    [{ 'indent': '-1' }, { 'indent': '+1' }],
+    [{ 'align': [] }],
+    ['clean'],
+    [{ 'direction': 'rtl' }],
+    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+    [{ 'color': [] }, { 'background': [] }],
+    ['link', 'image', 'video'],
+]
 
 function EnsurePreserved(callback) {
     var textArea = document.querySelector(".text-area-hidden");
@@ -16,9 +26,8 @@ function EnsurePreserved(callback) {
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
             if (request.responseText.includes('div')) {
-                $('#modalContainer').html(request.responseText);
-                $('#modalContainer').find('.modal').modal('show');
-                document.getElementById("modalContainer").querySelector("#confirmationBtn").addEventListener('click', () => {
+                HttpRequestCallback(request.responseText);
+                document.querySelector("#partialContainer #confirmationBtn").addEventListener('click', () => {
                     callback();
                 })
 
@@ -35,9 +44,10 @@ function EnsurePreserved(callback) {
 function LoadNotifications(clearAll, clearStatus, clearQuery) {
     let request = new XMLHttpRequest();
     let data = clearAll ? new FormData() : new FormData(document.getElementById("NotificationForm"));
+
     if (clearStatus) {
         data.set("NotificationStatus", 0);
-        document.getElementById("NotificationStatus").value = "";
+        document.getElementById("NotificationStatus").value = null;
     }
 
     if (clearQuery) {
@@ -54,21 +64,11 @@ function LoadNotifications(clearAll, clearStatus, clearQuery) {
     request.open("POST", `/Identity/Notifications/LoadNotifications`);
     request.send(data);
 }
-function AttachNotificationQuery() {
-    let url = new URL(window.location.href);
-
-    if (url.searchParams.has("notifications")) {
-        url.searchParams.delete("notifications");
-    } else {
-        url.searchParams.set("notifications", "open");
-    }
-
-    window.location.href = url.href;
-}
 
 function ChangeNotificationStatus(status, id) {
     let request = new XMLHttpRequest();
     let data = new FormData();
+
     data.set("Id", id);
     data.set("Status", status)
 
@@ -104,17 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 
-    let alert = document.querySelector('.alert')
-
-    if (alert) {
-        setTimeout(() => {
-
-            alert.classList.add('slide-right');
-            alert.addEventListener('animationend', () => {
-                document.querySelector('.alert-container').remove();
-            })
-        }, 3000);
-    }
+    TriggerAlertAnimation();
 });
 
 function ToggleLoader(element) {
@@ -129,21 +119,47 @@ function ToggleLoader(element) {
 }
 
 function HttpRequestCallback(response) {
-    if (response.includes('div')) {
-        document.getElementById('statusMessageContainer').innerHTML = response;
+    if (!response.includes('div')) {
+        window.location.href = response;
+    }
 
-        let alert = document.querySelector('.alert');
-        if (alert) {
-            setTimeout(() => {
+    document.getElementById("partialContainer").innerHTML = response;
+    let modal = document.querySelector('#partialContainer .modal');
 
-                alert.classList.add('slide-right');
-                alert.addEventListener('animationend', () => {
-                    document.querySelector('.alert-container').remove();
-                })
-            }, 3000);
+    if (modal) {
+        new bootstrap.Modal(modal, { keyboard: false }).show()
+        return;
+    }
+
+    TriggerAlertAnimation();
+}
+
+function SendPostRequest(route, data = null) {
+    let request = new XMLHttpRequest();
+    let element = event.currentTarget;
+    ToggleLoader(element);
+    
+    request.onreadystatechange = function () {
+        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+            HttpRequestCallback(request.responseText);
+            ToggleLoader(element);
         }
     }
-    else {
-        window.location.href = response;
+
+    request.open("POST", route);
+    request.send(data);
+}
+
+function TriggerAlertAnimation() {
+    let alert = document.querySelector('.alert');
+
+    if (alert) {
+        setTimeout(() => {
+
+            alert.classList.add('slide-right');
+            alert.addEventListener('animationend', () => {
+                document.querySelector('.alert-container').remove();
+            })
+        }, 3000);
     }
 }

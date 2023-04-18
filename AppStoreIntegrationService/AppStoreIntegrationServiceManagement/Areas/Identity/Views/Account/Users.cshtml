@@ -1,4 +1,4 @@
-﻿@inherits CustomRazorPage<IEnumerable<UserInfoModel>>
+﻿@inherits CustomRazorPage<UsersModel>
 @{
     ViewData["Title"] = "Manage";
     ViewData["ActivePage"] = ManageNavPages.Manage;
@@ -16,7 +16,7 @@
     <div class="col-12 col-md-9">
         <partial name="_UsersTabPartial" model="false" />
         <form id="form" onsubmit="return false">
-            @if (Model.Any())
+            @if (Model.ExtendedUsers.Any())
             {
                 <p class="fw-bold fs4-inherit">All users</p>
                 <table class="table table-bordered" id="usersTable">
@@ -25,44 +25,28 @@
                             <th>Username</th>
                             <th>Email</th>
                             <th></th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody class="tbody-stripped">
-                        @foreach (var user in Model)
+                        @foreach (var user in Model.ExtendedUsers)
                         {
                             <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
-                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
+                                <td class="text-break"><p class="m-0" onclick="Collapse(this)">@user.Name.ToUpperFirst()</p></td>
                                 <td class="align-middle px-3 d-none d-lg-table-cell">@user.Email</td>
-                                @if (user.IsBuiltInAdmin)
-                                {
-                                    <td class="align-middle px-3 d-none d-lg-table-cell" colspan="2"><i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Built in Admin not editable!"></i> </td>
-                                }
-                                else
-                                {
-                                    <td class="align-middle px-3 d-none d-lg-table-cell">
-                                        <a asp-controller="Account" asp-action="Profile" asp-route-id="@user.Id">
-                                            <i class="fa fa-pen-alt cursor-pointer"></i>
-                                        </a>
-                                    </td>
-
-                                    if (user.IsCurrentUser || !user.IsEligibleForRemoval)
-                                    {
-                                        <td class="align-middle px-3 d-none d-lg-table-cell">
-                                            <i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="@(user.IsCurrentUser ? "You cannot delete yourself!" : "This user cannot be removed!")"></i>
-                                        </td>
-                                    }
-                                    else
-                                    {
-                                        <td class="align-middle px-3 d-none d-lg-table-cell">
-                                            <i class="fa fa-trash-alt cursor-pointer delete-user-btn" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DeleteUser('@user.Id')"></i>
-                                        </td>
-                                    }
-                                }
+                                <td class="align-middle px-3 d-none d-lg-table-cell">
+                                    <a asp-controller="Account" asp-action="Profile" asp-route-id="@user.Id">
+                                        <i class="fa fa-eye cursor-pointer text-secondary"></i>
+                                    </a>
+                                </td>
                             </tr>
                         }
                     </tbody>
                 </table>
+
+                @if (Model.UnconfirmedUsers > 0)
+                {
+                    <p class="m-0">+ @Model.UnconfirmedUsers Unconfirmed</p>
+                }
             }
             else
             {
@@ -73,11 +57,7 @@
 </div>
 
 <script src="~/js/ManageUsersScript.js"></script>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
-
-
-
-

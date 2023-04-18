@@ -1,4 +1,6 @@
-﻿namespace AppStoreIntegrationServiceCore.Model
+﻿using Newtonsoft.Json;
+
+namespace AppStoreIntegrationServiceCore.Model
 {
     public class Log : IEquatable<Log>
     {
@@ -13,7 +15,7 @@
             Changes = new List<Change>
             {
                 new Change { Name = "Plugin name", New = plugin.Name },
-                new Change { Name = "Description", New = plugin.Description[..^ 3][3 ..] },
+                new Change { Name = "Description", New = plugin.Description[..^ 3][4 ..] },
                 new Change { Name = "Changelog link", New = plugin.ChangelogLink },
                 new Change { Name = "Support URL", New = plugin.SupportUrl },
                 new Change { Name = "Support e-mail", New = plugin.SupportEmail },
@@ -39,7 +41,7 @@
             Changes = new List<Change>
             {
                 new Change { Name = "Plugin name", New = plugin.Name, Old = oldPlugin.Name },
-                new Change { Name = "Description", New = plugin.Description[..^3][3..], Old = oldPlugin.Description[..^3][3..] },
+                new Change { Name = "Description", New = plugin.Description[..^3][4..], Old = oldPlugin.Description[..^3][4..] },
                 new Change { Name = "Changelog link", New = plugin.ChangelogLink, Old = oldPlugin.ChangelogLink },
                 new Change { Name = "Support URL", New = plugin.SupportUrl, Old = oldPlugin.SupportUrl },
                 new Change { Name = "Support e-mail", New = plugin.SupportEmail, Old = oldPlugin.SupportEmail },
@@ -104,6 +106,8 @@
         public List<Change> Changes { get; set; } = new List<Change>();
 
         public string ToHtml() => string.Format(Description, Author, TargetInfo, Date) + GetDetails();
+
+        public bool HasChanges() => Changes.Any(x => x.New != x.Old);
 
         public bool Equals(Log other)
         {

@@ -19,9 +19,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserRoleManagerTests_PopulateDataBase_TheRecordsShouldBeAddedInTheDataBase()
         {
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "1", Name = "Test Role 1" });
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "2", Name = "Test Role 2" });
-            _ = await _userRolesManager.AddRole(new UserRole { Id = "3", Name = "Test Role 3" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "1", Name = "Test Role 1" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "2", Name = "Test Role 2" });
+            _ = await _userRolesManager.TryAddRole(new UserRole { Id = "3", Name = "Test Role 3" });
 
             Assert.Equal(new[]
             {
@@ -36,9 +36,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserRoleManagerTests_AddRecordWithIdNull_TheRecordShouldNotBeAdded()
         {
-            var count = await _userRolesManager.AddRole(new UserRole { Name = "Test Role 1" });
+            var result = await _userRolesManager.TryAddRole(new UserRole { Name = "Test Role 1" });
 
-            Assert.Equal(0, count);
+            Assert.False(result.Succeeded);
             Assert.Empty(_userRolesManager.Roles);
 
             _serviceContextFactoryMock.ClearInMemoryDataBase();
@@ -47,9 +47,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task UserRoleManagerTests_AddNullRecord_TheRecordShouldNotBeAdded()
         {
-            var count = await _userRolesManager.AddRole(null);
+            var result = await _userRolesManager.TryAddRole(null);
 
-            Assert.Equal(0, count);
+            Assert.False(result.Succeeded);
             Assert.Empty(_userRolesManager.Roles);
 
             _serviceContextFactoryMock.ClearInMemoryDataBase();
@@ -60,7 +60,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         {
             var userRole = new UserRole { Id = "1", Name = "Test Role 1" };
 
-            _ = await _userRolesManager.AddRole(userRole);
+            _ = await _userRolesManager.TryAddRole(userRole);
 
             Assert.Equal(userRole, _userRolesManager.GetRoleById("1"));
 
@@ -72,7 +72,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         {
             var userRole = new UserRole { Id = "1", Name = "Test Role 1" };
 
-            _ = await _userRolesManager.AddRole(userRole);
+            _ = await _userRolesManager.TryAddRole(userRole);
 
             Assert.Null(_userRolesManager.GetRoleById(null));
 
@@ -84,7 +84,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         {
             var userRole = new UserRole { Id = "1", Name = "Test Role 1" };
 
-            _ = await _userRolesManager.AddRole(userRole);
+            _ = await _userRolesManager.TryAddRole(userRole);
 
             Assert.Equal(userRole, _userRolesManager.GetRoleByName("Test Role 1"));
 
@@ -96,7 +96,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         {
             var userRole = new UserRole { Id = "1", Name = "Test Role 1" };
 
-            _ = await _userRolesManager.AddRole(userRole);
+            _ = await _userRolesManager.TryAddRole(userRole);
 
             Assert.Null(_userRolesManager.GetRoleByName("Wrong"));
 

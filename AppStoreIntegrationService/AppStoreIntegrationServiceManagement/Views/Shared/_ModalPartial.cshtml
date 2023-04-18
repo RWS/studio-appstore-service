@@ -26,7 +26,10 @@
                 @if(Model.ModalType == ModalType.ConfirmationMessage)
                 {
                     <button type="button" id="dismissBtn" class="btn btn-secondary fs-inherit" data-bs-dismiss="modal">No</button>
-                    <button type="button" id="confirmationBtn" data-bs-dismiss="modal" class="btn pa-admin-success-btn fs-inherit">Yes</button>
+                    <buttom id="confirmationBtn" class="btn pa-admin-success-btn fs-inherit">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                        Yes
+                    </buttom>
                 }
             </div>
         </div>

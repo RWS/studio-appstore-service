@@ -51,17 +51,8 @@ function SaveComment(pluginId, versionId) {
 
 function DeleteComment(pluginId, versionId, commentId) {
     document.getElementById("confirmationBtn").addEventListener('click', () => {
-        let request = new XMLHttpRequest();
         let data = new FormData(document.getElementById("form"));
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                window.location.reload();
-            }
-        }
-
-        request.open("POST", `/Plugins/Edit/${pluginId}/Comments/${versionId}/Delete/${commentId}`);
-        request.send(data);
+        SendPostRequest(`/Plugins/Edit/${pluginId}/Comments/${versionId}/Delete/${commentId}`, data)
     })
 }
 
@@ -91,45 +82,20 @@ function Save(pluginId, action, removeOtherVersions = false) {
     $("#form").validate();
 
     if ($("#form").valid()) {
-        let request = new XMLHttpRequest();
         let data = new FormData(document.getElementById("form"));
-        data.set("RemoveOtherVersions", removeOtherVersions)
-        ToggleLoader(button);
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                HttpRequestCallback(request.responseText);
-                ToggleLoader(button);
-            }
-        }
-
-        request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${action}`);
-        request.send(data);
+        data.set("RemoveOtherVersions", removeOtherVersions);
+        SendPostRequest(`/Plugins/Edit/${pluginId}/Versions/${action}`, data);
     }
 }
 
 function Delete(pluginId, versionId, action, needsConfirmation = true) {
     if (needsConfirmation) {
         document.getElementById('confirmationBtn').onclick = function () {
-            RespondDeletionRequest(pluginId, versionId, action)
+            SendPostRequest(`/Plugins/Edit/${pluginId}/Versions/${action}/${versionId}`);
         }
 
         return;
     }
 
-    RespondDeletionRequest(pluginId, versionId, action);
-}
-
-function RespondDeletionRequest(pluginId, versionId, action) {
-    let request = new XMLHttpRequest();
-    var data = new FormData();
-
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            window.location.href = request.responseText;
-        }
-    }
-
-    request.open("POST", `/Plugins/Edit/${pluginId}/Versions/${action}/${versionId}`);
-    request.send(data);
+    SendPostRequest(`/Plugins/Edit/${pluginId}/Versions/${action}/${versionId}`);
 }

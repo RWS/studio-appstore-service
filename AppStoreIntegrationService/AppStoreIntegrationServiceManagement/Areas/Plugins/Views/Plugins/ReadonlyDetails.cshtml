@@ -6,7 +6,6 @@
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
-<div id="modalContainer"></div>
 
 <form method="post" onsubmit="return false" class="row px-2" id="form" enctype="multipart/form-data">
     <div class="col-12 col-lg-4">
@@ -114,6 +113,8 @@
         </div>
     </div>
 </form>
+
+<div id="partialContainer"></div>
 
 <script src="~/js/DropDown.js" asp-append-version="true"></script>
 <script src="~/js/PluginScript.js" asp-append-version="true"></script>

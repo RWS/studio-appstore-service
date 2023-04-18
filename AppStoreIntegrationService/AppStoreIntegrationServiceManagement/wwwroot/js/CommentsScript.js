@@ -28,24 +28,11 @@ function AddComment(pluginId, versionId = '') {
     request.onreadystatechange = function () {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
             content.innerHTML = request.responseText;
-            var toolbarOptions = [
-                ['bold', 'italic', 'underline', 'strike'],
-                ['blockquote', 'code-block'],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                [{ 'script': 'sub' }, { 'script': 'super' }],
-                [{ 'indent': '-1' }, { 'indent': '+1' }],
-                [{ 'align': [] }],
-                ['clean'],
-                [{ 'direction': 'rtl' }],
-                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                [{ 'color': [] }, { 'background': [] }],
-                ['link', 'image', 'video'],
-            ];
 
             editor = new Quill('#editor', {
                 modules:
                 {
-                    toolbar: toolbarOptions,
+                    toolbar: quillToolbarOptions,
                 },
                 theme: 'snow'
             });
@@ -57,38 +44,35 @@ function AddComment(pluginId, versionId = '') {
 }
 
 function SaveComment() {
-    let button = event.currentTarget;
     let request = new XMLHttpRequest();
-    document.getElementById("CommentDescription").innerText = document.querySelector("#editor .ql-editor").innerHTML;
-    let data = new FormData(document.getElementById("form"));
-    ToggleLoader(button);
+    let description = document.querySelector("#editor .ql-editor").innerHTML;
+    document.getElementById("CommentDescription").innerText = description;
 
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            DiscardCommentEdit();
+    $("#form").validate();
+
+    if ($("#form").valid) {
+        let data = new FormData(document.getElementById("form"));
+        ToggleLoader(event.currentTarget);
+
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                DiscardCommentEdit();
+            }
         }
-    }
 
-    request.open("POST", `/Plugins/Comments/Update`);
-    request.send(data);
+        request.open("POST", `/Plugins/Comments/Update`);
+        request.send(data);
+    }
 }
 
 function DeleteComment(pluginId, commentId, versionId = '') {
     document.getElementById("confirmationBtn").addEventListener('click', () => {
-        let request = new XMLHttpRequest();
         let data = new FormData();
 
         data.set("PluginId", pluginId);
         data.set("VersionId", versionId);
         data.set("CommentId", commentId);
 
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                window.location.reload();
-            }
-        }
-
-        request.open("POST", `/Plugins/Comments/Delete`);
-        request.send(data);
+        SendPostRequest('/Plugins/Comments/Delete', data)
     })
 }

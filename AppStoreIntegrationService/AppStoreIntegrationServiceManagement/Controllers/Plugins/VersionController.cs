@@ -142,7 +142,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Submit")]
-        [RoleAuthorize("Developer", "DeveloperTrial", "Administrator")]
+        [RoleAuthorize("Developer", "Administrator")]
         public async Task<IActionResult> Submit(int pluginId, PluginVersion version, bool removeOtherVersions)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -205,7 +205,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/SaveAsDraft")]
-        [RoleAuthorize("Developer", "DeveloperTrial", "Administrator")]
+        [RoleAuthorize("Developer", "Administrator")]
         public async Task<IActionResult> SaveAsDraft(int pluginId, PluginVersion version)
         {
             version.VersionStatus = Status.Draft;
@@ -223,7 +223,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/RequestDeletion/{versionId}")]
-        [RoleAuthorize("Developer", "DeveloperTrial", "Administrator")]
+        [RoleAuthorize("Developer", "Administrator")]
         public async Task<IActionResult> RequestDeletion(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
@@ -319,7 +319,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             if (version.IsThirdParty)
             {
-                return ExtendedUser.IsInRoles("Developer", "DeveloperTrial", "Administrator") || ExtendedUser.IsInRole("SystemAdministrator") && version.HasAdminConsent;
+                return ExtendedUser.IsInRoles("Developer", "Administrator") || ExtendedUser.IsInRole("SystemAdministrator") && version.HasAdminConsent;
             }
 
             return ExtendedUser.IsInRole("SystemAdministrator");
@@ -327,7 +327,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
         private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
         {
-            await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer", "DeveloperTrial");
+            await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer");
             await _notificationCenter.Push(pushNotification);
             await _notificationCenter.Broadcast(emailNotification, "SystemAdministrator");
             await _notificationCenter.Push(pushNotification);

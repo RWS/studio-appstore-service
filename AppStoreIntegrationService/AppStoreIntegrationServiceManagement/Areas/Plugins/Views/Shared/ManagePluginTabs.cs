@@ -17,8 +17,7 @@ namespace AppStoreIntegrationServiceManagement.Areas.Plugins.Views.Shared
 
         private static string PageTabClass(ViewContext viewContext, string page, string key)
         {
-            var activePage = viewContext.ViewData[key] as string
-                ?? Path.GetFileNameWithoutExtension(viewContext.ActionDescriptor.DisplayName);
+            var activePage = viewContext.ViewData[key] as string ?? Path.GetFileNameWithoutExtension(viewContext.ActionDescriptor.DisplayName);
             return string.Equals(activePage, page, StringComparison.OrdinalIgnoreCase) ? "active-tab" : null;
         }
     }

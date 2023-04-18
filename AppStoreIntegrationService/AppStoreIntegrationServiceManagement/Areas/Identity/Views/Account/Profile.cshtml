@@ -19,24 +19,29 @@
     }
 
     <div class="col-12 col-md-9">
-        <p class="text-break fw-bold fs4-inherit">@(string.IsNullOrEmpty(Model.Id) ? "Profile" : $"{Model.Name.ToUpperFirst()}'s Profile'")</p>
+        <p class="text-break fw-bold fs4-inherit">@(string.IsNullOrEmpty(Model.Id) ? "Profile" : $"{Model.Name.ToUpperFirst()}'s Profile")</p>
         <form id="form">
             <input hidden asp-for="Id" />
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label">Username</label>
-                <input asp-for="Name" value="@Model.Name.ToUpperFirst()" readonly class="form-control fs-inherit" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label">Email</label>
-                <input asp-for="Email" readonly class="form-control fs-inherit" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+            <div class="d-flex">
+                <img src="@Model.Picture" class="img-thumbnail" width="200" />
+                <div class="w-100 ms-3">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Username</label>
+                        <input asp-for="Name" value="@Model.Name.ToUpperFirst()" readonly class="form-control fs-inherit" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" readonly class="form-control fs-inherit" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<div id="modalContainer"></div>
+<div id="partialContainer"></div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

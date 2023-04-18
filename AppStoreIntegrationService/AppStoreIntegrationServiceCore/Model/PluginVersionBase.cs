@@ -94,15 +94,5 @@ namespace AppStoreIntegrationServiceCore.Model
                    IsPrivatePlugin == other?.IsPrivatePlugin &&
                    VersionStatus == other?.VersionStatus;
         }
-
-        public static PluginVersionBase<T> CopyFrom(PluginVersion other)
-        {
-            if (other == null)
-            {
-                return null;
-            }
-
-            return JsonConvert.DeserializeObject<PluginVersionBase<T>>(JsonConvert.SerializeObject(other));
-        }
     }
 }

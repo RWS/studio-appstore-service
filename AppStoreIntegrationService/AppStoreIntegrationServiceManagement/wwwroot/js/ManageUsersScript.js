@@ -1,159 +1,86 @@
-﻿function DeleteUser(userId) {
-    document.getElementById('confirmationBtn').onclick = function () {
-        let request = new XMLHttpRequest();
-
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                HttpRequestCallback(request.responseText);
-            }
-        }
-
-        request.open("POST", `/Identity/Account/Delete/${userId}`);
-        request.send();
-    }
-}
-
-function ConsentAgreement() {
+﻿function ConsentAgreement() {
     let data = new FormData(document.getElementById("form"));
-    let request = new XMLHttpRequest();
-    data.set("AcceptedAgreement", data.get("Item1"))
-
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText)
-        }
-    }
-
-    request.open("POST", `/Identity/Authentication/ConsentAgreement`);
-    request.send(data);
+    SendPostRequest('/Identity/Authentication/ConsentAgreement', data)
 }
 
-function DismissUser(userId) {
+function DismissUser(userId, isCurrentUser = false, accountId = '') {
+    let modal = document.getElementById("confirmationModal");
+
+    if (isCurrentUser) {
+        modal.querySelector(".modal-body").innerHTML = "Are you sure you want to leave this account?"
+    }
+
     document.getElementById('confirmationBtn').onclick = function () {
-        let request = new XMLHttpRequest();
+        let data = new FormData();
 
-        request.onreadystatechange = function () {
-            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                window.location.reload();
-            }
-        }
-
-        request.open("POST", `/Identity/Account/Dismiss/${userId}`);
-        request.send();
+        data.set("UserId", userId);
+        data.set("AccountId", accountId);
+        SendPostRequest('/Identity/Account/Dismiss',data)
     }
 }
 
 function HideUserDetails() {
     let userInfo = event.currentTarget.parentElement.parentElement.nextElementSibling;
-    let feedSpan = document.getElementById("userCheckMessage");
+    let feedbackSpan = document.getElementById("userCheckMessage");
 
     if (userInfo.classList.contains("d-none")) {
         return;
     }
 
-    if (!feedSpan.classList.contains("d-none")) {
-        feedSpan.classList.add("d-none");
+    if (!feedbackSpan.classList.contains("d-none")) {
+        feedbackSpan.classList.add("d-none");
     }
-    
+
     userInfo.classList.add("d-none");
 }
 
 function Register() {
     let data = new FormData(document.getElementById("form"));
-    let request = new XMLHttpRequest();
-    let button = event.target;
-
-    ToggleLoader(button);
-
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText);
-            ToggleLoader(button);
-        }
-    }
-
-    request.open("POST", `/Identity/Account/PostRegister`);
-    request.send(data);
+    SendPostRequest('/Identity/Account/PostRegister', data)
 }
 
 function Login() {
     let data = new FormData(document.getElementById("form"));
-    let request = new XMLHttpRequest();
-
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText)
-        }
-    }
-
-    request.open("POST", `/Identity/Authentication/PostLogin`);
-    request.send(data);
+    SendPostRequest('/Identity/Authentication/PostLogin', data)
 }
 
 function CheckUserExistance() {
     $("#Email").validate();
 
-    if (!$("#Email").valid()) {
-        return;
-    }
+    if ($("#Email").valid()) {
+        let button = event.target;
+        let data = new FormData(document.getElementById("form"));
+        let feedbackElement = document.getElementById("userCheckMessage");
+        let userInfo = button.parentElement.parentElement.nextElementSibling;
+        let request = new XMLHttpRequest();
 
-    let button = event.target;
-    let data = new FormData();
-    let feedbackElement = document.getElementById("userCheckMessage");
-    let info = button.parentElement.parentElement.nextElementSibling;
-    data.set("Email", button.previousElementSibling.value);
-    ToggleLoader(button)
+        ToggleLoader(button)
 
-    let request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                if (request.responseText.includes("div")) {
+                    HttpRequestCallback(request.responseText, true);
+                    feedbackElement.innerText = null;
+                } else {
+                    var response = JSON.parse(request.responseText);
+                    feedbackElement.className = null;
+                    feedbackElement.innerText = response.message;
+                    feedbackElement.classList.add(response.isErrorMessage ? "text-danger" : "text-success");
+                    userInfo.classList.remove(response.isErrorMessage ? null : "d-none");
+                }
 
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            if (request.responseText.includes("div")) {
-                document.getElementById("modalContainer").innerHTML = request.responseText;
-                $('#modalContainer').find('.modal').modal('show');
-                feedbackElement.innerText = null;
-            } else {
-                var response = JSON.parse(request.responseText);
-                feedbackElement.className = null;
-                feedbackElement.innerText = response.message;
-                feedbackElement.classList.add(response.isErrorMessage ? "text-danger" : "text-success");
-                info.classList.remove(response.isErrorMessage ? null : "d-none");
+                ToggleLoader(button)
             }
-
-            ToggleLoader(button)
         }
-    }
 
-    request.open("POST", `/Identity/Account/CheckUserExistance`);
-    request.send(data);
+        request.open("POST", `/Identity/Account/CheckUserExistance`);
+        request.send(data);
+    }
 }
 
 function AddUserToAccount() {
     let data = new FormData(document.getElementById("assignmentForm"));
-    let request = new XMLHttpRequest();
-
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText)
-        }
-    }
-
-    request.open("POST", `/Identity/Account/Assign`);
-    request.send(data);
-}
-
-function ChangeOwner() {
-    let data = new FormData(document.getElementById("newOwnerForm"));
-    let request = new XMLHttpRequest();
-
-    request.onreadystatechange = function () {
-        if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText)
-        }
-    }
-
-    request.open("POST", `/Identity/Account/ChangeOwner`);
-    request.send(data);
+    SendPostRequest('/Identity/Account/Assign', data)
 }
 
 function GenerateAccessToken() {
@@ -167,20 +94,4 @@ function GenerateAccessToken() {
 
     request.open("POST", `/Identity/Account/GenerateAccessToken`);
     request.send();
-}
-
-function ToggleAccessCheckbox() {
-    let input = event.currentTarget;
-    let accessInput = input.parentElement.nextElementSibling;
-
-    if (input.checked) {
-        accessInput.classList.remove("d-none");
-        return;
-    }
-
-    if (!input.checked) {
-        accessInput.classList.add("d-none");
-        accessInput.firstElementChild.checked = false;
-        return;
-    }
 }

@@ -55,7 +55,7 @@ namespace AppStoreIntegrationServiceManagement.DataBase
             var account = new Account { Name = "AppStore Account", Id = Guid.NewGuid().ToString() };
 
             _auth0UserManager.TryCreateUser(model).Wait();
-            _userProfilesManager.AddUserProfile(user).Wait();
+            _userProfilesManager.TryAddUserProfile(user).Wait();
             _accountsManager.TryAddAccount(account).Wait();
             _userAccountsManager.TryAddUserToAccount(new UserAccount
             {
@@ -73,10 +73,10 @@ namespace AppStoreIntegrationServiceManagement.DataBase
                 return;
             }
 
-            var roles = new[] { "SystemAdministrator", "Administrator", "Developer", "DeveloperTrial" };
+            var roles = new[] { "SystemAdministrator", "Administrator", "Developer" };
             foreach (var role in roles)
             {
-                _ = _rolesManager.AddRole(new UserRole
+                _ = _rolesManager.TryAddRole(new UserRole
                 {
                     Id = Guid.NewGuid().ToString(),
                     Name = role

@@ -7,6 +7,7 @@ using AppStoreIntegrationServiceManagement.Repository.Interface;
 using AppStoreIntegrationServiceManagement.Model.Notifications;
 using AppStoreIntegrationServiceManagement.DataBase.Interface;
 using AppStoreIntegrationServiceCore.DataBase.Interface;
+using Microsoft.AspNetCore.Identity;
 
 namespace AppStoreIntegrationServiceManagement.Repository
 {
@@ -50,22 +51,30 @@ namespace AppStoreIntegrationServiceManagement.Repository
             _sendGridClient = new SendGridClient(configurationSettings.SendGridAPIKey);
         }
 
-        public async Task SendEmail(EmailNotification notification)
+        public async Task<IdentityResult> SendEmail(EmailNotification notification)
         {
             if (_sendGridClient == null)
             {
-                return;
+                return IdentityResult.Success;
             }
 
-            var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(notification.Author), "RWS Account notification", null, notification.ToHtml());
-            _ = await _sendGridClient.SendEmailAsync(email);
+            try
+            {
+                var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(notification.Author), "RWS Account notification", null, notification.ToHtml());
+                _ = await _sendGridClient.SendEmailAsync(email);
+                return IdentityResult.Success;
+            }
+            catch (Exception ex)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
+            }
         }
 
-        public async Task Broadcast(EmailNotification notification, params string[] roles)
+        public async Task<IdentityResult> Broadcast(EmailNotification notification, params string[] roles)
         {
             if (_sendGridClient == null)
             {
-                return;
+                return IdentityResult.Success;
             }
 
             try
@@ -82,10 +91,12 @@ namespace AppStoreIntegrationServiceManagement.Repository
                         _ = await _sendGridClient.SendEmailAsync(email);
                     }
                 }
+
+                return IdentityResult.Success;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                return IdentityResult.Failed(new IdentityError { Description = ex.Message });
             }
         }
 

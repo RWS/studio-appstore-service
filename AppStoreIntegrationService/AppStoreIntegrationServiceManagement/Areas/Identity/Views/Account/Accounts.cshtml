@@ -1,21 +1,22 @@
-﻿@model (IEnumerable<AccountModel> Accounts, string Id)
+﻿@inherits CustomRazorPage<(IEnumerable<ExtendedAccount> Accounts, string Id)>
 @{
     ViewData["Title"] = "Accounts";
     ViewData["ActivePage"] = ManageNavPages.Accounts;
 }
 
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+
 <h1 class="fs1-inherit">@ViewData["Title"]</h1>
 <h2 class="fs2-inherit">Manage accounts</h2>
 <hr class="w-100">
 <div class="row justify-content-center">
-    @if (!string.IsNullOrEmpty(Model.Id))
+    @if (string.IsNullOrEmpty(Model.Id))
     {
-        <partial name="_EditNav" model="@Model.Id" />
+        <partial name="_ProfileNav" />
     }
     else
     {
-        <partial name="_ProfileNav" />
+        <partial name="_EditNav" model="@Model.Id" />
     }
     <div class="col-12 col-md-9">
         <form id="form" onsubmit="return false">
@@ -25,6 +26,11 @@
                     <tr class="text-center d-none d-lg-table-row">
                         <th>Account name</th>
                         <th>Account role</th>
+
+                        @if (string.IsNullOrEmpty(Model.Id))
+                        {
+                            <th></th>
+                        }
                     </tr>
                 </thead>
                 <tbody class="tbody-stripped">
@@ -33,6 +39,18 @@
                         <tr class="text-center d-flex flex-column d-lg-table-row bg-white">
                             <td class="text-break"><p class="m-0" onclick="Collapse(this)">@account.Name</p></td>
                             <td class="text-break"><p class="m-0">@account.Role</p></td>
+
+                            @if (string.IsNullOrEmpty(Model.Id))
+                            {
+                                if (account.CanLeaveAccount)
+                                {
+                                    <td class="text-break"><i class="fa fa-sign-out-alt cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@account.UserId', true, '@account.Id')"></i></td>
+                                }
+                                else
+                                {
+                                    <td><i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="@account.GetMessage()"></i></td>
+                                }
+                            }
                         </tr>
                     }
                 </tbody>
@@ -41,6 +59,5 @@
     </div>
 </div>
 
-
-
-
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to leave this account?" })" />
+<script src="~/js/ManageUsersScript.js"></script>

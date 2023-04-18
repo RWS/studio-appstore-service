@@ -65,35 +65,38 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             var user = _userProfilesManager.GetUser(ExtendedUser);
             user.SelectedAccountId = model.SelectedAccountId;
             user.RememberAccount = model.RememberMyChoice;
-            await _userProfilesManager.UpdateUserProfile(user);
+            await _userProfilesManager.TryUpdateUserProfile(user);
             return Redirect(model.ReturnUrl ?? "/Plugins");
         }
 
         [AccountSelect]
         public IActionResult Agreement(string returnUrl = null)
         {
-            return View("Agreement", (false, returnUrl ?? "/Plugins"));
+            return View("Agreement", new AgreementConsent
+            {
+                RedirectUrl = returnUrl ?? "/Plugins"
+            });
         }
 
         [AccountSelect]
         [HttpPost]
-        public IActionResult ConsentAgreement(bool acceptedAgreement)
+        public IActionResult ConsentAgreement(AgreementConsent consent)
         {
-            if (!acceptedAgreement)
+            if (!consent.IsAgreementAccepted)
             {
                 TempData["StatusMessage"] = "Warning! You cannot proceed without accepting the agreement!";
                 return Content("/Identity/Authentication/Agreement");
             }
 
             var user = _userProfilesManager.GetUser(ExtendedUser);
-            _accountAgreementsManager.Add(new AccountAgreement
+            _accountAgreementsManager.TryAddAgreement(new AccountAgreement
             {
                 AccountId = _accountsManager.GetAccountById(user.SelectedAccountId).Id,
                 Id = Guid.NewGuid().ToString(),
                 UserProfileId = user.Id,
             });
 
-            return Content("/Plugins");
+            return Content(consent.RedirectUrl);
         }
 
         public async Task Logout()
@@ -103,7 +106,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             if (!user.RememberAccount)
             {
                 user.SelectedAccountId = null;
-                await _userProfilesManager.UpdateUserProfile(user);
+                await _userProfilesManager.TryUpdateUserProfile(user);
             }
 
             var authenticationProperties = new LogoutAuthenticationPropertiesBuilder()

@@ -19,9 +19,9 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task AccountsManagerTests_PopulateDataBase_TheRecordsShouldBeAddedInTheDataBase()
         {
-            await _accountEntitlementsManager.Add(new AccountEntitlement { Id = "1", AccountId = "1" });
-            await _accountEntitlementsManager.Add(new AccountEntitlement { Id = "2", AccountId = "2" });
-            await _accountEntitlementsManager.Add(new AccountEntitlement { Id = "3", AccountId = "3" });
+            await _accountEntitlementsManager.TryAddEntitlement(new AccountEntitlement { Id = "1", AccountId = "1" });
+            await _accountEntitlementsManager.TryAddEntitlement(new AccountEntitlement { Id = "2", AccountId = "2" });
+            await _accountEntitlementsManager.TryAddEntitlement(new AccountEntitlement { Id = "3", AccountId = "3" });
 
             var acountEntitlements = _serviceContextFactoryMock.CreateContext().AccountEntitlements.ToList();
 
@@ -38,7 +38,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task AccountsManagerTests_AddRecordWithNullId_TheRecordShouldNotBeAdded()
         {
-            await _accountEntitlementsManager.Add(new AccountEntitlement { AccountId = "1" });
+            await _accountEntitlementsManager.TryAddEntitlement(new AccountEntitlement { AccountId = "1" });
 
             Assert.Empty(_serviceContextFactoryMock.CreateContext().AccountEntitlements.ToList());
 
@@ -48,8 +48,8 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         [Fact]
         public async Task AccountsManagerTests_AddDuplicate_TheRecordShouldNotBeAdded()
         {
-            await _accountEntitlementsManager.Add(new AccountEntitlement { Id = "1", AccountId = "1" });
-            await _accountEntitlementsManager.Add(new AccountEntitlement { Id = "1", AccountId = "2" });
+            await _accountEntitlementsManager.TryAddEntitlement(new AccountEntitlement { Id = "1", AccountId = "1" });
+            await _accountEntitlementsManager.TryAddEntitlement(new AccountEntitlement { Id = "1", AccountId = "2" });
 
             var acountEntitlements = _serviceContextFactoryMock.CreateContext().AccountEntitlements.ToList();
             Assert.Equal(new[]
