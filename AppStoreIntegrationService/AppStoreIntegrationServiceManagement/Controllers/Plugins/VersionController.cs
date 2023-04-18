@@ -87,7 +87,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
                 IsNewVersion = true,
                 PluginId = pluginId,
                 VersionStatus = Status.Draft,
-                IsThirdParty = plugin.IsThirdParty
+                IsThirdParty = plugin.IsThirdParty,
+                IsPrivatePlugin = true
             };
 
             return View("Details", (extendedPlugin, extendedVersion));
