@@ -4,10 +4,24 @@ namespace AppStoreIntegrationServiceCore.Model
 {
     public class Change : IEquatable<Change>
     {
+        private string _new;
+        private string _old;
+
         public string Name { get; set; }
-        public string New { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Old { get; set; }
+        public string New 
+        {
+            get => _new == _old ? null : _old;
+            set => _new = value;
+        }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Old
+        {
+            get => _old == _new ? null : _new;
+            set => _old = value;
+        }
 
         public bool Equals(Change other)
         {

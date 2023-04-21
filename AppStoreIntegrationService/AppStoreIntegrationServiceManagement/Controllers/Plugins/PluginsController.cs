@@ -115,7 +115,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         [RoleAuthorize("Developer", "Administrator")]
         public async Task<IActionResult> RequestDeletion(int id)
         {
-            var plugin = await _pluginRepository.GetPluginById(id, User.Identity.Name, ExtendedUser.Role);
+            var plugin = await _pluginRepository.GetPluginById(id, ExtendedUser.AccountName, ExtendedUser.Role);
             if (!plugin.IsActive)
             {
                 return await Delete(id);
@@ -126,7 +126,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.DeletionRequestLog,
+                Description = "<b>{0}</b> requested deletion for <b>{1}</b> at {2}",
                 TargetInfo = plugin.Name
             }, id);
 
@@ -142,7 +142,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> AcceptDeletion(int id)
         {
             var plugin = await _pluginRepository.GetPluginById(id);
@@ -156,7 +156,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.DeletionAcceptedLog,
+                Description = "<b>{0}</b> accepted deletion for <b>{1}</b> at {2}",
                 TargetInfo = plugin.Name
             }, id);
 
@@ -164,7 +164,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> RejectDeletion(int id)
         {
             var plugin = await _pluginRepository.GetPluginById(id);
@@ -173,7 +173,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.DeletionRejectedLog,
+                Description = "<b>{0}</b> rejected deletion for <b>{1}</b> at {2}",
                 TargetInfo = plugin.Name
             }, id);
 
@@ -197,7 +197,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.PluginRemovedLog,
+                Description = "<b>{0}</b> removed <b>{1}</b> at {2}",
                 TargetInfo = plugin.Name
             }, id);
             TempData["StatusMessage"] = "Success! Plugin was removed!";
@@ -205,7 +205,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> Activate(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -215,7 +215,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> Deactivate(PluginDetails plugin)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -252,7 +252,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> Approve(PluginDetails plugin, bool removeOtherVersions = false)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -269,14 +269,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.ApprovedPluginLog,
+                Description = "<b>{0}</b> accepted the changes for <b>{1}</b> at {2}",
                 TargetInfo = plugin.Name
             }, plugin.Id);
             return await Save(plugin, oldPlugin, "Edit", removeOtherVersions, true);
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> Reject(PluginDetails plugin, bool removeOtherVersions = false)
         {
             var oldPlugin = await _pluginRepository.GetPluginById(plugin.Id, status: plugin.Status);
@@ -293,7 +293,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.RejectedPluginLog,
+                Description = "<b>{0}</b> rejected the changes for <b>{1}</b> at {2}",
                 TargetInfo = plugin.Name
             }, plugin.Id);
             return await Save(plugin, oldPlugin, "Draft", removeOtherVersions);
@@ -322,8 +322,8 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer");
             await _notificationCenter.Push(pushNotification);
             emailNotification.Author = "AppStore Account";
-            await _notificationCenter.Broadcast(emailNotification, "SystemAdministrator");
-            pushNotification.Author = "SystemAdministrator";
+            await _notificationCenter.Broadcast(emailNotification, "System Administrator");
+            pushNotification.Author = "System Administrator";
             await _notificationCenter.Push(pushNotification);
         }
 

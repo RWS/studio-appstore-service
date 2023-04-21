@@ -1,21 +1,19 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
     isReadOnly = false;
 
-    document.addEventListener("DOMContentLoaded", () => {
-        new DropDown(
-            document.querySelector("#productsDropdown #dropDownToggle"),
-            document.querySelector("#productsDropdown #ProductsSelect"),
-            $("#productsDropdown #SupportedProducts"),
-            document.querySelector("#productsDropdown .selection-summary"),
-            document.querySelectorAll("#productsDropdown .overflow-arrow"),
-            parentProducts.map(p => p.parentProductName),
-            isReadOnly
-        ).Init()
+    new DropDown(
+        document.querySelector("#productsDropdown #dropDownToggle"),
+        document.querySelector("#productsDropdown #ProductsSelect"),
+        $("#productsDropdown #SupportedProducts"),
+        document.querySelector("#productsDropdown .selection-summary"),
+        document.querySelectorAll("#productsDropdown .overflow-arrow"),
+        parentProducts.map(p => p.parentProductName),
+        isReadOnly
+    ).Init()
 
-        $.validator.setDefaults({
-            ignore: '.ignore'
-        });
-    })
+    $.validator.setDefaults({
+        ignore: '.ignore'
+    });
 })
 
 function AddComment(pluginId, versionId) {
@@ -77,8 +75,6 @@ function GenerateChecksum() {
 }
 
 function Save(pluginId, action, removeOtherVersions = false) {
-    let button = event.currentTarget;
-
     $("#form").validate();
 
     if ($("#form").valid()) {

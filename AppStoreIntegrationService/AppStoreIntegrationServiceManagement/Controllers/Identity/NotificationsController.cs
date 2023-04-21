@@ -58,7 +58,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         {
             var user = _userProfilesManager.GetUser(User);
             var account = _accountsManager.GetAccountById(user.SelectedAccountId);
-            await _notificationCenter.ChangeStatus(ExtendedUser.IsInRole("SystemAdministrator") ? "SystemAdministrator" : account.Name, id, status);
+            await _notificationCenter.ChangeStatus(ExtendedUser.IsInRole("System Administrator") ? "System Administrator" : account.Name, id, status);
             return new EmptyResult();
         }
 
@@ -73,9 +73,9 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 IsSelected = notificationStatus == (NotificationStatus)Enum.Parse(typeof(NotificationStatus), x)
             });
 
-            var notifications = !ExtendedUser.PushNotificationsEnabled ? Array.Empty<PushNotification>() : ExtendedUser.IsInRole("SystemAdministrator") switch
+            var notifications = !ExtendedUser.PushNotificationsEnabled ? Array.Empty<PushNotification>() : ExtendedUser.IsInRole("System Administrator") switch
             {
-                true => await _notificationCenter.GetNotificationsForUser("SystemAdministrator"),
+                true => await _notificationCenter.GetNotificationsForUser("System Administrator"),
                 false => await _notificationCenter.GetNotificationsForUser(ExtendedUser.AccountName)
             };
 

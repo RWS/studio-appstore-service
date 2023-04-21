@@ -2,8 +2,19 @@
 
 namespace AppStoreIntegrationServiceManagement.Model.Notifications
 {
+    public enum EmailType
+    {
+        PluginUpdate = 0,
+        AccountUpdate,
+        RoleUpdate,
+        UserDeletion
+    }
+
     public class EmailNotification
     {
+        public const string NewProfileMessage = "A new user profile was created on RWS AppStore Manager using this email address:";
+        public const string NewProfileLinked = "A user profile identified by this email address was associated to a new account in RWS AppStore Manager:";
+
         public EmailNotification() { }
         public EmailNotification(PluginDetails plugin)
         {
@@ -17,17 +28,19 @@ namespace AppStoreIntegrationServiceManagement.Model.Notifications
         public string Message { get; set; }
         public string CallToActionUrl { get; set; }
         public string Author { get; set; }
-        public bool IsAccountNotification { get; set; }
-        public string Subject { get; set; }
+        public EmailType Type { get; set; }
 
         public virtual string ToHtml()
         {
-            if (IsAccountNotification)
+            return Type switch
             {
-                return string.Format(TemplateResource.NewAccountEmailNotification, Message, Author, Title, CallToActionUrl);
-            }
-
-            return string.Format(TemplateResource.PluginUpdateEmailNotification, Message, ImageSource, Title, CallToActionUrl);
+                EmailType.AccountUpdate => string.Format(TemplateResource.NewAccountEmailNotification, Message, Author, Title, CallToActionUrl),
+                EmailType.PluginUpdate => string.Format(TemplateResource.PluginUpdateEmailNotification, Message, ImageSource, Title, CallToActionUrl),
+                //EmailType.RoleUpdate => string.Format(TemplateResource.RoleUpdateEmailNotification, Message, Title, CallToActionUrl),
+                EmailType.RoleUpdate => TemplateResource.TestEmail,
+                EmailType.UserDeletion => string.Format(TemplateResource.ProfileDeleteEmailNotification, Author, Title, CallToActionUrl),
+                _ => null
+            };
         }
     }
 }

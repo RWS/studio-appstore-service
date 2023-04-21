@@ -1,5 +1,6 @@
 ﻿let editor = null;
 let isReadOnly = false;
+let tooltipTriggerList = [];
 let quillToolbarOptions = [
     ['bold', 'italic', 'underline', 'strike'],
     ['blockquote', 'code-block'],
@@ -99,13 +100,19 @@ function Collapse(element) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
-
+    InitTooltips();
     TriggerAlertAnimation();
 });
+
+function InitTooltips() {
+    let tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+
+    tooltips.forEach(tooltip => {
+        if (!tooltip.hasAttribute("aria-describedby")) {
+            new bootstrap.Tooltip(tooltip)
+        }
+    })
+}
 
 function ToggleLoader(element) {
     if (element.disabled) {
@@ -118,31 +125,40 @@ function ToggleLoader(element) {
     element.firstElementChild.hidden = false;
 }
 
-function HttpRequestCallback(response) {
+function HttpRequestCallback(response, element) {
     if (!response.includes('div')) {
         window.location.href = response;
-    }
-
-    document.getElementById("partialContainer").innerHTML = response;
-    let modal = document.querySelector('#partialContainer .modal');
-
-    if (modal) {
-        new bootstrap.Modal(modal, { keyboard: false }).show()
         return;
     }
 
-    TriggerAlertAnimation();
+    let modal = document.getElementById("confirmationModal");
+
+    if (modal && modal.classList.contains("show")) {
+        bootstrap.Modal.getInstance(modal).hide();
+    }
+
+    document.getElementById("partialContainer").innerHTML = response;
+    modal = document.querySelector('#partialContainer .modal');
+
+    if (modal) {
+        new bootstrap.Modal(modal, { keyboard: false }).show()
+    } else {
+        TriggerAlertAnimation();
+    }
+
+    if (element) {
+        ToggleLoader(element);
+    }
 }
 
 function SendPostRequest(route, data = null) {
     let request = new XMLHttpRequest();
     let element = event.currentTarget;
     ToggleLoader(element);
-    
-    request.onreadystatechange = function () {
+
+    request.onreadystatechange = () => {
         if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-            HttpRequestCallback(request.responseText);
-            ToggleLoader(element);
+            HttpRequestCallback(request.responseText, element);
         }
     }
 

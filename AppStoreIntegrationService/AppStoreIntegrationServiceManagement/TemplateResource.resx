@@ -117,63 +117,82 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ApprovedPluginLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; accepted the changes for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="ApprovedVersionLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; approved the changes for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="DeletionAcceptedLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; accepted deletion for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="DeletionRejectedLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; rejected deletion for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="DeletionRequestLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; requested deletion for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="FontNames" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\fonts.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="NewAccountEmailNotification" xml:space="preserve">
-    <value>&lt;body style="border: 1px solid lightgray; padding: 20px;"&gt;
-&lt;div style="text-align: center;"&gt;{0}&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;strong&gt;{1}&lt;/strong&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;Your profile was associated to the following account:&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;strong&gt;{2}&lt;/strong&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;Go to &lt;a href="{3}"&gt;this link&lt;/a&gt; to sign up into your account.&lt;strong&gt;&lt;br /&gt;&lt;/strong&gt;&lt;/div&gt;
+    <value>&lt;body style="font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif;"&gt;
+    &lt;div style="background-color: #f8f9fa; border: 1px solid #dee2e6; width: 40%;"&gt;
+        &lt;p style="text-align: center; margin:0;background-color: white;width: 100%;"&gt;
+          &lt;img style="width: 100%;" src="data:image/png;base64,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" /&gt;
+        &lt;/p&gt;
+      &lt;h1 style="color: #2F5496; text-align:center;"&gt;Account Notification&lt;/h1&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;{0}&lt;/p&gt;
+      &lt;p style="font-weight: bold; text-align:center;"&gt;{1}&lt;/p&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;Your profile was associated to the following account:&lt;/p&gt;
+      &lt;p style="font-weight: bold; text-align:center;"&gt;{2}&lt;/p&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;You can follow the next link to sign in into your account&lt;/p&gt;
+      &lt;table style="background-color: #f8f9fa; width: 100%;"&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;
+            &lt;td style="background-color:#008080; height: 40px; text-align:center;"&gt;
+              &lt;a href="{3}" style="color: white; text-decoration: none; margin: 0 20px"&gt;Sign in&lt;/a&gt;
+            &lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
 &lt;/body&gt;</value>
-  </data>
-  <data name="NewPluginLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; added {1} at {2}&lt;br&gt;&lt;br&gt;&lt;p&gt;The plugin properties are:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;</value>
-  </data>
-  <data name="PluginActiveLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; changed the status to &lt;i&gt;Active&lt;/i&gt; for &lt;b&gt; {1} &lt;/b&gt; at {2}</value>
-  </data>
-  <data name="PluginInactiveLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; changed the status to &lt;i&gt;Inactive&lt;/i&gt; for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="PluginRemovedLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; removed &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
   </data>
   <data name="PluginUpdateEmailNotification" xml:space="preserve">
-    <value>&lt;body style="border: 1px solid lightgray; padding:20px; width: 500px"&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;New&lt;/b&gt;{0}&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;img src="{1}" width="250"&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;br&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;{2}&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-&lt;div style="text-align: center;"&gt;&lt;a href="{3}"&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
+    <value>&lt;body style="font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif;"&gt;
+    &lt;div style="background-color: #f8f9fa; border: 1px solid #dee2e6; width: 40%;"&gt;
+        &lt;p style="text-align: center; margin:0;background-color: white;width: 100%;"&gt;
+          &lt;img style="width: 100%;" src="data:image/png;base64,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" /&gt;
+        &lt;/p&gt;
+      &lt;h1 style="color: #2F5496; text-align:center;"&gt;Plugin Update Notification&lt;/h1&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;{0}&lt;/p&gt;
+      &lt;p style="text-align:center;"&gt;
+        &lt;img src="{1}" width=250/&gt;
+      &lt;/p&gt;
+      &lt;p style="font-weight: bold; text-align:center;"&gt;{2}&lt;/p&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;You can follow the next link to see more details&lt;/p&gt;
+      &lt;table style="background-color: #f8f9fa; width: 100%;"&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;
+            &lt;td style="background-color:#008080; height: 40px; text-align:center;"&gt;
+              &lt;a href="{3}" style="color: white; text-decoration: none; margin: 0 20px"&gt;View details&lt;/a&gt;
+            &lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
 &lt;/body&gt;</value>
   </data>
-  <data name="PluginUpdateLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; made changes to {1} at {2}&lt;br&gt;&lt;br&gt;&lt;p&gt;The following changes occured:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;</value>
+  <data name="ProfileDeleteEmailNotification" xml:space="preserve">
+    <value>&lt;body style="font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif;"&gt;
+    &lt;div style="background-color: #f8f9fa; border: 1px solid #dee2e6; width: 40%;"&gt;
+        &lt;p style="text-align: center; margin:0;background-color: white;width: 100%;"&gt;
+          &lt;img style="width: 100%;" src="data:image/png;base64,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" /&gt;
+        &lt;/p&gt;
+      &lt;h1 style="color: #2F5496; text-align:center;"&gt;Account Notification&lt;/h1&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;The profile associated to the following e-mail address:&lt;/p&gt;
+      &lt;p style="font-weight: bold; text-align:center;"&gt;{0}&lt;/p&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;Was removed from the following Account:&lt;/p&gt;
+      &lt;p style="font-weight: bold; text-align:center;"&gt;{1}&lt;/p&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;You can follow the next link to sign in into another account&lt;/p&gt;
+      &lt;table style="background-color: #f8f9fa; width: 100%;"&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;
+            &lt;td style="background-color:#008080; height: 40px; text-align:center;"&gt;
+              &lt;a href="{2}" style="color: white; text-decoration: none; margin: 0 20px"&gt;Sign in&lt;/a&gt;
+            &lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+&lt;/body&gt;</value>
   </data>
   <data name="PushNotificationTemplate" xml:space="preserve">
     <value>&lt;div class="d-flex p-3 border-bottom" style="width: 400px;"&gt;
@@ -188,28 +207,212 @@
 &lt;/div&gt;
 &lt;/div&gt;</value>
   </data>
-  <data name="RejectedPluginLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; rejected the changes for &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  <data name="RoleUpdateEmailNotification" xml:space="preserve">
+    <value>&lt;body style="font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif;"&gt;
+    &lt;div style="background-color: #f8f9fa; border: 1px solid #dee2e6; width: 40%;"&gt;
+        &lt;p style="text-align: center; margin:0;background-color: white;width: 100%;"&gt;
+          &lt;img style="width: 100%;" src="data:image/png;base64,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" /&gt;
+        &lt;/p&gt;
+      &lt;h1 style="color: #2F5496; text-align:center;"&gt;Account Notification&lt;/h1&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;A new role was associated to you for the following Account:&lt;/p&gt;
+      &lt;p style="font-weight: bold; text-align:center;"&gt;{0}&lt;/p&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;Your new Account role is:&lt;/p&gt;
+      &lt;p style="font-weight: bold; text-align:center;"&gt;{1}&lt;/p&gt;
+      &lt;p style="font-weight: bold; color: #6c757d; text-align:center;"&gt;Follow the next link to login into AppStore Manager&lt;/p&gt;
+      &lt;table style="background-color: #f8f9fa; width: 100%;"&gt;
+        &lt;tbody&gt;
+          &lt;tr&gt;
+            &lt;td style="background-color:#008080; height: 40px; text-align:center;"&gt;
+              &lt;a href="{2}" style="color: white; text-decoration: none; margin: 0 20px"&gt;Sign in&lt;/a&gt;
+            &lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+&lt;/body&gt;</value>
   </data>
-  <data name="RejectedVersionLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; rejected the changes for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="VersionActiveLog" xml:space="preserve">
-    <value>&lt;b&gt;{0} &lt;/b&gt; changed the status to &lt;i&gt;Active&lt;/i&gt; for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="VersionDeletionAcceptedLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; accepted the deletion request for version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="VersionDeletionRejectedLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; rejected the deletion request for version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="VersionDeletionRequestLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; sent a deletion request for version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="VersionInactiveLog" xml:space="preserve">
-    <value>&lt;b&gt;{0} &lt;/b&gt; changed the status to &lt;i&gt;Inactive&lt;/i&gt; for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
-  </data>
-  <data name="VersionRemovedLog" xml:space="preserve">
-    <value>&lt;b&gt;{0}&lt;/b&gt; removed the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}</value>
+  <data name="TestEmail" xml:space="preserve">
+    <value>&lt;body style="font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif; background-color: #F1F2F5;"&gt;
+  &lt;table style="width:100%;"&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;/td&gt;
+        &lt;td style="width: 33%; background-color: white;"&gt;
+          &lt;table style="width: 750px;"&gt;
+            &lt;tr&gt;
+              &lt;td style="width: 100%;"&gt;
+                &lt;p&gt;&amp;nbsp;&lt;/p&gt;
+                &lt;h1 style="color: #5D6E7B; margin-left: 20px;"&gt;Added to an RWS Account&lt;/h1&gt;
+                &lt;h3 style="font-weight: normal; color: #858585;margin-left: 20px;"&gt;You have been invited to join an RWS Account&lt;/h3&gt;
+                &lt;p&gt;&amp;nbsp;&lt;/p&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;/table&gt;
+        &lt;/td&gt;
+        &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style="height: 30px;"&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;/td&gt;
+        &lt;td style="background-color: white;"&gt;
+          &lt;table style="width: 750px;"&gt;
+            &lt;tr&gt;
+              &lt;td style="width: 100%;"&gt;
+                &lt;p&gt;&amp;nbsp;&lt;/p&gt;
+                &lt;p style="margin-left: 20px;"&gt;You have been added to the AppStore Account with RWS which grants you access to RWS products and services as decided by your company / organization&lt;/p&gt;
+                &lt;p style="margin-left: 20px;"&gt;RWS will be processing your personal data in association with the use you make of the products and services. For further details see our &lt;strong&gt;&lt;a href="https://www.rws.com/legal/privacy/" style="color: #008080; text-decoration: none;"&gt;Privacy Notice&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;
+                &lt;p style="margin-left: 20px;"&gt;To login to this account simply &lt;strong&gt;&lt;a href="https://oos.sdl.com/asp/products/ssl/account/languagecloud/languagecloud.aspx" style="color: #008080; text-decoration: none;"&gt;login&lt;/a&gt;&lt;/strong&gt; to RWS ID using example@domain.com&lt;/p&gt;
+                &lt;p style="margin-left: 20px;"&gt;If you don't know your RWS ID password, please use the &lt;em&gt;reset password&lt;/em&gt; option&lt;/p&gt;
+                &lt;h3 style="color: #008080; margin-top: 35px;margin-left: 20px;"&gt;Your RWS Account Team&lt;/h3&gt;
+                &lt;p&gt;&amp;nbsp;&lt;/p&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;/table&gt;
+        &lt;/td&gt;
+        &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style="height: 30px;"&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;/td&gt;
+        &lt;td style="background-color: white; text-align: center;"&gt;
+          &lt;table style="width: 100%;"&gt;
+            &lt;tbody&gt;
+              &lt;tr&gt;
+                &lt;td style="height: 30px;"&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;a href="https://community.rws.com/"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/community-rws.png" /&gt;
+                  &lt;/a&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;a href="https://www.rws.com/about/events/webinars/"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/support-rws.png" /&gt;
+                  &lt;/a&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;a href="https://gateway.sdl.com/apex/communitysearchresults#d=TradosStudio&amp;gsc.tab=0"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/docs-rws.png" /&gt;
+                  &lt;/a&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td style="height: 30px;"&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;strong&gt;RWS Community&lt;/strong&gt;
+                  &lt;p&gt;Share your experiences, discuss best practices, and find answers in your official community.&lt;/p&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;strong&gt;Upcoming webinars&lt;/strong&gt;
+                  &lt;p&gt;Check our webinar calendar to find educational sessions covering a range of translation topics, all at not cost to you.&lt;/p&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;strong&gt;Trados Knowledge Base&lt;/strong&gt;
+                  &lt;p&gt;A wealth of practical software information at your fingertips.&lt;/p&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td style="height: 30px;"&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;a href="https://gateway.sdl.com/apex/communitysearchresults#d=TradosStudio&amp;gsc.tab=0"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/log-case-rws.png" /&gt;
+                  &lt;/a&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;a href="https://oos.sdl.com/asp/products/ssl/account/mysupport.aspx"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/ideas-rws.png" /&gt;
+                  &lt;/a&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;a href="https://www.trados.com/support/installation-licensing.html"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/installation-rws.png" /&gt;
+                  &lt;/a&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td style="height: 30px;"&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;strong&gt;Log a support case&lt;/strong&gt;
+                  &lt;p&gt;Register your support case via our online portal&lt;/p&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;strong&gt;RWS Ideas&lt;/strong&gt;
+                  &lt;p&gt;Sugest new features and functionality&lt;/p&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+                &lt;td style="text-align: center;"&gt;
+                  &lt;strong&gt;Installation / licensing help&lt;/strong&gt;
+                  &lt;p&gt;Get help when first setting up your software&lt;/p&gt;
+                &lt;/td&gt;
+                &lt;td style="width: 20px;"&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td style="height: 30px;"&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+              &lt;tr&gt;
+                &lt;td&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;/td&gt;
+                &lt;td&gt;
+                  &lt;a href="https://www.facebook.com/sdltrados/" style="color: white;"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/Facebook-grey.png" /&gt;
+                  &lt;/a&gt;
+                  &lt;a href="https://twitter.com/rwstrados/" style="color: white;"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/Twitter-grey.png" /&gt;
+                  &lt;/a&gt;
+                  &lt;a href="https://www.linkedin.com/showcase/trados/" style="color: white;"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/Linkedin-grey.png" /&gt;
+                  &lt;/a&gt;
+                  &lt;a href="https://www.youtube.com/trados" style="color: white;"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/Youtube-grey.png" /&gt;
+                  &lt;/a&gt;
+                  &lt;a href="https://www.instagram.com/sdltrados/" style="color: white;"&gt;
+                    &lt;img src="https://oos.sdl.com/asp/SDLAccount/layout/email/RWS_Images/instagram-grey.png" /&gt;
+                  &lt;/a&gt;
+                &lt;/td&gt;
+                &lt;td&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;/td&gt;
+              &lt;/tr&gt;
+            &lt;/tbody&gt;
+          &lt;/table&gt;
+        &lt;/td&gt;
+        &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;/td&gt;
+        &lt;td style="width: 33%; background-color: #F1F2F5; text-align:center; line-height: 30px; font-size: 13px;"&gt;
+          © 2021 RWS Holdings Plc. All rights reserved. The RWS name and logo, and RWS product and service names are trademarks of RWS Holdings Plc and/or its subsidiaries, some of which may be registered. Other company, product or service names are the property of their respective holders.
+          RWS Holdings Plc, Europa House, Chiltern Park, Chiltern Hill, Chalfont St Peter, Buckinghamshire, SL9 9FG, United Kingdom
+        &lt;/td&gt;
+        &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/body&gt;</value>
   </data>
 </root>

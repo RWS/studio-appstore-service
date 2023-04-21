@@ -20,7 +20,7 @@
             {
                 <div class="d-flex justify-content-between p-3 border-bottom">
                     <a class="m-0 fw-bold align-self-center text-decoration-none text-black-50 w-100" asp-controller="Version" asp-action="@ManageVersionTabs.GetAction(version.VersionStatus)" asp-route-pluginId="@version.PluginId" asp-route-versionId="@version.VersionId">@version.VersionNumber</a>
-                    @if (!version.IsNewVersion) 
+                    @if (!version.IsNewVersion)
                     {
                         <div class="d-flex justify-content-between">
                             <div class="px-2 py-1 border rounded me-2">@version.VersionStatus</div>
@@ -28,15 +28,21 @@
                             {
                                 if (version.NeedsDeletionApproval)
                                 {
-                                    if (ExtendedUser.IsInRole("SystemAdministrator"))
+                                    if (ExtendedUser.IsInRole("System Administrator"))
                                     {
                                         <div class="position-relative">
                                             <div class="btn-group">
-                                                <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                                <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"></i>
                                                 <div class="dropdown-menu">
                                                     <div class="d-flex p-2">
-                                                        <button class="btn pa-admin-success-btn me-2" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('@Model.Plugin.Id', '@version.VersionId', 'ApproveDeletion')">Approve</button>
-                                                        <button class="btn btn-danger" onclick="Delete('@Model.Plugin.Id', '@version.VersionId', 'RejectDeletion', false)">Reject</button>
+                                                        <button class="btn pa-admin-success-btn me-2 text-nowrap" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('@Model.Plugin.Id', '@version.VersionId', 'AcceptDeletion')">
+                                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                                                            Approve
+                                                        </button>
+                                                        <button class="btn btn-danger text-nowrap" onclick="Delete('@Model.Plugin.Id', '@version.VersionId', 'RejectDeletion', false)">
+                                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                                                            Reject
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -84,7 +90,7 @@
             <div class="d-flex flex-column align-items-center">
                 <img src="~/images/empty-result.png" width="200" height="200" />
                 <h5 class="mt-2">No versions found!</h5>
-                @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && ExtendedUser.IsInRole("Developer"))
+                @if (!Model.Plugin.IsThirdParty || Model.Plugin.IsThirdParty && ExtendedUser.IsInRoles("Developer", "Administrator"))
                 {
                     <a class="btn pa-admin-success-btn" asp-controller="Version" asp-action="Add" asp-route-pluginId="@Model.Plugin.Id">Add version</a>
                 }

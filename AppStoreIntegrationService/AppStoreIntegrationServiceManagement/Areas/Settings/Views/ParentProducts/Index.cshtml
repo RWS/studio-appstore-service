@@ -15,7 +15,7 @@
     <partial name="_SettingsNavPartial" />
     <div class="col-12 col-md-9">
         <div class="settings-details">
-            <partial name="_ProductsTabPartial" model="false"/>
+            <partial name="_ProductsTabPartial" model="false" />
             <form method="post" id="form" onsubmit="return false">
                 <input name="Page" value="@Page.ParentProducts" hidden />
                 <table id="parentProductsTable" class="table table-bordered table-collapse">
@@ -23,7 +23,9 @@
                         <tr class="align-middle d-none d-lg-table-row">
                             <th>Id</th>
                             <th>ProductName</th>
-                            <td class="icon-cell text-center"><i onclick="table.Add()" title="Add new parent product" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
+                            <td class="icon-cell text-center">
+                                <i onclick="table.Add()" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new" class="fa fa-plus-circle success-icon cursor-pointer"></i>
+                            </td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
@@ -40,17 +42,19 @@
                                     <td class="d-none d-lg-table-cell">
                                         <div class="input-group">
                                             <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Id</span>
-                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@parent.Id</p>
+                                            <p class="m-0 w-50 align-self-center text-center text-lg-start">@parent.Id</p>
                                         </div>
                                     </td>
                                     <td class="editable-field order-first">
-                                        <p class="m-0 align-self-center text-center text-lg-start" onclick="Collapse(this)">@parent.ProductName</p>
+                                        <p class="m-0 fw-bold fw-lg-normal align-self-center text-center text-lg-start" onclick="Collapse(this)">@parent.ProductName</p>
                                     </td>
                                     <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-                                        <i class="fa fa-pen-alt cursor-pointer" title="Edit @parent.ProductName" onclick="EnsurePreserved(() => { table.Edit('@parent.Id') })"></i>
+                                        <i class="fa fa-pen-alt cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" onclick="EnsurePreserved(() => { table.Edit('@parent.Id') })"></i>
                                     </td>
                                     <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-                                        <i class="fa fa-trash-alt row-eraser cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" title="Delete @parent.ProductName" onclick="table.Delete('@parent.Id')"></i>
+                                        <span role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                            <i class="fa fa-trash-alt row-eraser cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="table.Delete('@parent.Id')"></i>
+                                        </span>
                                     </td>
                                 </tr>
                             }

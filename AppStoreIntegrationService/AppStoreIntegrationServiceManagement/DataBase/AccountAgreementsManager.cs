@@ -55,6 +55,12 @@ namespace AppStoreIntegrationServiceManagement.DataBase
                 using (var context = _serviceContext.CreateContext())
                 {
                     var agreement = context.AccountAgreements.FirstOrDefault(x => x.UserProfileId == user.Id && x.AccountId == account.Id);
+                    
+                    if (agreement == null)
+                    {
+                        return IdentityResult.Success;
+                    }
+
                     context.AccountAgreements.Remove(agreement);
                     await context.SaveChangesAsync();
                 }

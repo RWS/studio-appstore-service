@@ -61,51 +61,6 @@ namespace AppStoreIntegrationServiceManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; accepted the changes for &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string ApprovedPluginLog {
-            get {
-                return ResourceManager.GetString("ApprovedPluginLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; approved the changes for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string ApprovedVersionLog {
-            get {
-                return ResourceManager.GetString("ApprovedVersionLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; accepted deletion for &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string DeletionAcceptedLog {
-            get {
-                return ResourceManager.GetString("DeletionAcceptedLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; rejected deletion for &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string DeletionRejectedLog {
-            get {
-                return ResourceManager.GetString("DeletionRejectedLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; requested deletion for &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string DeletionRequestLog {
-            get {
-                return ResourceManager.GetString("DeletionRequestLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         public static byte[] FontNames {
@@ -116,15 +71,10 @@ namespace AppStoreIntegrationServiceManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;body style=&quot;border: 1px solid lightgray; padding: 20px;&quot;&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;{0}&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;{1}&lt;/strong&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;Your profile was associated to the following account:&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;strong&gt;{2}&lt;/strong&gt;&lt;/div&gt;
-        /// [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to &lt;body style=&quot;font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif;&quot;&gt;
+        ///    &lt;div style=&quot;background-color: #f8f9fa; border: 1px solid #dee2e6; width: 40%;&quot;&gt;
+        ///        &lt;p style=&quot;text-align: center; margin:0;background-color: white;width: 100%;&quot;&gt;
+        ///          &lt;img style=&quot;width: 100%;&quot; src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjYAAABZCAMAAAAaVZ6hAAAA3lBMVEX///8AqJ+AgYQAPX98fYB6e36/6OYOq6N3eHvd3d78/PwArKCzs7X4+Pjo6OkApJsAOH6Y2NTT09SHiIqu4+Do9PMAcY6XmJqOj5HAwMLv7/Cqq6y [rest of string was truncated]&quot;;.
         /// </summary>
         public static string NewAccountEmailNotification {
             get {
@@ -133,51 +83,10 @@ namespace AppStoreIntegrationServiceManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; added {1} at {2}&lt;br&gt;&lt;br&gt;&lt;p&gt;The plugin properties are:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;.
-        /// </summary>
-        public static string NewPluginLog {
-            get {
-                return ResourceManager.GetString("NewPluginLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; changed the status to &lt;i&gt;Active&lt;/i&gt; for &lt;b&gt; {1} &lt;/b&gt; at {2}.
-        /// </summary>
-        public static string PluginActiveLog {
-            get {
-                return ResourceManager.GetString("PluginActiveLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; changed the status to &lt;i&gt;Inactive&lt;/i&gt; for &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string PluginInactiveLog {
-            get {
-                return ResourceManager.GetString("PluginInactiveLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; removed &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string PluginRemovedLog {
-            get {
-                return ResourceManager.GetString("PluginRemovedLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;body style=&quot;border: 1px solid lightgray; padding:20px; width: 500px&quot;&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;New&lt;/b&gt;{0}&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;{1}&quot; width=&quot;250&quot;&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;br&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;{2}&lt;/b&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-        ///&lt;div style=&quot;text-align: center;&quot;&gt;&lt;a href=&quot;{3}&quot;&gt;View&lt;/a&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;/div&gt;
-        ///&lt;/body&gt;.
+        ///   Looks up a localized string similar to &lt;body style=&quot;font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif;&quot;&gt;
+        ///    &lt;div style=&quot;background-color: #f8f9fa; border: 1px solid #dee2e6; width: 40%;&quot;&gt;
+        ///        &lt;p style=&quot;text-align: center; margin:0;background-color: white;width: 100%;&quot;&gt;
+        ///          &lt;img style=&quot;width: 100%;&quot; src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjYAAABZCAMAAAAaVZ6hAAAA3lBMVEX///8AqJ+AgYQAPX98fYB6e36/6OYOq6N3eHvd3d78/PwArKCzs7X4+Pjo6OkApJsAOH6Y2NTT09SHiIqu4+Do9PMAcY6XmJqOj5HAwMLv7/Cqq6y [rest of string was truncated]&quot;;.
         /// </summary>
         public static string PluginUpdateEmailNotification {
             get {
@@ -186,11 +95,14 @@ namespace AppStoreIntegrationServiceManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; made changes to {1} at {2}&lt;br&gt;&lt;br&gt;&lt;p&gt;The following changes occured:&lt;/p&gt;&lt;ul&gt;{3}&lt;/ul&gt;.
+        ///   Looks up a localized string similar to &lt;body style=&quot;font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif;&quot;&gt;
+        ///    &lt;div style=&quot;background-color: #f8f9fa; border: 1px solid #dee2e6; width: 40%;&quot;&gt;
+        ///        &lt;p style=&quot;text-align: center; margin:0;background-color: white;width: 100%;&quot;&gt;
+        ///          &lt;img style=&quot;width: 100%;&quot; src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjYAAABZCAMAAAAaVZ6hAAAA3lBMVEX///8AqJ+AgYQAPX98fYB6e36/6OYOq6N3eHvd3d78/PwArKCzs7X4+Pjo6OkApJsAOH6Y2NTT09SHiIqu4+Do9PMAcY6XmJqOj5HAwMLv7/Cqq6y [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string PluginUpdateLog {
+        public static string ProfileDeleteEmailNotification {
             get {
-                return ResourceManager.GetString("PluginUpdateLog", resourceCulture);
+                return ResourceManager.GetString("ProfileDeleteEmailNotification", resourceCulture);
             }
         }
         
@@ -214,74 +126,34 @@ namespace AppStoreIntegrationServiceManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; rejected the changes for &lt;b&gt;{1}&lt;/b&gt; at {2}.
+        ///   Looks up a localized string similar to &lt;body style=&quot;font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif;&quot;&gt;
+        ///    &lt;div style=&quot;background-color: #f8f9fa; border: 1px solid #dee2e6; width: 40%;&quot;&gt;
+        ///        &lt;p style=&quot;text-align: center; margin:0;background-color: white;width: 100%;&quot;&gt;
+        ///          &lt;img style=&quot;width: 100%;&quot; src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjYAAABZCAMAAAAaVZ6hAAAA3lBMVEX///8AqJ+AgYQAPX98fYB6e36/6OYOq6N3eHvd3d78/PwArKCzs7X4+Pjo6OkApJsAOH6Y2NTT09SHiIqu4+Do9PMAcY6XmJqOj5HAwMLv7/Cqq6y [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string RejectedPluginLog {
+        public static string RoleUpdateEmailNotification {
             get {
-                return ResourceManager.GetString("RejectedPluginLog", resourceCulture);
+                return ResourceManager.GetString("RoleUpdateEmailNotification", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; rejected the changes for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}.
+        ///   Looks up a localized string similar to &lt;body style=&quot;font-family: Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif; background-color: #F1F2F5;&quot;&gt;
+        ///  &lt;table style=&quot;width:100%;&quot;&gt;
+        ///    &lt;tbody&gt;
+        ///      &lt;tr&gt;
+        ///        &lt;td&gt;&lt;/td&gt;
+        ///        &lt;td style=&quot;width: 33%; background-color: white;&quot;&gt;
+        ///          &lt;table style=&quot;width: 750px;&quot;&gt;
+        ///            &lt;tr&gt;
+        ///              &lt;td style=&quot;width: 100%;&quot;&gt;
+        ///                &lt;p&gt;&amp;nbsp;&lt;/p&gt;
+        ///                &lt;h1 style=&quot;color: #5D6E7B; margin-left: 20px;&quot;&gt;Added to an RWS Account&lt;/h1&gt;
+        ///                &lt; [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string RejectedVersionLog {
+        public static string TestEmail {
             get {
-                return ResourceManager.GetString("RejectedVersionLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0} &lt;/b&gt; changed the status to &lt;i&gt;Active&lt;/i&gt; for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string VersionActiveLog {
-            get {
-                return ResourceManager.GetString("VersionActiveLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; accepted the deletion request for version with number &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string VersionDeletionAcceptedLog {
-            get {
-                return ResourceManager.GetString("VersionDeletionAcceptedLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; rejected the deletion request for version with number &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string VersionDeletionRejectedLog {
-            get {
-                return ResourceManager.GetString("VersionDeletionRejectedLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; sent a deletion request for version with number &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string VersionDeletionRequestLog {
-            get {
-                return ResourceManager.GetString("VersionDeletionRequestLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0} &lt;/b&gt; changed the status to &lt;i&gt;Inactive&lt;/i&gt; for the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string VersionInactiveLog {
-            get {
-                return ResourceManager.GetString("VersionInactiveLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;b&gt;{0}&lt;/b&gt; removed the version with number &lt;b&gt;{1}&lt;/b&gt; at {2}.
-        /// </summary>
-        public static string VersionRemovedLog {
-            get {
-                return ResourceManager.GetString("VersionRemovedLog", resourceCulture);
+                return ResourceManager.GetString("TestEmail", resourceCulture);
             }
         }
     }

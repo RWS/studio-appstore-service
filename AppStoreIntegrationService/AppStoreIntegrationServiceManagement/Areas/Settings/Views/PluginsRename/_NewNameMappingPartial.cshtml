@@ -23,7 +23,7 @@
                 }
                 else
                 {
-                    <option value="@plugin.Name"/>
+                    <option value="@plugin.Name" />
                 }
             }
         </datalist>
@@ -32,6 +32,10 @@
         <input class="form-control form-control-sm text-center text-lg-start fs-inherit" placeholder="NewName" asp-for="NewName" />
         <span asp-validation-for="NewName" class="text-danger"></span>
     </td>
-    <td class="icon-cell text-center"><i onclick="table.Save()" title="Save new mapping" class="fa fa-check-circle success-icon cursor-pointer align-middle"></i></td>
-    <td class="icon-cell text-center"><i onclick="table.Discard()" title="Discard new mapping" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
+    <td class="icon-cell text-center">
+        <i onclick="table.Save()" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Save" class="fa fa-check-circle success-icon cursor-pointer align-middle"></i>
+    </td>
+    <td class="icon-cell text-center">
+        <i onclick="table.Discard()" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Discard" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i>
+    </td>
 </tr>

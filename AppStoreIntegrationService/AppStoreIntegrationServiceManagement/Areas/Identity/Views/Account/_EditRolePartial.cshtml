@@ -5,11 +5,11 @@
 
 <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
     <td class="text-break align-middle"><p class="m-0" onclick="Collapse(this)">@Model.Name</p></td>
-    <td class="align-middle px-3 d-none d-lg-table-cell">
-        <select class="fs-inherit pa-admin-select w-100" asp-for="Role">
-            @if (ExtendedUser.IsInRole("SystemAdministrator"))
+    <td class="align-middle px-3">
+        <select class="fs-inherit pa-admin-select w-100" asp-for="Role" autofocus>
+            @if (ExtendedUser.IsInRole("System Administrator"))
             {
-                <option value="SystemAdministrator">SystemAdministrator</option>
+                <option value="System Administrator">System Administrator</option>
             }
 
             <option value="Administrator">Administrator</option>

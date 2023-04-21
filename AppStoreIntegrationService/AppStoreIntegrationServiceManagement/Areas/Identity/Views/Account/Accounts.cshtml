@@ -38,17 +38,17 @@
                     {
                         <tr class="text-center d-flex flex-column d-lg-table-row bg-white">
                             <td class="text-break"><p class="m-0" onclick="Collapse(this)">@account.Name</p></td>
-                            <td class="text-break"><p class="m-0">@account.Role</p></td>
+                            <td class="text-break d-none d-lg-table-cell"><p class="m-0">@Regex.Replace(account.Role, "(\\B[A-Z])", " $1")</p></td>
 
                             @if (string.IsNullOrEmpty(Model.Id))
                             {
                                 if (account.CanLeaveAccount)
                                 {
-                                    <td class="text-break"><i class="fa fa-sign-out-alt cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@account.UserId', true, '@account.Id')"></i></td>
+                                    <td class="text-break d-none d-lg-table-cell"><i class="fa fa-sign-out-alt cursor-pointer text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@account.UserId', true, '@account.Id')"></i></td>
                                 }
                                 else
                                 {
-                                    <td><i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="@account.GetMessage()"></i></td>
+                                    <td class="d-none d-lg-table-cell"><i class="fa fa-info-circle text-secondary cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="@account.GetMessage()"></i></td>
                                 }
                             }
                         </tr>

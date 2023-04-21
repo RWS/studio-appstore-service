@@ -37,27 +37,30 @@
     </div>
 </div>
 
-<form id="form" class="m-0 px-1 py-3 d-flex">
-    <div class="d-flex align-items-center me-2">
-        <p class="m-0">@Model.Plugins.Count() Resources available</p>
-    </div>
-    
-    <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white @(Model.Filters.Any(x => x.IsSelected) ? "" : "d-none")" href="@Url.Action("Index")">
-        <i class="fa fa-times-circle"></i>
-        Clear all
-    </a>
-    @foreach (var item in Model.Filters)
-    {
-        if (item.IsSelected)
+<form id="form" class="m-0 py-3">
+    <div class="d-flex">
+        <a class="delete-filter me-1 delete-filter-active text-decoration-none text-white @(Model.Filters.Any(x => x.IsSelected) ? "" : "d-none")" href="@Url.Action("Index")">
+            <i class="fa fa-times-circle"></i>
+            Clear all
+        </a>
+
+        @foreach (var item in Model.Filters)
         {
-            <label for="@item.Id" class="delete-filter me-1 delete-filter-active">
-                <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear @item.Id filter"></i>
-                @item.Label
-                <input hidden type="checkbox" id="@item.Id" name="@item.Id" value="@item.Value" onchange="this.form.submit()" checked />
-            </label>
+            if (item.IsSelected)
+            {
+                <label for="@item.Id" class="delete-filter me-1 delete-filter-active">
+                    <i class="fas fa-times-circle cursor-pointer delete-filter-img" aria-label="Clear @item.Id filter"></i>
+                    @item.Label
+                    <input hidden type="checkbox" id="@item.Id" name="@item.Id" value="@item.Value" onchange="this.form.submit()" checked />
+                </label>
+            }
         }
-    }
+    </div>
 </form>
+
+<div class="d-flex align-items-center me-2">
+    <p class="m-0">@Model.Plugins.Count() Resources available</p>
+</div>
 
 <div id="configToolPage">
     <div class="row justify-content-center">
@@ -94,15 +97,21 @@
                                     <a class="focus-transparent me-3" aria-label="Edit @plugin.Name" asp-controller="Plugins" asp-action="Edit" asp-route-id="@plugin.Id"><i class="fas fa-pen-alt"></i></a>
                                     if (plugin.NeedsDeletionApproval)
                                     {
-                                        if (ExtendedUser.IsInRole("SystemAdministrator"))
+                                        if (ExtendedUser.IsInRole("System Administrator"))
                                         {
                                             <div class="p-0 fs-inherit position-relative d-flex">
                                                 <div class="btn-group">
-                                                    <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                                    <i class="fa fa-trash-alt align-self-center cursor-pointer" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"></i>
                                                     <div class="dropdown-menu">
                                                         <div class="d-flex p-2">
-                                                            <button class="btn pa-admin-success-btn me-2" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('AcceptDeletion', '@plugin.Id')">Approve</button>
-                                                            <button class="btn btn-danger" onclick="Delete('RejectDeletion', '@plugin.Id', false)">Reject</button>
+                                                            <button class="btn pa-admin-success-btn me-2 text-nowrap" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="Delete('AcceptDeletion', '@plugin.Id')">
+                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                                                                Approve
+                                                            </button>
+                                                            <button class="btn btn-danger text-nowrap" onclick="Delete('RejectDeletion', '@plugin.Id', false)">
+                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                                                                Reject
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>

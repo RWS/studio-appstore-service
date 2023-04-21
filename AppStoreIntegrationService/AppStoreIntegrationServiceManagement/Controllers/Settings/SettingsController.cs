@@ -9,7 +9,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Area("Settings")]
     [Authorize]
     [AccountSelect]
-    [RoleAuthorize("SystemAdministrator")]
+    [RoleAuthorize("System Administrator")]
     public class SettingsController : Controller
     {
         private readonly ISettingsManager _settingsManager;

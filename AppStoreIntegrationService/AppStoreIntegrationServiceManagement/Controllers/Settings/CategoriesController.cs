@@ -10,7 +10,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Authorize]
     [DBSynched]
     [AccountSelect]
-    [RoleAuthorize("SystemAdministrator")]
+    [RoleAuthorize("System Administrator")]
     public class CategoriesController : Controller
     {
         private readonly ICategoriesRepository _categoriesRepository;

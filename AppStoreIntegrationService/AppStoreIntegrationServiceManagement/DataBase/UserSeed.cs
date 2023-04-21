@@ -62,7 +62,7 @@ namespace AppStoreIntegrationServiceManagement.DataBase
                 AccountId = account.Id,
                 UserProfileId = user.Id,
                 Id = Guid.NewGuid().ToString(),
-                UserRoleId = _rolesManager.GetRoleByName("SystemAdministrator").Id
+                UserRoleId = _rolesManager.GetRoleByName("System Administrator").Id
             }).Wait();
         }
 
@@ -73,7 +73,7 @@ namespace AppStoreIntegrationServiceManagement.DataBase
                 return;
             }
 
-            var roles = new[] { "SystemAdministrator", "Administrator", "Developer" };
+            var roles = new[] { "System Administrator", "Administrator", "Developer" };
             foreach (var role in roles)
             {
                 _ = _rolesManager.TryAddRole(new UserRole

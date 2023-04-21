@@ -15,7 +15,7 @@ function DismissUser(userId, isCurrentUser = false, accountId = '') {
 
         data.set("UserId", userId);
         data.set("AccountId", accountId);
-        SendPostRequest('/Identity/Account/Dismiss',data)
+        SendPostRequest('/Identity/Account/Dismiss', data)
     }
 }
 
@@ -59,15 +59,16 @@ function CheckUserExistance() {
         request.onreadystatechange = function () {
             if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
                 if (request.responseText.includes("div")) {
-                    HttpRequestCallback(request.responseText, true);
+                    HttpRequestCallback(request.responseText, button);
                     feedbackElement.innerText = null;
-                } else {
-                    var response = JSON.parse(request.responseText);
-                    feedbackElement.className = null;
-                    feedbackElement.innerText = response.message;
-                    feedbackElement.classList.add(response.isErrorMessage ? "text-danger" : "text-success");
-                    userInfo.classList.remove(response.isErrorMessage ? null : "d-none");
+                    return;
                 }
+
+                var response = JSON.parse(request.responseText);
+                feedbackElement.className = null;
+                feedbackElement.innerText = response.message;
+                feedbackElement.classList.add(response.isErrorMessage ? "text-danger" : "text-success");
+                userInfo.classList.remove(response.isErrorMessage ? null : "d-none");
 
                 ToggleLoader(button)
             }

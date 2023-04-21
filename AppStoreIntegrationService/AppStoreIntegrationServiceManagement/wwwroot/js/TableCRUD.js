@@ -45,7 +45,7 @@
             request.onreadystatechange = () => {
                 if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
                     if (request.responseText.includes('div')) {
-                        HttpRequestCallback();
+                        HttpRequestCallback(request.responseText);
                         return;
                     }
 
@@ -64,6 +64,7 @@
         request.onreadystatechange = function () {
             if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
                 document.getElementById("newRowPartial").innerHTML = request.responseText;
+                InitTooltips();
             }
         }
 

@@ -15,12 +15,12 @@ namespace AppStoreIntegrationServiceManagement.DataBase
                         Description = $"Parameter cannot be null: {nameof(item)}"
                     });
 
-                    return false;
+                    return true;
                 }
             }
 
             result = null;
-            return true;
+            return false;
         }
     }
 }

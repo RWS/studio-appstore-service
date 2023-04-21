@@ -62,7 +62,8 @@ namespace AppStoreIntegrationServiceManagement.Repository
 
             return userRole switch
             {
-                "Administrator" => plugin.Drafts.Any(v => v.VersionId == versionId && v.HasAdminConsent),
+                "System Administrator" => plugin.Drafts.Any(v => v.VersionId == versionId && v.HasAdminConsent),
+                "Administrator" => plugin.Drafts.Any(v => v.VersionId == versionId),
                 "Developer" => plugin.Drafts.Any(v => v.VersionId == versionId),
                 _ => false
             };

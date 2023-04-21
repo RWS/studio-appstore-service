@@ -28,7 +28,7 @@
             </div>
             <div class="d-none">
                 <div class="mb-3">
-                    <label asp-for="SalesForceName" class="form-label">SalesForce name</label>
+                    <label asp-for="SalesForceName" class="form-label">SalesForce Name</label>
                     <input asp-for="SalesForceName" class="form-control fs-inherit" />
                 </div>
                 <div class="mb-3">
@@ -40,11 +40,11 @@
                     <input asp-for="OosId" class="form-control fs-inherit" />
                 </div>
                 <div class="mb-3">
-                    <label asp-for="UserRole" class="form-label"></label>
+                    <label asp-for="UserRole" class="form-label">User Role</label>
                     <select class="fs-inherit pa-admin-select w-100" asp-for="UserRole">
-                        @if (ExtendedUser.IsInRole("SystemAdministrator"))
+                        @if (ExtendedUser.IsInRole("System Administrator"))
                         {
-                            <option value="SystemAdministrator">SystemAdministrator</option>
+                            <option value="System Administrator">System Administrator</option>
                         }
 
                         <option value="Administrator">Administrator</option>

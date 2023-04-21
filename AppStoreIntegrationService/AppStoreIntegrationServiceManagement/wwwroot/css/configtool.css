@@ -278,6 +278,39 @@ table {
     z-index: 1021;
 }
 
+/* Tech Partner Agreement */
+
+.agreement h2 {
+    color: #2F5496;
+}
+
+ol {
+  list-style-type: none;
+  counter-reset: item;
+  margin: 0;
+  padding: 0;
+}
+
+ol > li {
+  display: table;
+  counter-increment: item;
+  margin-bottom: 0.6em;
+}
+
+ol > li:before {
+  content: counters(item, ".") ". ";
+  display: table-cell;
+  padding-right: 0.6em;    
+}
+
+li ol > li {
+  margin: 0;
+}
+
+li ol > li:before {
+  content: counters(item, ".") ". ";
+}
+
 /* Generic */
 
 .fw-500{
@@ -358,12 +391,12 @@ input[type="checkbox"]:checked {
     font-family: var(--pa-admin-input-fontfamily) !important;
 }
 
-.input-group-text {
+/*.input-group-text {
     color: var(--pa-admin-input-foreground) !important;
     background-color: var(--pa-admin-input-color) !important;
     font-size: var(--pa-admin-input-fontsize) !important;
     font-family: var(--pa-admin-input-fontfamily) !important;
-}
+}*/
 
 .fa-check-circle {
     color: var(--pa-admin-success-color);
@@ -518,6 +551,12 @@ header {
 @media(max-width: 576px) {
     #newAppButton .pa-admin-success-btn {
         width: 100%;
+    }
+}
+
+@media(min-width: 992px){
+    .fw-lg-normal {
+        font-weight: 400 !important;
     }
 }
 

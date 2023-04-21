@@ -1,7 +1,7 @@
 ﻿@model ExtendedProductDetails
 
 <tr class="table-row d-flex flex-column d-lg-table-row" id="newDataRow">
-    <td class="align-middle">
+    <td class="align-middle d-none d-lg-table-cell">
         <p class="m-0">@Model.Id</p>
         <input hidden asp-for="@Model.Id" />
     </td>
@@ -15,6 +15,10 @@
     </td>
     <td class="align-middle"><select asp-for="ParentProductID" asp-items="@Model.ParentProductsListItems" class="pa-admin-select form-select-sm fs-inherit w-100"></select></td>
     <td class="text-center align-middle"><input class="fs-inherit" asp-for="@Model.IsLegacy" aria-label="@Model.IsLegacy" /></td>
-    <td class="text-center align-middle"><i onclick="table.Save()" title="Save new product" class="fa fa-check-circle success-icon cursor-pointer align-middle"></i></td>
-    <td class="text-center align-middle"><i onclick="table.Discard()" title="Discard new product" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i></td>
+    <td class="text-center align-middle">
+        <i onclick="table.Save()" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Save" class="fa fa-check-circle success-icon cursor-pointer align-middle"></i>
+    </td>
+    <td class="text-center align-middle">
+        <i onclick="table.Discard()" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Discard" class="fa fa-times-circle text-danger cursor-pointer align-middle"></i>
+    </td>
 </tr>

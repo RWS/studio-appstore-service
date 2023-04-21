@@ -61,7 +61,8 @@ namespace AppStoreIntegrationServiceManagement.Repository
             try
             {
                 var email = MailHelper.CreateSingleEmail(new EmailAddress("catot@sdl.com"), new EmailAddress(notification.Author), "RWS Account notification", null, notification.ToHtml());
-                _ = await _sendGridClient.SendEmailAsync(email);
+                var result = await _sendGridClient.SendEmailAsync(email);
+                var content = await result.Body.ReadAsStringAsync();
                 return IdentityResult.Success;
             }
             catch (Exception ex)

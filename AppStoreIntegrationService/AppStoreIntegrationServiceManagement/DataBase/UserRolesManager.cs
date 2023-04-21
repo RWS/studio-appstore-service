@@ -76,7 +76,7 @@ namespace AppStoreIntegrationServiceCore.DataBase
             var roles = new[]
             {
                 new UserRole { Name = "Administrator" },
-                new UserRole { Name = "SystemAdministrator" },
+                new UserRole { Name = "System Administrator" },
             };
 
             return roles.Any(x => x.Equals(role));

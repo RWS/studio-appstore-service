@@ -22,7 +22,9 @@
                         <tr class="align-middle d-none d-lg-table-row">
                             <th>Id</th>
                             <th>Name</th>
-                            <td class="icon-cell text-center"><i onclick="table.Add()" title="Add new category" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
+                            <td class="icon-cell text-center">
+                                <i onclick="table.Add()" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new" class="fa fa-plus-circle success-icon cursor-pointer"></i>
+                            </td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
@@ -43,13 +45,15 @@
                                         </div>
                                     </td>
                                     <td class="order-first">
-                                        <p class="m-0 align-self-center text-center text-lg-start" onclick="Collapse(this)">@category.Name</p>
+                                        <p class="m-0 fw-bold fw-lg-normal align-self-center text-center text-lg-start" onclick="Collapse(this)">@category.Name</p>
                                     </td>
                                     <td class="text-center align-middle d-none d-lg-table-cell">
-                                        <i class="fa fa-pen-alt cursor-pointer" title="Edit @category.Name" onclick="EnsurePreserved(() => table.Edit('@category.Id'))"></i>
+                                        <i class="fa fa-pen-alt cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" onclick="EnsurePreserved(() => table.Edit('@category.Id'))"></i>
                                     </td>
                                     <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-                                        <i class="fa fa-trash-alt row-eraser cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" title="Delete @category.Name" onclick="table.Delete('@category.Id')"></i>
+                                        <span role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                            <i class="fa fa-trash-alt row-eraser cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="table.Delete('@category.Id')"></i>
+                                        </span>
                                     </td>
                                 </tr>
                             }

@@ -39,7 +39,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> ClearAll(int id)
         {
             await _loggingRepository.ClearLogs(id);

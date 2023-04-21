@@ -33,7 +33,7 @@ namespace AppStoreIntegrationServiceManagement.Filters
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var user = _userProfilesManager.GetUser(context.HttpContext.User);
-            var role = _userRolesManager.GetRoleByName("SystemAdministrator");
+            var role = _userRolesManager.GetRoleByName("System Administrator");
             var account = _accountsManager.GetAccountById(user.SelectedAccountId);
             var userRole = _userAccountsManager.GetUserRoleForAccount(user, account);
 

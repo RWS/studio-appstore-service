@@ -158,7 +158,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         {
             IResponseManager repository = new AzureRepositoryMock(InitPluginResponse());
             var pluginRepository = new PluginRepository(repository);
-            var plugins = await pluginRepository.GetAll("asc", userRole: "SystemAdministrator");
+            var plugins = await pluginRepository.GetAll("asc", userRole: "System Administrator");
 
             Assert.Equal(new List<PluginDetails>
             {
@@ -177,7 +177,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
             IResponseManager repository = new AzureRepositoryMock(InitPluginResponse());
             var pluginRepository = new PluginRepository(repository);
 
-            var plugins = await pluginRepository.GetAll("asc", userRole: "SystemAdministrator", status: Status.Draft);
+            var plugins = await pluginRepository.GetAll("asc", userRole: "System Administrator", status: Status.Draft);
 
             Assert.Equal(new List<PluginDetails>
             {
@@ -191,7 +191,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         {
             IResponseManager repository = new AzureRepositoryMock(InitPluginResponse());
             var pluginRepository = new PluginRepository(repository);
-            var plugins = await pluginRepository.GetAll("asc", userRole: "SystemAdministrator", status: Status.InReview);
+            var plugins = await pluginRepository.GetAll("asc", userRole: "System Administrator", status: Status.InReview);
 
             Assert.Equal(new List<PluginDetails>
             {
@@ -208,7 +208,7 @@ namespace AppStoreIntegrationServiceTests.AppStoreIntegrationServiceManagementTe
         {
             IResponseManager repository = new AzureRepositoryMock(InitPluginResponse());
             var pluginRepository = new PluginRepository(repository);
-            var plugins = await pluginRepository.GetAll("asc", userRole: "SystemAdministrator", status: status);
+            var plugins = await pluginRepository.GetAll("asc", userRole: "System Administrator", status: status);
 
             Assert.Equal(new List<PluginDetails>
             {

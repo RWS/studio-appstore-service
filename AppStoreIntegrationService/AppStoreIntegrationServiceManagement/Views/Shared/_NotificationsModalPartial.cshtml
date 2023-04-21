@@ -1,7 +1,7 @@
 ﻿@inherits CustomRazorPage<object>
 @inject INotificationCenter notificationCenter
 @{
-    var count = !ExtendedUser.PushNotificationsEnabled ? 0 : await notificationCenter.GetNotificationsCount(ExtendedUser.IsInRole("SystemAdministrator") ? ExtendedUser.AccountName : User.Identity.Name);
+    var count = !ExtendedUser.PushNotificationsEnabled ? 0 : await notificationCenter.GetNotificationsCount(ExtendedUser.AccountName);
 }
 
 <div class="btn-group dropstart notifications">
@@ -28,7 +28,7 @@
                     <div class="input-group">
                         <input type="text" class="form-control form-control-sm" name="NotificationQuery" id="NotificationQuery" autocomplete="off" placeholder="Search notification" aria-label="Search notification">
                         <span class="input-group-text p-1 bg-light">
-                            <button onclick="LoadNotifications(false, false, false)" class="border-0 bg-white"><i aria-label="Submit search" class="fa fa-search filter-search-submit"></i></button>
+                            <button onclick="LoadNotifications(false, false, false)" class="border-0 bg-light"><i aria-label="Submit search" class="fa fa-search filter-search-submit"></i></button>
                         </span>
                     </div>
                 </div>

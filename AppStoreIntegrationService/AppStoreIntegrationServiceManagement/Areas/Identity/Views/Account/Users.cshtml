@@ -35,7 +35,7 @@
                                 <td class="align-middle px-3 d-none d-lg-table-cell">@user.Email</td>
                                 <td class="align-middle px-3 d-none d-lg-table-cell">
                                     <a asp-controller="Account" asp-action="Profile" asp-route-id="@user.Id">
-                                        <i class="fa fa-eye cursor-pointer text-secondary"></i>
+                                        <i class="fa fa-eye cursor-pointer text-secondary" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="View details"></i>
                                     </a>
                                 </td>
                             </tr>

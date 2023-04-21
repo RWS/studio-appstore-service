@@ -26,7 +26,9 @@
                             <th>ProductVersion</th>
                             <th>ProductParentId</th>
                             <th class="text-center">IsLegacy</th>
-                            <td class="icon-cell text-center"><i onclick="table.Add()" title="Add new product" class="fa fa-plus-circle success-icon cursor-pointer"></i></td>
+                            <td class="icon-cell text-center">
+                                <i onclick="table.Add()" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Add new" class="fa fa-plus-circle success-icon cursor-pointer"></i>
+                            </td>
                             <td class="icon-cell"></td>
                         </tr>
                     </thead>
@@ -43,35 +45,37 @@
                                     <td class="d-none d-lg-table-cell">
                                         <div class="input-group">
                                             <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Id</span>
-                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@product.Id</p>
+                                            <p class="m-0 w-50 align-self-center text-center text-lg-start">@product.Id</p>
                                         </div>
                                     </td>
                                     <td class="order-first">
-                                        <p class="m-0 align-self-center text-center text-lg-start" onclick="Collapse(this)">@product.ProductName</p>
+                                        <p class="m-0 fw-bold fw-lg-normal align-self-center text-center text-lg-start" onclick="Collapse(this)">@product.ProductName</p>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
                                         <div class="input-group">
                                             <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">Version</span>
-                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@product.MinimumStudioVersion</p>
+                                            <p class="m-0 w-50 align-self-center text-center text-lg-start">@product.MinimumStudioVersion</p>
                                         </div>
                                     </td>
                                     <td class="d-none d-lg-table-cell">
                                         <div class="input-group">
                                             <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">ParentId</span>
-                                            <p class="m-0 w-100 align-self-center text-center text-lg-start">@product.ParentProductID</p>
+                                            <p class="m-0 w-50 align-self-center text-center text-lg-start">@product.ParentProductID</p>
                                         </div>
                                     </td>
                                     <td class="d-none d-lg-table-cell align-middle">
-                                        <div class="input-group text-center">
+                                        <div class="input-group text-center justify-content-lg-center">
                                             <span class="input-group-text text-center w-50 d-inline d-lg-none border-0">IsLegacy</span>
-                                            <p class="m-0 w-100 align-self-center"><i class="fa @(product.IsLegacy ? "fa-check-circle" : "fa-times-circle")"></i></p>
+                                            <p class="m-0 w-50 align-self-center"><i class="fa @(product.IsLegacy ? "fa-check-circle" : "fa-times-circle")"></i></p>
                                         </div>
                                     </td>
                                     <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-                                        <i class="fa fa-pen-alt cursor-pointer" title="Edit @product.ProductName" onclick="EnsurePreserved(() => { table.Edit('@product.Id') })"></i>
+                                        <i class="fa fa-pen-alt cursor-pointer" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" onclick="EnsurePreserved(() => { table.Edit('@product.Id') })"></i>
                                     </td>
                                     <td class="icon-cell text-center align-middle d-none d-lg-table-cell">
-                                        <i class="fa fa-trash-alt cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" title="Delete @product.ProductName" onclick="table.Delete('@product.Id')"></i>
+                                        <span role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                            <i class="fa fa-trash-alt cursor-pointer" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="table.Delete('@product.Id')"></i>
+                                        </span>
                                     </td>
                                 </tr>
                             }

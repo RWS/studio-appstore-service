@@ -11,10 +11,11 @@
                 <p class="m-0 mb-3">This user exists in our database! Do you want to assign it under your account?</p>
                 <form id="assignmentForm" onsubmit="return false">
                     <input hidden asp-for="UserId" />
+                    <label asp-for="UserRole" class="form-label">User Role</label>
                     <select class="fs-inherit pa-admin-select w-100" asp-for="UserRole">
-                        @if (ExtendedUser.IsInRole("SystemAdministrator"))
+                        @if (ExtendedUser.IsInRole("System Administrator"))
                         {
-                            <option value="SystemAdministrator">SystemAdministrator</option>
+                            <option value="System Administrator">System Administrator</option>
                         }
 
                         <option value="Administrator">Administrator</option>

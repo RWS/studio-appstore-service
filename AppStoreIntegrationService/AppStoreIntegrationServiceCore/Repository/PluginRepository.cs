@@ -68,7 +68,7 @@ namespace AppStoreIntegrationServiceManagement.Repository
             {
                 "Developer" => plugins?.Where(p => p.Developer.DeveloperName == username),
                 "Administrator" => plugins?.Where(p => p.Developer.DeveloperName == username),
-                "SystemAdministrator" => plugins?.Where(p => p.Status != Status.Draft || p.HasAdminConsent),
+                "System Administrator" => plugins?.Where(p => p.Status != Status.Draft || p.HasAdminConsent),
                 _ => plugins
             };
         }
@@ -101,7 +101,7 @@ namespace AppStoreIntegrationServiceManagement.Repository
             var drafts = await GetAll(null, status: Status.Draft);
             return userRole switch
             {
-                "SystemAdministrator" => drafts.Any(p => p.Id == id && p.HasAdminConsent),
+                "System Administrator" => drafts.Any(p => p.Id == id && p.HasAdminConsent),
                 "Developer" => drafts.Any(p => p.Id == id),
                 "Administrator" => drafts.Any(p => p.Id == id),
                 _ => false

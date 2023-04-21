@@ -16,7 +16,14 @@
                     @foreach (var item in Model.Accounts)
                     {
                         <label class="custom-label w-100 cursor-pointer">
-                            <input type="radio" asp-for="SelectedAccountId" value="@item.Id" class="custom-radio d-none" />
+                            @if (item.Id == Model.Accounts.FirstOrDefault().Id)
+                            {
+                                <input type="radio" asp-for="SelectedAccountId" value="@item.Id" class="custom-radio d-none" checked />
+                            }
+                            else
+                            {
+                                <input type="radio" asp-for="SelectedAccountId" value="@item.Id" class="custom-radio d-none" />
+                            }
                             <div class="w-100 p-2">@item.Name</div>
                         </label>
                     }
@@ -41,9 +48,13 @@
             {
                 <h3 class="text-start">Warning!</h3>
                 <hr />
-                <p class="fw-500 text-secondary">You are not assigned to any Account from AppStore Manager. To be able to access this website, you need to be invited!</p>
+                <p class="fw-500 text-secondary">You are not assigned to any Account from AppStore Manager. To be able to access this website, you first need to create an Account or be invited to one!</p>
                 <a asp-controller="Authentication" asp-action="Logout" class="btn btn-outline-secondary">Logout</a>
             }
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

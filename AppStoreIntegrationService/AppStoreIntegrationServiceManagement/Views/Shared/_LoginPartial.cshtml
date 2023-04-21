@@ -7,7 +7,7 @@
             <a onclick="EnsurePreserved(() => { window.location.href = '/Plugins' })" class="nav-link cursor-pointer active header-link">Plugins List</a>
         </li>
 
-        if (ExtendedUser.IsInRole("SystemAdministrator"))
+        if (ExtendedUser.IsInRole("System Administrator"))
         {
             <li class="nav-item">
                 <a onclick="EnsurePreserved(() => { window.location.href = '/Settings' })" class="nav-link active cursor-pointer header-link">Settings</a>

@@ -39,23 +39,29 @@
                             {
                                 <tr class="text-center d-flex flex-column d-lg-table-row bg-white" id="itemsRow">
                                     <td class="text-break align-middle"><p class="m-0" onclick="Collapse(this)">@user.Name</p></td>
-                                    <td class="align-middle px-3 d-none d-lg-table-cell">@user.Role</td>
+                                    <td class="align-middle px-3 d-none d-lg-table-cell">@Regex.Replace(user.Role, "(\\B[A-Z])", " $1")</td>
 
                                     @if (user.CanBeManaged)
                                     {
                                         if (user.IsCurrentUser)
                                         {
                                             <td class="align-middle px-3 d-none d-lg-table-cell" colspan="2">
-                                                <i class="fa fa-sign-out-alt cursor-pointer delete-user-btn text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@user.Id', @Json.Serialize(user.IsCurrentUser))"></i>
+                                                <span role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Leave account">
+                                                    <i class="fa fa-sign-out-alt cursor-pointer delete-user-btn text-danger" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@user.Id', @Json.Serialize(user.IsCurrentUser))"></i>
+                                                </span>
                                             </td>
                                         }
                                         else
                                         {
                                             <td class="align-middle px-3 d-none d-lg-table-cell">
-                                                <i class="fa fa-user-minus cursor-pointer delete-user-btn text-secondary" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@user.Id', @Json.Serialize(user.IsCurrentUser))"></i>
+                                                <span role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove user">
+                                                    <i class="fa fa-user-times cursor-pointer delete-user-btn text-danger" data-bs-toggle="modal" data-bs-target="#confirmationModal" onclick="DismissUser('@user.Id', @Json.Serialize(user.IsCurrentUser))"></i>
+                                                </span>
                                             </td>
                                             <td class="align-middle px-3 d-none d-lg-table-cell">
-                                                <i class="fa fa-pen-alt cursor-pointer" onclick="EnsurePreserved(() => table.Edit('@user.Id'))"></i>
+                                                <span role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit role">
+                                                    <i class="fa fa-pen-alt cursor-pointer" onclick="EnsurePreserved(() => table.Edit('@user.Id'))"></i>
+                                                </span>
                                             </td>
                                         }
                                     }
@@ -87,7 +93,7 @@
 
 <div id="partialContainer"></div>
 
-<partial name="_ModalPartial" model="@(new ModalMessage { Message = "Are you sure you want to dismiss this user?" })" />
+<partial name="_ModalPartial" model="@(new ModalMessage { Message = $"Are you sure you want to remove this user from {ExtendedUser.AccountName}?" })" />
 
 <script src="~/js/TableCrud.js" asp-append-version="true"></script>
 <script src="~/js/ManageUsersScript.js"></script>

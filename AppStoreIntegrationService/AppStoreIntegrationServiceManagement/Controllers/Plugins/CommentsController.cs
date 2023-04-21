@@ -100,7 +100,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer");
             await _notificationCenter.Push(pushNotification);
-            await _notificationCenter.Broadcast(emailNotification, "SystemAdministrator");
+            await _notificationCenter.Broadcast(emailNotification, "System Administrator");
             await _notificationCenter.Push(pushNotification);
         }
 

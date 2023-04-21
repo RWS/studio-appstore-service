@@ -37,14 +37,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         }
 
         [Route("Settings/ExportPlugins")]
-        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        [RoleAuthorize("System Administrator", "Administrator")]
         public IActionResult Export()
         {
             return View();
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        [RoleAuthorize("System Administrator", "Administrator")]
         public async Task<IActionResult> CreateExport()
         {
             var response = await _responseManager.GetResponse();
@@ -54,14 +54,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
         }
 
         [Route("Settings/ImportPlugins")]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public IActionResult Import()
         {
             return View(new ImportPluginsModel());
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> CreateImport(ImportPluginsModel import)
         {
             var modalDetails = new ModalMessage

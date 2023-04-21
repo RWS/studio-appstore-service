@@ -10,6 +10,7 @@ using AppStoreIntegrationServiceManagement.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using NuGet.Protocol.Plugins;
 
 namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 {
@@ -82,7 +83,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             extendedPlugin.IsEditMode = true;
             extendedPlugin.Parents = await _productsRepository.GetAllParents();
-            extendedPlugin.Versions = versions.Where(v => v.IsThirdParty && ExtendedUser.IsInRole("Developer") || ExtendedUser.IsInRole("SystemAdministrator") && v.HasAdminConsent).ToList();
+            extendedPlugin.Versions = versions.Where(v => v.IsThirdParty && ExtendedUser.IsInRole("Developer") || ExtendedUser.IsInRole("System Administrator") && v.HasAdminConsent).ToList();
 
             var extendedVersion = new ExtendedPluginVersion
             {
@@ -114,30 +115,22 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Activate")]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> Activate(int pluginId, PluginVersion version)
         {
+            var oldVersion = await _pluginVersionRepository.GetPluginVersion(pluginId, version.VersionId);
             version.VersionStatus = Status.Active;
-            await _loggingRepository.Log(new Log
-            {
-                Author = ExtendedUser.AccountName,
-                Description = TemplateResource.VersionActiveLog,
-                TargetInfo = version.VersionNumber
-            }, pluginId);
+            await _loggingRepository.Log(new Log(version, oldVersion, ExtendedUser.AccountName), pluginId);
             return await Save(pluginId, version, "Edit");
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Deactivate")]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> Deactivate(int pluginId, PluginVersion version)
         {
+            var oldVersion = await _pluginVersionRepository.GetPluginVersion(pluginId, version.VersionId);
             version.VersionStatus = Status.Inactive;
-            await _loggingRepository.Log(new Log
-            {
-                Author = ExtendedUser.AccountName,
-                Description = TemplateResource.VersionInactiveLog,
-                TargetInfo = version.VersionNumber
-            }, pluginId);
+            await _loggingRepository.Log(new Log(version, oldVersion, ExtendedUser.AccountName), pluginId);
             return await Save(pluginId, version, "Edit");
         }
 
@@ -162,7 +155,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Approve")]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> Approve(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -181,7 +174,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/Reject")]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> Reject(int pluginId, PluginVersion version, bool removeOtherVersions = false)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -196,7 +189,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.RejectedVersionLog,
+                Description = "<b>{0}</b> rejected the changes for the version with number <b>{1}</b> at {2}",
                 TargetInfo = version.VersionNumber
             }, pluginId);
 
@@ -246,7 +239,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.VersionDeletionRequestLog,
+                Description = "<b>{0}</b> sent a deletion request for version with number <b>{1}</b> at {2}",
                 TargetInfo = version.VersionNumber
             }, pluginId);
             TempData["StatusMessage"] = "Success! Version deletion request was sent!";
@@ -254,7 +247,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/AcceptDeletion/{versionId}")]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> AcceptDeletion(int pluginId, string versionId)
         {
             var plugin = await _pluginRepository.GetPluginById(pluginId);
@@ -269,14 +262,14 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.VersionDeletionAcceptedLog,
+                Description = "<b>{0}</b> accepted the deletion request for version with number <b>{1}</b> at {2}",
                 TargetInfo = version.VersionNumber
             }, pluginId);
             return await Delete(pluginId, versionId);
         }
 
         [HttpPost("/Plugins/Edit/{pluginId}/Versions/RejectDeletion/{versionId}")]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public async Task<IActionResult> RejectDeletion(int pluginId, string versionId)
         {
             var version = await _pluginVersionRepository.GetPluginVersion(pluginId, versionId);
@@ -292,7 +285,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.VersionDeletionRejectedLog,
+                Description = "<b>{0}</b> rejected the deletion request for version with number <b>{1}</b> at {2}",
                 TargetInfo = version.VersionNumber
             }, pluginId);
             await _pluginVersionRepository.Save(pluginId, version);
@@ -307,7 +300,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
             await _loggingRepository.Log(new Log
             {
                 Author = ExtendedUser.AccountName,
-                Description = TemplateResource.VersionRemovedLog,
+                Description = "<b>{0}</b> removed the version with number <b>{1}</b> at {2}",
                 TargetInfo = version.VersionNumber
             }, pluginId);
             await _pluginVersionRepository.RemovePluginVersion(pluginId, versionId);
@@ -319,17 +312,17 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
         {
             if (version.IsThirdParty)
             {
-                return ExtendedUser.IsInRoles("Developer", "Administrator") || ExtendedUser.IsInRole("SystemAdministrator") && version.HasAdminConsent;
+                return ExtendedUser.IsInRoles("Developer", "Administrator") || ExtendedUser.IsInRole("System Administrator") && version.HasAdminConsent;
             }
 
-            return ExtendedUser.IsInRole("SystemAdministrator");
+            return ExtendedUser.IsInRole("System Administrator");
         }
 
         private async Task Notify(EmailNotification emailNotification, PushNotification pushNotification)
         {
             await _notificationCenter.Broadcast(emailNotification, "Administrator", "Developer");
             await _notificationCenter.Push(pushNotification);
-            await _notificationCenter.Broadcast(emailNotification, "SystemAdministrator");
+            await _notificationCenter.Broadcast(emailNotification, "System Administrator");
             await _notificationCenter.Push(pushNotification);
         }
 
@@ -392,7 +385,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Plugins
 
             extendedPlugin.Parents = await _productsRepository.GetAllParents();
             extendedPlugin.IsEditMode = true;
-            extendedPlugin.Versions = versions.Where(v => !v.IsThirdParty || ExtendedUser.IsInRole("Developer") || v.VersionStatus == Status.Active || ExtendedUser.IsInRole("SystemAdministrator") && v.HasAdminConsent).ToList();
+            extendedPlugin.Versions = versions.Where(v => !v.IsThirdParty || ExtendedUser.IsInRole("Developer") || v.VersionStatus == Status.Active || ExtendedUser.IsInRole("System Administrator") && v.HasAdminConsent).ToList();
 
             extendedVersion.SupportedProductsListItems = new MultiSelectList(await _productsRepository.GetAllProducts(), nameof(ProductDetails.Id), nameof(ProductDetails.ProductName));
             extendedVersion.PluginId = pluginId;

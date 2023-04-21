@@ -67,7 +67,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return View(currentUser);
             }
 
-            if (ExtendedUser.IsInRole("SystemAdministrator"))
+            if (ExtendedUser.IsInRole("System Administrator"))
             {
                 return View(wantedUser);
             }
@@ -78,22 +78,32 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
         [HttpPost]
         public async Task<IActionResult> ChangeRole(string role, string id)
         {
+            var results = new List<IdentityResult>();
             var user = _userProfilesManager.GetUserById(id);
             var currentUser = _userProfilesManager.GetUser(User);
             var account = _accountsManager.GetAccountById(currentUser.SelectedAccountId);
-            var result = await _userAccountsManager.ChangeUserRoleForAccount(user, account, role);
 
-            if (result.Succeeded)
+            results.Add(await _userAccountsManager.ChangeUserRoleForAccount(user, account, role));
+            results.Add(await _notificationCenter.SendEmail(new EmailNotification
             {
-                TempData["StatusMessage"] = $"Success! The role for {user.Name.ToUpperFirst()} was changed!";
-                return new EmptyResult();
+                Author = user.Email,
+                Message = account.Name,
+                Title = role,
+                CallToActionUrl = GetUrlBase() + "/Plugins",
+                Type = EmailType.RoleUpdate
+            }));
+
+            if (results.Any(x => !x.Succeeded))
+            {
+                return PartialView("_StatusMessage", $"Error! {results.First(x => !x.Succeeded).Errors.First().Description}");
             }
 
-            return PartialView("_StatusMessage", $"Error! {result.Errors.First().Description}");
+            TempData["StatusMessage"] = $"Success! The role for {user.Name.ToUpperFirst()} on {account.Name} was changed to {role}!";
+            return new EmptyResult();
         }
 
         [Route("/Identity/Account/Users/All")]
-        [RoleAuthorize("SystemAdministrator")]
+        [RoleAuthorize("System Administrator")]
         public IActionResult Users()
         {
             var user = _userProfilesManager.GetUser(User);
@@ -143,7 +153,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 return View((PrepareAccounts(currentUser), ""));
             }
 
-            if (ExtendedUser.IsInRole("SystemAdministrator") && !wantedUser.IsBuiltInAdmin())
+            if (ExtendedUser.IsInRole("System Administrator") && !wantedUser.IsBuiltInAdmin())
             {
                 return View((PrepareAccounts(wantedUser), wantedUser.Id));
             }
@@ -151,19 +161,19 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             return NotFound();
         }
 
-        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        [RoleAuthorize("System Administrator", "Administrator")]
         public IActionResult Register()
         {
             return View(new RegisterModel());
         }
 
         [HttpPost]
-        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        [RoleAuthorize("System Administrator", "Administrator")]
         public async Task<IActionResult> PostRegister(RegisterModel registerModel)
         {
             var currentUser = _userProfilesManager.GetUser(User);
             var user = new UserProfile { Email = registerModel.Email, Id = Guid.NewGuid().ToString() };
-            var createNew = ExtendedUser.IsInRole("SystemAdministrator") && registerModel.UserRole == "Administrator";
+            var createNew = ExtendedUser.IsInRole("System Administrator") && registerModel.UserRole == "Administrator";
             var auth0User = await _auth0UserManager.GetUserByEmail(user?.Email);
             var results = new List<IdentityResult>();
             var account = createNew ? await _accountsManager.TryAddAccount(new Account
@@ -182,7 +192,15 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
                 Id = Guid.NewGuid().ToString(),
                 UserRoleId = _userRolesManager.GetRoleByName(registerModel.UserRole).Id,
             }));
-            results.Add(await Notify(createNew, registerModel.Email, account.Name));
+
+            results.Add(await _notificationCenter.SendEmail(new EmailNotification
+            {
+                Author = user.Email,
+                Message = createNew ? EmailNotification.NewProfileMessage : EmailNotification.NewProfileLinked,
+                Title = account.Name,
+                CallToActionUrl = GetUrlBase() + "/Plugins",
+                Type = EmailType.AccountUpdate
+            }));
 
             if (results.Any(x => !x.Succeeded))
             {
@@ -195,58 +213,86 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
         public async Task<IActionResult> Dismiss(string userId, string accountId = null)
         {
+            var results = new List<IdentityResult>();
             var user = _userProfilesManager.GetUserById(userId);
             var currentUser = _userProfilesManager.GetUser(User);
             var account = _accountsManager.GetAccountById(accountId ?? currentUser.SelectedAccountId);
-            var result = await _userAccountsManager.RemoveUserFromAccount(user, account);
-            await _accountAgreementsManager.Remove(user, account);
 
-            if (result.Succeeded)
+            results.Add(await _userAccountsManager.RemoveUserFromAccount(user, account));
+            results.Add(await _accountAgreementsManager.Remove(user, account));
+            results.Add(await _notificationCenter.SendEmail(new EmailNotification
             {
-                if (user.Id == currentUser.Id)
+                Author = user.Email,
+                Title = account.Name,
+                CallToActionUrl = GetUrlBase() + "/Plugins",
+                Type = EmailType.UserDeletion
+            }));
+
+            if (user.Id == currentUser.Id)
+            {
+                user.SelectedAccountId = null;
+                results.Add(await _userProfilesManager.TryUpdateUserProfile(user));
+
+                if (results.Any(x => !x.Succeeded))
                 {
-                    user.SelectedAccountId = null;
-                    await _userProfilesManager.TryUpdateUserProfile(user);
-                    TempData["StatusMessage"] = string.Format("Success! You left the {0}!", account.Name);
+                    return PartialView("_StatusMessage", string.Format("Error! {0}!", results.First(x => !x.Succeeded).Errors.First().Description));
+                }
+
+                TempData["StatusMessage"] = string.Format("Success! You left {0}!", account.Name);
+
+                if (accountId == currentUser.SelectedAccountId)
+                {
                     return Content("/Identity/Authentication/Accounts");
                 }
 
-                TempData["StatusMessage"] = string.Format("Success! {0} was dismissed succesfully", user.Name.ToUpperFirst());
-                return Content("/Identity/Account/Users/Assigned");
+                return Content("/Identity/Account/Accounts");
             }
 
-            TempData["StatusMessage"] = string.Format("Error! {0}", result.Errors.First().Description);
+            if (results.Any(x => !x.Succeeded))
+            {
+                return PartialView("_StatusMessage", string.Format("Error! {0}!", results.First(x => !x.Succeeded).Errors.First().Description));
+            }
+
+            TempData["StatusMessage"] = string.Format("Success! {0} was removed from your account!", user.Name.ToUpperFirst());
             return Content("/Identity/Account/Users/Assigned");
         }
 
-        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        [RoleAuthorize("System Administrator", "Administrator")]
         public async Task<IActionResult> Assign(AssignModel model)
         {
+            var results = new List<IdentityResult>();
             var user = _userProfilesManager.GetUserById(model.UserId);
             var currentUser = _userProfilesManager.GetUser(User);
             var account = _accountsManager.GetAccountById(currentUser.SelectedAccountId);
             var role = _userRolesManager.GetRoleByName(model.UserRole);
 
-            var result = await _userAccountsManager.TryAddUserToAccount(new UserAccount
+            results.Add(await _userAccountsManager.TryAddUserToAccount(new UserAccount
             {
                 UserProfileId = model.UserId,
                 AccountId = account.Id,
                 UserRoleId = role.Id,
                 Id = Guid.NewGuid().ToString()
-            });
+            }));
 
-            await Notify(false, user.Email, account.Name);
-
-            if (result.Succeeded)
+            results.Add(await _notificationCenter.SendEmail(new EmailNotification
             {
-                TempData["StatusMessage"] = string.Format("Success! {0} was assigned succesfully!", user.Name.ToUpperFirst());
-                return Content("/Identity/Account/Users/Assigned");
+                Author = user.Email,
+                Message = "A user profile identified by this email address was associated to a new account in RWS AppStore Manager:",
+                Title = account.Name,
+                CallToActionUrl = GetUrlBase() + "/Plugins",
+                Type = EmailType.AccountUpdate
+            }));
+
+            if (results.Any(x => !x.Succeeded))
+            {
+                return PartialView("_StatusMessage", string.Format("Error! {0}", results.First(x => !x.Succeeded).Errors.First().Description));
             }
 
-            return PartialView("_StatusMessage", string.Format("{0}", result.Errors.First().Description));
+            TempData["StatusMessage"] = string.Format("Success! {0} was assigned to your account!", user.Name.ToUpperFirst());
+            return Content("/Identity/Account/Users/Assigned");
         }
 
-        [RoleAuthorize("SystemAdministrator", "Administrator")]
+        [RoleAuthorize("System Administrator", "Administrator")]
         public IActionResult CheckUserExistance(string email)
         {
             var user = _userProfilesManager.GetUserByEmail(email);
@@ -277,7 +323,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
             var tokenHandler = new JwtSecurityTokenHandler();
             var user = _userProfilesManager.GetUser(User);
 
-            var securityToken = tokenHandler.CreateToken(new ());
+            var securityToken = tokenHandler.CreateToken(new());
             var token = tokenHandler.WriteToken(securityToken);
             user.APIAccessToken = token;
             var result = await _userProfilesManager.TryUpdateUserProfile(user);
@@ -289,30 +335,6 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Identity
 
             TempData["StatusMessage"] = string.Format("Error! {0}!", result.Errors.First().Description);
             return Content("/Identity/Account/AccessToken");
-        }
-
-        private async Task<IdentityResult> Notify(bool createNew, string email, string account)
-        {
-            if (createNew)
-            {
-                return await _notificationCenter.SendEmail(new EmailNotification
-                {
-                    Author = email,
-                    Message = "A new user profile was created on RWS AppStore Manager using this email address:",
-                    Title = account,
-                    CallToActionUrl = GetUrlBase() + "/Plugins",
-                    IsAccountNotification = true
-                });
-            }
-
-            return await _notificationCenter.SendEmail(new EmailNotification
-            {
-                Author = email,
-                Message = "A user profile identified by this email address was associated to a new account in RWS AppStore Manager:",
-                Title = account,
-                CallToActionUrl = GetUrlBase() + "/Plugins",
-                IsAccountNotification = true
-            });
         }
 
         private IEnumerable<ExtendedAccount> PrepareAccounts(UserProfile user)

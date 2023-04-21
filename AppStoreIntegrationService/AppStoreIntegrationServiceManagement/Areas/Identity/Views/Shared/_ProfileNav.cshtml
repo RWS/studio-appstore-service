@@ -5,7 +5,7 @@
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ProfileNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Profile' })">Profile</a></li>
         <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.ManageNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Users/Assigned' })">Users</a></li>
         
-        @if (ExtendedUser.IsInRole("SystemAdministrator") || ExtendedUser.IsInRole("Administrator"))
+        @if (ExtendedUser.IsInRole("System Administrator") || ExtendedUser.IsInRole("Administrator"))
         {
             <li class="nav-item"><a class="nav-link cursor-pointer option @ManageNavPages.RegisterNavClass(ViewContext)" onclick="EnsurePreserved(() => { window.location.href = '/Identity/Account/Register' })">Register</a></li>
         }

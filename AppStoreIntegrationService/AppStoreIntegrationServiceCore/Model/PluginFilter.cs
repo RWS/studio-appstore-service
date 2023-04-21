@@ -28,7 +28,7 @@ namespace AppStoreIntegrationServiceCore.Model
         {
             if (status == Status.Active)
             {
-                plugins = plugins.Where(x => x.Status == Status.Active);
+                plugins = plugins.Where(x => x.Status == Status.Active && x.Versions.Any(x => x.VersionStatus == Status.Active));
                 foreach (var plugin in plugins)
                 {
                     plugin.Versions = plugin.Versions.Where(v => v.VersionStatus == Status.Active).ToList();

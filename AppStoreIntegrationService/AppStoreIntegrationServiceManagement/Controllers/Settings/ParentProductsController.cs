@@ -10,7 +10,7 @@ namespace AppStoreIntegrationServiceManagement.Controllers.Settings
     [Authorize]
     [DBSynched]
     [AccountSelect]
-    [RoleAuthorize("SystemAdministrator")]
+    [RoleAuthorize("System Administrator")]
     public class ParentProductsController : Controller
     {
         private readonly IProductsRepository _productsRepository;
